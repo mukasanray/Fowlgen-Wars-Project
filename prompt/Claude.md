@@ -41,7 +41,6 @@ Considere os seguintes arquivos como fontes de design, planejamento, processo ou
 - [`🐔 Fwolgen-Wars - Frases-de-Combate.md`](skills/%F0%9F%90%94%20Fwolgen-Wars%20-%20Frases-de-Combate.md): referência de tom e falas; aplicar apenas quando a tarefa envolver texto/áudio do jogo.
 - [`Fowlgen-Wars-Guia-Completo-Detalhado.md`](skills/Fowlgen-Wars-Guia-Completo-Detalhado.md): setup documentado de Solana, Rust e Anchor. Verifique versões e instruções oficiais antes de executá-las.
 - [`Fowlgen-Wars-Guia-Setup-Contrato-Repositorio.md`](skills/Fowlgen-Wars-Guia-Setup-Contrato-Repositorio.md): guia prático de compilação, testes, sincronização de chaves e deploy na Devnet do smart contract Anchor a partir da pasta `program/` do repositório.
-- [`Fowlgen-Wars-Roadmap-de-Pocs-alterada.md`](skills/Fowlgen-Wars-Roadmap-de-Pocs-alterada.md) e [`Fowlgen-Wars-Roadmap-de-Pocs-sem-modificacao copy.md`](skills/Fowlgen-Wars-Roadmap-de-Pocs-sem-modificacao%20copy.md): versões de roadmap com diferenças; não misture as duas. Há divergência sobre plataforma de build (Web/WebGL ou Android), que exige confirmação para tarefas de plataforma. O roadmap [`Fowlgen-Wars-Roadmap-de-Pocs.md`](skills/Fowlgen-Wars-Roadmap-de-Pocs.md) é a versão definida pelo usuário para integrar as POCs FishNet.
 - [`Integracao-Solana-tokens-NFTs-Unity-Publicacao-Dapps-Store.md`](skills/Integracao-Solana-tokens-NFTs-Unity-Publicacao-Dapps-Store.md): arquitetura híbrida e estudo de ativos on-chain, Unity SDK e publicação futura.
 - [`Exemplos-Modelo-Adaptado-Fowlgen-wars-do-Game-Seven-Seas.md`](skills/Exemplos-Modelo-Adaptado-Fowlgen-wars-do-Game-Seven-Seas.md): referência conceitual para separar gameplay e ativos; não copiar implementação nem tratar propostas futuras como escopo aprovado.
 - [`Fowlgen-Wars-Pesquisa-Captacao-Recursos-2026-v1.md`](skills/Fowlgen-Wars-Pesquisa-Captacao-Recursos-2026-v1.md): pesquisa de captação, editais, publishers e validação; não é especificação de gameplay.
@@ -52,13 +51,15 @@ Considere os seguintes arquivos como fontes de design, planejamento, processo ou
 - [`Fowlgen-Wars-Conceitos-de-Logotipo.md`](skills/Fowlgen-Wars-Conceitos-de-Logotipo.md): conceitos de logotipo, identidade visual da marca (estilos épico, cartoon, minimalista, pixel e identidade recomendada), sistema de logos e frase conceitual.
 - [`Fowlgen-Wars-Guia-MCP-Unity-Metaplex-Antigravity.md`](skills/Fowlgen-Wars-Guia-MCP-Unity-Metaplex-Antigravity.md): guia de configuração de MCP Servers, Skills e Agents para Unity (ivanmurzak/unity-mcp e Unity AI Assistant) e Metaplex Core na IDE Antigravity.
 - [`🐔 Fowlgen-Wars-Sistema-de-Nivelamento-Proporcional.md`](skills/%F0%9F%90%94%20Fowlgen-Wars-Sistema-de-Nivelamento-Proporcional.md): sistema de nivelamento proporcional e normalização automática em partidas competitivas; separação estrita entre progressão de conta e poder de combate, garantindo fair play e proteção anti-pay-to-win.
+- [`fowlgen-wars-regras-hackathon-2026.md`](skills/fowlgen-wars-regras-hackathon-2026.md): regras oficiais, critérios de avaliação, requisitos de submissão e checklist operacional do Colosseum Global Hackathon 2026 e Trilha Brasil (Superteam Brasil).
+- [`metaplex/SKILL.md`](../.agents/skills/metaplex/SKILL.md): skill do ecossistema Metaplex na pasta `.agents/skills/metaplex/SKILL.md`; referência oficial para criação de coleções Metaplex Core, NFTs, Bubblegum (compressed NFTs), Candy Machine, Token Metadata e comandos da CLI `mplx`.
 
 O PDF `files/pdf/Site Fowlgenwars.pdf` é uma referência visual disponível no workspace. Consulte-o quando a tarefa envolver o site ou apresentação visual; não infira conteúdo que não possa ser lido/confirmado.
 
 ## Divergências conhecidas
 
 - Os documentos históricos da Sprint 01 e relatórios anteriores registram estruturas antigas de equipe. A composição oficial da Fase 2 está consolidada em [`Fowlgen-Wars-Estrutura-da-Equipe-Planejamento-kanban-Fase2.md`](files/Fowlgen-Wars-Estrutura-da-Equipe-Planejamento-kanban-Fase2.md) com 6 integrantes ativos (Samuel, Marcos, Alexandre, Emanoel, Junior e Maria Clara).
-- As duas versões do roadmap de POCs divergem em plataforma e estrutura técnica. A instrução do prompt de apresentação para ignorar a versão alterada aplica-se somente àquele relatório; para implementação, o Product Owner deve confirmar qual roadmap está ativo.
+- O roadmap canônico oficial do projeto é [`Fowlgen-Wars-Roadmap-de-Pocs.md`](skills/Fowlgen-Wars-Roadmap-de-Pocs.md), que integra as POCs FishNet. Versões antigas divergentes (`alterada` e `sem-modificacao copy`) foram descontinuadas do índice.
 - A Sprint 01 relata falhas de QA em movimentação, colisão, UI e áudio, enquanto outros documentos descrevem sistemas mais amplos. Não considere esses sistemas validados sem nova evidência no projeto atual.
 
 ## Decisões técnicas e limites
