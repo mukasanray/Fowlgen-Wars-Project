@@ -38,6 +38,7 @@ Considere os seguintes arquivos como fontes de design, planejamento, processo ou
 - [`🐔 Fowlgen-wars- Sistema-de-cores-essencias-e-classificacao.md`](skills/%F0%9F%90%94%20Fowlgen-wars-%20Sistema-de-cores-essencias-e-classificacao.md): identidade visual e distinção entre essência, classe, função e raridade; não inferir poder a partir de cor/raridade.
 - [`🐔 Hierarquia-de-Personagens.md`](skills/%F0%9F%90%94%20Hierarquia-de-Personagens.md): separação entre rota, função/classe, espécie, clã/civilização e tema.
 - [`Fowlgen-Camada-Estrategica-Inspirada-No-Xadrez.md`](skills/Fowlgen-Camada-Estrategica-Inspirada-No-Xadrez.md): propostas de estratégia e mapa; confirmar escopo antes de implementar.
+- [`Fowlgen-Wars-Sistema-de-Taticas-de-Batalha.md`](skills/Fowlgen-Wars-Sistema-de-Taticas-de-Batalha.md): sistema tático do jogo unindo tomada de decisão inspirada no xadrez (controle de centro, garfo, cravada, espeto, sacrifício, tempo e Galinheiro como Rei) à ação rápida de Mini-MOBA.
 - [`Fowlgen-Sistema-de-Armadilhas-Personalizadas.md`](skills/Fowlgen-Sistema-de-Armadilhas-Personalizadas.md): conceito de armadilhas e personalização; não presumir que faça parte do MVP.
 - [`🐔 Sistema-de-Recompensas.md`](skills/%F0%9F%90%94%20Sistema-de%20recompensas.md): ideias de progressão/recompensas; valores e economia ainda dependem de validação.
 - [`🐔Sistema-Padrao-de-criatividadee-e-Design.md`](skills/%F0%9F%90%94Sistema-Padrao-de-criatividadee-e-Design.md): uso responsável de IA, originalidade e registro do processo criativo.
