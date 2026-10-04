@@ -24,7 +24,7 @@ Este documento compila as regras oficiais, critérios de avaliação, requisitos
    * O trabalho submetido deve refletir desenvolvimento ativo durante o ciclo do hackathon, comprovado pelo histórico de commits no repositório.
 3. **Membros da Equipe:**
    * Cada participante só pode fazer parte de **uma única equipe** submetida.
-   * Todos os integrantes ativos (G5B Studios: Samuel, Marcos, Alexandre, Emanoel, Junior, Maria Clara, Ramiro) devem ter perfil cadastrado na plataforma Colosseum e na Superteam.
+   * Todos os integrantes ativos (G5B Studios: Samuel, Marcos, Manuel, Jorge, Junior, Maria Clara, Ramiro) devem ter perfil cadastrado na plataforma Colosseum e na Superteam.
 4. **Respeito à Propriedade Intelectual e Segurança:**
    * É estritamente proibido incluir chaves privadas (*private keys*) ou frases de recuperação (*seed phrases*) no repositório, histórico Git ou vídeos.
    * Todo código proprietário e ativos de terceiros devem respeitar licenças legais de uso.
