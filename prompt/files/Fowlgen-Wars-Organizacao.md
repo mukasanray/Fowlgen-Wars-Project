@@ -6,81 +6,91 @@ Documento oficial de organização do projeto **Fowlgen Wars**, desenvolvido pel
 
 ## 👥 1. Integrantes Ativos e Divisão de Papéis
 
-### 👑 Samuel Menon Ramos — Product Owner (PO) & Game Designer
-* **Escopo**: Visão macro do produto, direção criativa, Game Design Document (GDD) e decisões de mecânicas (partidas de 3 minutos, sistema de bombas e Galinheiro, 4 rotas, economia e balanceamento).
-* **Atividades**: Gestão de entregas e submissões nos hackathons (*Colosseum* e *Superteam*), coordenação da transição da marca (**Fowlgen Wars / G5B Studios**) e validação final de conteúdos e artes.
+### 👑 Samuel Menon Ramos — Product Owner (PO), Game Designer & Gestor do Kanban
+* **Escopo**: Visão macro do produto, direção criativa, Game Design Document (GDD), decisões de mecânicas (partidas de 3 minutos, sistema de bombas e Galinheiro, 3 rotas, economia, balanceamento e nivelamento proporcional anti-P2W) e gestão do Kanban.
+* **Atividades**: Centralização do quadro Kanban e priorização no GitHub Projects, coordenação com Ramiro para apresentações a investidores, validação final de critérios de aceite e governança da marca (**Fowlgen Wars / G5B Studios**).
 
-### 💻 Marcos — Líder Técnico / Dev Unity & Web3
-* **Escopo**: Arquitetura técnica na Unity Engine e integração com a blockchain Solana.
-* **Atividades**: Desenvolvimento de smart contracts em Rust via Anchor Framework, configuração de PDAs (Program Derived Addresses) para atributos dos personagens, contratos de NFTs, geração de builds (APK Android / Web) e gravações de entregas técnicas.
+### 💻 Marcos — Líder Técnico / Dev Core Unity & Web3
+* **Escopo**: Arquitetura geral técnica, desenvolvimento core na Unity Engine (C#), condução da **camada Off-chain** (FishNet, multiplayer em tempo real) e **ajuste do time de desenvolvimento**.
+* **Atividades**: Liderança técnica de software; orquestração da **camada Off-chain** (Dedicated Server FishNet, física server-authoritative e sincronização de combate em tempo real sem latência de blockchain); arquitetura de smart contracts em Rust via Anchor Framework em conjunto com Jorge; **ajuste e orientação técnica contínua do time de desenvolvimento** (Manuel, Jorge e Junior), code reviews e validação de builds (APK Android / WebGL).
 
-### ⚙️ Vyctor Rodrigues — Scrum Master / Dev Web & Backend
-* **Escopo**: Gestão ágil do projeto (Sprints e quadro Kanban no GitHub Projects), alinhamento da equipe e relatórios semanais.
-* **Atividades**: Desenvolvimento e hospedagem do site oficial Web3 (com integração à carteira Phantom via Vercel/Cloudflare), criação de scripts C# para mecânicas da Unity e centralização do backlog de tarefas.
+### 🕹️ Manuel — Desenvolvedor Unity / Gameplay Core
+* **Escopo**: Desenvolvimento direto de gameplay na Unity (C#), atuando na pasta `unity/` em colaboração direta com Marcos.
+* **Atividades**: Implementação de movimentação de personagens, física e colisões, arremesso e área de impacto das bombas, IA de minions por waypoints, conexão de botões do HUD e integração de efeitos sonoros (SFX/BGM) no motor.
 
-### 🎨 Sthefany — Artista 2D / UI/UX / Gestão de Mídias Sociais
-* **Escopo**: Identidade visual, pranchas conceituais dos 4 personagens do MVP (Tanque, Atirador, Mago, Caçador), turnarounds e vistas de referência para modelagem/Unity, telas e HUDs no Figma.
-* **Atividades**: Administração das redes sociais oficiais (Instagram, YouTube, TikTok, Facebook), criação de thumbnails/conteúdos e gestão do cofre central de senhas no Bitwarden.
+### 🛡️ Jorge Espindola — DevSecOps Engineer & Cloud/Web3 Solutions Architect
+* **Escopo**: Ajuda o Marcos no desenvolvimento **Anchor Web 3**, além de assumir **Áudio**, **Documentação Técnica** e DevSecOps/AppSec.
+* **Atividades**: Atuação na pasta `program/` ajudando Marcos no desenvolvimento de smart contracts Anchor em Rust e Solana MCPs; implementação e integração do **Áudio** do jogo na Unity (SFX de combate, bombas, passos, UI e mixers de som); elaboração e manutenção da **Documentação Técnica** de infraestrutura e arquitetura; pipelines de CI/CD no GitHub Actions (`anchor-ci.yml`), anti-leak de segredos com Gitleaks/TruffleHog e container Docker headless para o servidor FishNet.
 
-### 🧪 Maria Clara — QA / Apoio em Narrativa & Áudio
-* **Escopo**: Organização e transcrição do enredo/lore oficial (*A Grande Mutação / Ordem vs. Caos*), tabela de essências e cores dos personagens, e plano de testes (QA).
-* **Atividades**: Pesquisa e levantamento de referências de áudios/dublagens cômicas regionais (mineirês, nordestino, carioca, etc.) e execução de rotinas de verificação de qualidade do jogo.
+### 🌐 Junior — Desenvolvedor Web (Node.js / React / TS) & Gestor de Documentação/Prompts
+* **Escopo**: Substituto de Vyctor Rodrigues no desenvolvimento Web; responsável pelo site oficial e pela ponte de documentação/prompts.
+* **Atividades**: Atuação na pasta `app/` desenvolvendo o site oficial e interface Web3 (Node.js, React, TypeScript, integração Phantom/Solflare). Atuação na pasta `prompt/skills/` coletando direcionamentos e prompts do Samuel, convertendo-os em Markdown (`.md`) e verificando com o `Claude.md` para evitar divergências conceituais.
 
-> **Nota de Alinhamento**: Os ex-integrantes Pedro Vinícius e Rafael foram desligados da equipe ativa, e suas atribuições foram redistribuídas entre o Scrum Master e a equipe de QA/Narrativa.
+### 🧪 Maria Clara — QA Funcional & Coerência Narrativa / Lore
+* **Escopo**: Qualidade da experiência do usuário (UX Testing), testes funcionais de gameplay e coerência da narrativa.
+* **Atividades**: Testes contínuos de fluxo de jogo, ergonomia de controles mobile e regras de combate; gestão do lore oficial (*A Era Passada*), revisão de textos, diálogos, frases de combate e fichas dos personagens.
+
+### 📈 Ramiro — Marketing Estratégico, Captação & Relações com Investidores
+* **Escopo**: Envelopamento comercial do game, posicionamento de mercado e atração de investidores e publishers.
+* **Atividades**: Estruturação do One-Pager Executivo e do Pitch Deck oficial (8 a 12 slides). Defesa da tese "Fun-First", fair play sem Pay-to-Win, arquitetura híbrida (Unity/FishNet off-chain e Solana/Anchor on-chain) e posicionamento na Solana Mobile DApp Store (Saga e Seeker).
+
+> **Nota de Alinhamento**: Alexandre e Vyctor Rodrigues foram desligados da equipe ativa. Suas atribuições foram redistribuídas entre Jorge Espindola (Web3, DevSecOps, Infra), Manuel (Dev Unity), Junior (Dev Web e Markdown Prompts e Site) e Samuel Menon (Kanban).
 
 ---
 
 ## 🧩 2. Gargalos e Pontos de Organização
 
-1. **Homologação e Padronização da Marca**:
-   * O nome oficial está definitivo: **Fowlgen Wars** (marca-mãe: **G5B Studios**).
-   * **Ação**: Concluir a atualização do novo nome em todas as redes sociais, site, GitHub e formulários de cadastro do Colosseum/Superteam.
+1. **Gestão do Kanban e Backlog (Samuel)**:
+   * **Ação**: O PO Samuel assume a centralização dos cards e priorização direta no GitHub Projects, garantindo que toda demanda siga o fluxo `Backlog → Ready → In Progress → Review → QA → Done`.
 
-2. **Briefings Fechados para Arte**:
-   * **Ação**: Adotar obrigatoriamente a ficha técnica de briefing antes de cada criação visual da Sthefany, evitando retrabalhos por mudanças de escopo no meio do desenvolvimento.
+2. **Esteira de Prompts e Coerência Documental (Junior & Samuel)**:
+   * **Ação**: Junior coleta os direcionamentos de Samuel, converte para Markdown e valida com `Claude.md` antes de consolidar em `prompt/skills/`, assegurando ausência de conflitos conceituais.
 
-3. **Validação do Protótipo Jogável na Unity**:
-   * **Ação**: Implementar e validar os scripts C# pendentes de movimentação, sistema de colisão, física de lançamento de bombas, interatividade dos botões de UI e emissão de efeitos sonoros.
+3. **Blindagem e DevSecOps (Jorge)**:
+   * **Ação**: Implementação imediata de verificação Gitleaks e CI/CD para Anchor (`cargo test`, `clippy`, `audit`), além do Dockerfile do servidor FishNet.
 
-4. **Centralização de Demandas no GitHub**:
-   * **Ação**: O Scrum Master (Vyctor) deve converter todas as solicitações e ideias levantadas no WhatsApp em *Issues/Cards* no GitHub Projects, mantendo o hábito dos relatórios individuais aos sábados.
+4. **Validação do Protótipo Jogável na Unity (Marcos & Manuel)**:
+   * **Ação**: Foco total na resolução dos testes pendentes da Sprint 01 (movimentação, colisões, física de bombas, HUD e áudio) para entrega do MVP jogável.
 
-5. **Formalização Jurídica Interna**:
-   * **Ação**: Coleta das assinaturas dos integrantes na Ficha Técnica de Confidencialidade e Participação para resguardar a propriedade intelectual do estúdio.
+5. **Apresentação e Pitch Deck para Investidores (Ramiro & Samuel)**:
+   * **Ação**: Consolidação do One-Pager e Pitch Deck para captação de recursos e hackathons.
 
 ---
 
-## 📋 3. Quadro Kanban do Projeto
+## 📋 3. Quadro Kanban do Projeto (Fase 2)
 
-### 📥 Backlog Geral (Futuras Sprints)
-- [ ] **[Game Design]** Detalhamento dos mapas secundários (múltiplas rotas e selva).
-- [ ] **[Dev/Web3]** Sistema de marketplace para negociação de NFTs (skins e cosméticos).
-- [ ] **[Áudio/QA]** Gravação e implementação final das dublagens cômicas regionais.
-- [ ] **[Comercial]** Mapeamento de editais de fomento (Sebrae Games, ProAC) e produtos licenciados.
+### 📥 Backlog Geral (Futuras Fases)
+- [ ] **[Game Design]** Detalhamento de mapas secundários e novas arenas.
+- [ ] **[Web3/Dev]** Marketplace completo e coleções em Mainnet.
+- [ ] **[Áudio/Dublagem]** Gravação final de dublagens regionais completas.
+- [ ] **[Comercial]** Rodadas de captação e submissão em editais globais.
 
 ### 📌 Sprint Atual (Ready / A Iniciar)
-- [ ] **[Unity]** Testar script C# de movimentação básica do personagem na cena.
-- [ ] **[Unity]** Implementar e validar o sistema de colisão e física de bombas.
-- [ ] **[Unity]** Conectar botões da interface (HUD) com os eventos e ações do jogo.
-- [ ] **[UI/UX]** Fechar o briefing padronizado dos 4 personagens do MVP (Léo, Sophie, Mago, Atirador).
-- [ ] **[Narrativa/QA]** Concluir a transcrição do capítulo 1 da história oficial no Google Docs.
+- [ ] **[Unity]** Movimentação de unidades por waypoints e toque (Manuel / Marcos).
+- [ ] **[Unity]** Sistema de colisão com cenário e física de bombas (Manuel / Marcos).
+- [ ] **[Unity]** Conexão dos botões de habilidade no HUD (Manuel / Marcos).
+- [ ] **[DevSecOps]** Configurar Gitleaks e CI/CD do Anchor no GitHub Actions (Jorge).
+- [ ] **[DevSecOps]** Dockerfile headless Linux para Dedicated Server FishNet (Jorge).
+- [ ] **[Web/Front]** Refinamento do site e conexão com Phantom Wallet na pasta `app/` (Junior).
+- [ ] **[Documentação]** Padronização e checagem de prompts Markdown com Claude.md (Junior).
+- [ ] **[Marketing/Pitch]** One-Pager Executivo e Pitch Deck de 8 a 12 slides (Ramiro / Samuel).
+- [ ] **[QA Funcional]** Checklist de testes da Fase 2 e homologação de gameplay (Maria Clara).
 
 ### 🔨 Em Desenvolvimento (In Progress)
-- [/] **[Web3/Dev]** Conexão do programa Anchor/Rust (PDAs de atributos dos personagens) com a Unity.
-- [/] **[Web/Front]** Ajustes de responsividade mobile e tutoriais de onboarding no site Web3.
-- [/] **[Arte 2D]** Finalização das vistas neutras e turnarounds das 4 classes do MVP.
-- [/] **[Gestão]** Estruturação das Sprints e atualização contínua do quadro Kanban no GitHub.
+- [/] **[Unity]** Loop de combate de 3 minutos na arena de 3 rotas (Marcos / Manuel).
+- [/] **[Web3/Anchor]** Instruções do contrato Anchor e sincronização de IDL (Marcos / Jorge).
+- [/] **[Threat Modeling]** Arquitetura híbrida com validação de partidas pelo servidor (Jorge / Marcos).
+- [/] **[Site]** Interface web responsiva em Node.js / React / TS (Junior).
 
 ### 🔎 Em Teste / Revisão (Review)
-- [/] **[Vídeos/Hackathon]** Revisão dos vídeos de entregas técnicas para atualização de links nas plataformas.
-- [/] **[Redes Sociais]** Padronização das mídias sociais oficiais com a marca **Fowlgen Wars / G5B Studios**.
+- [/] **[AppSec]** Auditoria de `.gitignore` e blindagem de segredos (Jorge).
+- [/] **[QA UX]** Bateria de testes de usabilidade e ergonomia touch (Maria Clara).
 
 ### ✅ Concluído (Done)
-- [x] Batida de martelo e homologação do nome **Fowlgen Wars** e do estúdio **G5B Studios**.
-- [x] POC de conexão da Solana Devnet com o SDK da Unity.
-- [x] Lançamento da versão inicial do site Web3 com integração à carteira Phantom.
-- [x] Centralização das credenciais e senhas das redes sociais no Bitwarden.
-- [x] Elaboração da Ficha Técnica de Confidencialidade e Participação.
+- [x] Homologação oficial da marca **Fowlgen Wars** e estúdio **G5B Studios**.
+- [x] Contrato Anchor funcional na Solana Devnet com testes automatizados passando 100% (LiteSVM).
+- [x] Conexão Solana Unity SDK e leitura de IDL na Devnet.
+- [x] Reestruturação da equipe ativa da Fase 2 e alinhamento do Kanban.
 
 ---
 

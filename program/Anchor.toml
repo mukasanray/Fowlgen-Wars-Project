@@ -8,11 +8,11 @@ skip-lint = false
 
 # Bloco para a Localnet (Padrão atual de desenvolvimento)
 [programs.localnet]
-fowlgen_wars_contract = "11111111111111111111111111111111"
+fowlgen_wars_contract = "7R1dYUC8UpEttgRdDqvczi4yMCJumVF43QjVPGAthk8R"
 
 # Bloco para a Devnet (Testes on-chain públicos)
 [programs.devnet]
-fowlgen_wars_contract = "11111111111111111111111111111111"
+fowlgen_wars_contract = "7R1dYUC8UpEttgRdDqvczi4yMCJumVF43QjVPGAthk8R"
 
 # Bloco para a Mainnet-beta (Comentado para publicação futura)
 # [programs.mainnet]
