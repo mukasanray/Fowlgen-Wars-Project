@@ -1,0 +1,166 @@
+---
+name: metaplex
+description: Metaplex development on Solana — NFTs, tokens, compressed NFTs, candy machines, token launches, autonomous agents. Use when working with Token Metadata, Core, Bubblegum, Candy Machine, Genesis, Agent Registry, or the mplx CLI.
+license: Apache-2.0
+metadata:
+  author: metaplex-foundation
+  version: "0.4.0"
+  openclaw: {"emoji":"💎","os":["darwin","linux","win32"],"requires":{"bins":["node"]},"homepage":"https://metaplex.com/docs"}
+---
+
+# Metaplex Development Skill
+
+## Overview
+
+Metaplex provides the standard infrastructure for NFTs and tokens on Solana:
+- **Agent Registry**: On-chain agent identity, wallets, and execution delegation for MPL Core assets
+- **Genesis**: Token launch protocol with fair distribution + liquidity graduation
+- **Core**: Next-gen NFT standard (recommended for new NFT projects)
+- **Token Metadata**: Fungible tokens + legacy NFTs/pNFTs
+- **Bubblegum**: Compressed NFTs (cNFTs) using Merkle trees — massive scale at minimal cost
+- **Candy Machine**: NFT drops with configurable minting rules
+
+## Tool Selection
+
+> **Prefer CLI over SDK** for direct execution. Use SDK only when user specifically needs code.
+
+| Approach | When to Use |
+|----------|-------------|
+| **CLI (`mplx`)** | Default choice - direct execution, no code needed |
+| **Umi SDK** | User needs code — default SDK choice. Covers all programs (TM, Core, Bubblegum, Genesis) |
+| **Kit SDK** | User specifically uses @solana/kit, or asks for minimal dependencies. Token Metadata only — no Core/Bubblegum/Genesis support |
+
+## Task Router
+
+> **IMPORTANT**: You MUST read the detail file for your task BEFORE executing any command or writing any code. The command syntax, required flags, setup steps, and batching rules are ONLY in the detail files. Do NOT guess commands from memory.
+
+| Task Type | Read This File |
+|-----------|----------------|
+| Any CLI operation (agent guidelines, batching, explorer links) | `./references/cli.md` |
+| CLI: Agent Registry (identity, delegation, revocation, token linking) | `./references/cli.md` + `./references/cli-agent.md` |
+| CLI: Core NFTs/Collections | `./references/cli.md` + `./references/cli-core.md` + `./references/metadata-json.md` |
+| CLI: Token Metadata NFTs | `./references/cli.md` + `./references/cli-token-metadata.md` + `./references/metadata-json.md` |
+| CLI: Compressed NFTs (Bubblegum) | `./references/cli.md` + `./references/cli-bubblegum.md` + `./references/metadata-json.md` |
+| CLI: Candy Machine (NFT drops) | `./references/cli.md` + `./references/cli-candy-machine.md` + `./references/metadata-json.md` |
+| CLI: Token launch / bonding curve (Genesis) | `./references/cli.md` + `./references/cli-genesis.md` |
+| CLI: Execute / asset-signer wallets / agent vault | `./references/cli.md` + `./references/cli-core.md` (execute section) |
+| SDK: Execute / asset-signer PDA / agent vault | `./references/sdk-umi.md` + `./references/sdk-core.md` (execute section) |
+| CLI: Fungible tokens | `./references/cli.md` + `./references/cli-toolbox.md` |
+| SDK setup (Umi) | `./references/sdk-umi.md` |
+| SDK: Core NFTs | `./references/sdk-umi.md` + `./references/sdk-core.md` + `./references/metadata-json.md` |
+| SDK: DAS API (asset queries, Core listing helpers) | `./references/sdk-umi.md` + `./references/sdk-das.md` |
+| SDK: Token Metadata | `./references/sdk-umi.md` + `./references/sdk-token-metadata.md` + `./references/metadata-json.md` |
+| SDK: Compressed NFTs (Bubblegum) | `./references/sdk-umi.md` + `./references/sdk-bubblegum.md` + `./references/metadata-json.md` |
+| SDK: Token Metadata with Kit | `./references/sdk-token-metadata-kit.md` + `./references/metadata-json.md` |
+| SDK: Agent Registry (identity, wallets, delegation) | `./references/sdk-umi.md` + `./references/sdk-agent.md` |
+| SDK: Token launch + bonding curve swaps (Genesis) | `./references/sdk-umi.md` + `./references/sdk-genesis.md` |
+| SDK: Low-level Genesis (custom buckets, presale, vesting) | `./references/sdk-umi.md` + `./references/sdk-genesis-low-level.md` |
+| Off-chain metadata JSON format/schema (NFT or token) | `./references/metadata-json.md` |
+| Account structures, PDAs, concepts | `./references/concepts.md` |
+| CLI errors, localnet issues | `./references/cli-troubleshooting.md` |
+
+## CLI Capabilities
+
+The `mplx` CLI can handle most Metaplex operations directly. **Read `./references/cli.md` for agent guidelines (batching, JSON output, explorer links), then the program-specific file.**
+
+> **CLI v0.1.0 breaking changes** (for agents/scripts migrating from older versions):
+> - `--json <file>` (used to pass an offchain metadata file path) is now `--offchain <file>`. `--json` is now the standard OCLIF flag for machine-readable output.
+> - All commands now return structured JSON when `--json` is passed — use this for programmatic/agent use.
+
+| Task | CLI Support |
+|------|-------------|
+| Register agent identity | ✅ |
+| Fetch agent data | ✅ |
+| Revoke execution delegation | ✅ |
+| Set agent token (Genesis link) | ✅ (requires asset-signer mode) |
+| Create fungible token | ✅ |
+| Create Core NFT/Collection | ✅ |
+| Create TM NFT/pNFT | ✅ |
+| Transfer TM NFTs | ✅ |
+| Transfer fungible tokens | ✅ |
+| Transfer Core NFTs | ✅ |
+| Upload to Irys | ✅ |
+| Candy Machine drop | ✅ (setup/config/insert — minting requires SDK) |
+| Compressed NFTs (cNFTs) | ✅ (batch limit ~100, use SDK for larger) |
+| Execute (asset-signer wallets) | ✅ |
+| Check SOL balance / Airdrop | ✅ |
+| Query assets by owner/collection/group | ❌ SDK only (DAS API — see `./references/sdk-das.md`) |
+| Token launch (Genesis) | ✅ |
+| Bonding curve swap (Genesis) | ✅ |
+
+## Program IDs
+
+> **Do not retype these from memory — copy them.** Base58 program IDs are high-entropy strings, and even when the source text is read correctly, models frequently drift a few characters into an invented-but-plausible address instead of reproducing it verbatim (measured against this exact block, including on Claude Sonnet 5). A wrong flag fails loudly; a wrong program ID sends a transaction to an address that doesn't exist, or to a different real program. When you need one of these IDs: grep/cat it out of this file and copy it verbatim rather than retyping from memory. When writing SDK code, prefer importing the constant instead of hardcoding the literal at all — e.g. `MPL_CORE_PROGRAM_ID` from `@metaplex-foundation/mpl-core`, `MPL_BUBBLEGUM_PROGRAM_ID` from `@metaplex-foundation/mpl-bubblegum`, `MPL_TOKEN_METADATA_PROGRAM_ID` from `@metaplex-foundation/mpl-token-metadata` — an imported constant cannot be hallucinated.
+
+```
+Agent Identity:  1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p
+Agent Tools:     TLREGni9ZEyGC3vnPZtqUh95xQ8oPqJSvNjvB7FGK8S
+Genesis:         GNS1S5J5AspKXgpjz6SvKL66kPaKWAhaGRhCqPRxii2B
+Core:            CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d
+Token Metadata:  metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s
+Bubblegum:       BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY
+Core Candy:      CMACYFENjoBMHzapRXyo1JZkVS6EtaDDzkjMrmQLvr4J
+MPL Account Compression:  mcmt6YrQEMKw8Mw43FmpRLmf7BqRnFMKmAcbxE3xkAW
+SPL Account Compression:  cmtDvXumGCrqC1Age74AVPhSRVXJMd8PJS91L8KbNCK
+```
+
+> A Bubblegum merkle tree created by the current CLI/SDK (V2 instructions — `mintV2`, `transferV2`, `createTreeConfigV2`, etc.) is owned by **MPL Account Compression**, not SPL. The V1 instruction set (`mintV1`, `transfer`, `createTreeConfig`, etc.) still uses **SPL Account Compression**. Check which program actually owns a given tree before assuming — don't default to SPL.
+
+## Quick Decision Guide
+
+### Autonomous Agents
+
+Use **Agent Registry** to register on-chain identity and execution delegation for MPL Core assets. The **Mint Agent API** (`mintAndSubmitAgent`) is the recommended path — it creates the Core asset and registers identity in a single transaction. For existing assets, use `registerIdentityV1` directly. Any Core asset already has a built-in wallet (Asset Signer PDA) via Core's Execute hook — the registry adds discoverable identity records and lets owners delegate an off-chain executive to operate the agent. Agents can optionally link a Genesis token via `setAgentTokenV1`. Discover agents via DAS (`searchAssets({ isAgent: true })` — see `./references/sdk-das.md`). Read `./references/cli-agent.md` (CLI) or `./references/sdk-umi.md` + `./references/sdk-agent.md` (SDK).
+
+### Token Launches (Token Generation Event / Fair Launch / Bonding Curve)
+
+Use **Genesis**. The **Launch API** (`genesis launch create` / `createAndRegisterLaunch`) is recommended — it handles everything in one step. Two launch types:
+- **`launchpool`** (default): Configurable allocations, 48h deposit, team vesting support
+- **`bonding-curve`**: Instant bonding curve (constant product AMM) — no deposit window, trading starts immediately, auto-graduates to Raydium CPMM on sell-out. Supports creator fees, first buy, and agent mode.
+
+Read `./references/cli.md` + `./references/cli-genesis.md` (CLI) or `./references/sdk-genesis.md` (SDK launch flow). For custom buckets/presale/vesting, use `./references/sdk-genesis-low-level.md`.
+
+### NFTs: Core vs Token Metadata
+
+| Choose | When |
+|--------|------|
+| **Core** | New NFT projects, lower cost (87% cheaper), plugins, royalty enforcement |
+| **Token Metadata** | Existing TM collections, need editions, pNFTs for legacy compatibility |
+
+### Compressed NFTs (Massive Scale)
+
+Use **Bubblegum** when minting thousands+ of NFTs at minimal cost. See `./references/cli-bubblegum.md` (CLI) or `./references/sdk-bubblegum.md` (SDK). For Bubblegum V2 inherited seller fees (`65535` sentinel + Core collection Royalties plugin): CLI mint flags are in `./references/cli-bubblegum.md`. SDK: mint with `mintV2` `metadata` (omit SFBP, empty creators); writes use leaf-canonical `getAssetWithProof().currentMetadata` — as `currentMetadata` on `updateMetadataV2`, as `metadata` on `setCollectionV2` / `verifyCreatorV2` / `unverifyCreatorV2`. See `./references/sdk-bubblegum.md` "Mint with Inherited Royalties".
+
+### Fungible Tokens
+
+Always use **Token Metadata**. Read `./references/cli-toolbox.md` for CLI commands.
+
+### NFT Drops
+
+Use **Core Candy Machine**. Read `./references/cli.md` + `./references/cli-candy-machine.md`.
+
+### App Mints into a Core Collection WITHOUT Candy Machine
+
+Creating an asset into a Core collection requires the collection's update authority (or an `UpdateDelegate`) to sign — a user's wallet can't, and the authority key must never be in a frontend. The app needs either a custom on-chain program (PDA granted `UpdateDelegate`, mint logic in the program) or a backend/API holding a delegate keypair that signs mints. Read the "Minting into a Collection from an App" section in `./references/sdk-core.md` before designing the minting flow.
+
+### Asset as Agent / Vault / Wallet (Execute)
+
+Use **Core Execute** when an asset (NFT, agent, vault) needs to hold SOL/tokens, transfer funds, sign transactions, or own other assets. Every Core asset has a signer PDA that can act as an autonomous wallet. Read `./references/cli-core.md` (CLI) or `./references/sdk-core.md` (SDK), execute section.
+
+## For more info
+
+When a task needs deeper detail than the skill references provide (edge cases, full API surfaces, guides), consult the Metaplex docs:
+
+- Documentation home: https://metaplex.com/docs
+- Agent Registry: https://metaplex.com/docs/agents
+- Genesis: https://metaplex.com/docs/smart-contracts/genesis
+- Core: https://metaplex.com/docs/smart-contracts/core
+- Token Metadata: https://metaplex.com/docs/smart-contracts/token-metadata
+- Bubblegum: https://metaplex.com/docs/smart-contracts/bubblegum-v2
+- Candy Machine: https://metaplex.com/docs/smart-contracts/core-candy-machine
+- Tokens: https://metaplex.com/docs/tokens
+- NFTs: https://metaplex.com/docs/nfts
+- CLI: https://metaplex.com/docs/dev-tools/cli
+- Umi SDK: https://metaplex.com/docs/dev-tools/umi
+- DAS API: https://metaplex.com/docs/dev-tools/das-api
+- Protocol fees: https://metaplex.com/docs/protocol-fees
