@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.firstgeargames.fishnet": "https://github.com/FirstGearGames/FishNet.git?path=Assets/FishNet",
     "com.solana.unity_sdk": "https://github.com/magicblock-labs/Solana.Unity-SDK.git",
     "com.unity.ai.assistant": "2.19.0-pre.2",
     "com.unity.ai.inference": "2.6.1",
