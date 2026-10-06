@@ -1,0 +1,96 @@
+newmtl Cloth_Blue
+Kd 0.109804 0.247059 0.560784
+Ka 0.06 0.06 0.06
+Ks 0.12 0.12 0.12
+Ns 18
+d 1
+illum 2
+
+newmtl Shield_Blue
+Kd 0.184314 0.435294 0.815686
+Ka 0.06 0.06 0.06
+Ks 0.12 0.12 0.12
+Ns 18
+d 1
+illum 2
+
+newmtl Gold
+Kd 0.831373 0.647059 0.227451
+Ka 0.06 0.06 0.06
+Ks 0.65 0.65 0.65
+Ns 90
+d 1
+illum 2
+
+newmtl Steel
+Kd 0.486275 0.498039 0.533333
+Ka 0.06 0.06 0.06
+Ks 0.65 0.65 0.65
+Ns 90
+d 1
+illum 2
+
+newmtl Leather
+Kd 0.419608 0.247059 0.133333
+Ka 0.06 0.06 0.06
+Ks 0.12 0.12 0.12
+Ns 18
+d 1
+illum 2
+
+newmtl Feathers
+Kd 0.949020 0.921569 0.866667
+Ka 0.06 0.06 0.06
+Ks 0.12 0.12 0.12
+Ns 18
+d 1
+illum 2
+
+newmtl Red
+Kd 0.784314 0.125490 0.164706
+Ka 0.06 0.06 0.06
+Ks 0.12 0.12 0.12
+Ns 18
+d 1
+illum 2
+
+newmtl Beak
+Kd 0.909804 0.721569 0.188235
+Ka 0.06 0.06 0.06
+Ks 0.65 0.65 0.65
+Ns 90
+d 1
+illum 2
+
+newmtl Navy
+Kd 0.082353 0.133333 0.223529
+Ka 0.06 0.06 0.06
+Ks 0.12 0.12 0.12
+Ns 18
+d 1
+illum 2
+
+newmtl Dark_Leather
+Kd 0.200000 0.137255 0.113725
+Ka 0.06 0.06 0.06
+Ks 0.12 0.12 0.12
+Ns 18
+d 1
+illum 2
+
+newmtl Eye_White
+Kd 1.000000 0.956863 0.850980
+Ka 0.06 0.06 0.06
+Ks 0.12 0.12 0.12
+Ns 18
+d 1
+illum 2
+
+newmtl Pupil
+Kd 0.090196 0.058824 0.074510
+Ka 0.06 0.06 0.06
+Ks 0.12 0.12 0.12
+Ns 18
+d 1
+illum 2
+
