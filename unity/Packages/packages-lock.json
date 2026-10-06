@@ -1,5 +1,18 @@
 {
   "dependencies": {
+    "com.atteneder.gltfast": {
+      "version": "https://github.com/atteneder/glTFast.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0",
+        "com.unity.mathematics": "1.3.3",
+        "com.unity.burst": "1.8.30",
+        "com.unity.collections": "2.6.8"
+      },
+      "hash": "7e778180c5fe0e284eee505e7275b2d91d9a1566"
+    },
     "com.firstgeargames.fishnet": {
       "version": "https://github.com/FirstGearGames/FishNet.git?path=Assets/FishNet",
       "depth": 0,
@@ -15,6 +28,17 @@
         "com.unity.modules.ui": "1.0.0"
       },
       "hash": "7c4a6448d48ed65b154ebd5615c86fb9001da1cf"
+    },
+    "com.ivanmurzak.unity.mcp": {
+      "version": "https://github.com/IvanMurzak/Unity-MCP.git?path=Unity-MCP-Plugin/Packages/com.ivanmurzak.unity.mcp",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.test-framework": "1.1.33",
+        "com.unity.modules.uielements": "1.0.0",
+        "extensions.unity.playerprefsex": "2.1.5"
+      },
+      "hash": "4c8056fc698853d48b125546fe09189b8213fbaa"
     },
     "com.solana.unity_sdk": {
       "version": "file:com.solana.unity_sdk",
@@ -310,6 +334,13 @@
         "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.com"
+    },
+    "extensions.unity.playerprefsex": {
+      "version": "2.1.5",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
