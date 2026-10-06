@@ -30,11 +30,11 @@ public class SolanaReward : MonoBehaviour
             Data = new byte[] { 0x0b, 0x0f, 0x5a, 0x5d, 0x1c, 0xc1, 0x3d, 0x3e } 
         };
 
-        var blockhash = await Web3.Rpc.GetLatestBlockhashAsync();
+        var blockhash = await Web3.Rpc.GetLatestBlockHashAsync();
         var tx = new Transaction
         {
             FeePayer = wallet.Account.PublicKey,
-            Instructions = new[] { incrementIx },
+            Instructions = new System.Collections.Generic.List<TransactionInstruction> { incrementIx },
             RecentBlockHash = blockhash.Result.Value.Blockhash
         };
 

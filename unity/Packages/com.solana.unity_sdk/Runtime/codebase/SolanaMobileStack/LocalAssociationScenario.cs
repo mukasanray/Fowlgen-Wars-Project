@@ -1,0 +1,373 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using NativeWebSocket;
+using Newtonsoft.Json;
+using Solana.Unity.SDK;
+using UnityEngine;
+using Random = UnityEngine.Random;
+using WebSocket = NativeWebSocket.WebSocket;
+using WebSocketState = NativeWebSocket.WebSocketState;
+
+// ReSharper disable once CheckNamespace
+
+public class LocalAssociationScenario : IDisposable
+{
+    private readonly TimeSpan _overallTimeout = TimeSpan.FromSeconds(30);
+    private readonly TimeSpan _keyExchangeTimeout = TimeSpan.FromSeconds(20);
+
+    private readonly AndroidJavaObject _currentActivity = GetCurrentActivity();
+    private readonly int _port = RandomPort();
+    private readonly MobileWalletAdapterSession _session = new();
+    private readonly string _targetPackage;
+    private IWebSocket _webSocket;
+    private MobileWalletAdapterClient _client;
+
+
+    private bool _isConnecting;
+    private bool _disposed;
+
+    private TaskCompletionSource<bool> _wsConnected;
+    private TaskCompletionSource<Response<object>> _responseTcs;
+    private TaskCompletionSource<Response<object>> _tcs;
+    private CancellationToken _cancellationToken;
+    private CancellationTokenSource _runCts;
+    private bool _seenFocusLossAfterLaunch;
+    private bool _focusReturnedBeforeConnect;
+
+    public LocalAssociationScenario(string targetPackage = null)
+    {
+        _targetPackage = targetPackage;
+    }
+
+    private static AndroidJavaObject GetCurrentActivity()
+    {
+        var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        return unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+    }
+
+    public async Task<Response<object>> StartAndExecute(List<Action<IAdapterOperations>> actions,
+        CancellationToken ct = default)
+    {
+        if (actions == null || actions.Count == 0)
+            throw new ArgumentException("Actions required");
+
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        _runCts = cts;
+        _runCts.CancelAfter(_overallTimeout);
+
+        _cancellationToken = _runCts.Token;
+        _tcs = new TaskCompletionSource<Response<object>>();
+        _seenFocusLossAfterLaunch = false;
+        _focusReturnedBeforeConnect = false;
+        Application.focusChanged += OnApplicationFocusChanged;
+
+        StartActivityForAssociation(_session.AssociationToken, _port);
+
+        Debug.Log("[MWA] Waiting for websocket connection");
+        await Task.Run(async () =>
+        {
+            try
+            {
+                Debug.Log("[MWA Connect Thread] Started");
+                _isConnecting = true;
+            
+                await ConnectWithBackoffAsync();
+            
+                Debug.Log("[MWA Connect Thread] Completed");
+                _isConnecting = false;
+
+                var helloReq = _session.CreateHelloReq();
+                await _webSocket.Send(helloReq);
+
+                Debug.Log("[MWA] Hello sent. Waiting for pubkey...");
+
+                await WaitForKeyExchangeAsync(cts.Token);
+
+                Debug.Log("[MWA] Pubkey received, session is encrypted");
+            
+                var queue = new Queue<Action<IAdapterOperations>>(actions);
+                Response<object> lastResponse = null;
+
+                while (queue.Count > 0)
+                {
+                    _responseTcs = new TaskCompletionSource<Response<object>>();
+                
+                    var action = queue.Dequeue();
+                    Debug.Log($"[MWA] Invoking action {action.Method.Name}");
+                    action.Invoke(_client);
+                
+                    lastResponse = await AwaitWithCancellation(_responseTcs.Task, _cancellationToken);
+                    _responseTcs = null;
+
+                    _cancellationToken.ThrowIfCancellationRequested();
+                }
+
+                _tcs.TrySetResult(lastResponse ?? new Response<object>());
+            }
+            catch (OperationCanceledException)
+            {
+                var msg = _focusReturnedBeforeConnect
+                    ? "Association aborted: returned to app before wallet websocket connected"
+                    : "Timeout or cancelled";
+                _tcs.TrySetResult(new Response<object>
+                {
+                    Error = new Response<object>.ResponseError { Message = msg } 
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.Log($"[MWA] Association failed: {ex}");
+                _tcs.TrySetException(ex);
+            }
+            finally
+            {
+                await CleanupAsync();
+            }
+        }, _runCts.Token);
+        
+        return await _tcs.Task;
+    }
+
+    private void OnApplicationFocusChanged(bool hasFocus)
+    {
+        if (!hasFocus)
+        {
+            _seenFocusLossAfterLaunch = true;
+            return;
+        }
+
+        if (!_seenFocusLossAfterLaunch)
+        {
+            return;
+        }
+
+        if (_isConnecting && (_webSocket == null || _webSocket.State != WebSocketState.Open))
+        {
+            _focusReturnedBeforeConnect = true;
+            Debug.LogWarning("[MWA] Focus returned before WS connected; aborting association attempt early.");
+            _runCts?.Cancel();
+        }
+    }
+
+    private static int RandomPort()
+    {
+        return Random.Range(WebSocketsTransportContract.WebsocketsLocalPortMin,
+            WebSocketsTransportContract.WebsocketsLocalPortMax + 1);
+    }
+
+    private static IWebSocket CreateWebSocket(int port)
+    {
+        var webSocketUri = WebSocketsTransportContract.WebsocketsLocalScheme + "://" +
+                           WebSocketsTransportContract.WebsocketsLocalHost + ":" + port +
+                           WebSocketsTransportContract.WebsocketsLocalPath;
+        
+        Debug.Log($"[MWA] Websocket created with URI {webSocketUri}");
+        return WebSocket.Create(webSocketUri, WebSocketsTransportContract.WebsocketsProtocol);
+    }
+
+    private void StartActivityForAssociation(string associationToken, int port)
+    {
+        var intent = LocalAssociationIntentCreator.CreateAssociationIntent(
+            associationToken, port, _targetPackage);
+
+        if (string.IsNullOrEmpty(_targetPackage))
+        {
+            // No cache = OS chooser + capture picked package(EXTRA_CHOSEN_COMPONENT)
+            MwaNativeChooser.LaunchWithChooser(_currentActivity, intent, "Connect wallet");
+            Debug.Log($"[MWA] Launched chooser intent for port {port}");
+        }
+        else
+        {
+            _currentActivity.Call("startActivityForResult", intent, 0);
+            Debug.Log($"[MWA] Launched intent for port {port} targeting {_targetPackage}");
+        }
+    }
+
+    private async Task ConnectWithBackoffAsync()
+    {
+        const int maxAttempts = 12;
+        const int delayStart = 400;
+        const int delayCap = 3000;
+
+        var attempt = 0;
+        var delayMs = delayStart;
+
+        // Short delay to give wallet time to start websocket
+        await Task.Delay(500, _cancellationToken);
+
+        do
+        {
+            if (_webSocket != null)
+            {
+                _webSocket.OnOpen -= OnWsOpen;
+                _webSocket.OnError -= OnWsError;
+                _webSocket.OnClose -= OnWsClose;
+                _webSocket.OnMessage -= OnWsMessage;
+                _webSocket = null;
+            }
+        
+            _webSocket = CreateWebSocket(_port);
+            _webSocket.OnOpen += OnWsOpen;
+            _webSocket.OnError += OnWsError;
+            _webSocket.OnClose += OnWsClose;
+            _webSocket.OnMessage += OnWsMessage;
+            
+            var startTime = DateTime.UtcNow;
+            _wsConnected = new TaskCompletionSource<bool>();
+            
+            attempt++;
+            Debug.Log($"[MWA] Connect attempt {attempt}, state: {_webSocket.State}");
+            _webSocket.Connect();
+            
+            var success = await AwaitWithCancellation(_wsConnected.Task, _cancellationToken);
+            Debug.Log($"[MWA] Connect attempt {attempt} result, state: {_webSocket.State}");
+            
+            if (success)
+                return;
+            
+            var duration = (int)(DateTime.UtcNow - startTime).TotalMilliseconds;
+            if (duration < delayMs)
+            {
+                await Task.Delay(delayMs - duration, _cancellationToken);
+            }
+            
+            delayMs = Math.Min(delayMs * 2, delayCap);
+            
+        } while (_webSocket.State != WebSocketState.Open && !_cancellationToken.IsCancellationRequested &&
+                 attempt < maxAttempts);
+
+        throw new TimeoutException("[MWA] WebSocket connect timed out after max attempts");
+    }
+
+    private void OnWsOpen()
+    {
+        Debug.Log("[MWA] WS Opened");
+
+        if (_isConnecting)
+        {
+            _wsConnected.TrySetResult(true);
+        }
+    }
+
+    private void OnWsClose(WebSocketCloseCode closeCode)
+    {
+        Debug.Log($"[MWA] WS Closed: {closeCode}");
+
+        if (_isConnecting)
+        {
+            _wsConnected?.TrySetResult(false);
+            return;
+        }
+
+        if (closeCode == WebSocketCloseCode.Normal)
+            return;
+
+        var exc = new Exception($"[MWA] WS closed unexpectedly: {closeCode}");
+        _responseTcs?.TrySetException(exc);
+        _tcs?.TrySetException(exc);
+    }
+
+    private void OnWsError(string message)
+    {
+        if (_isConnecting)
+        {
+            _wsConnected?.TrySetResult(false);
+        }
+        else
+        {
+            var exc = new Exception($"[MWA] WS error: {message}");
+            _responseTcs?.TrySetException(exc);
+            _tcs?.TrySetException(exc);
+        }
+    }
+
+    private void OnWsMessage(byte[] bytes)
+    {
+        try
+        {
+            // First message expected: raw pubkey for ECDH
+            if (_client == null)
+            {
+                _session.GenerateSessionEcdhSecret(bytes);
+                var messageSender = new MobileWalletAdapterWebSocket(_webSocket, _session);
+                _client = new MobileWalletAdapterClient(messageSender);
+
+                Debug.Log("[MWA] Key exchange complete → encrypted session ready");
+            }
+            // All other should be encrypted messages
+            else
+            {
+                var decrypted = _session.DecryptSessionPayload(bytes);
+                var json = System.Text.Encoding.UTF8.GetString(decrypted);
+                _client.Receive(json);
+
+                Debug.Log($"[MWA] Received encrypted message");
+
+                var response = JsonConvert.DeserializeObject<Response<object>>(json);
+                _responseTcs.TrySetResult(response);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.Log($"[MWA] Message handler error: {ex}");
+            _responseTcs?.TrySetException(ex);
+            _tcs?.TrySetException(ex);
+            _wsConnected?.TrySetException(ex);
+        }
+    }
+
+    private static async Task<T> AwaitWithCancellation<T>(Task<T> task, CancellationToken ct)
+    {
+        var cancelTcs = new TaskCompletionSource<bool>();
+        using (ct.Register(() => cancelTcs.TrySetResult(true)))
+        {
+            if (await Task.WhenAny(task, cancelTcs.Task) != task)
+                throw new OperationCanceledException(ct);
+        }
+        return await task;
+    }
+
+    private Task WaitForKeyExchangeAsync(CancellationToken ct)
+    {
+        return Task.Run(async () =>
+        {
+            var start = DateTime.UtcNow;
+            while (_client == null)
+            {
+                if (ct.IsCancellationRequested || DateTime.UtcNow - start > _keyExchangeTimeout)
+                    throw new TimeoutException("[MWA] Key exchange timed out");
+
+                await Task.Delay(200, ct);
+            }
+        }, ct);
+    }
+
+    private async Task CleanupAsync()
+    {
+        Application.focusChanged -= OnApplicationFocusChanged;
+
+        if (_webSocket is { State: WebSocketState.Open })
+            await _webSocket.Close();
+
+        if (_webSocket != null)
+        {
+            _webSocket.OnOpen -= OnWsOpen;
+            _webSocket.OnMessage -= OnWsMessage;
+            _webSocket.OnError -= OnWsError;
+            _webSocket.OnClose -= OnWsClose;
+            _webSocket = null;
+        }
+        
+        _client = null;
+        _runCts = null;
+        _disposed = true;
+    }
+
+    void IDisposable.Dispose()
+    {
+        if (_disposed) return;
+        _ = CleanupAsync();
+    }
+}

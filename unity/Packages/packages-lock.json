@@ -17,14 +17,13 @@
       "hash": "7c4a6448d48ed65b154ebd5615c86fb9001da1cf"
     },
     "com.solana.unity_sdk": {
-      "version": "https://github.com/magicblock-labs/Solana.Unity-SDK.git",
+      "version": "file:com.solana.unity_sdk",
       "depth": 0,
-      "source": "git",
+      "source": "embedded",
       "dependencies": {
         "com.unity.nuget.newtonsoft-json": "3.0.2",
         "com.unity.textmeshpro": "3.0.6"
-      },
-      "hash": "bd0d30f648ed2368c0775e8c2eecd578eb6e4999"
+      }
     },
     "com.unity.2d.sprite": {
       "version": "1.0.0",

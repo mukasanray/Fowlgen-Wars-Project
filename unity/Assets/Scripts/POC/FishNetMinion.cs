@@ -15,7 +15,7 @@ public class FishNetMinion : NetworkBehaviour
 
     private void Update()
     {
-        if (IsServer)
+        if (IsServerInitialized)
         {
             // Server moves the minion; NetworkTransform syncs it to clients
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
