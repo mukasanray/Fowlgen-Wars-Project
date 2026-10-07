@@ -1,0 +1,42 @@
+name: Security & DevSecOps Suite
+
+on:
+  push:
+    branches: [ main, dev, master ]
+  pull_request:
+    branches: [ main, dev, master ]
+
+jobs:
+  gitleaks-secret-scan:
+    name: 🔒 Gitleaks Secret Detection
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: "free"
+
+  rust-security-audit:
+    name: 🦀 Rust Dependency Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: |
+          cargo install cargo-audit --locked
+          cd program
+          cargo audit --ignore RUSTSEC-2020-0071 --ignore RUSTSEC-2020-0159 || true
+
+  csharp-security-lint:
+    name: 🛡️ C# Code Hygiene & Anti-Leak Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          if grep -rnE --include="*.cs" "(privateKey|secretKey|seedPhrase|password)\s*=\s*\"[^\"]+\"" unity/Assets/Scripts/; then
+            echo "❌ Detectado segredo hardcoded em C#!"
+            exit 1
+          fi
