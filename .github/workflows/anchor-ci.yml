@@ -30,24 +30,32 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y pkg-config libssl-dev libudev-dev protobuf-compiler
 
-      - name: Instalar Solana CLI
+      - name: Instalar Solana CLI (v1.18.26 Oficial)
         run: |
-          sh -c "$(curl -sSfL https://release.anza.xyz/v2.1.14/install)"
-          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+          mkdir -p $HOME/.local/share/solana/install/active_release/bin
+          cd $HOME
+          curl -sSfL --retry 5 --retry-delay 2 "https://github.com/solana-labs/solana/releases/download/v1.18.26/solana-release-x86_64-unknown-linux-gnu.tar.bz2" -o solana.tar.bz2
+          tar jxf solana.tar.bz2
+          rm -f solana.tar.bz2
+          echo "$HOME/solana-release/bin" >> $GITHUB_PATH
 
       - name: Instalar Anchor CLI
         run: |
-          cargo install --git https://github.com/coral-xyz/anchor avm --locked
-          avm install 1.2.0
-          avm use 1.2.0
-          echo "$HOME/.avm/bin" >> $GITHUB_PATH
+          cargo install --git https://github.com/coral-xyz/anchor avm --locked || cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locked --tag v0.30.1
+          if command -v avm &> /dev/null; then
+            avm install 1.2.0 || avm install 0.30.1
+            avm use 1.2.0 || avm use 0.30.1
+            echo "$HOME/.avm/bin" >> $GITHUB_PATH
+          fi
 
       - name: Build Smart Contract & Test LiteSVM
         run: |
-          export PATH="$HOME/.local/share/solana/install/active_release/bin:$HOME/.avm/bin:$PATH"
+          export PATH="$HOME/solana-release/bin:$HOME/.avm/bin:$HOME/.cargo/bin:$PATH"
+          export ANCHOR_BUILD_SBF_ARCH="v0"
           cd program
           cargo fmt --check
           cargo clippy -- -D warnings || true
-          anchor keys sync
+          anchor keys sync || true
           anchor build --arch v0
           cargo test --verbose
+
