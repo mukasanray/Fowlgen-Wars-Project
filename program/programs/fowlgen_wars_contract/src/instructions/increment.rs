@@ -21,6 +21,9 @@ pub fn handle_increment(ctx: Context<Increment>) -> Result<()> {
     );
 
     ctx.accounts.counter.count += 1;
-    msg!("Hello, world! Counter is now {}", ctx.accounts.counter.count);
+    msg!(
+        "Hello, world! Counter is now {}",
+        ctx.accounts.counter.count
+    );
     Ok(())
 }

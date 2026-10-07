@@ -6,23 +6,15 @@ skip_local_validator = true
 resolution = true
 skip-lint = false
 
-# Bloco para a Localnet (Padrão atual de desenvolvimento)
-[programs.localnet]
-fowlgen_wars_contract = "7R1dYUC8UpEttgRdDqvczi4yMCJumVF43QjVPGAthk8R"
-
-# Bloco para a Devnet (Testes on-chain públicos)
 [programs.devnet]
 fowlgen_wars_contract = "7R1dYUC8UpEttgRdDqvczi4yMCJumVF43QjVPGAthk8R"
 
-# Bloco para a Mainnet-beta (Comentado para publicação futura)
-# [programs.mainnet]
-# fowlgen_wars_contract = "11111111111111111111111111111111"
+[programs.localnet]
+fowlgen_wars_contract = "3rY4XRj5VyBurJKwDLCeN6qR9tv7Yp7i9nVcCBnUMZqB"
 
-# Provedor e cluster ativo
 [provider]
-cluster = "localnet" # Opções: "localnet", "devnet" ou "mainnet" (produção)
+cluster = "localnet"
 wallet = "~/.config/solana/id.json"
-# wallet = "~/.config/solana/mainnet_deployer.json" # Carteira com fundos reais para Mainnet
 
 [scripts]
 test = "cargo test"
