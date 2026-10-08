@@ -7,10 +7,10 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-fowlgen_wars_contract = "7R1dYUC8UpEttgRdDqvczi4yMCJumVF43QjVPGAthk8R"
+fowlgen_wars_contract = "81MprTi78xQvtVg9aaK4s4Cw9K62CU6PtcPYsChLNyxE"
 
 [programs.localnet]
-fowlgen_wars_contract = "3rY4XRj5VyBurJKwDLCeN6qR9tv7Yp7i9nVcCBnUMZqB"
+fowlgen_wars_contract = "7DaWGDQjEjJuUbejsNoqwy63m55p1rQ9UgMYrdsRxZ2U"
 
 [provider]
 cluster = "localnet"

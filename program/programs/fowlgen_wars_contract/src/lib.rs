@@ -9,17 +9,21 @@ pub use constants::*;
 pub use instructions::*;
 pub use state::*;
 
-declare_id!("3rY4XRj5VyBurJKwDLCeN6qR9tv7Yp7i9nVcCBnUMZqB");
+declare_id!("7DaWGDQjEjJuUbejsNoqwy63m55p1rQ9UgMYrdsRxZ2U");
 
 #[program]
 pub mod fowlgen_wars_contract {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        crate::instructions::initialize::handle_initialize(ctx)
+    pub fn initialize_game_config(ctx: Context<InitializeGameConfig>, server_authority: Pubkey) -> Result<()> {
+        crate::instructions::initialize_game_config::handle_initialize_game_config(ctx, server_authority)
     }
 
-    pub fn increment(ctx: Context<Increment>) -> Result<()> {
-        crate::instructions::increment::handle_increment(ctx)
+    pub fn initialize_player(ctx: Context<InitializePlayer>) -> Result<()> {
+        crate::instructions::initialize_player::handle_initialize_player(ctx)
+    }
+
+    pub fn claim_reward(ctx: Context<ClaimReward>, xp_gained: u64, is_win: bool) -> Result<()> {
+        crate::instructions::claim_reward::handle_claim_reward(ctx, xp_gained, is_win)
     }
 }
