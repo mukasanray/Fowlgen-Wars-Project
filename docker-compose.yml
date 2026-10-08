@@ -11,5 +11,17 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  fowlgen_server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fowlgen_server
+    depends_on:
+      - postgres
+    ports:
+      - "7770:7770/udp"
+      - "7770:7770/tcp"
+    restart: unless-stopped
+
 volumes:
   postgres_data:

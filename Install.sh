@@ -4,7 +4,7 @@
 # ==============================================================================
 # Repositório Oficial: https://github.com/mukasanray/Fowlgen-Wars-Project.git
 # Comportamento:
-#   [1] Primeira Instalação: Fluxo clássico completo (1/8 a 8/8) com resumo final
+#   [1] Primeira Instalação: Fluxo clássico completo com resumo final
 #   [2] Atualização de Ambiente & Recompilação do Contrato
 #   [3] Deploy / Atualizar Smart Contract (Localnet / Devnet / Mainnet)
 #   [4] Gerenciar Carteiras (Criar, Recuperar, Consultar Saldos, Airdrop)
@@ -12,6 +12,7 @@
 #   [6] Executar Testes Automatizados (Anchor / Cargo)
 #   [7] Diagnóstico do Ambiente (Health Check)
 #   [8] Gerenciar Validador Local (solana-test-validator)
+#   [9] Gerenciar Servidor FishNet (Docker)
 # ==============================================================================
 
 # Paleta de Cores para o Terminal
@@ -75,17 +76,24 @@ obter_carteira_configurada() {
 }
 
 # ==============================================================================
-# 1. PRIMEIRA INSTALAÇÃO (Fluxo Original Completo de 1/8 a 8/8)
+# 1. PRIMEIRA INSTALAÇÃO (Fluxo Original Completo)
 # ==============================================================================
 func_primeira_instalacao() {
     banner
-    echo -e "${CYAN}${BOLD}Iniciando a Primeira Instalação Completa do Ambiente On-Chain...${NC}\n"
+    echo -e "${CYAN}${BOLD}Iniciando a Primeira Instalação Completa do Ambiente On-Chain e Off-Chain...${NC}\n"
 
-    # 1. Dependências Base do Sistema Operacional (Ubuntu/Debian)
-    echo -e "\n${BLUE}${BOLD}[1/8] Instalando dependências e compiladores essenciais do Linux...${NC}"
+    # 1. Dependências Base do Sistema Operacional e Docker
+    echo -e "\n${BLUE}${BOLD}[1/8] Instalando dependências essenciais do Linux e Docker...${NC}"
     sudo apt update && sudo apt upgrade -y
     sudo apt install -y build-essential pkg-config libssl-dev libudev-dev \
                         libclang-dev protobuf-compiler git curl wget tar bzip2
+
+    echo -e "${YELLOW}Configurando Docker e Docker Compose (Fase 1 e Fase 3)...${NC}"
+    sudo apt-get update && sudo apt-get install -y docker.io docker-compose
+    sudo usermod -aG docker $USER
+    if [ -f "$CURRENT_EXEC_DIR/docker-compose.yml" ]; then
+        docker-compose -f "$CURRENT_EXEC_DIR/docker-compose.yml" up -d || true
+    fi
 
     # 2. Criar Pasta 'fowlgenwars' e Baixar a Pasta /program do Repositório
     echo -e "\n${BLUE}${BOLD}[2/8] Configurando pasta 'fowlgenwars' no local de execução...${NC}"
@@ -798,6 +806,17 @@ func_diagnostico_healthcheck() {
         echo -e "  • solana-test-validator: [${YELLOW}PARADO${NC}]"
     fi
 
+    echo -e "\n${CYAN}${BOLD}Status do Servidor FishNet (Docker):${NC}"
+    if command -v docker &>/dev/null; then
+        if docker ps --format '{{.Names}}' | grep -q "fowlgen_server"; then
+            echo -e "  • fowlgen_server: [${GREEN}EM EXECUÇÃO${NC}]"
+        else
+            echo -e "  • fowlgen_server: [${YELLOW}PARADO${NC}]"
+        fi
+    else
+        echo -e "  • Docker: [${RED}NÃO INSTALADO${NC}]"
+    fi
+
     pausar
 }
 
@@ -858,13 +877,70 @@ func_validador_local() {
 }
 
 # ==============================================================================
+# 9. GERENCIADOR DO SERVIDOR FISHNET (DOCKER)
+# ==============================================================================
+func_servidor_fishnet() {
+    banner
+    echo -e "${BLUE}${BOLD}>>> [9] Gerenciar Servidor FishNet (Docker / Fase 3)${NC}\n"
+
+    echo "Opções:"
+    echo -e "  ${BOLD}[1]${NC} Fazer Build da Imagem Docker (fowlgen-server)"
+    echo -e "  ${BOLD}[2]${NC} Iniciar Serviços (docker-compose up -d)"
+    echo -e "  ${BOLD}[3]${NC} Parar Serviços (docker-compose down)"
+    echo -e "  ${BOLD}[4]${NC} Ver Logs do Servidor (Tempo Real)"
+    echo -e "  ${BOLD}[0]${NC} Voltar ao menu principal"
+    echo ""
+    read -rp "Opção [0-4]: " FISH_OPT
+
+    local DOCKER_DIR="$BASE_DIR"
+    case "$FISH_OPT" in
+        1)
+            echo -e "${YELLOW}Iniciando Build da imagem Docker (fowlgen-server)...${NC}"
+            if [ -f "$DOCKER_DIR/docker-compose.yml" ]; then
+                cd "$DOCKER_DIR" && docker-compose build
+                echo -e "${GREEN}✓ Build concluído!${NC}"
+            else
+                echo -e "${RED}Erro: docker-compose.yml não encontrado em ${DOCKER_DIR}.${NC}"
+            fi
+            ;;
+        2)
+            echo -e "${YELLOW}Iniciando Servidor Dedicado via Docker Compose...${NC}"
+            if [ -f "$DOCKER_DIR/docker-compose.yml" ]; then
+                cd "$DOCKER_DIR" && docker-compose up -d
+                echo -e "${GREEN}✓ Serviços iniciados! Use a opção 4 para ver os logs.${NC}"
+            else
+                echo -e "${RED}Erro: docker-compose.yml não encontrado em ${DOCKER_DIR}.${NC}"
+            fi
+            ;;
+        3)
+            echo -e "${YELLOW}Parando Servidor Dedicado e DB...${NC}"
+            if [ -f "$DOCKER_DIR/docker-compose.yml" ]; then
+                cd "$DOCKER_DIR" && docker-compose down
+                echo -e "${GREEN}✓ Serviços finalizados.${NC}"
+            else
+                echo -e "${RED}Erro: docker-compose.yml não encontrado em ${DOCKER_DIR}.${NC}"
+            fi
+            ;;
+        4)
+            echo -e "${CYAN}Mostrando logs do docker-compose (Pressione CTRL+C para sair):${NC}"
+            if [ -f "$DOCKER_DIR/docker-compose.yml" ]; then
+                cd "$DOCKER_DIR" && docker-compose logs -f
+            fi
+            ;;
+        0) return ;;
+        *) echo -e "${RED}Opção inválida.${NC}" ;;
+    esac
+    pausar
+}
+
+# ==============================================================================
 # MENU PRINCIPAL INTERATIVO
 # ==============================================================================
 main_menu() {
     while true; do
         banner
         echo -e "${CYAN}${BOLD}MENU PRINCIPAL:${NC}"
-        echo -e "  ${BOLD}[1]${NC} 🚀 Primeira Instalação (Fluxo Completo Original 1/8 a 8/8)"
+        echo -e "  ${BOLD}[1]${NC} 🚀 Primeira Instalação (Fluxo Completo Original e Docker)"
         echo -e "  ${BOLD}[2]${NC} 🔄 Atualizar Ambiente & Recompilar Contrato"
         echo -e "  ${BOLD}[3]${NC} 📦 Deploy / Atualizar Smart Contract (Localnet / Devnet / Mainnet)"
         echo -e "  ${BOLD}[4]${NC} 👛 Gerenciar Carteiras (Criar, Recuperar, Consultar Saldos, Airdrop)"
@@ -872,9 +948,10 @@ main_menu() {
         echo -e "  ${BOLD}[6]${NC} 🧪 Executar Testes Automatizados (Anchor / Cargo)"
         echo -e "  ${BOLD}[7]${NC} 🩺 Diagnóstico do Ambiente (Health Check)"
         echo -e "  ${BOLD}[8]${NC} ⚙️  Gerenciar Validador Local (solana-test-validator)"
+        echo -e "  ${BOLD}[9]${NC} 🐳 Gerenciar Servidor FishNet (Docker)"
         echo -e "  ${BOLD}[0]${NC} ❌ Sair"
         echo "------------------------------------------------------------------"
-        read -rp "Selecione uma opção [0-8]: " MAIN_OPT
+        read -rp "Selecione uma opção [0-9]: " MAIN_OPT
 
         case "$MAIN_OPT" in
             1) func_primeira_instalacao ;;
@@ -885,12 +962,13 @@ main_menu() {
             6) func_executar_testes ;;
             7) func_diagnostico_healthcheck ;;
             8) func_validador_local ;;
+            9) func_servidor_fishnet ;;
             0)
                 echo -e "\n${GREEN}Até logo e boas batalhas no FOWLGEN WARS! 🐔⚔️${NC}\n"
                 exit 0
                 ;;
             *)
-                echo -e "\n${RED}Opção inválida. Escolha entre 0 e 8.${NC}"
+                echo -e "\n${RED}Opção inválida. Escolha entre 0 e 9.${NC}"
                 sleep 1.5
                 ;;
         esac
