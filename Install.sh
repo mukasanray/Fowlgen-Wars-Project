@@ -91,32 +91,19 @@ func_primeira_instalacao() {
     echo -e "${YELLOW}Configurando Docker e Docker Compose (Fase 1 e Fase 3)...${NC}"
     sudo apt-get update && sudo apt-get install -y docker.io docker-compose
     sudo usermod -aG docker $USER
-    if [ -f "$CURRENT_EXEC_DIR/docker-compose.yml" ]; then
-        echo -e "\n${CYAN}${BOLD}--- Configuração do Banco de Dados PostgreSQL ---${NC}"
-        read -rp "Digite o USUÁRIO do banco de dados [fowlgen]: " DB_USER
-        DB_USER=${DB_USER:-"fowlgen"}
-        read -rp "Digite a SENHA do banco de dados [fowlgen_password]: " DB_PASS
-        DB_PASS=${DB_PASS:-"fowlgen_password"}
-        read -rp "Digite o NOME do banco de dados [fowlgenwars]: " DB_NAME
-        DB_NAME=${DB_NAME:-"fowlgenwars"}
-        
-        # Salva as credenciais em um arquivo .env para o Docker Compose legado (se aplicável)
-        echo "POSTGRES_USER=$DB_USER" > "$CURRENT_EXEC_DIR/.env"
-        echo "POSTGRES_PASSWORD=$DB_PASS" >> "$CURRENT_EXEC_DIR/.env"
-        echo "POSTGRES_DB=$DB_NAME" >> "$CURRENT_EXEC_DIR/.env"
-        echo -e "${GREEN}✓ Credenciais salvas em .env localmente.${NC}"
-
-        # Injeta as credenciais no Kubernetes via Secrets (Criptografado)
-        if command -v minikube &> /dev/null; then
-            echo -e "${YELLOW}Criando o Secret do PostgreSQL no Kubernetes...${NC}"
-            minikube kubectl -- create secret generic postgres-secret \
-              --from-literal=POSTGRES_USER="$DB_USER" \
-              --from-literal=POSTGRES_PASSWORD="$DB_PASS" \
-              --from-literal=POSTGRES_DB="$DB_NAME" \
-              --dry-run=client -o yaml | minikube kubectl -- apply -f -
-            echo -e "${GREEN}✓ Secret criado com sucesso no Kubernetes!${NC}"
-        fi
-    fi
+    echo -e "\n${CYAN}${BOLD}--- Configuração do Banco de Dados PostgreSQL ---${NC}"
+    read -rp "Digite o USUÁRIO do banco de dados [fowlgen]: " DB_USER
+    DB_USER=${DB_USER:-"fowlgen"}
+    read -rp "Digite a SENHA do banco de dados [fowlgen_password]: " DB_PASS
+    DB_PASS=${DB_PASS:-"fowlgen_password"}
+    read -rp "Digite o NOME do banco de dados [fowlgenwars]: " DB_NAME
+    DB_NAME=${DB_NAME:-"fowlgenwars"}
+    
+    # Salva as credenciais em um arquivo .env para o Docker Compose legado (se aplicável)
+    echo "POSTGRES_USER=$DB_USER" > "$CURRENT_EXEC_DIR/.env"
+    echo "POSTGRES_PASSWORD=$DB_PASS" >> "$CURRENT_EXEC_DIR/.env"
+    echo "POSTGRES_DB=$DB_NAME" >> "$CURRENT_EXEC_DIR/.env"
+    echo -e "${GREEN}✓ Credenciais salvas em .env localmente.${NC}"
 
     echo -e "${YELLOW}Configurando Minikube...${NC}"
     if ! command -v minikube &> /dev/null; then
@@ -125,6 +112,20 @@ func_primeira_instalacao() {
         rm minikube-linux-amd64
     else
         echo -e "${GREEN}✓ Minikube já instalado.${NC}"
+    fi
+
+    echo -e "${YELLOW}Iniciando Minikube...${NC}"
+    minikube start
+
+    # Injeta as credenciais no Kubernetes via Secrets (Criptografado)
+    if command -v minikube &> /dev/null; then
+        echo -e "${YELLOW}Criando o Secret do PostgreSQL no Kubernetes...${NC}"
+        minikube kubectl -- create secret generic postgres-secret \
+          --from-literal=POSTGRES_USER="$DB_USER" \
+          --from-literal=POSTGRES_PASSWORD="$DB_PASS" \
+          --from-literal=POSTGRES_DB="$DB_NAME" \
+          --dry-run=client -o yaml | minikube kubectl -- apply -f -
+        echo -e "${GREEN}✓ Secret criado com sucesso no Kubernetes!${NC}"
     fi
 
     # 2. Criar Pasta 'fowlgenwars' e Baixar a Pasta /program do Repositório
@@ -916,13 +917,16 @@ func_servidor_fishnet() {
     echo -e "${BLUE}${BOLD}>>> [9] Gerenciar Servidor FishNet (Kubernetes / Minikube)${NC}\n"
 
     echo "Opções:"
-    echo -e "  ${BOLD}[1]${NC} Deploy no Minikube (Build da Imagem + Iniciar Pods)"
-    echo -e "  ${BOLD}[2]${NC} Parar Servidor no Minikube (Remover Deploy)"
-    echo -e "  ${BOLD}[3]${NC} Ver Status e IP de Conexão (Minikube)"
-    echo -e "  ${BOLD}[4]${NC} Ver Logs do Servidor no Minikube"
+    echo -e "  ${BOLD}[1]${NC} Iniciar Minikube (minikube start)"
+    echo -e "  ${BOLD}[2]${NC} Parar Minikube (minikube stop)"
+    echo -e "  ${BOLD}[3]${NC} Deploy no Minikube (Build da Imagem + Iniciar Pods)"
+    echo -e "  ${BOLD}[4]${NC} Parar Servidor no Minikube (Remover Deploy)"
+    echo -e "  ${BOLD}[5]${NC} Ver Status e IP de Conexão (Minikube)"
+    echo -e "  ${BOLD}[6]${NC} Ver Logs do Servidor no Minikube"
+    echo -e "  ${BOLD}[7]${NC} Abrir Painel do Minikube (Dashboard)"
     echo -e "  ${BOLD}[0]${NC} Voltar ao menu principal"
     echo ""
-    read -rp "Opção [0-4]: " FISH_OPT
+    read -rp "Opção [0-7]: " FISH_OPT
 
     local DOCKER_DIR="$BASE_DIR"
     local MINIKUBE_BIN="$HOME/.local/bin/minikube"
@@ -932,6 +936,14 @@ func_servidor_fishnet() {
 
     case "$FISH_OPT" in
         1)
+            echo -e "${YELLOW}Iniciando Minikube...${NC}"
+            $MINIKUBE_BIN start
+            ;;
+        2)
+            echo -e "${YELLOW}Parando Minikube...${NC}"
+            $MINIKUBE_BIN stop
+            ;;
+        3)
             echo -e "${YELLOW}Iniciando Deploy no Minikube...${NC}"
             if [ -d "$DOCKER_DIR/k8s" ]; then
                 cd "$DOCKER_DIR"
@@ -939,19 +951,19 @@ func_servidor_fishnet() {
                 $MINIKUBE_BIN image build -t fowlgenwars-server:latest .
                 echo "2. Aplicando configurações Kubernetes (k8s/)..."
                 $MINIKUBE_BIN kubectl -- apply -f k8s/
-                echo -e "${GREEN}✓ Deploy concluído! Verifique o status com a opção 3.${NC}"
+                echo -e "${GREEN}✓ Deploy concluído! Verifique o status com a opção 5.${NC}"
             else
                 echo -e "${RED}Erro: Pasta k8s/ não encontrada em ${DOCKER_DIR}.${NC}"
             fi
             ;;
-        2)
+        4)
             echo -e "${YELLOW}Removendo Deploy do Minikube...${NC}"
             if [ -d "$DOCKER_DIR/k8s" ]; then
                 cd "$DOCKER_DIR" && $MINIKUBE_BIN kubectl -- delete -f k8s/
                 echo -e "${GREEN}✓ Servidor removido do Minikube.${NC}"
             fi
             ;;
-        3)
+        5)
             echo -e "${CYAN}--- Status do Kubernetes ---${NC}"
             $MINIKUBE_BIN kubectl -- get pods
             echo ""
@@ -959,7 +971,7 @@ func_servidor_fishnet() {
             echo -e "\n${GREEN}IP de Conexão do Minikube (para o Client conectar):${NC} ${BOLD}$($MINIKUBE_BIN ip)${NC}"
             echo -e "${YELLOW}Use a porta 30770 no Client para se conectar a este IP.${NC}"
             ;;
-        4)
+        6)
             echo -e "${CYAN}Buscando logs do pod no Minikube (Pressione CTRL+C para sair):${NC}"
             POD_NAME=$($MINIKUBE_BIN kubectl -- get pods -l app=fishnet-server -o jsonpath="{.items[0].metadata.name}")
             if [ -n "$POD_NAME" ]; then
@@ -967,6 +979,10 @@ func_servidor_fishnet() {
             else
                 echo -e "${RED}Nenhum pod fishnet-server encontrado.${NC}"
             fi
+            ;;
+        7)
+            echo -e "${YELLOW}Abrindo o Minikube Dashboard...${NC}"
+            $MINIKUBE_BIN dashboard
             ;;
         0) return ;;
         *) echo -e "${RED}Opção inválida.${NC}" ;;

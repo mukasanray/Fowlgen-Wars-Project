@@ -10,7 +10,7 @@ skip-lint = false
 fowlgen_wars_contract = "81MprTi78xQvtVg9aaK4s4Cw9K62CU6PtcPYsChLNyxE"
 
 [programs.localnet]
-fowlgen_wars_contract = "21hbzmgX9Pucno9P5QgB9MkmxMDWR3Zysju5LTdkTA51"
+fowlgen_wars_contract = "7UYgCSdMd4SVLqVDmZvDbhxs4AV9E2VbgBc2gXJrnD27"
 
 [provider]
 cluster = "localnet"

@@ -201,6 +201,24 @@ UI                        SolanaConfig
 
 ---
 
+## 🛠️ Contribuição / Fluxo de Desenvolvimento
+
+Todo dev deve seguir estas 3 etapas rápidas antes e depois de cada alteração:
+
+### Antes de Commitar (Localmente):
+- Verifique se não há `.env` ou `id.json` no staging: `git status`
+- Rode os testes do contrato: `cd program && cargo test`
+- Rode o linter de boas práticas: `cargo clippy`
+
+### Ao Commitar e Subir (git commit & git push):
+- Suba as alterações para a sua branch/PR.
+
+### No GitHub (Verificação Automática):
+- Os workflows Security Scan e Anchor CI serão acionados automaticamente.
+- O PR só poderá ser mergeado após todos os checks ficarem verdes (✅).
+
+---
+
 ## 🔒 Segurança
 
 - **NUNCA** commitar chaves privadas, seed phrases ou `.env` files
