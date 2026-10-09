@@ -1,10 +1,7 @@
 use anchor_lang::prelude::*;
 
 #[constant]
-pub const COUNTER_SEED: &[u8] = b"counter";
+pub const PLAYER_SEED: &[u8] = b"player";
 
 #[constant]
-pub const HELLO_WORLD_LAMPORTS: u64 = 1;
-
-#[constant]
-pub const MAX_COUNT: u64 = 10;
+pub const GAME_CONFIG_SEED: &[u8] = b"game_config";
