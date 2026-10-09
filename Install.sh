@@ -89,8 +89,9 @@ func_primeira_instalacao() {
                         libclang-dev protobuf-compiler git curl wget tar bzip2
 
     echo -e "${YELLOW}Configurando Docker e Docker Compose (Fase 1 e Fase 3)...${NC}"
-    sudo apt-get update && sudo apt-get install -y docker.io docker-compose
+    sudo apt-get update && sudo apt-get install -y docker.io docker-compose util-linux-extra
     sudo usermod -aG docker $USER
+    newgrp docker
     echo -e "\n${CYAN}${BOLD}--- Configuração do Banco de Dados PostgreSQL ---${NC}"
     read -rp "Digite o USUÁRIO do banco de dados [fowlgen]: " DB_USER
     DB_USER=${DB_USER:-"fowlgen"}
