@@ -1,6 +1,6 @@
-use anchor_lang::prelude::*;
-use crate::state::*;
 use crate::constants::*;
+use crate::state::*;
+use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
 pub struct InitializePlayer<'info> {
@@ -12,10 +12,10 @@ pub struct InitializePlayer<'info> {
         bump
     )]
     pub player: Account<'info, Player>,
-    
+
     #[account(mut)]
     pub player_authority: Signer<'info>,
-    
+
     pub system_program: Program<'info, System>,
 }
 

@@ -15,8 +15,14 @@ declare_id!("7DaWGDQjEjJuUbejsNoqwy63m55p1rQ9UgMYrdsRxZ2U");
 pub mod fowlgen_wars_contract {
     use super::*;
 
-    pub fn initialize_game_config(ctx: Context<InitializeGameConfig>, server_authority: Pubkey) -> Result<()> {
-        crate::instructions::initialize_game_config::handle_initialize_game_config(ctx, server_authority)
+    pub fn initialize_game_config(
+        ctx: Context<InitializeGameConfig>,
+        server_authority: Pubkey,
+    ) -> Result<()> {
+        crate::instructions::initialize_game_config::handle_initialize_game_config(
+            ctx,
+            server_authority,
+        )
     }
 
     pub fn initialize_player(ctx: Context<InitializePlayer>) -> Result<()> {
