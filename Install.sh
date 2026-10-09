@@ -759,9 +759,11 @@ func_executar_testes() {
     echo -e "  ${BOLD}[1]${NC} anchor test (Validador local efêmero gerenciado pelo Anchor)"
     echo -e "  ${BOLD}[2]${NC} anchor test --skip-local-validator (Executa direto no cluster do Anchor.toml)"
     echo -e "  ${BOLD}[3]${NC} cargo test  (Testes unitários puros em Rust)"
+    echo -e "  ${BOLD}[4]${NC} cargo clippy (Linter de boas práticas)"
+    echo -e "  ${BOLD}[5]${NC} Fluxo Pré-Commit (Testes + Clippy)"
     echo -e "  ${BOLD}[0]${NC} Voltar ao menu principal"
     echo ""
-    read -rp "Opção [0-3]: " T_OPT
+    read -rp "Opção [0-5]: " T_OPT
 
     case "$T_OPT" in
         1)
@@ -775,6 +777,40 @@ func_executar_testes() {
         3)
             echo -e "\n${YELLOW}Executando 'cargo test'...${NC}"
             cargo test
+            ;;
+        4)
+            echo -e "\n${YELLOW}Executando 'cargo clippy'...${NC}"
+            cargo clippy
+            ;;
+        5)
+            echo -e "\n${CYAN}Executando Fluxo de Pré-Commit Completo...${NC}"
+            
+            # 1. Verificar staging (Git)
+            echo -e "\n${YELLOW}1. Verificando staging por arquivos sensíveis (.env, id.json)...${NC}"
+            if git status --porcelain | grep -qE "\.env|id\.json"; then
+                echo -e "${RED}⚠️ AVISO: Foram detectados arquivos '.env' ou 'id.json' modificados/na área de stage!${NC}"
+                echo -e "${RED}Remova-os do staging antes de commitar para evitar vazamento de chaves!${NC}"
+            else
+                echo -e "${GREEN}✓ Nenhum '.env' ou 'id.json' detectado. (Segurança OK)${NC}"
+            fi
+            
+            # 2. Rodar testes
+            echo -e "\n${YELLOW}2. Rodando os testes do contrato (cargo test)...${NC}"
+            if cargo test; then
+                echo -e "${GREEN}✓ Testes concluídos com sucesso!${NC}"
+            else
+                echo -e "${RED}❌ Falha nos testes. Corrija o código antes de commitar.${NC}"
+                pausar
+                continue
+            fi
+            
+            # 3. Rodar clippy
+            echo -e "\n${YELLOW}3. Verificando boas práticas (cargo clippy)...${NC}"
+            if cargo clippy; then
+                echo -e "${GREEN}✓ Linter concluído sem erros fatais! (Pronto para commit)${NC}"
+            else
+                echo -e "${RED}❌ Falha no linter. Verifique os avisos acima.${NC}"
+            fi
             ;;
         0) return ;;
         *) echo -e "${RED}Opção inválida.${NC}" ;;
