@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fishnet-server
+  labels:
+    app: fishnet-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fishnet-server
+  template:
+    metadata:
+      labels:
+        app: fishnet-server
+    spec:
+      containers:
+      - name: fishnet-server
+        image: fowlgenwars-server:latest
+        imagePullPolicy: Never # Usa a imagem local do minikube
+        ports:
+        - containerPort: 7770
+          protocol: UDP
+        - containerPort: 7770
+          protocol: TCP

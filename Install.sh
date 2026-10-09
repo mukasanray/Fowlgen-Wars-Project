@@ -92,7 +92,39 @@ func_primeira_instalacao() {
     sudo apt-get update && sudo apt-get install -y docker.io docker-compose
     sudo usermod -aG docker $USER
     if [ -f "$CURRENT_EXEC_DIR/docker-compose.yml" ]; then
-        docker-compose -f "$CURRENT_EXEC_DIR/docker-compose.yml" up -d || true
+        echo -e "\n${CYAN}${BOLD}--- Configuração do Banco de Dados PostgreSQL ---${NC}"
+        read -rp "Digite o USUÁRIO do banco de dados [fowlgen]: " DB_USER
+        DB_USER=${DB_USER:-"fowlgen"}
+        read -rp "Digite a SENHA do banco de dados [fowlgen_password]: " DB_PASS
+        DB_PASS=${DB_PASS:-"fowlgen_password"}
+        read -rp "Digite o NOME do banco de dados [fowlgenwars]: " DB_NAME
+        DB_NAME=${DB_NAME:-"fowlgenwars"}
+        
+        # Salva as credenciais em um arquivo .env para o Docker Compose legado (se aplicável)
+        echo "POSTGRES_USER=$DB_USER" > "$CURRENT_EXEC_DIR/.env"
+        echo "POSTGRES_PASSWORD=$DB_PASS" >> "$CURRENT_EXEC_DIR/.env"
+        echo "POSTGRES_DB=$DB_NAME" >> "$CURRENT_EXEC_DIR/.env"
+        echo -e "${GREEN}✓ Credenciais salvas em .env localmente.${NC}"
+
+        # Injeta as credenciais no Kubernetes via Secrets (Criptografado)
+        if command -v minikube &> /dev/null; then
+            echo -e "${YELLOW}Criando o Secret do PostgreSQL no Kubernetes...${NC}"
+            minikube kubectl -- create secret generic postgres-secret \
+              --from-literal=POSTGRES_USER="$DB_USER" \
+              --from-literal=POSTGRES_PASSWORD="$DB_PASS" \
+              --from-literal=POSTGRES_DB="$DB_NAME" \
+              --dry-run=client -o yaml | minikube kubectl -- apply -f -
+            echo -e "${GREEN}✓ Secret criado com sucesso no Kubernetes!${NC}"
+        fi
+    fi
+
+    echo -e "${YELLOW}Configurando Minikube...${NC}"
+    if ! command -v minikube &> /dev/null; then
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        sudo install minikube-linux-amd64 /usr/local/bin/minikube
+        rm minikube-linux-amd64
+    else
+        echo -e "${GREEN}✓ Minikube já instalado.${NC}"
     fi
 
     # 2. Criar Pasta 'fowlgenwars' e Baixar a Pasta /program do Repositório
@@ -881,50 +913,59 @@ func_validador_local() {
 # ==============================================================================
 func_servidor_fishnet() {
     banner
-    echo -e "${BLUE}${BOLD}>>> [9] Gerenciar Servidor FishNet (Docker / Fase 3)${NC}\n"
+    echo -e "${BLUE}${BOLD}>>> [9] Gerenciar Servidor FishNet (Kubernetes / Minikube)${NC}\n"
 
     echo "Opções:"
-    echo -e "  ${BOLD}[1]${NC} Fazer Build da Imagem Docker (fowlgen-server)"
-    echo -e "  ${BOLD}[2]${NC} Iniciar Serviços (docker-compose up -d)"
-    echo -e "  ${BOLD}[3]${NC} Parar Serviços (docker-compose down)"
-    echo -e "  ${BOLD}[4]${NC} Ver Logs do Servidor (Tempo Real)"
+    echo -e "  ${BOLD}[1]${NC} Deploy no Minikube (Build da Imagem + Iniciar Pods)"
+    echo -e "  ${BOLD}[2]${NC} Parar Servidor no Minikube (Remover Deploy)"
+    echo -e "  ${BOLD}[3]${NC} Ver Status e IP de Conexão (Minikube)"
+    echo -e "  ${BOLD}[4]${NC} Ver Logs do Servidor no Minikube"
     echo -e "  ${BOLD}[0]${NC} Voltar ao menu principal"
     echo ""
     read -rp "Opção [0-4]: " FISH_OPT
 
     local DOCKER_DIR="$BASE_DIR"
+    local MINIKUBE_BIN="$HOME/.local/bin/minikube"
+    if ! command -v "$MINIKUBE_BIN" &> /dev/null; then
+        MINIKUBE_BIN="minikube"
+    fi
+
     case "$FISH_OPT" in
         1)
-            echo -e "${YELLOW}Iniciando Build da imagem Docker (fowlgen-server)...${NC}"
-            if [ -f "$DOCKER_DIR/docker-compose.yml" ]; then
-                cd "$DOCKER_DIR" && docker-compose build
-                echo -e "${GREEN}✓ Build concluído!${NC}"
+            echo -e "${YELLOW}Iniciando Deploy no Minikube...${NC}"
+            if [ -d "$DOCKER_DIR/k8s" ]; then
+                cd "$DOCKER_DIR"
+                echo "1. Compilando imagem dentro do Minikube..."
+                $MINIKUBE_BIN image build -t fowlgenwars-server:latest .
+                echo "2. Aplicando configurações Kubernetes (k8s/)..."
+                $MINIKUBE_BIN kubectl -- apply -f k8s/
+                echo -e "${GREEN}✓ Deploy concluído! Verifique o status com a opção 3.${NC}"
             else
-                echo -e "${RED}Erro: docker-compose.yml não encontrado em ${DOCKER_DIR}.${NC}"
+                echo -e "${RED}Erro: Pasta k8s/ não encontrada em ${DOCKER_DIR}.${NC}"
             fi
             ;;
         2)
-            echo -e "${YELLOW}Iniciando Servidor Dedicado via Docker Compose...${NC}"
-            if [ -f "$DOCKER_DIR/docker-compose.yml" ]; then
-                cd "$DOCKER_DIR" && docker-compose up -d
-                echo -e "${GREEN}✓ Serviços iniciados! Use a opção 4 para ver os logs.${NC}"
-            else
-                echo -e "${RED}Erro: docker-compose.yml não encontrado em ${DOCKER_DIR}.${NC}"
+            echo -e "${YELLOW}Removendo Deploy do Minikube...${NC}"
+            if [ -d "$DOCKER_DIR/k8s" ]; then
+                cd "$DOCKER_DIR" && $MINIKUBE_BIN kubectl -- delete -f k8s/
+                echo -e "${GREEN}✓ Servidor removido do Minikube.${NC}"
             fi
             ;;
         3)
-            echo -e "${YELLOW}Parando Servidor Dedicado e DB...${NC}"
-            if [ -f "$DOCKER_DIR/docker-compose.yml" ]; then
-                cd "$DOCKER_DIR" && docker-compose down
-                echo -e "${GREEN}✓ Serviços finalizados.${NC}"
-            else
-                echo -e "${RED}Erro: docker-compose.yml não encontrado em ${DOCKER_DIR}.${NC}"
-            fi
+            echo -e "${CYAN}--- Status do Kubernetes ---${NC}"
+            $MINIKUBE_BIN kubectl -- get pods
+            echo ""
+            $MINIKUBE_BIN kubectl -- get services
+            echo -e "\n${GREEN}IP de Conexão do Minikube (para o Client conectar):${NC} ${BOLD}$($MINIKUBE_BIN ip)${NC}"
+            echo -e "${YELLOW}Use a porta 30770 no Client para se conectar a este IP.${NC}"
             ;;
         4)
-            echo -e "${CYAN}Mostrando logs do docker-compose (Pressione CTRL+C para sair):${NC}"
-            if [ -f "$DOCKER_DIR/docker-compose.yml" ]; then
-                cd "$DOCKER_DIR" && docker-compose logs -f
+            echo -e "${CYAN}Buscando logs do pod no Minikube (Pressione CTRL+C para sair):${NC}"
+            POD_NAME=$($MINIKUBE_BIN kubectl -- get pods -l app=fishnet-server -o jsonpath="{.items[0].metadata.name}")
+            if [ -n "$POD_NAME" ]; then
+                $MINIKUBE_BIN kubectl -- logs -f "$POD_NAME"
+            else
+                echo -e "${RED}Nenhum pod fishnet-server encontrado.${NC}"
             fi
             ;;
         0) return ;;

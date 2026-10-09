@@ -61,6 +61,12 @@ Considere os seguintes arquivos como fontes de design, planejamento, processo ou
 - [`fowlgen-wars-regras-hackathon-2026.md`](skills/fowlgen-wars-regras-hackathon-2026.md): regras oficiais, critérios de avaliação, requisitos de submissão e checklist operacional do Colosseum Global Hackathon 2026 e Trilha Brasil (Superteam Brasil).
 - [`metaplex/SKILL.md`](../.agents/skills/metaplex/SKILL.md): skill do ecossistema Metaplex na pasta `.agents/skills/metaplex/SKILL.md`; referência oficial para criação de coleções Metaplex Core, NFTs, Bubblegum (compressed NFTs), Candy Machine, Token Metadata e comandos da CLI `mplx`.
 
+### Relatórios de Fases e Execução
+- [`Relatorio_Fase1_Instalacao.md`](files/relatorios/Relatorio_Fase1_Instalacao.md): Relatório de Inicialização e Setup (WSL, Docker, Autenticação Solana).
+- [`Relatorio_Fase2_MVP.md`](files/relatorios/Relatorio_Fase2_MVP.md): Relatório da Fase 2 (Personagens, Habilidades, HUD, Spawner).
+- [`Relatorio_Fase3_MVP.md`](files/relatorios/Relatorio_Fase3_MVP.md): Relatório da Fase 3 (Mapa de 3 rotas, Torres de defesa, Grid de colisão).
+- [`Relatorio_Fase4_K8s.md`](files/relatorios/Relatorio_Fase4_K8s.md): Relatório da Fase 4 (Migração de infraestrutura: Docker Compose para Kubernetes/Minikube, K8s Secrets).
+
 O PDF `files/pdf/Site Fowlgenwars.pdf` é uma referência visual disponível no workspace. Consulte-o quando a tarefa envolver o site ou apresentação visual; não infira conteúdo que não possa ser lido/confirmado.
 
 ## Divergências conhecidas
@@ -132,7 +138,7 @@ O PDF `files/pdf/Site Fowlgenwars.pdf` é uma referência visual disponível no 
 - **Princípio:** DevSecOps opera como habilitador de velocidade com guardrails automáticos silenciosos (CI/CD, linters, testes e scanners), nunca como entrave burocrático.
 - **Blindagem de Repositório e Anti-Leak de Segredos:** Implementação obrigatória de scanner de segredos (Gitleaks ou TruffleHog) no GitHub Actions, impedindo commits com private keys, seed phrases, `.keypair`, `.env` ou chaves de Devnet/Mainnet.
 - **Pipeline de CI/CD para Smart Contracts Anchor (`program/`):** Manter `.github/workflows/anchor-ci.yml` ativo para rodar `cargo check`, `cargo clippy`, `cargo audit` (detecção de vulnerabilidades em crates Rust) e `anchor test` a cada PR.
-- **Dedicated Game Server FishNet (Container Docker):** O servidor FishNet deve operar em container Docker headless Linux isolado, permitindo testes locais e deploy desacoplado do cliente Unity.
+- **Dedicated Game Server FishNet e Banco de Dados (Kubernetes/Minikube - Fase 4) [Responsável: Marcos]:** A infraestrutura evoluiu do Docker local para orquestração completa no Kubernetes (Minikube). O servidor FishNet headless e o banco PostgreSQL operam com alta disponibilidade, utilizando Kubernetes Secrets para gerenciar credenciais (eliminando senhas hardcoded) e PVCs para persistência. O script `Install.sh` foi atualizado para gerenciar a compilação local de imagens e a aplicação de manifestos K8s.
 - **Threat Modeling da Arquitetura Híbrida:** A autoridade do servidor dedicado deve assinar a conclusão e métricas da partida antes de qualquer instrução de premiação ou XP ser submetida ao contrato Anchor (`claim_reward`), mitigando ataques de modificação de memória no cliente mobile.
 
 ### Esteira de Prompts e Coerência Documental (Junior & Samuel)
