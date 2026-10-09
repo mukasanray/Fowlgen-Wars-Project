@@ -41,7 +41,17 @@
 
 ---
 
-## Fase 4 - Deploys Finais (Anchor Devnet e Google Play Console)
+## Fase 4 - Infraestrutura e Orquestração (Kubernetes/Minikube)
+**Objetivo:** Migrar servidor do jogo e banco de dados do Docker Compose para orquestração escalável.
+
+1. **Deploy Kubernetes (Responsável: Marcos e Jorge):**
+   - Criação de manifestos K8s (Deployments, Services, Persistent Volumes) para FishNet e PostgreSQL.
+   - Injeção segura de credenciais através de K8s Secrets pelo `Install.sh`.
+   - Remoção de hardcodes de banco de dados.
+
+---
+
+## Fase 5 - Deploys Finais (Anchor Devnet e Google Play Console)
 **Objetivo:** Fechar o ciclo enviando tudo para a "nuvem" e validando segurança.
 
 1. **DevSecOps e Anti-Leak AppSec (Responsável: Jorge):**
