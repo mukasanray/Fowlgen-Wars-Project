@@ -1047,7 +1047,7 @@ func_deploy_producao() {
     JWT_SECRET=${JWT_SECRET:-"fowlgen_super_secret_jwt_key_2026"}
     
     echo -e "\n${CYAN}--- Configuração de Domínio e Segurança (Traefik SSL) ---${NC}"
-    read -rp "Digite o Domínio de Produção para emitir SSL (ex: play.fowlgenwars.com) ou ENTER para pular: " PROD_DOMAIN
+    read -rp "Digite o Domínio de Produção para emitir SSL (ex: play.fowlgenwars.com.br) ou ENTER para pular: " PROD_DOMAIN
 
     echo "Injetando Segredos do Banco e JWT..."
     kubectl create secret generic db-secret \
