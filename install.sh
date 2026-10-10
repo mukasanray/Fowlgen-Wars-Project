@@ -1028,6 +1028,59 @@ func_servidor_fishnet() {
 }
 
 # ==============================================================================
+# 10. DEPLOY EM PRODUÇÃO (VPS/NUVEM)
+# ==============================================================================
+func_deploy_producao() {
+    banner
+    echo -e "${BLUE}${BOLD}>>> [10] Deploy em Produção (VPS/Nuvem) com Traefik${NC}\n"
+    
+    echo -e "${YELLOW}Iniciando aplicação dos manifestos K8s para produção...${NC}"
+    
+    echo -e "${CYAN}--- Configuração de Segredos (Kubernetes Secrets) ---${NC}"
+    read -rp "Digite o USUÁRIO do DB de Produção [fowlgen]: " DB_USER
+    DB_USER=${DB_USER:-"fowlgen"}
+    read -rp "Digite a SENHA do DB de Produção [fowlgen_password]: " DB_PASS
+    DB_PASS=${DB_PASS:-"fowlgen_password"}
+    read -rp "Digite o NOME do DB de Produção [fowlgenwars]: " DB_NAME
+    DB_NAME=${DB_NAME:-"fowlgenwars"}
+    read -rp "Digite a chave secreta JWT para a API Onix: " JWT_SECRET
+    JWT_SECRET=${JWT_SECRET:-"fowlgen_super_secret_jwt_key_2026"}
+
+    echo "Injetando Segredos do Banco e JWT..."
+    kubectl create secret generic db-secret \
+        --from-literal=postgres-user="$DB_USER" \
+        --from-literal=postgres-password="$DB_PASS" \
+        --from-literal=postgres-db="$DB_NAME" \
+        --from-literal=postgres-connection-string="Host=postgres-service;Database=$DB_NAME;Username=$DB_USER;Password=$DB_PASS" \
+        --from-literal=jwt-secret="$JWT_SECRET" \
+        --dry-run=client -o yaml | kubectl apply -f -
+
+    if [ -f "$HOME/.config/solana/id.json" ]; then
+        echo "Injetando Segredo da Wallet Solana (Server Authority)..."
+        kubectl create secret generic solana-wallet-secret \
+            --from-file=id.json="$HOME/.config/solana/id.json" \
+            --dry-run=client -o yaml | kubectl apply -f -
+    else
+        echo -e "${YELLOW}Aviso: $HOME/.config/solana/id.json não encontrado. Secret da wallet ignorado.${NC}"
+    fi
+
+    if [ -d "$BASE_DIR/k8s" ]; then
+        echo "Aplicando Deployment e Service do PostgreSQL..."
+        kubectl apply -f "$BASE_DIR/k8s/postgres-pvc.yaml"
+        kubectl apply -f "$BASE_DIR/k8s/postgres-deployment.yaml"
+        kubectl apply -f "$BASE_DIR/k8s/postgres-service.yaml"
+        echo "Aplicando Deployment e Service da API..."
+        kubectl apply -f "$BASE_DIR/k8s/api-deployment.yaml"
+        echo "Aplicando Traefik IngressRoutes..."
+        kubectl apply -f "$BASE_DIR/k8s/traefik-ingress.yaml"
+        echo -e "${GREEN}✓ Manifestos aplicados com sucesso!${NC}"
+    else
+        echo -e "${RED}Erro: Pasta k8s/ não encontrada.${NC}"
+    fi
+    pausar
+}
+
+# ==============================================================================
 # MENU PRINCIPAL INTERATIVO
 # ==============================================================================
 main_menu() {
@@ -1043,9 +1096,10 @@ main_menu() {
         echo -e "  ${BOLD}[7]${NC} 🩺 Diagnóstico do Ambiente (Health Check)"
         echo -e "  ${BOLD}[8]${NC} ⚙️  Gerenciar Validador Local (solana-test-validator)"
         echo -e "  ${BOLD}[9]${NC} 🐳 Gerenciar Servidor FishNet (Docker)"
+        echo -e "  ${BOLD}[10]${NC} ☁️  Deploy em Produção (VPS/Nuvem)"
         echo -e "  ${BOLD}[0]${NC} ❌ Sair"
         echo "------------------------------------------------------------------"
-        read -rp "Selecione uma opção [0-9]: " MAIN_OPT
+        read -rp "Selecione uma opção [0-10]: " MAIN_OPT
 
         case "$MAIN_OPT" in
             1) func_primeira_instalacao ;;
@@ -1057,12 +1111,13 @@ main_menu() {
             7) func_diagnostico_healthcheck ;;
             8) func_validador_local ;;
             9) func_servidor_fishnet ;;
+            10) func_deploy_producao ;;
             0)
                 echo -e "\n${GREEN}Até logo e boas batalhas no FOWLGEN WARS! 🐔⚔️${NC}\n"
                 exit 0
                 ;;
             *)
-                echo -e "\n${RED}Opção inválida. Escolha entre 0 e 9.${NC}"
+                echo -e "\n${RED}Opção inválida. Escolha entre 0 e 10.${NC}"
                 sleep 1.5
                 ;;
         esac

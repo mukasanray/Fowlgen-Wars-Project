@@ -9,7 +9,7 @@ pub use constants::*;
 pub use instructions::*;
 pub use state::*;
 
-declare_id!("7UYgCSdMd4SVLqVDmZvDbhxs4AV9E2VbgBc2gXJrnD27");
+declare_id!("6C83pMDjLwNGzg1aC8R5MMgWW7pM2zKgsd4n4cKj8RjW");
 
 #[program]
 pub mod fowlgen_wars_contract {

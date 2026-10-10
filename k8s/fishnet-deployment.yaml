@@ -16,8 +16,8 @@ spec:
     spec:
       containers:
       - name: fishnet-server
-        image: fowlgenwars-server:latest
-        imagePullPolicy: Never # Usa a imagem local do minikube
+        image: ghcr.io/mukasanray/fowlgenwars-server:latest
+        imagePullPolicy: Always # Usa imagem remota na VPS
         ports:
         - containerPort: 7770
           protocol: UDP

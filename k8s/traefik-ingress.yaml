@@ -1,0 +1,44 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: fowlgenwars-api-ingress
+  namespace: default
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: PathPrefix(`/api`)
+      kind: Rule
+      services:
+        - name: fowlgenwars-api-service
+          port: 80
+  tls:
+    certResolver: letsencrypt
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteUDP
+metadata:
+  name: fowlgenwars-fishnet-udp
+  namespace: default
+spec:
+  entryPoints:
+    - fishnet-udp
+  routes:
+    - services:
+        - name: fishnet-server-service
+          port: 7770
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: fowlgenwars-fishnet-tcp
+  namespace: default
+spec:
+  entryPoints:
+    - fishnet-tcp
+  routes:
+    - match: HostSNI(`*`)
+      services:
+        - name: fishnet-server-service
+          port: 7770
