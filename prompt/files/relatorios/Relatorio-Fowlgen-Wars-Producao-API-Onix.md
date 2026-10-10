@@ -24,12 +24,12 @@
 - **Injeção de Segredos:** Credenciais injetadas via K8s Secrets (`postgres-secret`).
 - **Módulo de Produção:** A Opção `[10] Deploy em Produção` no `install.sh` está concluída. Adicionamos lógica para injetar dinamicamente o domínio (ex: `play.fowlgenwars.com.br`) na regra Host do Traefik K8s.
 
-## 🟡 Fase 4: Container Registry e Pipeline CI/CD (GitHub Actions)
-**Status:** **PENDENTE (Foco Atual)**
-- **Próximos Passos:** 
-  1. Construir workflow de GitHub Actions (`docker-publish.yml`).
-  2. Fazer o build automático das imagens da API e FishNet enviando para o GHCR (`ghcr.io/mukasanray/...`).
-  3. Atualizar os manifestos K8s para usar essas imagens.
+## 🟢 Fase 4: Container Registry e Pipeline CI/CD (GitHub Actions)
+**Status:** **CONCLUÍDO**
+- **Feito:** 
+  - Workflow criado em `.github/workflows/docker-publish.yml`.
+  - Configurado para fazer o build automático das imagens da API e FishNet e enviá-las para o GHCR (`ghcr.io/mukasanray/fowlgenwars-api` e `fowlgenwars-server`).
+  - Os manifestos K8s já estavam apontando corretamente para o GHCR com a tag `:latest` e `imagePullPolicy: Always`.
 
 ---
 
