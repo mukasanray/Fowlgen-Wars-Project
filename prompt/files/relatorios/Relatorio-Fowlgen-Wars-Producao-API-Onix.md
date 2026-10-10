@@ -22,7 +22,10 @@
 **Status:** **CONCLUÍDO**
 - **Unificação:** Excluímos scripts redundantes. O novo `install.sh` está impecável.
 - **Injeção de Segredos:** Credenciais injetadas via K8s Secrets (`postgres-secret`).
-- **Módulo de Produção:** A Opção `[10] Deploy em Produção` no `install.sh` está concluída. Adicionamos lógica para injetar dinamicamente o domínio (ex: `play.fowlgenwars.com.br`) na regra Host do Traefik K8s.
+- **Módulo de Produção:** A Opção `[10] Deploy em Produção` está completa. O script agora:
+  1. Pergunta separadamente pelo Domínio da API e pelo Domínio do FishNet (Game Server).
+  2. Injeta as regras (`Host` e `HostSNI`) no Ingress do Traefik K8s.
+  3. Solicita o E-mail administrativo e provisiona o certificado SSL (Let's Encrypt) automaticamente aplicando um `HelmChartConfig`.
 
 ## 🟢 Fase 4: Container Registry e Pipeline CI/CD (GitHub Actions)
 **Status:** **CONCLUÍDO**
@@ -33,12 +36,12 @@
 
 ---
 
-*(As fases abaixo dependem da contratação da VPS e Domínio e não afetam mais o desenvolvimento do código)*
+*(As fases abaixo dependem EXCLUSIVAMENTE da contratação da VPS e Domínio. Todo o código/manifestos já foram preparados)*
 
 ## 🔴 Fase 5: Cloud Setup (VPS e DNS)
 **Status:** **BLOQUEADO (Aguardando Compra de VPS)**
 - **Próximos Passos:** Contratar VPS Ubuntu 24.04, instalar K3s/MicroK8s, registrar Domínio e apontar o DNS A Record para a VPS.
 
-## 🔴 Fase 6: Configuração de Ingress, Storage e Traefik
-**Status:** **BLOQUEADO (Aguardando Fase 5)**
-- **Próximos Passos:** Iniciar o Traefik na VPS com argumentos ACME Let's Encrypt (usando o domínio adquirido) e testar a partida em 4G.
+## 🔴 Fase 6: Validação Final e Segurança 4G
+**Status:** **BLOQUEADO (Aguardando VPS e Domínio online)**
+- **Próximos Passos:** Todo o manifesto do Traefik, Let's Encrypt e Deploy já foi desenvolvido e embutido no `install.sh`. Resta apenas, com os servidores de pé, testar a conexão do Unity Client via 4G.

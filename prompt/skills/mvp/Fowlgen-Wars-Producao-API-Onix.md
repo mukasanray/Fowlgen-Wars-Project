@@ -21,13 +21,13 @@ Conforme recomendações de AppSec e boas práticas do ecossistema Solana, o ser
 ## [DESENVOLVIMENTO] Fase 3: Script de Instalação e Automação Local
 **Status:** **CONCLUÍDO**
 **Objetivo:** Automatizar a gestão da produção a partir da máquina local/repositório.
-- **Módulo de Produção:** Opção `[10] Deploy em Produção (VPS/Nuvem)` adicionada ao `install.sh`. O script injeta dinamicamente o domínio de produção nas regras Host do Traefik, mantendo os arquivos YAML intactos para testes locais.
+- **Módulo de Produção:** Opção `[10] Deploy em Produção` adicionada ao `install.sh`. O script agora possui suporte avançado a Traefik K8s, separando a injeção do Domínio da API e do FishNet de maneira automatizada e provisionando SSL Let's Encrypt através de um manifesto `HelmChartConfig`.
 
 ## [DESENVOLVIMENTO] Fase 4: Container Registry e Pipeline CI/CD (GitHub Actions)
-**Status:** **PENDENTE**
+**Status:** **CONCLUÍDO**
 **Objetivo:** Automatizar o empacotamento do servidor para que qualquer ambiente possa baixá-lo.
-- **1. GitHub Actions (GHCR):** Criar workflow (`.github/workflows`) para fazer build das imagens Docker (API e FishNet) e subir para o GitHub Container Registry automaticamente.
-- **2. Atualização dos YAMLs:** Atualizar os manifestos K8s para puxar as imagens do repositório remoto (`ghcr.io/...`) em vez do build local.
+- **1. GitHub Actions (GHCR):** Workflow (`.github/workflows`) operante, envia a imagem para o GitHub Container Registry a cada push na main.
+- **2. Atualização dos YAMLs:** Manifestos K8s atualizados para buscar as imagens do repositório remoto (`ghcr.io/mukasanray/...`).
 
 ---
 
@@ -40,9 +40,8 @@ Conforme recomendações de AppSec e boas práticas do ecossistema Solana, o ser
 - **2. Setup do Kubernetes:** Instalar **K3s** (Rancher) ou **MicroK8s** na VPS.
 - **3. DNS:** Registrar um domínio e criar Apontamento A para o IP da VPS.
 
-## [INFRAESTRUTURA] Fase 6: Configuração de Ingress, Storage e Traefik
-**Status:** **PENDENTE (Aguardando VPS)**
-**Objetivo:** Garantir roteamento, persistência e segurança SSL.
-- **1. Let's Encrypt:** Configurar o Traefik Ingress na VPS com os argumentos de ACME (SSL Automático) usando o domínio real.
-- **2. Storage Class (PVC):** Garantir que o `postgres-pvc.yaml` utilize a *StorageClass* adequada do provedor da VPS para não perder dados de banco.
-- **3. Teste em 4G:** Conectar o Unity Client pelo celular e realizar a partida 100% hospedada na nuvem.
+## [INFRAESTRUTURA] Fase 6: Storage e Validação 4G
+**Status:** **PENDENTE (Aguardando VPS e Domínio online)**
+**Objetivo:** Garantir persistência de dados e provar o conceito.
+- **1. Storage Class (PVC):** Garantir que o `postgres-pvc.yaml` utilize a *StorageClass* adequada do provedor da VPS para não perder os dados do banco de dados (Apenas verificar ao instalar a VPS).
+- **2. Teste em 4G:** Como o roteamento, ingress e certificados SSL já foram desenvolvidos em código, o teste final consistirá em conectar o Unity Client pelo celular e realizar a partida 100% hospedada na nuvem.
