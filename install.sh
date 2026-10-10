@@ -1034,7 +1034,18 @@ func_deploy_producao() {
     banner
     echo -e "${BLUE}${BOLD}>>> [10] Deploy em Produção (VPS/Nuvem) com Traefik${NC}\n"
     
-    echo -e "${YELLOW}Iniciando aplicação dos manifestos K8s para produção...${NC}"
+    echo -e "${YELLOW}Verificando pré-requisitos para produção...${NC}"
+    
+    if ! command -v kubectl &> /dev/null; then
+        echo -e "${YELLOW}Kubernetes não encontrado! Instalando o K3s automaticamente para você...${NC}"
+        curl -sfL https://get.k3s.io | sh -
+        mkdir -p ~/.kube
+        sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config 2>/dev/null || true
+        sudo chown "$(id -u):$(id -g)" ~/.kube/config 2>/dev/null || true
+        echo -e "${GREEN}✓ Kubernetes (K3s) instalado nativamente! Continuando com o Deploy...${NC}\n"
+    fi
+    
+    echo -e "${YELLOW}Iniciando aplicação dos manifestos K8s...${NC}"
     
     echo -e "${CYAN}--- Configuração de Segredos (Kubernetes Secrets) ---${NC}"
     read -rp "Digite o USUÁRIO do DB de Produção [fowlgen]: " DB_USER
