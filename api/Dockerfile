@@ -6,7 +6,7 @@ WORKDIR /build_env
 COPY . .
 
 # Restaura dependências e compila a WebApi
-WORKDIR /build_env/src/backend/WebApi/FowlgenWars.WebApi
+WORKDIR /build_env/src/backend/WebApi/Onix.FowlgenWars.WebApi
 RUN dotnet restore
 RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 
@@ -16,4 +16,4 @@ WORKDIR /app
 EXPOSE 8080
 
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "FowlgenWars.WebApi.dll"]
+ENTRYPOINT ["dotnet", "Onix.FowlgenWars.WebApi.dll"]
