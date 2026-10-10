@@ -40,10 +40,11 @@
   3. Garantir a `StorageClass` oficial na configuração da VPS.
 
 ## 🟢 Fase 5: Atualização do Install.sh e CI/CD
-**Status:** **PARCIALMENTE CONCLUÍDO (Merge Local Realizado)**
-- **Unificação:** Excluímos o redundante `Install.sh` antigo e fundimos as atualizações dentro do `install.sh`. 
-- **Injeção de Segredos:** A injeção das credenciais do PostgreSQL está mapeada perfeitamente nos Manifestos Kubernetes (`postgres-secret`) chamados pelo `install.sh`.
-- **Próximos Passos:** Adicionar o menu "Deploy em Produção (VPS/Nuvem)" para apontar comandos remotos via `kubectl` na VPS.
+**Status:** **CONCLUÍDO**
+- **Feito:**
+  - O script unificado `install.sh` está 100% operacional.
+  - A injeção das credenciais do PostgreSQL está mapeada nos Manifestos Kubernetes (`postgres-secret`).
+  - **Adicionado o Módulo de Produção:** Opção `[10] Deploy em Produção (VPS/Nuvem)` configurada. O script agora injeta dinamicamente o domínio (ex: `play.fowlgenwars.com.br`) na regra Host do Traefik no momento do apply, mantendo os YAMLs base intactos e limpos para desenvolvimento local.
 
 ## 🟢 Fase 6: Validação Híbrida e Segurança On-Chain (Solana)
 **Status:** **CONCLUÍDO (Integração C# e Devnet)**
