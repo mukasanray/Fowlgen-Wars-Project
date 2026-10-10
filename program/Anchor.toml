@@ -13,7 +13,7 @@ fowlgen_wars_contract = "81MprTi78xQvtVg9aaK4s4Cw9K62CU6PtcPYsChLNyxE"
 fowlgen_wars_contract = "6C83pMDjLwNGzg1aC8R5MMgWW7pM2zKgsd4n4cKj8RjW"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

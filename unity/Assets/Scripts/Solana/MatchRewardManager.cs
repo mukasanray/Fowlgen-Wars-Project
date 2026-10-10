@@ -69,10 +69,133 @@ namespace FowlgenWars.Solana
         private void SubmitRewardToSolana(string playerWallet, int xpAmount)
         {
             Debug.Log($"[Server-Authoritative] Assinando transação Anchor para creditar {xpAmount} XP na carteira {playerWallet}");
-            // TODO: Integrar com TransactionManager.cs e SolanaConnection.cs
+            StartCoroutine(SendClaimRewardRoutine(playerWallet, (ulong)xpAmount, true));
+        }
+
+        private IEnumerator SendClaimRewardRoutine(string playerWallet, ulong xpAmount, bool isWin)
+        {
+            if (SolanaManager.Instance == null || SolanaManager.Instance.Config == null)
+            {
+                Debug.LogError("[Server] SolanaManager ou Config não encontrados.");
+                yield break;
+            }
+
+            string rpcUrl = SolanaManager.Instance.Config.rpcUrl;
+            string programId = SolanaManager.Instance.Config.programId;
+
             // 1. Carregar Keypair de Autoridade do Servidor
-            // 2. Montar Instrução Anchor (claim_reward)
-            // 3. Enviar e confirmar transação na Devnet/Mainnet
+            Solana.Unity.Wallet.Account serverAccount = null;
+            try
+            {
+                // Em produção, lê o id.json gerado pela Solana CLI
+                if (System.IO.File.Exists(serverPrivateKeyPath))
+                {
+                    string json = System.IO.File.ReadAllText(serverPrivateKeyPath);
+                    json = json.Trim('[', ']');
+                    string[] parts = json.Split(',');
+                    byte[] secretKey = new byte[64];
+                    for (int i = 0; i < secretKey.Length && i < parts.Length; i++)
+                    {
+                        secretKey[i] = byte.Parse(parts[i].Trim());
+                    }
+                    serverAccount = new Solana.Unity.Wallet.Account(secretKey);
+                }
+                else
+                {
+                    Debug.LogWarning($"[Server] {serverPrivateKeyPath} não encontrado. Usando chave temporária para testes DEV.");
+                    serverAccount = new Solana.Unity.Wallet.Account(); // Apenas testes locais
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[Server] Erro ao decodificar serverPrivateKey: {ex.Message}");
+                yield break;
+            }
+
+            // 2. Fetch Latest Blockhash
+            string recentBlockhash = string.Empty;
+            string getBlockhashBody = "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"getLatestBlockhash\",\"params\":[{\"commitment\":\"confirmed\"}]}";
+            using (UnityWebRequest req = new UnityWebRequest(rpcUrl, "POST"))
+            {
+                req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(getBlockhashBody));
+                req.downloadHandler = new DownloadHandlerBuffer();
+                req.SetRequestHeader("Content-Type", "application/json");
+                yield return req.SendWebRequest();
+                if (req.result == UnityWebRequest.Result.Success)
+                {
+                    string res = req.downloadHandler.text;
+                    int idx = res.IndexOf("\"blockhash\":\"");
+                    if (idx >= 0)
+                    {
+                        int start = idx + 13;
+                        int end = res.IndexOf("\"", start);
+                        recentBlockhash = res.Substring(start, end - start);
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(recentBlockhash))
+            {
+                Debug.LogError("[Server] Falha ao obter blockhash.");
+                yield break;
+            }
+
+            // 3. Montar Instrução Anchor (claim_reward)
+            Solana.Unity.Wallet.PublicKey programIdKey = new Solana.Unity.Wallet.PublicKey(programId);
+            Solana.Unity.Wallet.PublicKey playerAuthKey = new Solana.Unity.Wallet.PublicKey(playerWallet);
+
+            // PDAs
+            Solana.Unity.Wallet.PublicKey.TryFindProgramAddress(
+                new byte[][] { Encoding.UTF8.GetBytes("player"), playerAuthKey.KeyBytes }, 
+                programIdKey, out Solana.Unity.Wallet.PublicKey playerPda, out _);
+            
+            Solana.Unity.Wallet.PublicKey.TryFindProgramAddress(
+                new byte[][] { Encoding.UTF8.GetBytes("game_config") }, 
+                programIdKey, out Solana.Unity.Wallet.PublicKey gameConfigPda, out _);
+
+            // Discriminator para claim_reward: Sha256("global:claim_reward")[..8]
+            byte[] data = new byte[17];
+            byte[] disc = new byte[] { 149, 95, 181, 242, 94, 90, 158, 162 };
+            Array.Copy(disc, 0, data, 0, 8);
+            byte[] xpBytes = BitConverter.GetBytes(xpAmount);
+            Array.Copy(xpBytes, 0, data, 8, 8);
+            data[16] = isWin ? (byte)1 : (byte)0;
+
+            var instruction = new Solana.Unity.Rpc.Models.TransactionInstruction
+            {
+                ProgramId = programIdKey.KeyBytes,
+                Data = data,
+                Keys = new List<Solana.Unity.Rpc.Models.AccountMeta>
+                {
+                    Solana.Unity.Rpc.Models.AccountMeta.Writable(playerPda, false),
+                    Solana.Unity.Rpc.Models.AccountMeta.ReadOnly(playerAuthKey, false),
+                    Solana.Unity.Rpc.Models.AccountMeta.ReadOnly(gameConfigPda, false),
+                    Solana.Unity.Rpc.Models.AccountMeta.Writable(serverAccount.PublicKey, true) // Fee Payer & Signer
+                }
+            };
+
+            // 4. Enviar Transação
+            var builder = new Solana.Unity.Rpc.Builders.TransactionBuilder()
+                .SetFeePayer(serverAccount.PublicKey)
+                .SetRecentBlockHash(recentBlockhash)
+                .AddInstruction(instruction);
+
+            byte[] txRaw = builder.Build(serverAccount);
+            string base64Tx = Convert.ToBase64String(txRaw);
+            string sendTxJson = $"{{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"sendTransaction\",\"params\":[\"{base64Tx}\",{{\"encoding\":\"base64\"}}]}}";
+
+            using (UnityWebRequest sendReq = new UnityWebRequest(rpcUrl, "POST"))
+            {
+                sendReq.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(sendTxJson));
+                sendReq.downloadHandler = new DownloadHandlerBuffer();
+                sendReq.SetRequestHeader("Content-Type", "application/json");
+                yield return sendReq.SendWebRequest();
+
+                if (sendReq.result == UnityWebRequest.Result.Success)
+                    Debug.Log($"[Server] Resultado ClaimReward On-Chain: {sendReq.downloadHandler.text}");
+                else
+                    Debug.LogError($"[Server] Erro ClaimReward On-Chain: {sendReq.error}");
+            }
         }
     }
 }
