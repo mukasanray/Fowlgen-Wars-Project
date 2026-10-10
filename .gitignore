@@ -59,8 +59,10 @@ crashlytics-build.properties
 .vs/
 .vscode/
 *.csproj
+!api/**/*.csproj
 *.unityproj
 *.sln
+!api/**/*.sln
 *.slnx
 *.suo
 *.tmp
