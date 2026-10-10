@@ -50,15 +50,14 @@ pausar() {
 
 banner() {
     clear
-    echo -e "${PURPLE}${BOLD}"
+    echo -e "${GREEN}${BOLD}"
     echo "  ███████╗ ██████╗ ██╗    ██╗██╗      ██████╗ ███████╗███╗   ██╗"
     echo "  ██╔════╝██╔═══██╗██║    ██║██║     ██╔════╝ ██╔════╝████╗  ██║"
     echo "  █████╗  ██║   ██║██║ █╗ ██║██║     ██║  ███╗█████╗  ██╔██╗ ██║"
-    echo "  ██╔══╝  ██║   ██║██║███╗██║██║     ██║   ██║██╔══╝  ██║╚██╗██║"
+    echo -e "${YELLOW}  ██╔══╝  ██║   ██║██║███╗██║██║     ██║   ██║██╔══╝  ██║╚██╗██║"
     echo "  ██║     ╚██████╔╝╚███╔███╔╝███████╗╚██████╔╝███████╗██║ ╚████║"
-    echo "  ╚═╝      ╚═════╝  ╚══╝╚══╝ ╚══════╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝"
-    echo "                    ⚔️  W A R S  ⚔️                                "
-    echo -e "${NC}"
+    echo -e "  ╚═╝      ╚═════╝  ╚══╝╚══╝ ╚══════╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝${NC}"
+    echo -e "${BLUE}${BOLD}                    ⚔️  W A R S  ⚔️                                ${NC}"
     echo -e "${CYAN}${BOLD}Instalador & Painel de Controle On-Chain — FOWLGEN WARS${NC}"
     echo -e "${YELLOW}Repositório Oficial:${NC} https://github.com/mukasanray/Fowlgen-Wars-Project.git"
     echo "------------------------------------------------------------------"
@@ -81,6 +80,14 @@ obter_carteira_configurada() {
 func_primeira_instalacao() {
     banner
     echo -e "${CYAN}${BOLD}Iniciando a Primeira Instalação Completa do Ambiente On-Chain e Off-Chain...${NC}\n"
+    
+    echo -e "${YELLOW}⚠️ ATENÇÃO: Esta ação fará o download e instalação de múltiplas ferramentas no seu sistema (Docker, Minikube, Node, Rust, Solana).${NC}"
+    read -rp "Você tem CERTEZA que deseja prosseguir com a Primeira Instalação Completa? (S/n): " CONFIRMA_INSTALA
+    if [[ "$CONFIRMA_INSTALA" =~ ^[nN]$ ]]; then
+        echo -e "${YELLOW}Operação cancelada pelo usuário.${NC}"
+        pausar
+        return
+    fi
 
     # 1. Dependências Base do Sistema Operacional e Docker
     echo -e "\n${BLUE}${BOLD}[1/8] Instalando dependências essenciais do Linux e Docker...${NC}"
@@ -91,7 +98,6 @@ func_primeira_instalacao() {
     echo -e "${YELLOW}Configurando Docker e Docker Compose (Fase 1 e Fase 3)...${NC}"
     sudo apt-get update && sudo apt-get install -y docker.io docker-compose util-linux-extra
     sudo usermod -aG docker $USER
-    newgrp docker
     echo -e "\n${CYAN}${BOLD}--- Configuração do Banco de Dados PostgreSQL ---${NC}"
     read -rp "Digite o USUÁRIO do banco de dados [fowlgen]: " DB_USER
     DB_USER=${DB_USER:-"fowlgen"}
@@ -113,6 +119,18 @@ func_primeira_instalacao() {
         rm minikube-linux-amd64
     else
         echo -e "${GREEN}✓ Minikube já instalado.${NC}"
+    fi
+
+    echo -e "${YELLOW}Verificando conflitos de portas (Docker vs Minikube)...${NC}"
+    if command -v docker &> /dev/null; then
+        if docker ps | grep -qE "5432|8080|7770"; then
+            echo -e "${RED}⚠️ Foram detectados contêineres Docker ativos usando portas do projeto (5432, 8080 ou 7770).${NC}"
+            read -rp "Deseja PARAR esses contêineres para evitar conflitos com o Minikube? (S/n): " STOP_DOCKER
+            if [[ ! "$STOP_DOCKER" =~ ^[nN]$ ]]; then
+                echo -e "${YELLOW}Parando contêineres conflitantes...${NC}"
+                docker stop $(docker ps -q --filter "publish=5432" --filter "publish=8080" --filter "publish=7770") 2>/dev/null || true
+            fi
+        fi
     fi
 
     echo -e "${YELLOW}Iniciando Minikube...${NC}"
@@ -227,22 +245,22 @@ func_primeira_instalacao() {
     avm use latest
     echo -e "${GREEN}✓ Anchor Framework: $(anchor --version)${NC}"
 
-    # 7. Configuração da Solana Devnet & Wallet Local
-    echo -e "\n${BLUE}${BOLD}[7/8] Configurando Solana Devnet e Carteira Local...${NC}"
-    solana config set --url devnet
+    # 7. Configuração da Solana Localnet & Wallet Local
+    echo -e "\n${BLUE}${BOLD}[7/8] Configurando Solana Localnet e Carteira Local...${NC}"
+    solana config set --url localhost
 
     mkdir -p "$HOME/.config/solana"
     if [ ! -f "$HOME/.config/solana/id.json" ]; then
-        echo -e "${YELLOW}Gerando nova carteira Devnet em ~/.config/solana/id.json...${NC}"
+        echo -e "${YELLOW}Gerando nova carteira Localnet em ~/.config/solana/id.json...${NC}"
         solana-keygen new --no-bip39-passphrase --outfile "$HOME/.config/solana/id.json"
     fi
 
-    DEV_WALLET=$(solana address)
-    echo -e "${GREEN}✓ Endereço da Carteira Devnet:${NC} ${BOLD}${DEV_WALLET}${NC}"
+    LOCAL_WALLET=$(solana address)
+    echo -e "${GREEN}✓ Endereço da Carteira Localnet:${NC} ${BOLD}${LOCAL_WALLET}${NC}"
 
-    echo -e "${YELLOW}Solicitando SOL de teste via Airdrop na Devnet...${NC}"
-    solana airdrop 2 "$DEV_WALLET" 2>/dev/null || echo -e "${YELLOW}⚠️  Aviso: Limite de airdrop atingido. Acesse https://faucet.solana.com para solicitar saldo.${NC}"
-    echo -e "${GREEN}✓ Saldo Devnet Atual: $(solana balance)${NC}"
+    echo -e "${YELLOW}Solicitando SOL de teste via Airdrop na Localnet...${NC}"
+    solana airdrop 2 "$LOCAL_WALLET" 2>/dev/null || echo -e "${YELLOW}⚠️  Aviso: O validador localnet pode estar inativo. Inicie o validador para ter saldo.${NC}"
+    echo -e "${GREEN}✓ Saldo Localnet Atual: $(solana balance 2>/dev/null || echo '0 SOL')${NC}"
 
     # 8. Setup do Contrato na Pasta fowlgenwars/program
     echo -e "\n${BLUE}${BOLD}[8/8] Configurando e compilando o smart contract em '${PROGRAM_DIR}'...${NC}"
@@ -289,13 +307,13 @@ func_primeira_instalacao() {
     echo -e "  • Rust:              ${BOLD}$(rustc --version 2>/dev/null || echo 'Não instalado')${NC}"
     echo -e "  • Solana CLI:        ${BOLD}$(solana --version 2>/dev/null || echo 'Não instalado')${NC}"
     echo -e "  • Anchor Framework:  ${BOLD}$(anchor --version 2>/dev/null || echo 'Não instalado')${NC}"
-    echo -e "  • Carteira Devnet:   ${BOLD}${DEV_WALLET}${NC}"
+    echo -e "  • Carteira Localnet: ${BOLD}${LOCAL_WALLET}${NC}"
     echo ""
     echo -e "${YELLOW}${BOLD}Como Testar e Publicar o Contrato:${NC}"
     echo -e "  1. ${BOLD}cd ${PROGRAM_DIR}${NC}"
     echo -e "  2. ${BOLD}anchor test${NC}                    -> Executa os testes automatizados TypeScript"
-    echo -e "  3. ${BOLD}anchor program deploy${NC}          -> Publica o contrato na Solana Devnet"
-    echo -e "  4. ${BOLD}anchor test --skip-local-validator${NC} -> Valida o contrato direto na Devnet"
+    echo -e "  3. ${BOLD}anchor program deploy${NC}          -> Publica o contrato (O deploy público será na Devnet)"
+    echo -e "  4. ${BOLD}anchor test --skip-local-validator${NC} -> Valida o contrato na Localnet ativa (Validador Local)"
     echo ""
     echo -e "${PURPLE}Para atualizar as variáveis de ambiente no seu terminal execute:${NC}"
     echo -e "  ${BOLD}source ~/.bashrc${NC}"
@@ -761,10 +779,11 @@ func_executar_testes() {
     echo -e "  ${BOLD}[2]${NC} anchor test --skip-local-validator (Executa direto no cluster do Anchor.toml)"
     echo -e "  ${BOLD}[3]${NC} cargo test  (Testes unitários puros em Rust)"
     echo -e "  ${BOLD}[4]${NC} cargo clippy (Linter de boas práticas)"
-    echo -e "  ${BOLD}[5]${NC} Fluxo Pré-Commit (Testes + Clippy)"
+    echo -e "  ${BOLD}[5]${NC} Testes de Integração Unity (QA: Movimentação, Colisões, UI, Áudio)"
+    echo -e "  ${BOLD}[6]${NC} Fluxo Pré-Commit (Gitleaks + Rust + Unity)"
     echo -e "  ${BOLD}[0]${NC} Voltar ao menu principal"
     echo ""
-    read -rp "Opção [0-5]: " T_OPT
+    read -rp "Opção [0-6]: " T_OPT
 
     case "$T_OPT" in
         1)
@@ -784,15 +803,71 @@ func_executar_testes() {
             cargo clippy
             ;;
         5)
-            echo -e "\n${CYAN}Executando Fluxo de Pré-Commit Completo...${NC}"
-            
-            # 1. Verificar staging (Git)
-            echo -e "\n${YELLOW}1. Verificando staging por arquivos sensíveis (.env, id.json)...${NC}"
-            if git status --porcelain | grep -qE "\.env|id\.json"; then
-                echo -e "${RED}⚠️ AVISO: Foram detectados arquivos '.env' ou 'id.json' modificados/na área de stage!${NC}"
-                echo -e "${RED}Remova-os do staging antes de commitar para evitar vazamento de chaves!${NC}"
+            echo -e "\n${YELLOW}Executando Testes de Integração Unity (PlayMode / QA)...${NC}"
+            if [ -d "$BASE_DIR/unity" ]; then
+                UNITY_EXEC=""
+                if [ -f "$HOME/Unity/Hub/Editor/2022.3.20f1/Editor/Unity" ]; then
+                    UNITY_EXEC="$HOME/Unity/Hub/Editor/2022.3.20f1/Editor/Unity"
+                else
+                    read -rp "Digite o caminho completo para o executável da Unity (ou Enter para pular): " USER_UNITY_EXEC
+                    if [ -f "$USER_UNITY_EXEC" ]; then
+                        UNITY_EXEC="$USER_UNITY_EXEC"
+                    fi
+                fi
+                
+                if [ -n "$UNITY_EXEC" ]; then
+                    echo -e "${CYAN}Rodando Test Runner da Unity em background...${NC}"
+                    "$UNITY_EXEC" -runTests -batchmode -nographics -projectPath "$BASE_DIR/unity" -testResults /tmp/unity_test_results.xml -testPlatform PlayMode -logFile /tmp/unity_test.log || true
+                    if [ -f "/tmp/unity_test_results.xml" ]; then
+                        FAILED=$(grep -o 'failed="[0-9]*"' /tmp/unity_test_results.xml | head -1 | cut -d '"' -f2)
+                        PASSED=$(grep -o 'passed="[0-9]*"' /tmp/unity_test_results.xml | head -1 | cut -d '"' -f2)
+                        if [ "$FAILED" == "0" ] && [ -n "$PASSED" ]; then
+                            echo -e "${GREEN}✓ Todos os testes da Unity passaram ($PASSED)!${NC}"
+                        else
+                            echo -e "${RED}❌ Falha nos testes da Unity (Passaram: $PASSED, Falharam: $FAILED).${NC}"
+                            echo -e "${YELLOW}Por favor, corrija os 4 testes de QA reprovados (Movimentação, Colisões, UI, Áudio).${NC}"
+                        fi
+                    else
+                        echo -e "${RED}⚠️ Falha ao gerar o relatório de testes da Unity. Verifique os logs em /tmp/unity_test.log${NC}"
+                    fi
+                else
+                    echo -e "${YELLOW}Caminho do Unity não fornecido. Testes da Unity pulados.${NC}"
+                fi
             else
-                echo -e "${GREEN}✓ Nenhum '.env' ou 'id.json' detectado. (Segurança OK)${NC}"
+                echo -e "${RED}Erro: Pasta 'unity' não encontrada em $BASE_DIR.${NC}"
+            fi
+            ;;
+        6)
+            echo -e "\n${CYAN}Executando Fluxo de Pré-Commit Completo (Gitleaks + Rust + Unity)...${NC}"
+            
+            echo -e "\n${YELLOW}1. Verificando repositório com Gitleaks (Anti-Leak)...${NC}"
+            if ! command -v gitleaks &> /dev/null; then
+                echo -e "${YELLOW}Gitleaks não encontrado. O projeto exige escaneamento profissional de segurança.${NC}"
+                read -rp "Deseja instalar o Gitleaks agora? (S/n): " INST_GL
+                if [[ ! "$INST_GL" =~ ^[nN]$ ]]; then
+                    curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/install.sh | sudo sh -s -- -b /usr/local/bin
+                else
+                    echo -e "${RED}Instalação recusada. A segurança não pode ser garantida.${NC}"
+                fi
+            fi
+            
+            if command -v gitleaks &> /dev/null; then
+                if gitleaks detect -v; then
+                    echo -e "${GREEN}✓ Nenhum segredo detectado pelo Gitleaks. (Segurança OK)${NC}"
+                else
+                    echo -e "${RED}⚠️ AVISO: Foram detectados SEGREDOS vazados no repositório pelo Gitleaks!${NC}"
+                    read -rp "Deseja abortar os testes devido a riscos graves de segurança? (S/n): " ABORT_TESTS
+                    if [[ ! "$ABORT_TESTS" =~ ^[nN]$ ]]; then
+                        echo -e "${RED}Operação abortada preventivamente.${NC}"
+                        pausar
+                        continue
+                    fi
+                fi
+            else
+                echo -e "${YELLOW}Aviso: Gitleaks ignorado. Rodando verificação básica legada...${NC}"
+                if git status --porcelain | grep -qE "\.env|id\.json"; then
+                    echo -e "${RED}⚠️ AVISO: Foram detectados arquivos '.env' ou 'id.json' na área de stage! Remova-os do commit!${NC}"
+                fi
             fi
             
             # 2. Rodar testes
@@ -811,6 +886,34 @@ func_executar_testes() {
                 echo -e "${GREEN}✓ Linter concluído sem erros fatais! (Pronto para commit)${NC}"
             else
                 echo -e "${RED}❌ Falha no linter. Verifique os avisos acima.${NC}"
+                pausar
+                continue
+            fi
+            
+            # 4. Rodar testes Unity (Opcional no pré-commit)
+            echo -e "\n${YELLOW}4. Rodando testes de integração Unity (PlayMode)...${NC}"
+            if [ -d "$BASE_DIR/unity" ]; then
+                UNITY_EXEC=""
+                if command -v unity-editor-headless &> /dev/null; then
+                    UNITY_EXEC="unity-editor-headless"
+                elif [ -f "$HOME/Unity/Hub/Editor/2022.3.20f1/Editor/Unity" ]; then
+                    UNITY_EXEC="$HOME/Unity/Hub/Editor/2022.3.20f1/Editor/Unity"
+                fi
+                if [ -n "$UNITY_EXEC" ]; then
+                    "$UNITY_EXEC" -runTests -batchmode -nographics -projectPath "$BASE_DIR/unity" -testResults /tmp/unity_test_results.xml -testPlatform PlayMode -logFile /tmp/unity_test.log || true
+                    if [ -f "/tmp/unity_test_results.xml" ]; then
+                        FAILED=$(grep -o 'failed="[0-9]*"' /tmp/unity_test_results.xml | head -1 | cut -d '"' -f2)
+                        if [ "$FAILED" == "0" ]; then
+                            echo -e "${GREEN}✓ Testes Unity passaram! (Pronto para commit)${NC}"
+                        else
+                            echo -e "${RED}❌ Falha nos testes Unity (QA reprovado). Corrija os bugs antes de commitar!${NC}"
+                            pausar
+                            continue
+                        fi
+                    fi
+                else
+                    echo -e "${YELLOW}Unity não configurada automaticamente. Testes Unity pulados no pré-commit.${NC}"
+                fi
             fi
             ;;
         0) return ;;
@@ -984,9 +1087,79 @@ func_servidor_fishnet() {
             echo -e "${YELLOW}Iniciando Deploy no Minikube...${NC}"
             if [ -d "$DOCKER_DIR/k8s" ]; then
                 cd "$DOCKER_DIR"
-                echo "1. Compilando imagem dentro do Minikube..."
-                $MINIKUBE_BIN image build -t fowlgenwars-server:latest .
-                echo "2. Aplicando configurações Kubernetes (k8s/)..."
+                
+                echo -e "${CYAN}--- Configuração do Banco de Dados para Dev ---${NC}"
+                read -rp "Digite o USUÁRIO do DB de Dev [fowlgen]: " DB_USER
+                DB_USER=${DB_USER:-"fowlgen"}
+                
+                RAND_PASS=$(head -c 16 /dev/urandom | od -A n -t x1 | tr -d ' \n' | head -c 12)
+                read -rp "Digite a SENHA do DB de Dev (ou Enter para aleatória: $RAND_PASS): " DB_PASS
+                DB_PASS=${DB_PASS:-$RAND_PASS}
+                
+                read -rp "Digite o NOME do DB de Dev [fowlgenwars]: " DB_NAME
+                DB_NAME=${DB_NAME:-"fowlgenwars"}
+                
+                RAND_JWT=$(head -c 16 /dev/urandom | od -A n -t x1 | tr -d ' \n' | head -c 32)
+                read -rp "Digite a chave JWT secreta (ou Enter para aleatória: $RAND_JWT): " JWT_SECRET
+                JWT_SECRET=${JWT_SECRET:-$RAND_JWT}
+                
+                echo "1. Injetando Segredos do Banco e JWT no Minikube..."
+                $MINIKUBE_BIN kubectl -- create secret generic db-secret \
+                    --from-literal=postgres-user="$DB_USER" \
+                    --from-literal=postgres-password="$DB_PASS" \
+                    --from-literal=postgres-db="$DB_NAME" \
+                    --from-literal=postgres-connection-string="Host=postgres-service;Database=$DB_NAME;Username=$DB_USER;Password=$DB_PASS" \
+                    --from-literal=jwt-secret="$JWT_SECRET" \
+                    --dry-run=client -o yaml | $MINIKUBE_BIN kubectl -- apply -f -
+                
+                $MINIKUBE_BIN kubectl -- create secret generic postgres-secret \
+                    --from-literal=POSTGRES_USER="$DB_USER" \
+                    --from-literal=POSTGRES_PASSWORD="$DB_PASS" \
+                    --from-literal=POSTGRES_DB="$DB_NAME" \
+                    --dry-run=client -o yaml | $MINIKUBE_BIN kubectl -- apply -f -
+                
+                echo "2. Compilando imagens dentro do Minikube..."
+                
+                if [ -d "unity" ]; then
+                    echo -e "\n${YELLOW}=== Build Automático do Servidor Headless Unity (FishNet) ===${NC}"
+                    read -rp "Deseja realizar o build automático do Servidor Headless pela Unity CLI agora? (S/n): " BUILD_UNITY
+                    if [[ ! "$BUILD_UNITY" =~ ^[nN]$ ]]; then
+                        UNITY_EXEC=""
+                        if [ -f "$HOME/Unity/Hub/Editor/2022.3.20f1/Editor/Unity" ]; then
+                            UNITY_EXEC="$HOME/Unity/Hub/Editor/2022.3.20f1/Editor/Unity"
+                        else
+                            read -rp "Digite o caminho completo para o executável da Unity (ou Enter para pular): " USER_UNITY_EXEC
+                            if [ -f "$USER_UNITY_EXEC" ]; then
+                                UNITY_EXEC="$USER_UNITY_EXEC"
+                            fi
+                        fi
+                        
+                        if [ -n "$UNITY_EXEC" ]; then
+                            echo -e "${CYAN}Iniciando build do servidor em background (Isso pode demorar alguns minutos)...${NC}"
+                            mkdir -p build/Server
+                            "$UNITY_EXEC" -quit -batchmode -nographics -projectPath "./unity" -buildLinux64Player "$(pwd)/build/Server/FowlgenServer.x86_64" -logFile /tmp/unity_server_build.log || true
+                            if [ -f "build/Server/FowlgenServer.x86_64" ]; then
+                                echo -e "${GREEN}✓ Build Unity concluído com sucesso! Os artefatos estão em build/Server/${NC}"
+                            else
+                                echo -e "${RED}⚠️ Falha no build Unity. Verifique os logs em /tmp/unity_server_build.log${NC}"
+                            fi
+                        else
+                            echo -e "${YELLOW}Caminho do Unity não fornecido. Pulando etapa de build local do Unity.${NC}"
+                        fi
+                    fi
+                fi
+
+                $MINIKUBE_BIN image build -t ghcr.io/mukasanray/fowlgenwars-server:latest .
+                
+                if [ -d "api" ]; then
+                    echo "Compilando imagem da API..."
+                    $MINIKUBE_BIN image build -t ghcr.io/mukasanray/fowlgenwars-api:latest ./api
+                elif [ -d "app" ]; then
+                    echo "Compilando imagem da API (app)..."
+                    $MINIKUBE_BIN image build -t ghcr.io/mukasanray/fowlgenwars-api:latest ./app
+                fi
+
+                echo "3. Aplicando configurações Kubernetes (k8s/)..."
                 $MINIKUBE_BIN kubectl -- apply -f k8s/
                 echo -e "${GREEN}✓ Deploy concluído! Verifique o status com a opção 5.${NC}"
             else
