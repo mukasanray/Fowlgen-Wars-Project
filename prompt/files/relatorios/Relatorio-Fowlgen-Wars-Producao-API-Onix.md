@@ -45,12 +45,16 @@
 - **Injeção de Segredos:** A injeção das credenciais do PostgreSQL está mapeada perfeitamente nos Manifestos Kubernetes (`postgres-secret`) chamados pelo `install.sh`.
 - **Próximos Passos:** Adicionar o menu "Deploy em Produção (VPS/Nuvem)" para apontar comandos remotos via `kubectl` na VPS.
 
-## 🟡 Fase 6: Validação Híbrida e Segurança On-Chain (Solana)
-**Status:** **PREPARADO, AGUARDANDO DEPLOY**
-- **Feito:** A base da segurança (*Server-Authoritative*) está sólida, pois a API consegue validar criptograficamente a carteira e o Banco de Dados estará blindado e autogerido pelas Migrations da WebApi.
+## 🟢 Fase 6: Validação Híbrida e Segurança On-Chain (Solana)
+**Status:** **CONCLUÍDO (Integração C# e Devnet)**
+- **Feito:** 
+  - A base da segurança (*Server-Authoritative*) está sólida. A API valida criptograficamente a carteira (Web3) e o DB é blindado.
+  - Sincronização oficial do Program ID da Devnet (`81MprTi78xQvtVg9aaK4s4Cw9K62CU6PtcPYsChLNyxE`) garantida no `lib.rs` e `Anchor.toml`.
+  - Exportação e injeção do IDL finalizado na Unity (`fowlgen_wars_contract.json`).
+  - Lógica Server-Authoritative programada 100% no `MatchRewardManager.cs` (O servidor descobre a wallet na WebApi, deriva os PDAs Anchor, monta a instrução `claim_reward` e assina pagando as taxas sem expor a Private Key ao client).
 - **Próximos Passos:**
-  1. Testar conexão do Unity Client via rede 4G usando o Domínio de Produção.
-  2. Executar uma partida e validar se o FishNet Server assina com êxito o resultado usando o contrato Anchor na Blockchain.
+  1. Testar conexão do Unity Client via rede 4G usando o Domínio de Produção (assim que as Fases 2 e 3 de Deploy da VPS ocorrerem).
+  2. Gravar o vídeo de Pitch do Hackathon 2026 com o loop híbrido executado com sucesso na Blockchain.
 
 ---
 *Nota Adicional: Foi realizada também uma limpeza de arquivos sujos do sistema de arquivos (`*:Zone.Identifier`) do repositório, garantindo estabilidade nas transferências entre Sistemas Operacionais via Git.*
