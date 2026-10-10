@@ -7,7 +7,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-fowlgen_wars_contract = "81MprTi78xQvtVg9aaK4s4Cw9K62CU6PtcPYsChLNyxE"
+fowlgen_wars_contract = "BiH6PWPXifeM9BQ6A1UpPo2sNxVB7sqGkyRaueP8iK7D"
 
 [programs.localnet]
 fowlgen_wars_contract = "6C83pMDjLwNGzg1aC8R5MMgWW7pM2zKgsd4n4cKj8RjW"
