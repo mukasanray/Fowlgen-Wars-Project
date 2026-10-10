@@ -1,0 +1,3 @@
+[submodule "api/src/Onix.Framework"]
+	path = api/src/Onix.Framework
+	url = https://github.com/marcospascoski/Onix.Framework.git
