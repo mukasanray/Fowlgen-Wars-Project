@@ -7,53 +7,42 @@ Conforme recomendações de AppSec e boas práticas do ecossistema Solana, o ser
 
 ---
 
-## Fase 1: Construção da API Central (.NET 9 com Onix.Framework)
+## [DESENVOLVIMENTO] Fase 1: Construção da API Central (.NET 9)
+**Status:** **CONCLUÍDO**
+**Objetivo:** Criar uma API robusta em ASP.NET Core para intermediar toda a comunicação entre o Site (Junior), o Game Server FishNet (Marcos) e o Banco de Dados (PostgreSQL).
+- **Setup e ORM:** API criada utilizando `Onix.Framework` e Entity Framework Core (Migrations automatizadas).
+- **Endpoints REST:** `POST /api/users` (Registro) e `POST /api/users/login` (Autenticação Web3 via Ed25519).
 
-**Objetivo:** Criar uma API robusta em ASP.NET Core para intermediar toda a comunicação entre o Site (Junior), o Game Server FishNet (Marcos) e o Banco de Dados (PostgreSQL), utilizando os padrões já estabelecidos pelo Líder Técnico.
-- **1. Referência Arquitetural:** O projeto da API será baseado nos repositórios de referência estruturais de Marcos:
-  - `https://github.com/marcospascoski/Onix.Framework` (Framework Base)
-  - `https://github.com/marcospascoski/write-book-backend` (Referência de Implementação API)
-- **2. Setup da API (.NET 9):** Inicializar um projeto Web API unificando a stack do backend (C#). A API será o **único ponto de contato** com o banco de dados PostgreSQL.
-- **3. ORM e Modelagem (Entity Framework Core):** 
-  - Utilizar o EF Core integrado ao padrão do `Onix.Framework` para criar as tabelas automaticamente no PostgreSQL (Migrations).
-  - Modelo `Usuario`: `IdUsuario` (Guid), `Nickname` (String), `Email` (String), `WalletAddress` (String).
-- **4. Endpoints REST (Comunicação Segura Web2 -> Web3):**
-  - O Hub Web do Junior deixará de acessar o banco diretamente. Em vez disso, o site fará chamadas `POST /api/users` para registrar jogadores e carteiras Solana.
-  - O Game Server FishNet fará chamadas `GET /api/users/{id}/wallet` via `HttpClient` para descobrir a carteira associada à conta logada e assinar as transações no Anchor de forma isolada e segura.
-- **5. Deploy da API no Kubernetes:** Empacotar a API .NET em um container Docker e criar o Deployment/Service no Kubernetes, operando via Ingress Traefik.
-
-## Fase 2: Preparação da Infraestrutura e Domínio (Cloud Setup)
-
-**Objetivo:** Estabelecer o servidor físico/virtual e a rota de internet pública.
-- **1. Provisionamento de VPS:** Contratar/Criar uma VPS com Linux (Ubuntu 24.04 recomendado) em um provedor de nuvem (AWS EC2, DigitalOcean, Hetzner, etc).
-- **2. Setup do Kubernetes de Produção:** Ao invés do Minikube, instalar uma distribuição leve e pronta para produção como **K3s** (da Rancher) ou **MicroK8s** na VPS.
-- **3. Configuração de DNS:** Registrar um domínio (ex: `play.fowlgenwars.com`) e configurar um apontamento Tipo A (A Record) no painel de DNS, direcionando o tráfego para o IP público da VPS.
-
-## Fase 3: Configuração do Traefik (Ingress & SSL)
-
-**Objetivo:** Receber o tráfego externo de forma segura e roteá-lo para os Pods internos da API e do FishNet.
-- **1. Instalação do Traefik:** Implantar o Traefik como *Ingress Controller* no cluster K3s/MicroK8s.
-- **2. Criação do IngressRoute (TCP/UDP e HTTP):** 
-  - Regras para a API HTTP (`/api`) usando o Traefik.
-  - Regras para o FishNet (`IngressRouteUDP`/TCP) direcionando conexões da porta 7770 para o Service `fishnet-server-service`.
-- **3. Certificados TLS (Let's Encrypt):** Configurar o Traefik para provisionar e renovar automaticamente certificados SSL/TLS para o domínio (Segurança WSS e HTTPS).
-
-## Fase 4: Registro de Imagem e Adaptação dos Manifestos K8s
-
-**Objetivo:** Evoluir a lógica de build local da imagem docker.
-- **1. Container Registry:** Alterar o processo de build do FishNet e da API para realizar o push das imagens para um registro de containers remoto (GHCR ou Docker Hub).
-- **2. Atualização dos Manifestos:** Alterar os arquivos YAML para puxar as imagens remotamente e substituir dependências de `NodePort` estático pelo roteamento gerenciado pelo Ingress Traefik.
-- **3. Storage Class (PVC):** Garantir que o manifesto de banco de dados (`postgres-pvc.yaml`) utilize a *StorageClass* adequada da VPS para persistência segura.
-
-## Fase 5: Atualização do Install.sh e CI/CD
-
-**Objetivo:** Automatizar a gestão da produção a partir da máquina local/repositório.
-- **1. Novo Módulo no Install.sh:** Adicionar a Opção `[10] Deploy em Produção (VPS/Nuvem)` no menu principal.
-- **2. Comandos de Operação Remota:** Configurar o script para aplicar manifestos usando `kubectl` remoto.
-- **3. Injeção de Segredos:** Assegurar que o banco de dados, chaves JWT da API e as chaves de autoridade da carteira (`id.json`) da Solana operem estritamente via Kubernetes Secrets.
-
-## Fase 6: Validação Híbrida e Segurança On-Chain (Solana)
-
+## [DESENVOLVIMENTO] Fase 2: Segurança On-Chain e Integração Unity (Solana)
+**Status:** **CONCLUÍDO**
 **Objetivo:** Garantir a autoridade do servidor antes da comunicação com a Blockchain.
-- **1. Validação de Conexão:** Testar a API e o Unity Client via Domínio em rede 4G.
-- **2. Server-Authoritative Logic:** Reforçar que apenas o FishNet Server pode disparar assinaturas de fim de partida no contrato Anchor, consultando a carteira do usuário de forma segura através da API em `Onix.Framework`.
+- **Server-Authoritative Logic:** A API valida a carteira do usuário de forma segura. O `MatchRewardManager.cs` (no servidor FishNet) calcula os PDAs da rede Solana, assina a transação usando a chave de autoridade do K8s Secrets e efetua o `claim_reward` no Smart Contract Anchor da Devnet oficial (`81MprTi...`).
+
+## [DESENVOLVIMENTO] Fase 3: Script de Instalação e Automação Local
+**Status:** **CONCLUÍDO**
+**Objetivo:** Automatizar a gestão da produção a partir da máquina local/repositório.
+- **Módulo de Produção:** Opção `[10] Deploy em Produção (VPS/Nuvem)` adicionada ao `install.sh`. O script injeta dinamicamente o domínio de produção nas regras Host do Traefik, mantendo os arquivos YAML intactos para testes locais.
+
+## [DESENVOLVIMENTO] Fase 4: Container Registry e Pipeline CI/CD (GitHub Actions)
+**Status:** **PENDENTE**
+**Objetivo:** Automatizar o empacotamento do servidor para que qualquer ambiente possa baixá-lo.
+- **1. GitHub Actions (GHCR):** Criar workflow (`.github/workflows`) para fazer build das imagens Docker (API e FishNet) e subir para o GitHub Container Registry automaticamente.
+- **2. Atualização dos YAMLs:** Atualizar os manifestos K8s para puxar as imagens do repositório remoto (`ghcr.io/...`) em vez do build local.
+
+---
+
+*(As fases abaixo dependem EXCLUSIVAMENTE da compra/contratação de um plano de VPS e Domínio e devem ser executadas por último)*
+
+## [INFRAESTRUTURA] Fase 5: Cloud Setup (VPS e DNS)
+**Status:** **PENDENTE (Aguardando Compra)**
+**Objetivo:** Estabelecer o servidor físico/virtual e a rota de internet pública.
+- **1. Provisionamento de VPS:** Contratar VPS com Linux (Ubuntu 24.04 recomendado).
+- **2. Setup do Kubernetes:** Instalar **K3s** (Rancher) ou **MicroK8s** na VPS.
+- **3. DNS:** Registrar um domínio e criar Apontamento A para o IP da VPS.
+
+## [INFRAESTRUTURA] Fase 6: Configuração de Ingress, Storage e Traefik
+**Status:** **PENDENTE (Aguardando VPS)**
+**Objetivo:** Garantir roteamento, persistência e segurança SSL.
+- **1. Let's Encrypt:** Configurar o Traefik Ingress na VPS com os argumentos de ACME (SSL Automático) usando o domínio real.
+- **2. Storage Class (PVC):** Garantir que o `postgres-pvc.yaml` utilize a *StorageClass* adequada do provedor da VPS para não perder dados de banco.
+- **3. Teste em 4G:** Conectar o Unity Client pelo celular e realizar a partida 100% hospedada na nuvem.
