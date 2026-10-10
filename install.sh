@@ -1045,6 +1045,9 @@ func_deploy_producao() {
     DB_NAME=${DB_NAME:-"fowlgenwars"}
     read -rp "Digite a chave secreta JWT para a API Onix: " JWT_SECRET
     JWT_SECRET=${JWT_SECRET:-"fowlgen_super_secret_jwt_key_2026"}
+    
+    echo -e "\n${CYAN}--- Configuração de Domínio e Segurança (Traefik SSL) ---${NC}"
+    read -rp "Digite o Domínio de Produção para emitir SSL (ex: play.fowlgenwars.com) ou ENTER para pular: " PROD_DOMAIN
 
     echo "Injetando Segredos do Banco e JWT..."
     kubectl create secret generic db-secret \
@@ -1071,8 +1074,16 @@ func_deploy_producao() {
         kubectl apply -f "$BASE_DIR/k8s/postgres-service.yaml"
         echo "Aplicando Deployment e Service da API..."
         kubectl apply -f "$BASE_DIR/k8s/api-deployment.yaml"
+        
         echo "Aplicando Traefik IngressRoutes..."
-        kubectl apply -f "$BASE_DIR/k8s/traefik-ingress.yaml"
+        # Copia o original para um temporário para poder alterar o host dinamicamente
+        cp "$BASE_DIR/k8s/traefik-ingress.yaml" "/tmp/traefik-ingress-prod.yaml"
+        if [ -n "$PROD_DOMAIN" ]; then
+            echo -e "${YELLOW}Injetando Domínio '$PROD_DOMAIN' no IngressRoute para SSL Let's Encrypt...${NC}"
+            sed -i "s|match: PathPrefix(\`/api\`)|match: Host(\`${PROD_DOMAIN}\`) \&\& PathPrefix(\`/api\`)|g" "/tmp/traefik-ingress-prod.yaml"
+        fi
+        kubectl apply -f "/tmp/traefik-ingress-prod.yaml"
+        
         echo -e "${GREEN}✓ Manifestos aplicados com sucesso!${NC}"
     else
         echo -e "${RED}Erro: Pasta k8s/ não encontrada.${NC}"
