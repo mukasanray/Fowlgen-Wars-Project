@@ -1046,9 +1046,13 @@ func_deploy_producao() {
     read -rp "Digite a chave secreta JWT para a API Onix: " JWT_SECRET
     JWT_SECRET=${JWT_SECRET:-"fowlgen_super_secret_jwt_key_2026"}
     
-    echo -e "\n${CYAN}--- Configuração de Domínio e Segurança (Traefik SSL) ---${NC}"
-    read -rp "Digite o Domínio de Produção para emitir SSL (ex: play.fowlgenwars.com.br) ou ENTER para pular: " PROD_DOMAIN
-
+    echo -e "\n${CYAN}--- Configuração de Domínios e Segurança (Traefik SSL) ---${NC}"
+    read -rp "Digite o Domínio da API para SSL (ex: api.fowlgenwars.com) ou ENTER para pular: " API_DOMAIN
+    read -rp "Digite o Domínio do Servidor FishNet (ex: play.fowlgenwars.com) ou ENTER para pular: " FISHNET_DOMAIN
+    
+    if [ -n "$API_DOMAIN" ] || [ -n "$FISHNET_DOMAIN" ]; then
+        read -rp "Digite o E-mail de admin para registrar o SSL no Let's Encrypt: " SSL_EMAIL
+    fi
     echo "Injetando Segredos do Banco e JWT..."
     kubectl create secret generic db-secret \
         --from-literal=postgres-user="$DB_USER" \
@@ -1078,11 +1082,25 @@ func_deploy_producao() {
         echo "Aplicando Traefik IngressRoutes..."
         # Copia o original para um temporário para poder alterar o host dinamicamente
         cp "$BASE_DIR/k8s/traefik-ingress.yaml" "/tmp/traefik-ingress-prod.yaml"
-        if [ -n "$PROD_DOMAIN" ]; then
-            echo -e "${YELLOW}Injetando Domínio '$PROD_DOMAIN' no IngressRoute para SSL Let's Encrypt...${NC}"
-            sed -i "s|match: PathPrefix(\`/api\`)|match: Host(\`${PROD_DOMAIN}\`) \&\& PathPrefix(\`/api\`)|g" "/tmp/traefik-ingress-prod.yaml"
+        
+        if [ -n "$API_DOMAIN" ]; then
+            echo -e "${YELLOW}Injetando Domínio '$API_DOMAIN' para a API...${NC}"
+            sed -i "s|match: PathPrefix(\`/api\`)|match: Host(\`${API_DOMAIN}\`) \&\& PathPrefix(\`/api\`)|g" "/tmp/traefik-ingress-prod.yaml"
         fi
+        
+        if [ -n "$FISHNET_DOMAIN" ]; then
+            echo -e "${YELLOW}Injetando Domínio '$FISHNET_DOMAIN' para o TCP do FishNet...${NC}"
+            sed -i "s|match: HostSNI(\`*\`)|match: HostSNI(\`${FISHNET_DOMAIN}\`)|g" "/tmp/traefik-ingress-prod.yaml"
+        fi
+        
         kubectl apply -f "/tmp/traefik-ingress-prod.yaml"
+        
+        if [ -n "$API_DOMAIN" ] || [ -n "$FISHNET_DOMAIN" ]; then
+            echo "Aplicando HelmChartConfig do Traefik para ACME/Let's Encrypt..."
+            cp "$BASE_DIR/k8s/traefik-helm-config.yaml" "/tmp/traefik-helm-prod.yaml"
+            sed -i "s|YOUR_EMAIL_HERE|$SSL_EMAIL|g" "/tmp/traefik-helm-prod.yaml"
+            kubectl apply -f "/tmp/traefik-helm-prod.yaml"
+        fi
         
         echo -e "${GREEN}✓ Manifestos aplicados com sucesso!${NC}"
     else
