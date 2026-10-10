@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: fishnet-server-service
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: fishnet-server
   ports:
@@ -11,9 +11,7 @@ spec:
       protocol: UDP
       port: 7770
       targetPort: 7770
-      nodePort: 30770 # Porta fixa para acessar via IP do Minikube
     - name: fishnet-tcp
       protocol: TCP
       port: 7770
       targetPort: 7770
-      nodePort: 30771

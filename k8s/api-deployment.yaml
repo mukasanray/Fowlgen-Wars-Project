@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fowlgenwars-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fowlgenwars-api
+  template:
+    metadata:
+      labels:
+        app: fowlgenwars-api
+    spec:
+      containers:
+      - name: fowlgenwars-api
+        image: ghcr.io/mukasanray/fowlgenwars-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ConnectionStrings__DefaultConnection
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: postgres-connection-string
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fowlgenwars-api-service
+  namespace: default
+spec:
+  selector:
+    app: fowlgenwars-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP

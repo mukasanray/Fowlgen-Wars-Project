@@ -1028,6 +1028,129 @@ func_servidor_fishnet() {
 }
 
 # ==============================================================================
+# 10. DEPLOY EM PRODUÇÃO (VPS/NUVEM)
+# ==============================================================================
+func_deploy_producao() {
+    banner
+    echo -e "${BLUE}${BOLD}>>> [10] Deploy em Produção (VPS/Nuvem) com Traefik${NC}\n"
+    
+    echo -e "${YELLOW}Verificando pré-requisitos para produção...${NC}"
+    
+    if ! command -v kubectl &> /dev/null; then
+        echo -e "${YELLOW}Kubernetes não encontrado! Instalando o K3s automaticamente para você...${NC}"
+        curl -sfL https://get.k3s.io | sh -
+        mkdir -p ~/.kube
+        sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config 2>/dev/null || true
+        sudo chown "$(id -u):$(id -g)" ~/.kube/config 2>/dev/null || true
+        echo -e "${GREEN}✓ Kubernetes (K3s) instalado nativamente! Continuando com o Deploy...${NC}\n"
+    fi
+    
+    echo -e "${YELLOW}Iniciando aplicação dos manifestos K8s...${NC}"
+    
+    echo -e "${CYAN}--- Configuração de Segredos (Kubernetes Secrets) ---${NC}"
+    read -rp "Digite o USUÁRIO do DB de Produção [fowlgen]: " DB_USER
+    DB_USER=${DB_USER:-"fowlgen"}
+    read -rp "Digite a SENHA do DB de Produção [fowlgen_password]: " DB_PASS
+    DB_PASS=${DB_PASS:-"fowlgen_password"}
+    read -rp "Digite o NOME do DB de Produção [fowlgenwars]: " DB_NAME
+    DB_NAME=${DB_NAME:-"fowlgenwars"}
+    read -rp "Digite a chave secreta JWT para a API Onix: " JWT_SECRET
+    JWT_SECRET=${JWT_SECRET:-"fowlgen_super_secret_jwt_key_2026"}
+    
+    echo -e "\n${CYAN}--- Configuração de Domínios e Segurança (Traefik SSL) ---${NC}"
+    read -rp "Digite o Domínio da API para SSL (ex: api.fowlgenwars.com) ou ENTER para pular: " API_DOMAIN
+    read -rp "Digite o Domínio do Servidor FishNet (ex: play.fowlgenwars.com) ou ENTER para pular: " FISHNET_DOMAIN
+    
+    if [ -n "$API_DOMAIN" ] || [ -n "$FISHNET_DOMAIN" ]; then
+        read -rp "Digite o E-mail de admin para registrar o SSL no Let's Encrypt: " SSL_EMAIL
+    fi
+    echo "Injetando Segredos do Banco e JWT..."
+    kubectl create secret generic db-secret \
+        --from-literal=postgres-user="$DB_USER" \
+        --from-literal=postgres-password="$DB_PASS" \
+        --from-literal=postgres-db="$DB_NAME" \
+        --from-literal=postgres-connection-string="Host=postgres-service;Database=$DB_NAME;Username=$DB_USER;Password=$DB_PASS" \
+        --from-literal=jwt-secret="$JWT_SECRET" \
+        --dry-run=client -o yaml | kubectl apply -f -
+
+    if [ -f "$HOME/.config/solana/id.json" ]; then
+        echo "Injetando Segredo da Wallet Solana (Server Authority)..."
+        kubectl create secret generic solana-wallet-secret \
+            --from-file=id.json="$HOME/.config/solana/id.json" \
+            --dry-run=client -o yaml | kubectl apply -f -
+    else
+        echo -e "${YELLOW}Aviso: $HOME/.config/solana/id.json não encontrado. Secret da wallet ignorado.${NC}"
+    fi
+
+    if [ -d "$BASE_DIR/k8s" ]; then
+        echo "Aplicando Deployment e Service do PostgreSQL..."
+        kubectl apply -f "$BASE_DIR/k8s/postgres-pvc.yaml"
+        kubectl apply -f "$BASE_DIR/k8s/postgres-deployment.yaml"
+        kubectl apply -f "$BASE_DIR/k8s/postgres-service.yaml"
+        echo "Aplicando Deployment e Service da API..."
+        kubectl apply -f "$BASE_DIR/k8s/api-deployment.yaml"
+        
+        echo "Aplicando Traefik IngressRoutes..."
+        # Copia o original para um temporário para poder alterar o host dinamicamente
+        cp "$BASE_DIR/k8s/traefik-ingress.yaml" "/tmp/traefik-ingress-prod.yaml"
+        
+        if [ -n "$API_DOMAIN" ]; then
+            echo -e "${YELLOW}Injetando Domínio '$API_DOMAIN' para a API...${NC}"
+            sed -i "s|match: PathPrefix(\`/api\`)|match: Host(\`${API_DOMAIN}\`) \&\& PathPrefix(\`/api\`)|g" "/tmp/traefik-ingress-prod.yaml"
+        fi
+        
+        if [ -n "$FISHNET_DOMAIN" ]; then
+            echo -e "${YELLOW}Injetando Domínio '$FISHNET_DOMAIN' para o TCP do FishNet...${NC}"
+            sed -i "s|match: HostSNI(\`*\`)|match: HostSNI(\`${FISHNET_DOMAIN}\`)|g" "/tmp/traefik-ingress-prod.yaml"
+        fi
+        
+        kubectl apply -f "/tmp/traefik-ingress-prod.yaml"
+        
+        if [ -n "$API_DOMAIN" ] || [ -n "$FISHNET_DOMAIN" ]; then
+            echo "Aplicando HelmChartConfig do Traefik para ACME/Let's Encrypt..."
+            cp "$BASE_DIR/k8s/traefik-helm-config.yaml" "/tmp/traefik-helm-prod.yaml"
+            sed -i "s|YOUR_EMAIL_HERE|$SSL_EMAIL|g" "/tmp/traefik-helm-prod.yaml"
+            kubectl apply -f "/tmp/traefik-helm-prod.yaml"
+        fi
+        
+        echo -e "${GREEN}✓ Manifestos aplicados com sucesso!${NC}"
+    else
+        echo -e "${RED}Erro: Pasta k8s/ não encontrada.${NC}"
+    fi
+    pausar
+}
+
+# ==============================================================================
+# 11. PREPARAÇÃO DA VPS (INSTALAR K3S)
+# ==============================================================================
+func_preparar_vps() {
+    banner
+    echo -e "${BLUE}${BOLD}>>> [11] Preparar VPS (Instalar K3s Kubernetes)${NC}\n"
+    
+    echo -e "${YELLOW}ATENÇÃO:${NC} Esta opção deve ser rodada **apenas na VPS de Produção** (Ubuntu/Linux)."
+    echo -e "O script fará o download e instalação do K3s (distribuição Kubernetes leve da Rancher)."
+    echo -e "O Traefik Ingress já vem embutido nativamente no K3s.\n"
+    
+    read -rp "Você tem certeza que deseja instalar o K3s nesta máquina? (s/N): " CONFIRMA
+    if [[ "$CONFIRMA" =~ ^[Ss]$ ]]; then
+        echo -e "\n${CYAN}Iniciando instalação do K3s...${NC}"
+        curl -sfL https://get.k3s.io | sh -
+        
+        echo -e "\n${GREEN}✓ Instalação do K3s concluída!${NC}"
+        echo -e "Verifique o status dos nodes usando: ${BOLD}sudo k3s kubectl get nodes${NC}"
+        
+        echo -e "\n${YELLOW}Configurando permissões do kubectl (KUBECONFIG)...${NC}"
+        mkdir -p ~/.kube
+        sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+        sudo chown "$(id -u):$(id -g)" ~/.kube/config
+        echo -e "${GREEN}✓ Permissões configuradas! Agora você pode usar 'kubectl' nativamente.${NC}"
+    else
+        echo -e "\n${YELLOW}Instalação cancelada pelo usuário.${NC}"
+    fi
+    pausar
+}
+
+# ==============================================================================
 # MENU PRINCIPAL INTERATIVO
 # ==============================================================================
 main_menu() {
@@ -1043,9 +1166,11 @@ main_menu() {
         echo -e "  ${BOLD}[7]${NC} 🩺 Diagnóstico do Ambiente (Health Check)"
         echo -e "  ${BOLD}[8]${NC} ⚙️  Gerenciar Validador Local (solana-test-validator)"
         echo -e "  ${BOLD}[9]${NC} 🐳 Gerenciar Servidor FishNet (Docker)"
+        echo -e "  ${BOLD}[10]${NC} ☁️  Deploy em Produção (Traefik / VPS)"
+        echo -e "  ${BOLD}[11]${NC} 🛠️  Preparar VPS (Instalar K3s Kubernetes)"
         echo -e "  ${BOLD}[0]${NC} ❌ Sair"
         echo "------------------------------------------------------------------"
-        read -rp "Selecione uma opção [0-9]: " MAIN_OPT
+        read -rp "Selecione uma opção [0-11]: " MAIN_OPT
 
         case "$MAIN_OPT" in
             1) func_primeira_instalacao ;;
@@ -1057,12 +1182,14 @@ main_menu() {
             7) func_diagnostico_healthcheck ;;
             8) func_validador_local ;;
             9) func_servidor_fishnet ;;
+            10) func_deploy_producao ;;
+            11) func_preparar_vps ;;
             0)
                 echo -e "\n${GREEN}Até logo e boas batalhas no FOWLGEN WARS! 🐔⚔️${NC}\n"
                 exit 0
                 ;;
             *)
-                echo -e "\n${RED}Opção inválida. Escolha entre 0 e 9.${NC}"
+                echo -e "\n${RED}Opção inválida. Escolha entre 0 e 11.${NC}"
                 sleep 1.5
                 ;;
         esac

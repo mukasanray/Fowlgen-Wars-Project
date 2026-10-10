@@ -59,8 +59,10 @@ crashlytics-build.properties
 .vs/
 .vscode/
 *.csproj
+!api/**/*.csproj
 *.unityproj
 *.sln
+!api/**/*.sln
 *.slnx
 *.suo
 *.tmp
@@ -151,6 +153,7 @@ ehthumbs_vista.db
 Desktop.ini
 $RECYCLE.BIN/
 *.lnk
+*:Zone.Identifier
 
 # Linux
 *~

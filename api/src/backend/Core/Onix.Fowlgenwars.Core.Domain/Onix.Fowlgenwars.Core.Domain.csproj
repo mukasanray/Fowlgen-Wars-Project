@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+  </PropertyGroup>
+	
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Onix.Framework\src\Onix.Framework.Domain\Onix.Framework.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Onix.Framework\src\Onix.Framework.Infra.Data\Onix.Framework.Infra.Data.csproj" />
+    <ProjectReference Include="..\..\..\Onix.Framework\src\Onix.Framework.Notifications\Onix.Framework.Notifications.csproj" />
+  </ItemGroup>
+
+</Project>

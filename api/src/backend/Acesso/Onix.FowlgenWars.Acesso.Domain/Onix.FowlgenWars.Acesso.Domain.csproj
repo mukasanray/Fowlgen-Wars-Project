@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="9.0.18" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.18" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Onix.Fowlgenwars.Core.Domain\Onix.Fowlgenwars.Core.Domain.csproj" />
+    <ProjectReference Include="..\..\Core\Onix.Fowlgenwars.Core.Resources\Onix.Fowlgenwars.Core.Resources.csproj" />
+    <ProjectReference Include="..\..\..\Onix.Framework\src\Onix.Framework.Domain\Onix.Framework.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Onix.Framework\src\Onix.Framework.Notifications\Onix.Framework.Notifications.csproj" />
+  </ItemGroup>
+</Project>

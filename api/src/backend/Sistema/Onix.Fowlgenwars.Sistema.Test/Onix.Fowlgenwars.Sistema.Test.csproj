@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.18" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="Xunit.DependencyInjection" Version="9.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="8.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Onix.Fowlgenwars.Core.Infra.IoC\Onix.Fowlgenwars.Core.Infra.IoC.csproj" />
+    <ProjectReference Include="..\Onix.Fowlgenwars.Sistema.Domain\Onix.Fowlgenwars.Sistema.Domain.csproj" />
+    <ProjectReference Include="..\Onix.Fowlgenwars.Sistema.Infra.Data\Onix.Fowlgenwars.Sistema.Infra.Data.csproj" />
+    <ProjectReference Include="..\Onix.Fowlgenwars.Sistema.Infra.IoC\Onix.Fowlgenwars.Sistema.Infra.IoC.csproj" />
+  </ItemGroup>
+
+</Project>

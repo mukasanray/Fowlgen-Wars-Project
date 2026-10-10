@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Onix.Framework\src\Onix.Framework.Infra.Data.EFCore\Onix.Framework.Infra.Data.EFCore.csproj" />
+    <ProjectReference Include="..\Onix.Fowlgenwars.Sistema.Domain\Onix.Fowlgenwars.Sistema.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
