@@ -40,7 +40,7 @@
 
 ## 🔴 Fase 5: Cloud Setup (VPS e DNS)
 **Status:** **BLOQUEADO (Aguardando Compra de VPS)**
-- **Próximos Passos:** Contratar VPS Ubuntu 24.04, instalar K3s/MicroK8s, registrar Domínio e apontar o DNS A Record para a VPS.
+- **Próximos Passos:** Contratar VPS Ubuntu 24.04, rodar a Opção `[11] Preparar VPS` para instalar nativamente o **K3s**, registrar Domínio e apontar o DNS A Record para a VPS.
 
 ## 🔴 Fase 6: Validação Final e Segurança 4G
 **Status:** **BLOQUEADO (Aguardando VPS e Domínio online)**

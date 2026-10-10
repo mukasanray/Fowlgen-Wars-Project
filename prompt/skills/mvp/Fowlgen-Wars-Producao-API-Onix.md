@@ -37,7 +37,7 @@ Conforme recomendações de AppSec e boas práticas do ecossistema Solana, o ser
 **Status:** **PENDENTE (Aguardando Compra)**
 **Objetivo:** Estabelecer o servidor físico/virtual e a rota de internet pública.
 - **1. Provisionamento de VPS:** Contratar VPS com Linux (Ubuntu 24.04 recomendado).
-- **2. Setup do Kubernetes:** Instalar **K3s** (Rancher) ou **MicroK8s** na VPS.
+- **2. Setup do Kubernetes (K3s):** Acessar a VPS, baixar o projeto e rodar a Opção `[11] Preparar VPS` no `install.sh` para instalar nativamente o K3s.
 - **3. DNS:** Registrar um domínio e criar Apontamento A para o IP da VPS.
 
 ## [INFRAESTRUTURA] Fase 6: Storage e Validação 4G

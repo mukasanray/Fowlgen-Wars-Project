@@ -1110,6 +1110,36 @@ func_deploy_producao() {
 }
 
 # ==============================================================================
+# 11. PREPARAÇÃO DA VPS (INSTALAR K3S)
+# ==============================================================================
+func_preparar_vps() {
+    banner
+    echo -e "${BLUE}${BOLD}>>> [11] Preparar VPS (Instalar K3s Kubernetes)${NC}\n"
+    
+    echo -e "${YELLOW}ATENÇÃO:${NC} Esta opção deve ser rodada **apenas na VPS de Produção** (Ubuntu/Linux)."
+    echo -e "O script fará o download e instalação do K3s (distribuição Kubernetes leve da Rancher)."
+    echo -e "O Traefik Ingress já vem embutido nativamente no K3s.\n"
+    
+    read -rp "Você tem certeza que deseja instalar o K3s nesta máquina? (s/N): " CONFIRMA
+    if [[ "$CONFIRMA" =~ ^[Ss]$ ]]; then
+        echo -e "\n${CYAN}Iniciando instalação do K3s...${NC}"
+        curl -sfL https://get.k3s.io | sh -
+        
+        echo -e "\n${GREEN}✓ Instalação do K3s concluída!${NC}"
+        echo -e "Verifique o status dos nodes usando: ${BOLD}sudo k3s kubectl get nodes${NC}"
+        
+        echo -e "\n${YELLOW}Configurando permissões do kubectl (KUBECONFIG)...${NC}"
+        mkdir -p ~/.kube
+        sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+        sudo chown "$(id -u):$(id -g)" ~/.kube/config
+        echo -e "${GREEN}✓ Permissões configuradas! Agora você pode usar 'kubectl' nativamente.${NC}"
+    else
+        echo -e "\n${YELLOW}Instalação cancelada pelo usuário.${NC}"
+    fi
+    pausar
+}
+
+# ==============================================================================
 # MENU PRINCIPAL INTERATIVO
 # ==============================================================================
 main_menu() {
@@ -1125,10 +1155,11 @@ main_menu() {
         echo -e "  ${BOLD}[7]${NC} 🩺 Diagnóstico do Ambiente (Health Check)"
         echo -e "  ${BOLD}[8]${NC} ⚙️  Gerenciar Validador Local (solana-test-validator)"
         echo -e "  ${BOLD}[9]${NC} 🐳 Gerenciar Servidor FishNet (Docker)"
-        echo -e "  ${BOLD}[10]${NC} ☁️  Deploy em Produção (VPS/Nuvem)"
+        echo -e "  ${BOLD}[10]${NC} ☁️  Deploy em Produção (Traefik / VPS)"
+        echo -e "  ${BOLD}[11]${NC} 🛠️  Preparar VPS (Instalar K3s Kubernetes)"
         echo -e "  ${BOLD}[0]${NC} ❌ Sair"
         echo "------------------------------------------------------------------"
-        read -rp "Selecione uma opção [0-10]: " MAIN_OPT
+        read -rp "Selecione uma opção [0-11]: " MAIN_OPT
 
         case "$MAIN_OPT" in
             1) func_primeira_instalacao ;;
@@ -1141,12 +1172,13 @@ main_menu() {
             8) func_validador_local ;;
             9) func_servidor_fishnet ;;
             10) func_deploy_producao ;;
+            11) func_preparar_vps ;;
             0)
                 echo -e "\n${GREEN}Até logo e boas batalhas no FOWLGEN WARS! 🐔⚔️${NC}\n"
                 exit 0
                 ;;
             *)
-                echo -e "\n${RED}Opção inválida. Escolha entre 0 e 10.${NC}"
+                echo -e "\n${RED}Opção inválida. Escolha entre 0 e 11.${NC}"
                 sleep 1.5
                 ;;
         esac
