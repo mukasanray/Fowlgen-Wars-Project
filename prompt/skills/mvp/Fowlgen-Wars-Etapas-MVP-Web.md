@@ -22,12 +22,12 @@ Neste fluxo, o site funciona como um "Hub" do jogador, hospedando a versão do j
 ## Fase 2 - Contas de Usuários (Banco de Dados Compartilhado)
 **Objetivo:** Contas Web2 integradas diretamente ao ecossistema do servidor do jogo.
 
-1. **Conexão ao Banco Único (Responsável: Junior / Dependência: Marcos):**
-   - **ATENÇÃO:** O Junior *não* criará um banco de dados isolado. Ele conectará o site utilizando a *Connection String* do banco de dados (ex: Supabase/PostgreSQL) provisionado pelo **Marcos** (na Fase 1 do Backend).
-2. **Autenticação e Escrita (Responsável: Junior):**
-   - Criar o fluxo de Registro e Login simples no site. O site é responsável por **escrever** os novos usuários na tabela. O jogo (Unity/FishNet) posteriormente usará essa mesma tabela apenas para validar o login.
-3. **Modelagem Básica Compartilhada (Responsável: Junior):**
-   - Tabela de Usuários com `id_usuario`, `nickname_jogo`, `email` e `wallet_address`.
+1. **Comunicação com a API Central (Responsável: Junior / Dependência: Marcos):**
+   - **ATENÇÃO:** O Junior *não* se conectará diretamente ao banco de dados. Ele consumirá a **API REST (.NET 9 / Onix.Framework)** construída pelo **Marcos**.
+2. **Autenticação e Escrita via API (Responsável: Junior):**
+   - Criar o fluxo de Registro e Login no site. O site fará requisições HTTP `POST` para a API do Marcos a fim de registrar e buscar os novos usuários.
+3. **Modelagem Consumida via DTOs da API (Responsável: Junior):**
+   - O payload enviado/recebido lidará com os campos definidos pelo backend: `id_usuario`, `nickname_jogo`, `email` e `wallet_address`.
 
 ---
 
