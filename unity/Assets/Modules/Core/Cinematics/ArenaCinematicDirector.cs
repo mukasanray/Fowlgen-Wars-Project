@@ -25,7 +25,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace FowlgenWars.Cinematic
 {
@@ -244,19 +243,16 @@ namespace FowlgenWars.Cinematic
 
         private void HandleKeyboard()
         {
-            Keyboard kb = Keyboard.current;
-            if (kb == null) return;
-
-            if (kb.cKey.wasPressedThisFrame)
+            if (Input.GetKeyDown(KeyCode.C))
                 Play();
 
-            if (kb.escapeKey.wasPressedThisFrame)
+            if (Input.GetKeyDown(KeyCode.Escape))
                 Stop();
 
-            if (kb.spaceKey.wasPressedThisFrame)
+            if (Input.GetKeyDown(KeyCode.Space))
                 TogglePause();
 
-            if (kb.hKey.wasPressedThisFrame)
+            if (Input.GetKeyDown(KeyCode.H))
                 _overlayHidden = !_overlayHidden;
         }
 

@@ -5,7 +5,8 @@
         "FowlgenWars.Modules.Solana",
         "FowlgenWars.Modules.Auth",
         "FowlgenWars.Modules.MobileControls",
-        "FowlgenWars.Modules.Gameplay"
+        "FowlgenWars.Modules.Gameplay",
+        "FishNet.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
