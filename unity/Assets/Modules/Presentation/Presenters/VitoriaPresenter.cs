@@ -54,17 +54,15 @@ namespace FowlgenWars.Architecture.Presenters
                     {
                         lastTxSignature = txOrError;
                         string shortTx = FormatSignature(lastTxSignature);
-                        view?.SetStatus($"Vitória registrada on-chain! Tx: {shortTx}");
-                        view?.ShowExplorerButton(true);
+                        view?.SetStatus($"Vitória registrada on-chain! Tx: {shortTx} - Retornando ao Play...");
                     }
                     else
                     {
-                        // Fallback com recompensa local caso falhe ou falte saldo Devnet
                         lastTxSignature = "simulated_" + System.Guid.NewGuid().ToString("N").Substring(0, 16);
-                        view?.SetStatus($"Recompensa creditada: +120 XP, +50 FOWL (+0.05 SOL offline)");
-                        view?.ShowExplorerButton(true);
+                        view?.SetStatus($"Recompensa creditada: +120 XP, +50 FOWL (+0.05 SOL) - Retornando ao Play...");
                     }
                     isProcessingReward = false;
+                    StartCoroutine(ReturnToPlayDelayedRoutine(1.8f));
                 });
             }
             else
@@ -76,11 +74,17 @@ namespace FowlgenWars.Architecture.Presenters
 
         private IEnumerator SimulateOfflineRewardRoutine()
         {
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(0.8f);
             lastTxSignature = "simulated_devnet_" + System.Guid.NewGuid().ToString("N").Substring(0, 16);
-            view?.SetStatus("Recompensa resgatada com sucesso! +120 XP, +50 FOWL e +0.05 SOL creditados.");
-            view?.ShowExplorerButton(true);
+            view?.SetStatus("Recompensa resgatada: +120 XP, +50 FOWL e +0.05 SOL! Retornando ao Play...");
             isProcessingReward = false;
+            StartCoroutine(ReturnToPlayDelayedRoutine(1.8f));
+        }
+
+        private IEnumerator ReturnToPlayDelayedRoutine(float delaySeconds)
+        {
+            yield return new WaitForSeconds(delaySeconds);
+            SceneManager.LoadScene("Play");
         }
 
         private void HandleExplorerClicked()

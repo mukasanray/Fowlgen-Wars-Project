@@ -54,16 +54,15 @@ namespace FowlgenWars.Architecture.Presenters
                     {
                         lastTxSignature = txOrError;
                         string shortTx = FormatSignature(lastTxSignature);
-                        view?.SetStatus($"Batalha registrada on-chain! Tx: {shortTx}");
-                        view?.ShowExplorerButton(true);
+                        view?.SetStatus($"Batalha registrada on-chain! Tx: {shortTx} - Retornando ao Play...");
                     }
                     else
                     {
                         lastTxSignature = "simulated_" + System.Guid.NewGuid().ToString("N").Substring(0, 16);
-                        view?.SetStatus($"Recompensa creditada: +25 XP, +10 FOWL de consolação.");
-                        view?.ShowExplorerButton(true);
+                        view?.SetStatus($"Recompensa creditada: +25 XP, +10 FOWL - Retornando ao Play...");
                     }
                     isProcessingReward = false;
+                    StartCoroutine(ReturnToPlayDelayedRoutine(1.8f));
                 });
             }
             else
@@ -74,11 +73,17 @@ namespace FowlgenWars.Architecture.Presenters
 
         private IEnumerator SimulateOfflineRewardRoutine()
         {
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(0.8f);
             lastTxSignature = "simulated_devnet_" + System.Guid.NewGuid().ToString("N").Substring(0, 16);
-            view?.SetStatus("Recompensa de consolação resgatada: +25 XP e +10 FOWL.");
-            view?.ShowExplorerButton(true);
+            view?.SetStatus("Recompensa resgatada: +25 XP e +10 FOWL! Retornando ao Play...");
             isProcessingReward = false;
+            StartCoroutine(ReturnToPlayDelayedRoutine(1.8f));
+        }
+
+        private IEnumerator ReturnToPlayDelayedRoutine(float delaySeconds)
+        {
+            yield return new WaitForSeconds(delaySeconds);
+            SceneManager.LoadScene("Play");
         }
 
         private void HandleExplorerClicked()
