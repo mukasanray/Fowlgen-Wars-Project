@@ -7,14 +7,12 @@ namespace FowlgenWars.Solana
 {
     /// <summary>
     /// Reads fields from the Anchor IDL JSON without a third-party JSON package.
-    /// Source of truth: Assets/Solana/IDL/fowlgen_wars.json (generated from the program).
+    /// Source of truth: Assets/Resources/fowlgen_wars_contract.json (gerado pelo workspace Anchor).
     /// </summary>
     public static class IdlInspector
     {
         const string ContractResourcesPath = "fowlgen_wars_contract";
-        const string LegacyResourcesPath = "fowlgen_wars";
         const string EditorContractIdlPath = "Assets/Resources/fowlgen_wars_contract.json";
-        const string EditorIdlPath = "Assets/Solana/IDL/fowlgen_wars.json";
 
         public static TextAsset LoadIdlAsset()
         {
@@ -22,16 +20,8 @@ namespace FowlgenWars.Solana
             if (fromResources != null)
                 return fromResources;
 
-            fromResources = Resources.Load<TextAsset>(LegacyResourcesPath);
-            if (fromResources != null)
-                return fromResources;
-
 #if UNITY_EDITOR
-            TextAsset fromEditor = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(EditorContractIdlPath);
-            if (fromEditor != null)
-                return fromEditor;
-
-            return UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(EditorIdlPath);
+            return UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(EditorContractIdlPath);
 #else
             return null;
 #endif
