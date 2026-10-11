@@ -1136,10 +1136,10 @@ func_servidor_fishnet() {
                         
                         if [ -n "$UNITY_EXEC" ]; then
                             echo -e "${CYAN}Iniciando build do servidor em background (Isso pode demorar alguns minutos)...${NC}"
-                            mkdir -p build/Server
-                            "$UNITY_EXEC" -quit -batchmode -nographics -projectPath "./unity" -buildLinux64Player "$(pwd)/build/Server/FowlgenServer.x86_64" -logFile /tmp/unity_server_build.log || true
-                            if [ -f "build/Server/FowlgenServer.x86_64" ]; then
-                                echo -e "${GREEN}✓ Build Unity concluído com sucesso! Os artefatos estão em build/Server/${NC}"
+                            mkdir -p build/LinuxServer
+                            "$UNITY_EXEC" -quit -batchmode -nographics -projectPath "./unity" -buildLinux64Player "$(pwd)/build/LinuxServer/FowlgenWarsServer.x86_64" -logFile /tmp/unity_server_build.log || true
+                            if [ -f "build/LinuxServer/FowlgenWarsServer.x86_64" ]; then
+                                echo -e "${GREEN}✓ Build Unity concluído com sucesso! Os artefatos estão em build/LinuxServer/${NC}"
                             else
                                 echo -e "${RED}⚠️ Falha no build Unity. Verifique os logs em /tmp/unity_server_build.log${NC}"
                             fi
@@ -1152,6 +1152,8 @@ func_servidor_fishnet() {
                 $MINIKUBE_BIN image build -t ghcr.io/mukasanray/fowlgenwars-server:latest .
                 
                 if [ -d "api" ]; then
+                    echo "Atualizando submodulos do git (ex: Onix.Framework)..."
+                    git submodule update --init --recursive 2>/dev/null || true
                     echo "Compilando imagem da API..."
                     $MINIKUBE_BIN image build -t ghcr.io/mukasanray/fowlgenwars-api:latest ./api
                 elif [ -d "app" ]; then
