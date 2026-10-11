@@ -18,6 +18,11 @@ De acordo com as diretivas de DevSecOps e Arquitetura Híbrida do `Claude.md`:
 8. **Build Automático do Dedicated Server Unity**: Inserida automação via CLI do Unity (`-buildLinux64Player`) para compilar o Servidor Headless localmente em background, logo antes de empacotar o contêiner do FishNet no Minikube.
 9. **Testes de Integração Unity (PlayMode)**: Adicionado suporte ao Test Runner da Unity via linha de comando no menu `[6] Executar Testes`, resolvendo a falta de cobertura de QA (Movimentação, Colisões, UI e Áudio).
 10. **Segurança no Setup (Default Localnet)**: O fluxo de "Primeira Instalação" foi reconfigurado para usar a `Localnet` como rede padrão de desenvolvimento na Solana CLI, isolando a máquina de testes públicos antes da etapa oficial de deploy.
+11. **Correção de Paths do Build Unity**: Sincronização rigorosa de diretórios entre o `install.sh` e o `Dockerfile` do Server (`build/LinuxServer/`), impedindo falhas na cópia de artefatos.
+12. **Estabilidade de Build da API**: Inserção nativa de inicialização de submódulos do Git (`git submodule update --init`) para garantir a presença do `Onix.Framework` antes da compilação.
+13. **Kubernetes Storage Dinâmico (PVC)**: Remoção de `storageClassName` rígido (`local-path`) no banco Postgres, forçando o Kubernetes a herdar magicamente a classe correta de cada ambiente (Minikube ou K3s).
+14. **Política de Imagem Híbrida**: Configuração das imagens com `imagePullPolicy: IfNotPresent`, assegurando que o cluster local use o cache recém-compilado sem tentar downloads erráticos.
+15. **Instalador Gitleaks Resiliente**: O `curl` corrompido que retornava Erro 404 foi substituído por uma consulta inteligente à API do GitHub Releases para extrair, baixar e instalar dinamicamente a versão mais recente do binário de vazamento.
 
 ---
 
