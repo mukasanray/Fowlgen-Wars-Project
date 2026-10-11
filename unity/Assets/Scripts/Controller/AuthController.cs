@@ -41,40 +41,22 @@ namespace FowlgenWars.UI
         private void EnsureFishNetNetworkManager()
         {
             var nm = FindAnyObjectByType<NetworkManager>();
-            if (nm == null)
+
+            if (nm != null)
             {
-                // Tenta carregar prefab previamente configurado
-                var prefab = Resources.Load<GameObject>("FishNet_NetworkManager");
-                GameObject netGo;
-                if (prefab != null)
-                {
-                    netGo = Instantiate(prefab);
-                    netGo.name = "FishNet_NetworkManager";
-                }
-                else
-                {
-                    netGo = new GameObject("FishNet_NetworkManager");
-                    netGo.SetActive(false); // Mantem inativo para configurar SpawnablePrefabs antes do Awake do NetworkManager
-                    netGo.AddComponent<Tugboat>();
-                    nm = netGo.AddComponent<NetworkManager>();
-
-                    var dpo = Resources.Load<FishNet.Managing.Object.PrefabObjects>("DefaultPrefabObjects");
-#if UNITY_EDITOR
-                    if (dpo == null)
-                    {
-                        dpo = UnityEditor.AssetDatabase.LoadAssetAtPath<FishNet.Managing.Object.PrefabObjects>("Assets/DefaultPrefabObjects.asset");
-                    }
-#endif
-                    if (dpo != null)
-                    {
-                        nm.SpawnablePrefabs = dpo;
-                    }
-
-                    netGo.SetActive(true); // Dispara Awake com SpawnablePrefabs já atribuído!
-                }
-
-                DontDestroyOnLoad(netGo);
+                return;
             }
+
+            var prefab = Resources.Load<GameObject>("FishNet_NetworkManager");
+            if (prefab == null)
+            {
+                Debug.LogError("[FishNet] O prefab Resources/FishNet_NetworkManager não foi encontrado. Execute Fowlgen Wars > Configurar FishNet NetworkManager Prefab no Unity Editor.");
+                return;
+            }
+
+            var netGo = Instantiate(prefab);
+            netGo.name = "FishNet_NetworkManager";
+            DontDestroyOnLoad(netGo);
         }
     }
 }
