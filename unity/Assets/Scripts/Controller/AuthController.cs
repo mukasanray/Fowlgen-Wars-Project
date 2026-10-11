@@ -45,7 +45,21 @@ namespace FowlgenWars.UI
             {
                 var netGo = new GameObject("FishNet_NetworkManager");
                 netGo.AddComponent<Tugboat>();
-                netGo.AddComponent<NetworkManager>();
+                nm = netGo.AddComponent<NetworkManager>();
+
+                // Atribui a coleção DefaultPrefabObjects do FishNet para evitar SpawnablePrefabs is null
+                var dpo = Resources.Load<FishNet.Managing.Object.PrefabObjects>("DefaultPrefabObjects");
+#if UNITY_EDITOR
+                if (dpo == null)
+                {
+                    dpo = UnityEditor.AssetDatabase.LoadAssetAtPath<FishNet.Managing.Object.PrefabObjects>("Assets/DefaultPrefabObjects.asset");
+                }
+#endif
+                if (dpo != null)
+                {
+                    nm.SpawnablePrefabs = dpo;
+                }
+
                 DontDestroyOnLoad(netGo);
             }
         }
