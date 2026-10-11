@@ -1,14 +1,30 @@
 using UnityEngine;
-using FishNet.Object;
 using System;
 using System.Text;
 using System.Threading.Tasks;
 using Solana.Unity.SDK;
 using FowlgenWars.Solana;
+using FishNet;
+using FishNet.Broadcast;
+using FishNet.Transporting;
 
 namespace FowlgenWars.Auth
 {
-    public class ClientAuthManager : NetworkBehaviour
+    public struct AuthRequestBroadcast : IBroadcast
+    {
+        public string WalletAddress;
+        public string Nonce;
+        public byte[] Signature;
+        public byte[] PublicKey;
+    }
+
+    public struct AuthResponseBroadcast : IBroadcast
+    {
+        public bool Authenticated;
+        public string Message;
+    }
+
+    public class ClientAuthManager : MonoBehaviour
     {
         public static ClientAuthManager Instance { get; private set; }
 
@@ -27,6 +43,23 @@ namespace FowlgenWars.Auth
             Instance = this;
         }
 
+        private void OnEnable()
+        {
+            if (InstanceFinder.ClientManager != null)
+                InstanceFinder.ClientManager.RegisterBroadcast<AuthResponseBroadcast>(OnAuthResponseReceived);
+        }
+
+        private void OnDisable()
+        {
+            if (InstanceFinder.ClientManager != null)
+                InstanceFinder.ClientManager.UnregisterBroadcast<AuthResponseBroadcast>(OnAuthResponseReceived);
+        }
+
+        private void OnAuthResponseReceived(AuthResponseBroadcast response, Channel channel)
+        {
+            NotifyResult(response.Authenticated, response.Message);
+        }
+
         public void Login(Action<bool, string> callback = null)
         {
             pendingCallback = callback;
@@ -40,7 +73,7 @@ namespace FowlgenWars.Auth
         }
 
         /// <summary>
-        /// Pede assinatura da carteira via Solana Unity SDK / WalletManager e valida via FishNet ServerRpc.
+        /// Pede assinatura da carteira via Solana Unity SDK / WalletManager e valida via FishNet Broadcast.
         /// </summary>
         public async void RequestWalletSignature(string nonce)
         {
@@ -79,10 +112,16 @@ namespace FowlgenWars.Auth
                     WalletAddress = address;
                     Debug.Log($"[ClientAuth] Assinatura obtida para {address}! Validando com Servidor Dedicado...");
 
-                    // Se FishNet estiver com cliente ativo na rede, usa ServerRpc
-                    if (IsClientInitialized)
+                    // Se FishNet estiver com cliente ativo na rede, usa Broadcast oficial do FishNet
+                    if (InstanceFinder.ClientManager != null && InstanceFinder.ClientManager.Started)
                     {
-                        CmdVerifySignature(address, nonce, signature, pubKeyBytes);
+                        InstanceFinder.ClientManager.Broadcast(new AuthRequestBroadcast
+                        {
+                            WalletAddress = address,
+                            Nonce = nonce,
+                            Signature = signature,
+                            PublicKey = pubKeyBytes
+                        });
                     }
                     else
                     {
@@ -105,27 +144,6 @@ namespace FowlgenWars.Auth
                 Debug.LogError($"[ClientAuth] Exceção ao assinar: {ex.Message}");
                 NotifyResult(false, ex.Message);
             }
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        private void CmdVerifySignature(string walletAddress, string nonce, byte[] signature, byte[] pubKey)
-        {
-            ServerAuthManager serverAuthManager = ServerAuthManager.Instance ?? FindAnyObjectByType<ServerAuthManager>();
-            if (serverAuthManager == null)
-            {
-                Debug.LogError("[ServerAuth] ServerAuthManager não encontrado no servidor.");
-                TargetAuthenticationResult(Owner, false, "ServerAuthManager offline no servidor.");
-                return;
-            }
-
-            bool authenticated = serverAuthManager.VerifySignature(walletAddress, nonce, signature, pubKey);
-            TargetAuthenticationResult(Owner, authenticated, authenticated ? "Sucesso" : "Assinatura inválida");
-        }
-
-        [TargetRpc]
-        private void TargetAuthenticationResult(FishNet.Connection.NetworkConnection connection, bool authenticated, string message)
-        {
-            NotifyResult(authenticated, message);
         }
 
         private void NotifyResult(bool authenticated, string message)

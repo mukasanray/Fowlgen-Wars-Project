@@ -18,9 +18,6 @@ namespace FowlgenWars.UI
             Screen.autorotateToLandscapeLeft = true;
             Screen.autorotateToLandscapeRight = true;
 
-            // 1. Garante NetworkObject para suportar NetworkBehaviour do FishNet
-            if (GetComponent<NetworkObject>() == null)
-                gameObject.AddComponent<NetworkObject>();
 
             // 2. Garante os managers de autenticação Web3 da Fase 1
             if (GetComponent<ServerAuthManager>() == null)
@@ -62,7 +59,7 @@ namespace FowlgenWars.UI
 #if UNITY_EDITOR
                     if (dpo == null)
                     {
-                        dpo = UnityEditor.AssetDatabase.LoadAssetAtPath<FishNet.Managing.Object.PrefabObjects>("Assets/DefaultPrefabObjects.asset");
+                        dpo = UnityEditor.AssetDatabase.LoadAssetAtPath<FishNet.Managing.Object.PrefabObjects>("Assets/Resources/DefaultPrefabObjects.asset");
                     }
 #endif
                     if (dpo != null)

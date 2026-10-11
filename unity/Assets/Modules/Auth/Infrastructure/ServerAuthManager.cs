@@ -1,15 +1,17 @@
 using UnityEngine;
 using UnityEngine.Networking;
-using FishNet.Object;
 using System;
 using System.Collections;
 using System.Text;
 using Chaos.NaCl;
 using Solana.Unity.Wallet.Utilities;
+using FishNet;
+using FishNet.Connection;
+using FishNet.Transporting;
 
 namespace FowlgenWars.Auth
 {
-    public class ServerAuthManager : NetworkBehaviour
+    public class ServerAuthManager : MonoBehaviour
     {
         public static ServerAuthManager Instance { get; private set; }
 
@@ -35,6 +37,31 @@ namespace FowlgenWars.Auth
                 return;
             }
             Instance = this;
+        }
+
+        private void OnEnable()
+        {
+            if (InstanceFinder.ServerManager != null)
+                InstanceFinder.ServerManager.RegisterBroadcast<AuthRequestBroadcast>(OnAuthRequestReceived, requireAuthentication: false);
+        }
+
+        private void OnDisable()
+        {
+            if (InstanceFinder.ServerManager != null)
+                InstanceFinder.ServerManager.UnregisterBroadcast<AuthRequestBroadcast>(OnAuthRequestReceived);
+        }
+
+        private void OnAuthRequestReceived(NetworkConnection conn, AuthRequestBroadcast req, Channel channel)
+        {
+            bool authenticated = VerifySignature(req.WalletAddress, req.Nonce, req.Signature, req.PublicKey);
+            if (InstanceFinder.ServerManager != null && conn != null)
+            {
+                InstanceFinder.ServerManager.Broadcast(conn, new AuthResponseBroadcast
+                {
+                    Authenticated = authenticated,
+                    Message = authenticated ? "Sucesso" : "Assinatura inválida"
+                }, requireAuthenticated: false);
+            }
         }
 
         /// <summary>
