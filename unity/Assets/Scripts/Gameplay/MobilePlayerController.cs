@@ -1,11 +1,11 @@
 using UnityEngine;
-using FowlgenWars.Architecture.Views;
+using FowlgenWars.Modules.MobileControls.Domain.Contracts;
 
 namespace FowlgenWars.Gameplay
 {
     /// <summary>
-    /// POC-UNI-01: Controle do personagem via Joystick Virtual Touch ou Teclado (Editor).
-    /// Compatível com CharacterController e com o pacote Third Person Controller.
+    /// POC-UNI-01: Controle do personagem via Joystick Virtual Touch (MobileControls) ou Teclado (Editor).
+    /// Compatível com CharacterController.
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
     public class MobilePlayerController : MonoBehaviour
@@ -16,8 +16,9 @@ namespace FowlgenWars.Gameplay
         [SerializeField] private float gravity = 9.81f;
 
         [Header("Referência da View (Joystick)")]
-        [SerializeField] private VirtualJoystickView joystick;
+        [SerializeField] private MonoBehaviour joystickSource;
 
+        private IJoystickInput joystick;
         private CharacterController characterController;
         private Camera mainCamera;
         private Vector3 verticalVelocity;
@@ -26,11 +27,16 @@ namespace FowlgenWars.Gameplay
         {
             characterController = GetComponent<CharacterController>();
             mainCamera = Camera.main;
+
+            if (joystickSource is IJoystickInput input)
+            {
+                joystick = input;
+            }
         }
 
-        public void BindJoystick(VirtualJoystickView joystickView)
+        public void BindJoystick(IJoystickInput joystickInput)
         {
-            joystick = joystickView;
+            joystick = joystickInput;
         }
 
         private void Update()
