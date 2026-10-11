@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace FowlgenWars.Architecture.Models
+namespace FowlgenWars.Gameplay
 {
     [CreateAssetMenu(fileName = "MinionData", menuName = "Fowlgen Wars/Config/Minion Data")]
     public class MinionDataSO : ScriptableObject

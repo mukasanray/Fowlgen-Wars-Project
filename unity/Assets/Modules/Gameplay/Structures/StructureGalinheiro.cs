@@ -1,8 +1,5 @@
 using System;
 using UnityEngine;
-using FowlgenWars.Architecture.Contracts;
-using FowlgenWars.Architecture.Models;
-using FowlgenWars.Architecture.Views;
 
 namespace FowlgenWars.Gameplay
 {

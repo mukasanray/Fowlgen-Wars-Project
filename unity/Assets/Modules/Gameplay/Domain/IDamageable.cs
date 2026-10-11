@@ -1,7 +1,7 @@
 using UnityEngine;
 using FowlgenWars.Gameplay;
 
-namespace FowlgenWars.Architecture.Contracts
+namespace FowlgenWars.Gameplay
 {
     public interface IDamageable
     {

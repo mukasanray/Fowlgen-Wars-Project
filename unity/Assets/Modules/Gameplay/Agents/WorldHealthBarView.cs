@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace FowlgenWars.Architecture.Views
+namespace FowlgenWars.Gameplay
 {
     /// <summary>
     /// Barra de vida visual no espaço de mundo (sobre tropas e estruturas) com efeito Billboard.

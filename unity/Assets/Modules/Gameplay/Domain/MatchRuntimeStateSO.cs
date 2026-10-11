@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using FowlgenWars.Gameplay;
 
-namespace FowlgenWars.Architecture.Models
+namespace FowlgenWars.Gameplay
 {
     /// <summary>
     /// Model desacoplado mantido via ScriptableObject para compartilhamento de estado em tempo real.

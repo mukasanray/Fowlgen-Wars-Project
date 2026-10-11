@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using FowlgenWars.Architecture.Models;
 
 namespace FowlgenWars.Gameplay
 {

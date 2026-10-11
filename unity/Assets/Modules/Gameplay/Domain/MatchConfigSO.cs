@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace FowlgenWars.Architecture.Models
+namespace FowlgenWars.Gameplay
 {
     [CreateAssetMenu(fileName = "MatchConfig", menuName = "Fowlgen Wars/Config/Match Config")]
     public class MatchConfigSO : ScriptableObject
