@@ -77,3 +77,31 @@ Assets/Modules/
 | **`FowlgenWars.Modules.Solana`** | `com.solana.unity_sdk` | FishNet, UI Toolkit, MobileControls |
 | **`FowlgenWars.Modules.Auth`** | `FishNet.Runtime`, `Solana` | Gameplay, MobileControls |
 | **`FowlgenWars.Modules.Gameplay`** | `MobileControls`, `FishNet.Runtime` | Auth |
+
+---
+
+## 4. Diretriz Canônica para Ativos de Arte (`Assets/Art/`)
+
+A arte 3D e visual do jogo é tratada como **Biblioteca Canônica Compartilhada de Conteúdo**, isolada da lógica de código para manter a produtividade da equipe e compatibilidade com Git LFS:
+
+```
+Assets/
+├── Modules/                   (Apenas Código C#, Contratos, Presenters e .asmdef)
+│   ├── MobileControls/        (UI específica de touch/joystick)
+│   ├── Solana/
+│   ├── Auth/
+│   └── Gameplay/
+│
+├── Art/                       (Ativos Visuais e Estéticos Globais)
+│   ├── Characters/            (Modelos 3D: Milo, BlueRooster, galinhas, minions)
+│   ├── Environment/           (Malhas do mapa, 3 rotas, árvores, obstáculos)
+│   ├── Animations/            (Clipes de animação: Idle, Run, Attack, Death)
+│   └── Materials/             (Shaders e Texturas compartilhadas URP)
+│
+├── Audio/                     (Mixers, SFX de combate e BGM da arena)
+├── Prefabs/                   (O elo de ligação: Malha 3D de Art + Scripts de Modules)
+└── Scenes/                    (Cenas do jogo que amarram Arte e Módulos)
+```
+
+* **Princípio:** Artistas trabalham exclusivamente em `Assets/Art/` sem tocar em arquivos `.asmdef` ou código C#.
+* **Elo de Ligação:** A pasta `Assets/Prefabs/` instancia as malhas de `Art/` e acopla os componentes lógicos de `Modules/`.
