@@ -43,21 +43,34 @@ namespace FowlgenWars.UI
             var nm = FindAnyObjectByType<NetworkManager>();
             if (nm == null)
             {
-                var netGo = new GameObject("FishNet_NetworkManager");
-                netGo.AddComponent<Tugboat>();
-                nm = netGo.AddComponent<NetworkManager>();
-
-                // Atribui a coleção DefaultPrefabObjects do FishNet para evitar SpawnablePrefabs is null
-                var dpo = Resources.Load<FishNet.Managing.Object.PrefabObjects>("DefaultPrefabObjects");
-#if UNITY_EDITOR
-                if (dpo == null)
+                // Tenta carregar prefab previamente configurado
+                var prefab = Resources.Load<GameObject>("FishNet_NetworkManager");
+                GameObject netGo;
+                if (prefab != null)
                 {
-                    dpo = UnityEditor.AssetDatabase.LoadAssetAtPath<FishNet.Managing.Object.PrefabObjects>("Assets/DefaultPrefabObjects.asset");
+                    netGo = Instantiate(prefab);
+                    netGo.name = "FishNet_NetworkManager";
                 }
-#endif
-                if (dpo != null)
+                else
                 {
-                    nm.SpawnablePrefabs = dpo;
+                    netGo = new GameObject("FishNet_NetworkManager");
+                    netGo.SetActive(false); // Mantem inativo para configurar SpawnablePrefabs antes do Awake do NetworkManager
+                    netGo.AddComponent<Tugboat>();
+                    nm = netGo.AddComponent<NetworkManager>();
+
+                    var dpo = Resources.Load<FishNet.Managing.Object.PrefabObjects>("DefaultPrefabObjects");
+#if UNITY_EDITOR
+                    if (dpo == null)
+                    {
+                        dpo = UnityEditor.AssetDatabase.LoadAssetAtPath<FishNet.Managing.Object.PrefabObjects>("Assets/DefaultPrefabObjects.asset");
+                    }
+#endif
+                    if (dpo != null)
+                    {
+                        nm.SpawnablePrefabs = dpo;
+                    }
+
+                    netGo.SetActive(true); // Dispara Awake com SpawnablePrefabs já atribuído!
                 }
 
                 DontDestroyOnLoad(netGo);
