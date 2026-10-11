@@ -4,7 +4,7 @@
     height: 100%;
     align-items: center;
     justify-content: center;
-    background-image: resource("Image/play");
+    background-image: resource("Image/Play");
     -unity-background-scale-mode: scale-and-crop;
 }
 
@@ -38,20 +38,88 @@
     border-right-color: rgba(245, 166, 35, 0.5);
     border-top-color: rgba(245, 166, 35, 0.5);
     border-bottom-color: rgba(245, 166, 35, 0.5);
+    flex-direction: row;
+    align-items: center;
+}
+
+.wallet-info-group {
     flex-direction: column;
-    align-items: flex-end;
+    align-items: flex-start;
+    margin-right: 18px;
+}
+
+.wallet-actions-group {
+    flex-direction: row;
+    align-items: center;
 }
 
 .wallet-address {
     color: rgb(180, 200, 220);
     font-size: 13px;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 .wallet-balance {
     color: rgb(255, 204, 77);
     font-size: 18px;
     -unity-font-style: bold;
+}
+
+.aux-button-gold {
+    height: 38px;
+    padding-left: 14px;
+    padding-right: 14px;
+    margin-right: 8px;
+    font-size: 14px;
+    -unity-font-style: bold;
+    color: rgb(25, 20, 5);
+    background-color: rgb(255, 195, 30);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+.aux-button-gold:hover {
+    background-color: rgb(255, 215, 70);
+    scale: 1.03 1.03;
+}
+
+.aux-button-gold:active {
+    background-color: rgb(210, 155, 15);
+    scale: 0.97 0.97;
+}
+
+.aux-button-danger {
+    height: 38px;
+    padding-left: 14px;
+    padding-right: 14px;
+    font-size: 14px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    background-color: rgba(180, 45, 45, 0.85);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+.aux-button-danger:hover {
+    background-color: rgb(215, 55, 55);
+    scale: 1.03 1.03;
+}
+
+.aux-button-danger:active {
+    background-color: rgb(150, 30, 30);
+    scale: 0.97 0.97;
 }
 
 .panel {

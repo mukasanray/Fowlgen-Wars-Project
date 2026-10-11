@@ -3,12 +3,14 @@
         <ui:VisualElement name="crimson-vignette" class="crimson-overlay" />
         <ui:VisualElement name="defeat-panel" class="panel">
             <ui:Label text="DERROTA" class="title" />
-            <ui:Label text="Seu galinheiro caiu, mas a batalha ainda não terminou!" class="subtitle" />
+            <ui:Label text="Seu galinheiro caiu, mas a guerra continua!" class="subtitle" />
             <ui:VisualElement name="reward-box" class="reward-box">
                 <ui:Label text="RECOMPENSA DE PARTICIPAÇÃO" class="reward-title" />
                 <ui:Label name="reward-details" text="+25 XP  |  +10 FOWL" class="reward-value" />
             </ui:VisualElement>
-            <ui:Button name="reward-button" text="Recompensa" class="primary-button" />
+            <ui:Button name="reward-button" text="Resgatar Recompensa de Consolação" class="primary-button" />
+            <ui:Button name="explorer-button" text="Ver no Solana Explorer" class="secondary-button" />
+            <ui:Button name="menu-button" text="Tentar Novamente / Menu Principal" class="aux-button" />
             <ui:Label name="defeat-status" class="status" />
         </ui:VisualElement>
     </ui:VisualElement>

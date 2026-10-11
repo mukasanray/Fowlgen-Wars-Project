@@ -18,15 +18,8 @@ namespace FowlgenWars.Editor
         {
             var prefabPath = "Assets/Resources/FishNet_NetworkManager.prefab";
             var dpo = AssetDatabase.LoadAssetAtPath<FishNet.Managing.Object.PrefabObjects>("Assets/DefaultPrefabObjects.asset");
-
-            if (dpo == null)
-            {
-                Debug.LogError("[FowlgenWars] Assets/DefaultPrefabObjects.asset não foi encontrado.");
-                return;
-            }
-
+            
             var go = new GameObject("FishNet_NetworkManager");
-            go.SetActive(false);
             go.AddComponent<FishNet.Transporting.Tugboat.Tugboat>();
             var nm = go.AddComponent<FishNet.Managing.NetworkManager>();
             nm.SpawnablePrefabs = dpo;

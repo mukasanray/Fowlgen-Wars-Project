@@ -3,8 +3,9 @@
         <ui:VisualElement name="dark-overlay" class="overlay" />
         <ui:VisualElement name="login-panel" class="panel">
             <ui:Label text="FOWLGEN WARS" class="title" />
-            <ui:Label text="Conecte sua carteira Phantom para iniciar a batalha" class="subtitle" />
-            <ui:Button name="connect-button" text="Entrar" class="primary-button" />
+            <ui:Label text="Conecte sua carteira Phantom ou use a Devnet para entrar na arena" class="subtitle" />
+            <ui:Button name="connect-button" text="Conectar Carteira Phantom" class="primary-button" />
+            <ui:Button name="quick-play-button" text="Entrar com Devnet Local" class="secondary-button" />
             <ui:Label name="login-status" class="status" />
         </ui:VisualElement>
     </ui:VisualElement>

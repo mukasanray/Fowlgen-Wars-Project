@@ -2,13 +2,19 @@
     <ui:VisualElement name="screen" class="screen">
         <ui:VisualElement name="dark-overlay" class="overlay" />
         <ui:VisualElement name="wallet-bar" class="wallet-bar">
-            <ui:Label name="wallet-address-label" text="Carteira: Conectando..." class="wallet-address" />
-            <ui:Label name="wallet-balance-label" text="Saldo: -- SOL" class="wallet-balance" />
+            <ui:VisualElement name="wallet-info-group" class="wallet-info-group">
+                <ui:Label name="wallet-address-label" text="Carteira: Conectando..." class="wallet-address" />
+                <ui:Label name="wallet-balance-label" text="Saldo: -- SOL" class="wallet-balance" />
+            </ui:VisualElement>
+            <ui:VisualElement name="wallet-actions-group" class="wallet-actions-group">
+                <ui:Button name="airdrop-button" text="+1 SOL Devnet" class="aux-button-gold" />
+                <ui:Button name="disconnect-button" text="Sair" class="aux-button-danger" />
+            </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="play-panel" class="panel">
-            <ui:Label text="PRONTO PARA A GUERRA?" class="title" />
-            <ui:Label text="Entre na arena 3 rotas e destrua o galinheiro inimigo!" class="subtitle" />
-            <ui:Button name="play-button" text="Play" class="primary-button" />
+            <ui:Label text="ARENA DE COMBATE" class="title" />
+            <ui:Label text="Modo 1v1 - 3 Rotas (Top, Mid, Bot). Convoque tropas e destrua a base inimiga!" class="subtitle" />
+            <ui:Button name="play-button" text="BATALHAR AGORA" class="primary-button" />
             <ui:Label name="play-status" class="status" />
         </ui:VisualElement>
     </ui:VisualElement>

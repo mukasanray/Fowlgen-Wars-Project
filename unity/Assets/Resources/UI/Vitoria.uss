@@ -4,6 +4,8 @@
     height: 100%;
     align-items: center;
     justify-content: center;
+    background-image: resource("Image/Vitoria");
+    -unity-background-scale-mode: scale-and-crop;
     background-color: rgb(20, 16, 5);
 }
 
@@ -115,6 +117,72 @@
 
 .primary-button:active {
     background-color: rgb(220, 165, 20);
+    scale: 0.98 0.98;
+}
+
+.secondary-button {
+    width: 290px;
+    height: 48px;
+    margin-top: 10px;
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: rgb(255, 240, 190);
+    background-color: rgba(65, 50, 20, 0.9);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(255, 204, 51, 0.6);
+    border-right-color: rgba(255, 204, 51, 0.6);
+    border-top-color: rgba(255, 204, 51, 0.6);
+    border-bottom-color: rgba(255, 204, 51, 0.6);
+    -unity-text-align: middle-center;
+}
+
+.secondary-button:hover {
+    background-color: rgba(90, 70, 28, 0.95);
+    scale: 1.02 1.02;
+}
+
+.secondary-button:active {
+    background-color: rgba(45, 35, 15, 0.95);
+    scale: 0.98 0.98;
+}
+
+.aux-button {
+    width: 290px;
+    height: 44px;
+    margin-top: 10px;
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: rgb(210, 220, 230);
+    background-color: rgba(35, 30, 25, 0.85);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(140, 130, 110, 0.4);
+    border-right-color: rgba(140, 130, 110, 0.4);
+    border-top-color: rgba(140, 130, 110, 0.4);
+    border-bottom-color: rgba(140, 130, 110, 0.4);
+    -unity-text-align: middle-center;
+}
+
+.aux-button:hover {
+    background-color: rgba(55, 50, 40, 0.95);
+    scale: 1.02 1.02;
+}
+
+.aux-button:active {
+    background-color: rgba(25, 20, 15, 0.95);
     scale: 0.98 0.98;
 }
 

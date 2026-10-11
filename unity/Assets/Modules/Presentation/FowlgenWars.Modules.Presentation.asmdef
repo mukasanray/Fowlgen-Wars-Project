@@ -1,0 +1,19 @@
+{
+    "name": "FowlgenWars.Modules.Presentation",
+    "rootNamespace": "FowlgenWars.Modules.Presentation",
+    "references": [
+        "FowlgenWars.Modules.Solana",
+        "FowlgenWars.Modules.Auth",
+        "FowlgenWars.Modules.MobileControls",
+        "FowlgenWars.Modules.Gameplay"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -4,7 +4,7 @@
     height: 100%;
     align-items: center;
     justify-content: center;
-    background-image: resource("Image/login");
+    background-image: resource("Image/Auth");
     -unity-background-scale-mode: scale-and-crop;
 }
 
@@ -81,6 +81,39 @@
 
 .primary-button:active {
     background-color: rgb(200, 110, 15);
+    scale: 0.98 0.98;
+}
+
+.secondary-button {
+    width: 280px;
+    height: 48px;
+    margin-top: 12px;
+    font-size: 17px;
+    -unity-font-style: bold;
+    color: rgb(220, 235, 250);
+    background-color: rgba(30, 48, 72, 0.85);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(100, 160, 220, 0.4);
+    border-right-color: rgba(100, 160, 220, 0.4);
+    border-top-color: rgba(100, 160, 220, 0.4);
+    border-bottom-color: rgba(100, 160, 220, 0.4);
+    -unity-text-align: middle-center;
+}
+
+.secondary-button:hover {
+    background-color: rgba(45, 70, 105, 0.95);
+    scale: 1.02 1.02;
+}
+
+.secondary-button:active {
+    background-color: rgba(20, 35, 55, 0.95);
     scale: 0.98 0.98;
 }
 
