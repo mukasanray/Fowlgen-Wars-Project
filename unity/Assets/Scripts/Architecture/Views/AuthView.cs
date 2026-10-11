@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace FowlgenWars.Architecture.Views
@@ -12,8 +13,19 @@ namespace FowlgenWars.Architecture.Views
         {
             SetResources("UI/Auth", "UI/Auth");
             base.Awake();
-            status = Root.Q<Label>("login-status");
-            Root.Q<Button>("connect-button").clicked += () => ConnectClicked?.Invoke();
+
+            var bgTexture = Resources.Load<Texture2D>("Image/login");
+            if (bgTexture != null && Root != null)
+            {
+                Root.style.backgroundImage = new StyleBackground(bgTexture);
+            }
+
+            status = Root?.Q<Label>("login-status");
+            var button = Root?.Q<Button>("connect-button");
+            if (button != null)
+            {
+                button.clicked += () => ConnectClicked?.Invoke();
+            }
         }
 
         public override void SetStatus(string message)

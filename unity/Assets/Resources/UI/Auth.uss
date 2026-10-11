@@ -1,62 +1,94 @@
 .screen {
-	flex-grow: 1;
-	align-items: center;
-	justify-content: center;
-	background-color: rgb(11, 25, 38);
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    background-image: resource("Image/login");
+    -unity-background-scale-mode: scale-and-crop;
+}
+
+.overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(5, 10, 18, 0.45);
 }
 
 .panel {
-	width: 460px;
-	min-height: 300px;
-	align-items: center;
-	justify-content: center;
-	padding-left: 40px;
-	padding-right: 40px;
-	padding-top: 32px;
-	padding-bottom: 32px;
-	background-color: rgba(8, 15, 24, 0.92);
-	border-top-left-radius: 18px;
-	border-top-right-radius: 18px;
-	border-bottom-left-radius: 18px;
-	border-bottom-right-radius: 18px;
+    width: 480px;
+    align-items: center;
+    justify-content: center;
+    padding-left: 36px;
+    padding-right: 36px;
+    padding-top: 32px;
+    padding-bottom: 32px;
+    background-color: rgba(10, 16, 26, 0.88);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(245, 166, 35, 0.4);
+    border-right-color: rgba(245, 166, 35, 0.4);
+    border-top-color: rgba(245, 166, 35, 0.4);
+    border-bottom-color: rgba(245, 166, 35, 0.4);
 }
 
-.hidden { display: none; }
-
 .title {
-	color: white;
-	font-size: 38px;
-	-unity-font-style: bold;
-	margin-bottom: 12px;
+    color: rgb(255, 204, 77);
+    font-size: 38px;
+    -unity-font-style: bold;
+    margin-bottom: 8px;
+    -unity-text-align: middle-center;
 }
 
 .subtitle {
-	color: rgb(205, 216, 225);
-	font-size: 18px;
-	margin-bottom: 28px;
-	-unity-text-align: middle-center;
+    color: rgb(210, 222, 235);
+    font-size: 16px;
+    margin-bottom: 24px;
+    -unity-text-align: middle-center;
+    white-space: normal;
 }
 
-.primary-button, .secondary-button {
-	width: 320px;
-	height: 64px;
-	margin-top: 8px;
-	margin-bottom: 8px;
-	font-size: 24px;
-	-unity-font-style: bold;
-	border-top-left-radius: 10px;
-	border-top-right-radius: 10px;
-	border-bottom-left-radius: 10px;
-	border-bottom-right-radius: 10px;
+.primary-button {
+    width: 280px;
+    height: 60px;
+    font-size: 24px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    background-color: rgb(232, 137, 24);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    -unity-text-align: middle-center;
 }
 
-.primary-button { color: white; background-color: rgb(232, 137, 24); }
-.primary-button:hover { background-color: rgb(255, 166, 54); }
-.secondary-button { color: white; background-color: rgb(65, 79, 94); }
+.primary-button:hover {
+    background-color: rgb(255, 166, 54);
+    scale: 1.03 1.03;
+}
+
+.primary-button:active {
+    background-color: rgb(200, 110, 15);
+    scale: 0.98 0.98;
+}
+
 .status {
-	min-height: 24px;
-	margin-top: 10px;
-	color: rgb(255, 220, 145);
-	font-size: 16px;
-	-unity-text-align: middle-center;
+    min-height: 24px;
+    margin-top: 14px;
+    color: rgb(255, 220, 145);
+    font-size: 15px;
+    -unity-text-align: middle-center;
+    white-space: normal;
 }

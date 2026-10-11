@@ -1,4 +1,5 @@
 using UnityEngine;
+using FowlgenWars.Solana;
 using FowlgenWars.Auth;
 using FowlgenWars.Architecture.Models;
 using FowlgenWars.Architecture.Services;
@@ -13,13 +14,11 @@ namespace FowlgenWars.Architecture.Presenters
         [SerializeField] private SessionState session;
 
         private AuthView view;
-        private ClientAuthManager authService;
         private SceneNavigationService navigationService;
 
         private void Awake()
         {
             view = GetComponent<AuthView>();
-            authService = GetComponent<ClientAuthManager>();
             navigationService = new SceneNavigationService();
             navigation = navigation != null
                 ? navigation
@@ -35,43 +34,74 @@ namespace FowlgenWars.Architecture.Presenters
         {
             if (view != null)
                 view.ConnectClicked += Connect;
-            if (authService != null)
-                authService.AuthenticationCompleted += OnAuthenticationCompleted;
         }
 
         private void OnDisable()
         {
             if (view != null)
                 view.ConnectClicked -= Connect;
-            if (authService != null)
-                authService.AuthenticationCompleted -= OnAuthenticationCompleted;
         }
 
         private void Connect()
         {
-            if (authService == null)
+            view?.SetStatus("Conectando carteira Phantom...");
+
+            if (WalletManager.Instance == null)
             {
-                view.SetStatus("Authentication service unavailable.");
-                return;
+                var wmGo = new GameObject("WalletManager");
+                wmGo.AddComponent<WalletManager>();
             }
 
-            view.SetStatus("Waiting for wallet signature...");
-            authService.Login();
+            // Conexão via Solana Wallet Adapter (Phantom)
+            WalletManager.Instance.ConnectWalletAdapter((success, pubKey) =>
+            {
+                if (success)
+                {
+                    AuthenticateWithFishNet(pubKey);
+                }
+                else
+                {
+                    // Fallback para carteira Devnet local para testes fluidos no Editor/Desktop
+                    Debug.LogWarning("[AuthPresenter] Phantom Adapter retornou aviso. Acionando carteira Devnet local...");
+                    WalletManager.Instance.ConnectWallet();
+                    if (WalletManager.Instance.IsConnected)
+                    {
+                        AuthenticateWithFishNet(WalletManager.Instance.PublicKey);
+                    }
+                    else
+                    {
+                        view?.SetStatus("Conexão de carteira cancelada ou falhou. Tente novamente.");
+                    }
+                }
+            });
         }
 
-        private void OnAuthenticationCompleted(bool authenticated)
+        private void AuthenticateWithFishNet(string pubKey)
         {
-            if (!authenticated)
+            view?.SetStatus("Carteira conectada! Autenticando com Servidor Dedicado...");
+
+            var clientAuth = ClientAuthManager.Instance ?? FindAnyObjectByType<ClientAuthManager>();
+            if (clientAuth == null)
             {
-                view.SetStatus("Connection rejected.");
-                return;
+                clientAuth = gameObject.AddComponent<ClientAuthManager>();
             }
 
-            if (session != null)
-                session.SetAuthenticated(authService.WalletAddress);
+            clientAuth.Login((authenticated, message) =>
+            {
+                if (authenticated)
+                {
+                    if (session != null)
+                        session.SetAuthenticated(pubKey);
 
-            view.SetStatus("Connected. Loading Play...");
-            navigationService.Load(navigation != null ? navigation.PlayScene : "Play");
+                    view?.SetStatus("Autenticado pelo Servidor Dedicado! Carregando...");
+                    navigationService.Load(navigation != null ? navigation.PlayScene : "Play");
+                }
+                else
+                {
+                    view?.SetStatus($"Falha na autenticação: {message}");
+                }
+            });
         }
     }
 }
+

@@ -1,7 +1,131 @@
-.screen { flex-grow: 1; align-items: center; justify-content: center; background-color: rgb(11, 25, 38); }
-.panel { width: 520px; min-height: 300px; align-items: center; justify-content: center; padding-left: 40px; padding-right: 40px; padding-top: 32px; padding-bottom: 32px; background-color: rgba(8, 15, 24, 0.92); border-top-left-radius: 18px; border-top-right-radius: 18px; border-bottom-left-radius: 18px; border-bottom-right-radius: 18px; }
-.title { color: white; font-size: 38px; -unity-font-style: bold; margin-bottom: 12px; }
-.subtitle { color: rgb(205, 216, 225); font-size: 18px; margin-bottom: 28px; -unity-text-align: middle-center; }
-.primary-button, .secondary-button { width: 320px; height: 64px; font-size: 24px; -unity-font-style: bold; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
-.primary-button { color: white; background-color: rgb(232, 137, 24); }
-.secondary-button { color: white; background-color: rgb(65, 79, 94); }
+.screen {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    background-image: resource("Image/play");
+    -unity-background-scale-mode: scale-and-crop;
+}
+
+.overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(6, 12, 22, 0.40);
+}
+
+.wallet-bar {
+    position: absolute;
+    top: 24px;
+    right: 28px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: rgba(10, 18, 30, 0.90);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(245, 166, 35, 0.5);
+    border-right-color: rgba(245, 166, 35, 0.5);
+    border-top-color: rgba(245, 166, 35, 0.5);
+    border-bottom-color: rgba(245, 166, 35, 0.5);
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.wallet-address {
+    color: rgb(180, 200, 220);
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.wallet-balance {
+    color: rgb(255, 204, 77);
+    font-size: 18px;
+    -unity-font-style: bold;
+}
+
+.panel {
+    width: 520px;
+    align-items: center;
+    justify-content: center;
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 36px;
+    padding-bottom: 36px;
+    background-color: rgba(8, 15, 26, 0.88);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(46, 175, 125, 0.45);
+    border-right-color: rgba(46, 175, 125, 0.45);
+    border-top-color: rgba(46, 175, 125, 0.45);
+    border-bottom-color: rgba(46, 175, 125, 0.45);
+}
+
+.title {
+    color: rgb(255, 255, 255);
+    font-size: 34px;
+    -unity-font-style: bold;
+    margin-bottom: 10px;
+    -unity-text-align: middle-center;
+}
+
+.subtitle {
+    color: rgb(205, 220, 235);
+    font-size: 16px;
+    margin-bottom: 28px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.primary-button {
+    width: 280px;
+    height: 64px;
+    font-size: 26px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    background-color: rgb(34, 187, 102);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    -unity-text-align: middle-center;
+}
+
+.primary-button:hover {
+    background-color: rgb(46, 214, 120);
+    scale: 1.03 1.03;
+}
+
+.primary-button:active {
+    background-color: rgb(25, 150, 80);
+    scale: 0.98 0.98;
+}
+
+.status {
+    min-height: 24px;
+    margin-top: 14px;
+    color: rgb(255, 220, 145);
+    font-size: 15px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}

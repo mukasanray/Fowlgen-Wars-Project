@@ -33,7 +33,12 @@ namespace FowlgenWars.Architecture.Views
 
             Document.visualTreeAsset = layout;
             if (Document.panelSettings == null)
-                Document.panelSettings = ScriptableObject.CreateInstance<PanelSettings>();
+            {
+                var defaultSettings = Resources.Load<PanelSettings>("UI/PanelSettings");
+                Document.panelSettings = defaultSettings != null 
+                    ? defaultSettings 
+                    : ScriptableObject.CreateInstance<PanelSettings>();
+            }
 
             StyleSheet styles = Resources.Load<StyleSheet>(styleResource);
             if (styles != null)

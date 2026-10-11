@@ -1,9 +1,11 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="screen" class="screen">
-        <ui:VisualElement name="login-panel" class="panel login-panel">
-            <ui:Button name="connect-button" text="CONNECT" class="primary-button" style="width: 235px; height: 58px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-top-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; border-left-color: rgb(77, 77, 77); border-right-color: rgb(77, 77, 77); border-top-color: rgb(77, 77, 77); border-bottom-color: rgb(77, 77, 77); -unity-material: url(&quot;&quot;); left: auto; right: auto; -unity-text-align: middle-center; white-space: pre; text-overflow: clip; background-color: rgb(60, 179, 113); -unity-font-style: bold; font-size: 18px; top: 260%; bottom: auto; align-items: center; align-self: center; align-content: auto; justify-content: space-between; -unity-background-image-tint-color: rgb(46, 139, 87); flex-direction: column;"/>
+        <ui:VisualElement name="dark-overlay" class="overlay" />
+        <ui:VisualElement name="login-panel" class="panel">
+            <ui:Label text="FOWLGEN WARS" class="title" />
+            <ui:Label text="Conecte sua carteira Phantom para iniciar a batalha" class="subtitle" />
+            <ui:Button name="connect-button" text="Entrar" class="primary-button" />
             <ui:Label name="login-status" class="status" />
         </ui:VisualElement>
-        <ui:Image/>
     </ui:VisualElement>
 </ui:UXML>

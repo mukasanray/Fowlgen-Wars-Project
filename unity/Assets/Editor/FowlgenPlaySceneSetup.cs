@@ -13,11 +13,11 @@ namespace FowlgenWars.Editor
 {
     public static class FowlgenPlaySceneSetup
     {
-        private const string PlayScenePath = "Assets/Scenes/Game/Play.unity";
+        private const string ArenaScenePath = "Assets/Scenes/Game/Arena.unity";
         private const string MinionPrefabPath = "Assets/Prefabs/Minion_Frango.prefab";
         private const string ResourcesArchPath = "Assets/Resources/Architecture";
 
-        [MenuItem("Fowlgen Wars/Setup Play Scene + Prefabs (MVP)")]
+        [MenuItem("Fowlgen Wars/Setup Arena Scene + Prefabs (MVP)")]
         public static void BuildPlaySceneAndAssets()
         {
             EnsureFolders();
@@ -27,13 +27,13 @@ namespace FowlgenWars.Editor
                 ?.SetValue(minionData, minionPrefab);
             EditorUtility.SetDirty(minionData);
 
-            SetupPlayScene(minionData);
+            SetupArenaScene(minionData);
             UpdateBuildSettings();
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            Debug.Log("[FowlgenWars] Cena Play, Prefabs e ScriptableObjects configurados com sucesso!");
+            Debug.Log("[FowlgenWars] Cena Arena, Prefabs e ScriptableObjects configurados com sucesso!");
         }
 
         private static void EnsureFolders()
@@ -154,7 +154,7 @@ namespace FowlgenWars.Editor
             return prefab;
         }
 
-        private static void SetupPlayScene(MinionDataSO minionData)
+        private static void SetupArenaScene(MinionDataSO minionData)
         {
             UnityEngine.SceneManagement.Scene scene;
             string battleArenaPath = "Assets/Scenes/Game/BattleArena.unity";
@@ -308,7 +308,7 @@ namespace FowlgenWars.Editor
             else
                 eventGo.AddComponent<StandaloneInputModule>();
 
-            EditorSceneManager.SaveScene(scene, PlayScenePath);
+            EditorSceneManager.SaveScene(scene, ArenaScenePath);
         }
 
         private static GameObject CreateGalinheiro(string name, Team team, Vector3 position, Color color)
@@ -619,7 +619,8 @@ namespace FowlgenWars.Editor
             EditorBuildSettings.scenes = new[]
             {
                 new EditorBuildSettingsScene("Assets/Scenes/Game/Auth.unity", true),
-                new EditorBuildSettingsScene(PlayScenePath, true),
+                new EditorBuildSettingsScene("Assets/Scenes/Game/Play.unity", true),
+                new EditorBuildSettingsScene(ArenaScenePath, true),
                 new EditorBuildSettingsScene("Assets/Scenes/Game/Vitoria.unity", true),
                 new EditorBuildSettingsScene("Assets/Scenes/Game/Derrota.unity", true)
             };

@@ -4,25 +4,39 @@ using UnityEngine.UIElements;
 
 namespace FowlgenWars.Architecture.Views
 {
-    public sealed class DerrotaView : MonoBehaviour
+    public sealed class DerrotaView : ScreenViewBase
     {
-        public event Action RetryClicked;
+        public event Action RewardClicked;
+        private Label statusLabel;
+        private Label rewardDetailsLabel;
 
-        private void Awake()
+        protected override void Awake()
         {
-            UIDocument document = GetComponent<UIDocument>();
-            if (document == null)
-                document = gameObject.AddComponent<UIDocument>();
-            document.visualTreeAsset = Resources.Load<VisualTreeAsset>("UI/Derrota");
-            if (document.panelSettings == null)
-                document.panelSettings = ScriptableObject.CreateInstance<PanelSettings>();
-            Button button = document.rootVisualElement.Q<Button>("retry-button");
-            if (button != null)
-                button.clicked += () => RetryClicked?.Invoke();
+            SetResources("UI/Derrota", "UI/Derrota");
+            base.Awake();
+
+            statusLabel = Root?.Q<Label>("defeat-status");
+            rewardDetailsLabel = Root?.Q<Label>("reward-details");
+
+            var rewardBtn = Root?.Q<Button>("reward-button");
+            if (rewardBtn != null)
+            {
+                rewardBtn.clicked += () => RewardClicked?.Invoke();
+            }
         }
 
-        public void SetStatus(string message)
+        public void SetRewardDetails(string details)
         {
+            if (rewardDetailsLabel != null && !string.IsNullOrEmpty(details))
+            {
+                rewardDetailsLabel.text = details;
+            }
+        }
+
+        public override void SetStatus(string message)
+        {
+            if (statusLabel != null)
+                statusLabel.text = message ?? string.Empty;
         }
     }
 }

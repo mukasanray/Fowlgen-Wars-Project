@@ -1,9 +1,15 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-	<ui:VisualElement name="screen" class="screen">
-		<ui:VisualElement class="panel">
-			<ui:Label text="VITÓRIA" class="title" />
-			<ui:Label text="You won the match!" class="subtitle" />
-			<ui:Button name="continue-button" text="CONTINUAR" class="primary-button" />
-		</ui:VisualElement>
-	</ui:VisualElement>
+    <ui:VisualElement name="screen" class="screen">
+        <ui:VisualElement name="gold-vignette" class="gold-overlay" />
+        <ui:VisualElement name="victory-panel" class="panel">
+            <ui:Label text="VITÓRIA ÉPICA!" class="title" />
+            <ui:Label text="Você dominou a arena e destruiu a base inimiga!" class="subtitle" />
+            <ui:VisualElement name="reward-box" class="reward-box">
+                <ui:Label text="RECOMPENSA DE CAMPEÃO" class="reward-title" />
+                <ui:Label name="reward-details" text="+120 XP  |  +50 FOWL  |  +0.05 SOL" class="reward-value" />
+            </ui:VisualElement>
+            <ui:Button name="reward-button" text="Recompensa" class="primary-button" />
+            <ui:Label name="victory-status" class="status" />
+        </ui:VisualElement>
+    </ui:VisualElement>
 </ui:UXML>

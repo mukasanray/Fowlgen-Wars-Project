@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FowlgenWars.Architecture.Models.NavigationConfig
   authScene: Auth
   playScene: Play
+  arenaScene: Arena
   vitoriaScene: Vitoria
   derrotaScene: Derrota

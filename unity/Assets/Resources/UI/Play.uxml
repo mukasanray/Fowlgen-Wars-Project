@@ -1,9 +1,15 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-	<ui:VisualElement name="screen" class="screen">
-		<ui:VisualElement class="panel">
-			<ui:Label text="READY TO PLAY?" class="title" />
-			<ui:Label text="Enter the arena and start your match." class="subtitle" />
-			<ui:Button name="play-button" text="PLAY" class="primary-button" />
-		</ui:VisualElement>
-	</ui:VisualElement>
+    <ui:VisualElement name="screen" class="screen">
+        <ui:VisualElement name="dark-overlay" class="overlay" />
+        <ui:VisualElement name="wallet-bar" class="wallet-bar">
+            <ui:Label name="wallet-address-label" text="Carteira: Conectando..." class="wallet-address" />
+            <ui:Label name="wallet-balance-label" text="Saldo: -- SOL" class="wallet-balance" />
+        </ui:VisualElement>
+        <ui:VisualElement name="play-panel" class="panel">
+            <ui:Label text="PRONTO PARA A GUERRA?" class="title" />
+            <ui:Label text="Entre na arena 3 rotas e destrua o galinheiro inimigo!" class="subtitle" />
+            <ui:Button name="play-button" text="Play" class="primary-button" />
+            <ui:Label name="play-status" class="status" />
+        </ui:VisualElement>
+    </ui:VisualElement>
 </ui:UXML>

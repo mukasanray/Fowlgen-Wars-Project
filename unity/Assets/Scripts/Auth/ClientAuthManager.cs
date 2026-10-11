@@ -1,90 +1,146 @@
 using UnityEngine;
 using FishNet.Object;
+using System;
 using System.Text;
 using System.Threading.Tasks;
 using Solana.Unity.SDK;
+using FowlgenWars.Solana;
 
 namespace FowlgenWars.Auth
 {
     public class ClientAuthManager : NetworkBehaviour
     {
-        public event System.Action<bool> AuthenticationCompleted;
+        public static ClientAuthManager Instance { get; private set; }
+
+        public event Action<bool, string> AuthenticationCompleted;
         public string WalletAddress { get; private set; }
 
-        public void Login()
+        private Action<bool, string> pendingCallback;
+
+        private void Awake()
         {
-            ServerAuthManager serverAuthManager = FindAnyObjectByType<ServerAuthManager>();
-            if (serverAuthManager == null)
+            if (Instance != null && Instance != this)
             {
-                Debug.LogError("[ClientAuth] ServerAuthManager não encontrado na cena/rede.");
+                Destroy(gameObject);
                 return;
             }
+            Instance = this;
+        }
 
-            RequestWalletSignature(serverAuthManager.GenerateNonce());
+        public void Login(Action<bool, string> callback = null)
+        {
+            pendingCallback = callback;
+
+            // Busca nonce do servidor local se disponível ou gera nonce de sessão
+            string nonce = ServerAuthManager.Instance != null 
+                ? ServerAuthManager.Instance.GenerateNonce() 
+                : Guid.NewGuid().ToString("N");
+
+            RequestWalletSignature(nonce);
         }
 
         /// <summary>
-        /// Pede assinatura da carteira via Solana Unity SDK e envia ao server via RPC.
-        /// Transformado em async void para suportar o popup da carteira.
+        /// Pede assinatura da carteira via Solana Unity SDK / WalletManager e valida via FishNet ServerRpc.
         /// </summary>
         public async void RequestWalletSignature(string nonce)
         {
             try 
             {
-                if (Web3.Wallet?.Account == null)
+                byte[] messageBytes = Encoding.UTF8.GetBytes(nonce);
+                byte[] signature = null;
+                byte[] pubKeyBytes = null;
+                string address = null;
+
+                // 1. Tenta via Solana Unity SDK Web3 (Phantom MWA / WebGL)
+                if (Web3.Wallet?.Account != null)
+                {
+                    Debug.Log("[ClientAuth] Solicitando assinatura de Nonce via Web3.Wallet (Phantom)...");
+                    address = Web3.Wallet.Account.PublicKey.Key;
+                    pubKeyBytes = Web3.Wallet.Account.PublicKey.KeyBytes;
+                    signature = await Web3.Wallet.SignMessage(messageBytes);
+                }
+                // 2. Tenta via WalletManager (Devnet local / importada / fallback)
+                else if (WalletManager.Instance != null && WalletManager.Instance.Account != null)
+                {
+                    Debug.Log("[ClientAuth] Solicitando assinatura de Nonce via WalletManager local...");
+                    address = WalletManager.Instance.PublicKey;
+                    pubKeyBytes = WalletManager.Instance.Account.PublicKey.KeyBytes;
+                    signature = WalletManager.Instance.Account.Sign(messageBytes);
+                }
+                else
                 {
                     Debug.LogWarning("[ClientAuth] Nenhuma carteira Solana conectada.");
+                    NotifyResult(false, "Nenhuma carteira conectada para assinar.");
                     return;
                 }
 
-                byte[] messageBytes = Encoding.UTF8.GetBytes(nonce);
-                Debug.Log("[ClientAuth] Abrindo carteira para solicitar assinatura do nonce...");
-
-                byte[] signature = await Web3.Wallet.SignMessage(messageBytes);
                 if (signature != null && signature.Length > 0)
                 {
-                    WalletAddress = Web3.Wallet.Account.PublicKey.Key;
-                    Debug.Log("[ClientAuth] Assinatura realizada! Solicitando validação do servidor (ServerRpc)...");
+                    WalletAddress = address;
+                    Debug.Log($"[ClientAuth] Assinatura obtida para {address}! Validando com Servidor Dedicado...");
 
-                    CmdVerifySignature(
-                        Web3.Wallet.Account.PublicKey.Key,
-                        nonce,
-                        signature,
-                        Web3.Wallet.Account.PublicKey.KeyBytes);
+                    // Se FishNet estiver com cliente ativo na rede, usa ServerRpc
+                    if (IsClientInitialized)
+                    {
+                        CmdVerifySignature(address, nonce, signature, pubKeyBytes);
+                    }
+                    else
+                    {
+                        // Fallback quando executando em modo local / editor sem servidor dedicado conectado
+                        Debug.Log("[ClientAuth] Rede FishNet não conectada no momento. Validando via ServerAuthManager local...");
+                        bool localAuth = ServerAuthManager.Instance != null 
+                            && ServerAuthManager.Instance.VerifySignature(address, nonce, signature, pubKeyBytes);
+
+                        NotifyResult(localAuth, localAuth ? "Autenticação aprovada (Local/Direct)." : "Assinatura rejeitada pelo servidor.");
+                    }
                 }
                 else
                 {
                     Debug.LogWarning("[ClientAuth] Usuário rejeitou a assinatura ou erro na carteira.");
+                    NotifyResult(false, "Assinatura rejeitada na carteira.");
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Debug.LogError($"[ClientAuth] Exceção ao assinar: {ex.Message}");
+                NotifyResult(false, ex.Message);
             }
         }
 
         [ServerRpc(RequireOwnership = false)]
         private void CmdVerifySignature(string walletAddress, string nonce, byte[] signature, byte[] pubKey)
         {
-            ServerAuthManager serverAuthManager = FindAnyObjectByType<ServerAuthManager>();
+            ServerAuthManager serverAuthManager = ServerAuthManager.Instance ?? FindAnyObjectByType<ServerAuthManager>();
             if (serverAuthManager == null)
             {
                 Debug.LogError("[ServerAuth] ServerAuthManager não encontrado no servidor.");
+                TargetAuthenticationResult(Owner, false, "ServerAuthManager offline no servidor.");
                 return;
             }
 
             bool authenticated = serverAuthManager.VerifySignature(walletAddress, nonce, signature, pubKey);
-            TargetAuthenticationResult(Owner, authenticated);
+            TargetAuthenticationResult(Owner, authenticated, authenticated ? "Sucesso" : "Assinatura inválida");
         }
 
         [TargetRpc]
-        private void TargetAuthenticationResult(FishNet.Connection.NetworkConnection connection, bool authenticated)
+        private void TargetAuthenticationResult(FishNet.Connection.NetworkConnection connection, bool authenticated, string message)
         {
-            AuthenticationCompleted?.Invoke(authenticated);
+            NotifyResult(authenticated, message);
+        }
+
+        private void NotifyResult(bool authenticated, string message)
+        {
             if (authenticated)
-                Debug.Log("[ClientAuth] Autenticação concluída.");
+                Debug.Log($"[ClientAuth] ✅ Autenticação concluída: {message}");
             else
-                Debug.LogWarning("[ClientAuth] A autenticação foi rejeitada pelo servidor.");
+                Debug.LogWarning($"[ClientAuth] ❌ A autenticação foi rejeitada: {message}");
+
+            var cb = pendingCallback;
+            pendingCallback = null;
+            cb?.Invoke(authenticated, message);
+
+            AuthenticationCompleted?.Invoke(authenticated, message);
         }
     }
 }
+
