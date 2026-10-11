@@ -1,0 +1,16 @@
+{
+    "name": "FowlgenWars.Modules.Solana",
+    "rootNamespace": "FowlgenWars.Modules.Solana",
+    "references": [
+        "com.solana.unity_sdk"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
