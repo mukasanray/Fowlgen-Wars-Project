@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &400000001
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 400000002}
+  - component: {fileID: 400000003}
+  - component: {fileID: 400000004}
+  m_Layer: 0
+  m_Name: Main Camera
+  m_TagString: MainCamera
+  m_IsActive: 1
+--- !u!4 &400000002
+Transform:
+  m_GameObject: {fileID: 400000001}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+--- !u!20 &400000003
+Camera:
+  m_GameObject: {fileID: 400000001}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.165, g: 0.059, b: 0.078, a: 1}
+  m_projectionMatrixMode: 1
+  m_NormalizedViewPortRect:
+	serializedVersion: 2
+	x: 0
+	y: 0
+	width: 1
+	height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60
+--- !u!81 &400000004
+AudioListener:
+  m_GameObject: {fileID: 400000001}
+  m_Enabled: 1
+--- !u!1 &400000010
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 400000011}
+  - component: {fileID: 400000012}
+  m_Layer: 0
+  m_Name: Derrota
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &400000011
+Transform:
+  m_GameObject: {fileID: 400000010}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+--- !u!114 &400000012
+MonoBehaviour:
+  m_GameObject: {fileID: 400000010}
+  m_Enabled: 1
+  m_Script: {fileID: 11500000, guid: 8c1d3e2f5a7b9c0d4e6f80912345bcde, type: 3}
+  m_Name: 
+  m_EditorHideFlags: 0
+  m_EditorClassIdentifier: 
+--- !u!1660057539 &9223372036854775807
+SceneRoots:
+  m_ObjectHideFlags: 0
+  m_Roots:
+  - {fileID: 400000002}
+  - {fileID: 400000011}

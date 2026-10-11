@@ -5,7 +5,6 @@ namespace FowlgenWars.POC
 {
     public class POCSceneRoot : MonoBehaviour
     {
-        public const string SceneMenu = "MainMenu";
         public const string ScenePoc01 = "POC_01_ProjectFoundation";
         public const string ScenePoc02 = "POC_02_SolanaDevnet";
         public const string ScenePoc03 = "POC_03_AnchorWorkspace";
@@ -14,7 +13,7 @@ namespace FowlgenWars.POC
 
         public enum Kind
         {
-            MainMenu = 0,
+            Auth = 0,
             ProjectFoundation = 1,
             SolanaDevnet = 2,
             AnchorWorkspace = 3,
@@ -41,9 +40,6 @@ namespace FowlgenWars.POC
         {
             switch (kind)
             {
-                case Kind.MainMenu:
-                    AddIfMissing<MainMenuController>();
-                    break;
                 case Kind.ProjectFoundation:
                     AddIfMissing<POC01Controller>();
                     break;

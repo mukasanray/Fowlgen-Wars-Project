@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+	<ui:VisualElement name="screen" class="screen">
+		<ui:VisualElement class="panel">
+			<ui:Label text="VITÓRIA" class="title" />
+			<ui:Label text="You won the match!" class="subtitle" />
+			<ui:Button name="continue-button" text="CONTINUAR" class="primary-button" />
+		</ui:VisualElement>
+	</ui:VisualElement>
+</ui:UXML>

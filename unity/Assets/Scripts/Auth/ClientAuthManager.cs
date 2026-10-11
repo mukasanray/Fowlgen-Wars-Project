@@ -2,14 +2,27 @@ using UnityEngine;
 using FishNet.Object;
 using System.Text;
 using System.Threading.Tasks;
-// Namespaces típicos do Solana Unity SDK
-// using Solana.Unity.Wallet; 
-// using Solana.Unity.SDK;
+using Solana.Unity.SDK;
 
 namespace FowlgenWars.Auth
 {
     public class ClientAuthManager : NetworkBehaviour
     {
+        public event System.Action<bool> AuthenticationCompleted;
+        public string WalletAddress { get; private set; }
+
+        public void Login()
+        {
+            ServerAuthManager serverAuthManager = FindAnyObjectByType<ServerAuthManager>();
+            if (serverAuthManager == null)
+            {
+                Debug.LogError("[ClientAuth] ServerAuthManager não encontrado na cena/rede.");
+                return;
+            }
+
+            RequestWalletSignature(serverAuthManager.GenerateNonce());
+        }
+
         /// <summary>
         /// Pede assinatura da carteira via Solana Unity SDK e envia ao server via RPC.
         /// Transformado em async void para suportar o popup da carteira.
@@ -18,25 +31,26 @@ namespace FowlgenWars.Auth
         {
             try 
             {
-                // A validação real usaria o singleton do Web3 da biblioteca (ex: Web3.Instance)
-                // if (Web3.Instance == null || Web3.Wallet == null) { return; }
+                if (Web3.Wallet?.Account == null)
+                {
+                    Debug.LogWarning("[ClientAuth] Nenhuma carteira Solana conectada.");
+                    return;
+                }
 
                 byte[] messageBytes = Encoding.UTF8.GetBytes(nonce);
                 Debug.Log("[ClientAuth] Abrindo carteira para solicitar assinatura do nonce...");
-                
-                // TODO: Descomentar integração quando os namespaces do Web3.Wallet estiverem linkados
-                // byte[] signature = await Web3.Wallet.SignMessage(messageBytes);
-                byte[] signature = new byte[64]; // Mock
-                
+
+                byte[] signature = await Web3.Wallet.SignMessage(messageBytes);
                 if (signature != null && signature.Length > 0)
                 {
+                    WalletAddress = Web3.Wallet.Account.PublicKey.Key;
                     Debug.Log("[ClientAuth] Assinatura realizada! Solicitando validação do servidor (ServerRpc)...");
-                    
-                    // Extrairia PublicKey local
-                    // string walletAddress = Web3.Account.PublicKey.Key;
-                    // byte[] publicKeyBytes = Web3.Account.PublicKey.KeyBytes;
 
-                    // TODO: Chamar CmdVerifySignature(walletAddress, nonce, signature, publicKeyBytes);
+                    CmdVerifySignature(
+                        Web3.Wallet.Account.PublicKey.Key,
+                        nonce,
+                        signature,
+                        Web3.Wallet.Account.PublicKey.KeyBytes);
                 }
                 else
                 {
@@ -49,14 +63,28 @@ namespace FowlgenWars.Auth
             }
         }
 
-        /*
-        // O FishNet requer a tag [ServerRpc] para enviar do Client para o Server.
-        [ServerRpc]
+        [ServerRpc(RequireOwnership = false)]
         private void CmdVerifySignature(string walletAddress, string nonce, byte[] signature, byte[] pubKey)
         {
-            // Instanciar / buscar o ServerAuthManager no ambiente do server e rodar:
-            // serverAuthManager.VerifySignature(walletAddress, nonce, signature, pubKey);
+            ServerAuthManager serverAuthManager = FindAnyObjectByType<ServerAuthManager>();
+            if (serverAuthManager == null)
+            {
+                Debug.LogError("[ServerAuth] ServerAuthManager não encontrado no servidor.");
+                return;
+            }
+
+            bool authenticated = serverAuthManager.VerifySignature(walletAddress, nonce, signature, pubKey);
+            TargetAuthenticationResult(Owner, authenticated);
         }
-        */
+
+        [TargetRpc]
+        private void TargetAuthenticationResult(FishNet.Connection.NetworkConnection connection, bool authenticated)
+        {
+            AuthenticationCompleted?.Invoke(authenticated);
+            if (authenticated)
+                Debug.Log("[ClientAuth] Autenticação concluída.");
+            else
+                Debug.LogWarning("[ClientAuth] A autenticação foi rejeitada pelo servidor.");
+        }
     }
 }

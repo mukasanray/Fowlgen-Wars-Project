@@ -1,0 +1,5 @@
+.screen { flex-grow: 1; align-items: center; justify-content: center; background-color: rgb(12, 38, 28); }
+.panel { width: 520px; min-height: 300px; align-items: center; justify-content: center; padding-left: 40px; padding-right: 40px; padding-top: 32px; padding-bottom: 32px; background-color: rgba(7, 24, 17, 0.94); border-top-left-radius: 18px; border-top-right-radius: 18px; border-bottom-left-radius: 18px; border-bottom-right-radius: 18px; }
+.title { color: rgb(132, 255, 172); font-size: 42px; -unity-font-style: bold; margin-bottom: 12px; }
+.subtitle { color: rgb(220, 242, 226); font-size: 18px; margin-bottom: 28px; -unity-text-align: middle-center; }
+.primary-button { width: 320px; height: 64px; color: white; background-color: rgb(35, 156, 82); font-size: 22px; -unity-font-style: bold; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }

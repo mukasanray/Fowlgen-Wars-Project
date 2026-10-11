@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 3ffbe936d08df274e97d160a90856750
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 196526
+  packageName: First Person + Third Person | Character Controllers
+  packageVersion: 2.0.1
+  assetPath: Assets/Starter Assets/Runtime/ThirdPersonController/Character/Materials/Built-in_RP/M_ArmatureColor_Legs.mat
+  uploadId: 998422

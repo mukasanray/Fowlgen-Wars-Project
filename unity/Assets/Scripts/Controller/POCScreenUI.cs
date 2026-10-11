@@ -205,7 +205,7 @@ namespace FowlgenWars.POC
             if (inputModule != null)
                 go.AddComponent(inputModule);
             else
-                go.AddComponent<StandaloneInputModule>();
+                Debug.LogError("[POC UI] InputSystemUIInputModule não foi encontrado.");
         }
 
         void ClearDynamicUI()
@@ -235,8 +235,6 @@ namespace FowlgenWars.POC
             var text = go.GetComponent<Text>();
             text.text = content;
             text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            if (text.font == null)
-                text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             text.fontSize = fontSize;
             text.fontStyle = fontStyle;
             text.alignment = anchor;

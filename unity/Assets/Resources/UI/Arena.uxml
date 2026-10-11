@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+	<ui:VisualElement name="screen" class="screen">
+		<ui:VisualElement class="panel">
+			<ui:Label text="ARENA" class="title" />
+			<ui:Label text="The match starts here." class="subtitle" />
+			<ui:Button name="back-button" text="BACK TO PLAY" class="secondary-button" />
+		</ui:VisualElement>
+	</ui:VisualElement>
+</ui:UXML>

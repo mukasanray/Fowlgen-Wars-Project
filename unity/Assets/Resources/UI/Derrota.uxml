@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+	<ui:VisualElement name="screen" class="screen">
+		<ui:VisualElement class="panel">
+			<ui:Label text="DERROTA" class="title" />
+			<ui:Label text="Try again and claim victory." class="subtitle" />
+			<ui:Button name="retry-button" text="TENTAR NOVAMENTE" class="primary-button" />
+		</ui:VisualElement>
+	</ui:VisualElement>
+</ui:UXML>
