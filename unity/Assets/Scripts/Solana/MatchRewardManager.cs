@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -84,26 +85,23 @@ namespace FowlgenWars.Solana
             string programId = SolanaManager.Instance.Config.programId;
 
             // 1. Carregar Keypair de Autoridade do Servidor
-            Solana.Unity.Wallet.Account serverAccount = null;
+            global::Solana.Unity.Wallet.Account serverAccount = null;
             try
             {
                 // Em produção, lê o id.json gerado pela Solana CLI
                 if (System.IO.File.Exists(serverPrivateKeyPath))
                 {
                     string json = System.IO.File.ReadAllText(serverPrivateKeyPath);
-                    json = json.Trim('[', ']');
-                    string[] parts = json.Split(',');
-                    byte[] secretKey = new byte[64];
-                    for (int i = 0; i < secretKey.Length && i < parts.Length; i++)
+                    serverAccount = global::Solana.Unity.SDK.InGameWallet.FromSecret(json.Trim());
+                    if (serverAccount == null)
                     {
-                        secretKey[i] = byte.Parse(parts[i].Trim());
+                        throw new InvalidOperationException("A chave privada do servidor não pôde ser carregada.");
                     }
-                    serverAccount = new Solana.Unity.Wallet.Account(secretKey);
                 }
                 else
                 {
                     Debug.LogWarning($"[Server] {serverPrivateKeyPath} não encontrado. Usando chave temporária para testes DEV.");
-                    serverAccount = new Solana.Unity.Wallet.Account(); // Apenas testes locais
+                    serverAccount = new global::Solana.Unity.Wallet.Account(); // Apenas testes locais
                 }
             }
             catch (Exception ex)
@@ -141,17 +139,17 @@ namespace FowlgenWars.Solana
             }
 
             // 3. Montar Instrução Anchor (claim_reward)
-            Solana.Unity.Wallet.PublicKey programIdKey = new Solana.Unity.Wallet.PublicKey(programId);
-            Solana.Unity.Wallet.PublicKey playerAuthKey = new Solana.Unity.Wallet.PublicKey(playerWallet);
+            global::Solana.Unity.Wallet.PublicKey programIdKey = new global::Solana.Unity.Wallet.PublicKey(programId);
+            global::Solana.Unity.Wallet.PublicKey playerAuthKey = new global::Solana.Unity.Wallet.PublicKey(playerWallet);
 
             // PDAs
-            Solana.Unity.Wallet.PublicKey.TryFindProgramAddress(
+            global::Solana.Unity.Wallet.PublicKey.TryFindProgramAddress(
                 new byte[][] { Encoding.UTF8.GetBytes("player"), playerAuthKey.KeyBytes }, 
-                programIdKey, out Solana.Unity.Wallet.PublicKey playerPda, out _);
+                programIdKey, out global::Solana.Unity.Wallet.PublicKey playerPda, out _);
             
-            Solana.Unity.Wallet.PublicKey.TryFindProgramAddress(
+            global::Solana.Unity.Wallet.PublicKey.TryFindProgramAddress(
                 new byte[][] { Encoding.UTF8.GetBytes("game_config") }, 
-                programIdKey, out Solana.Unity.Wallet.PublicKey gameConfigPda, out _);
+                programIdKey, out global::Solana.Unity.Wallet.PublicKey gameConfigPda, out _);
 
             // Discriminator para claim_reward: Sha256("global:claim_reward")[..8]
             byte[] data = new byte[17];
@@ -161,21 +159,21 @@ namespace FowlgenWars.Solana
             Array.Copy(xpBytes, 0, data, 8, 8);
             data[16] = isWin ? (byte)1 : (byte)0;
 
-            var instruction = new Solana.Unity.Rpc.Models.TransactionInstruction
+            var instruction = new global::Solana.Unity.Rpc.Models.TransactionInstruction
             {
                 ProgramId = programIdKey.KeyBytes,
                 Data = data,
-                Keys = new List<Solana.Unity.Rpc.Models.AccountMeta>
+                Keys = new List<global::Solana.Unity.Rpc.Models.AccountMeta>
                 {
-                    Solana.Unity.Rpc.Models.AccountMeta.Writable(playerPda, false),
-                    Solana.Unity.Rpc.Models.AccountMeta.ReadOnly(playerAuthKey, false),
-                    Solana.Unity.Rpc.Models.AccountMeta.ReadOnly(gameConfigPda, false),
-                    Solana.Unity.Rpc.Models.AccountMeta.Writable(serverAccount.PublicKey, true) // Fee Payer & Signer
+                    global::Solana.Unity.Rpc.Models.AccountMeta.Writable(playerPda, false),
+                    global::Solana.Unity.Rpc.Models.AccountMeta.ReadOnly(playerAuthKey, false),
+                    global::Solana.Unity.Rpc.Models.AccountMeta.ReadOnly(gameConfigPda, false),
+                    global::Solana.Unity.Rpc.Models.AccountMeta.Writable(serverAccount.PublicKey, true) // Fee Payer & Signer
                 }
             };
 
             // 4. Enviar Transação
-            var builder = new Solana.Unity.Rpc.Builders.TransactionBuilder()
+            var builder = new global::Solana.Unity.Rpc.Builders.TransactionBuilder()
                 .SetFeePayer(serverAccount.PublicKey)
                 .SetRecentBlockHash(recentBlockhash)
                 .AddInstruction(instruction);
