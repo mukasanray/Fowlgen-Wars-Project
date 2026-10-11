@@ -845,7 +845,12 @@ func_executar_testes() {
                 echo -e "${YELLOW}Gitleaks não encontrado. O projeto exige escaneamento profissional de segurança.${NC}"
                 read -rp "Deseja instalar o Gitleaks agora? (S/n): " INST_GL
                 if [[ ! "$INST_GL" =~ ^[nN]$ ]]; then
-                    curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/install.sh | sudo sh -s -- -b /usr/local/bin
+                    echo -e "${YELLOW}Baixando a versão mais recente do Gitleaks...${NC}"
+                    GITLEAKS_VERSION=$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+                    curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -o gitleaks.tar.gz
+                    tar -xzf gitleaks.tar.gz gitleaks
+                    sudo mv gitleaks /usr/local/bin/
+                    rm gitleaks.tar.gz
                 else
                     echo -e "${RED}Instalação recusada. A segurança não pode ser garantida.${NC}"
                 fi
