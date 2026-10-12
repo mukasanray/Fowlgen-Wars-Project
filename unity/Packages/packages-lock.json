@@ -49,6 +49,14 @@
         "com.unity.textmeshpro": "3.0.6"
       }
     },
+    "com.tripo3d.unitybridge": {
+      "version": "file:D:/Dev/Tripo3d_Unity_Bridge-latest/Tripo3d_Unity_Bridge",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.modules.jsonserialize": "1.0.0"
+      }
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 1,
