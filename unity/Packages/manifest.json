@@ -13,6 +13,7 @@
     "com.firstgeargames.fishnet": "https://github.com/FirstGearGames/FishNet.git?path=Assets/FishNet",
     "com.ivanmurzak.unity.mcp": "https://github.com/IvanMurzak/Unity-MCP.git?path=Unity-MCP-Plugin/Packages/com.ivanmurzak.unity.mcp",
     "com.solana.unity_sdk": "file:com.solana.unity_sdk",
+    "com.tripo3d.unitybridge": "file:D:/Tripo3d_Unity_Bridge-latest (1)/Tripo3d_Unity_Bridge",
     "com.unity.ai.assistant": "2.20.0-pre.2",
     "com.unity.ai.inference": "2.6.1",
     "com.unity.ai.navigation": "2.0.14",
