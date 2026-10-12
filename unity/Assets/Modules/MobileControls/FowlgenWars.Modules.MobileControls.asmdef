@@ -1,0 +1,17 @@
+{
+    "name": "FowlgenWars.Modules.MobileControls",
+    "rootNamespace": "FowlgenWars.Modules.MobileControls",
+    "references": [
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

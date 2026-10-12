@@ -1,0 +1,181 @@
+.screen {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 56px;
+    background-image: resource("Image/Vitoria/Vitoria");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.gold-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.panel {
+    width: 720px;
+    max-width: 90%;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.title {
+    color: rgb(255, 215, 64);
+    font-size: 38px;
+    -unity-font-style: bold;
+    margin-bottom: 10px;
+    -unity-text-align: middle-center;
+}
+
+.subtitle {
+    color: rgb(240, 230, 200);
+    font-size: 16px;
+    margin-bottom: 22px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.reward-badge {
+    width: 700px;
+    align-items: center;
+    justify-content: center;
+    padding-top: 16px;
+    padding-bottom: 18px;
+    padding-left: 24px;
+    padding-right: 24px;
+    margin-bottom: 20px;
+    background-color: rgba(14, 20, 32, 0.92);
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(255, 215, 64, 0.75);
+    border-right-color: rgba(255, 215, 64, 0.75);
+    border-top-color: rgba(255, 215, 64, 0.75);
+    border-bottom-color: rgba(255, 215, 64, 0.75);
+}
+
+.reward-badge-header {
+    color: rgb(255, 215, 80);
+    font-size: 22px;
+    -unity-font-style: bold;
+    margin-bottom: 8px;
+    -unity-text-align: middle-center;
+}
+
+.reward-details {
+    color: rgb(255, 255, 255);
+    font-size: 35px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.primary-button {
+    width: 700px;
+    height: 100px;
+    font-size: 35px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    background-color: rgb(52, 195, 38);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-left-color: rgba(255, 230, 80, 0.6);
+    border-right-color: rgba(255, 230, 80, 0.6);
+    border-top-color: rgba(255, 230, 80, 0.6);
+    border-bottom-color: rgba(255, 230, 80, 0.6);
+    margin-bottom: 16px;
+    -unity-text-align: middle-center;
+    transition-property: scale, background-color, border-color;
+    transition-duration: 0.15s;
+    transition-timing-function: ease-out;
+}
+
+.primary-button:hover {
+    background-color: rgb(78, 226, 62);
+    border-left-color: rgb(255, 245, 110);
+    border-right-color: rgb(255, 245, 110);
+    border-top-color: rgb(255, 245, 110);
+    border-bottom-color: rgb(255, 245, 110);
+    scale: 1.05 1.05;
+}
+
+.primary-button:active {
+    background-color: rgb(32, 145, 22);
+    scale: 0.96 0.96;
+}
+
+.secondary-button {
+    width: 700px;
+    height: 100px;
+    font-size: 35px;
+    -unity-font-style: bold;
+    color: rgb(220, 235, 250);
+    background-color: rgba(30, 48, 72, 0.88);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(100, 160, 220, 0.4);
+    border-right-color: rgba(100, 160, 220, 0.4);
+    border-top-color: rgba(100, 160, 220, 0.4);
+    border-bottom-color: rgba(100, 160, 220, 0.4);
+    margin-bottom: 12px;
+    -unity-text-align: middle-center;
+    transition-property: scale, background-color, border-color, color;
+    transition-duration: 0.15s;
+    transition-timing-function: ease-out;
+}
+
+.secondary-button:hover {
+    background-color: rgba(45, 80, 125, 0.95);
+    border-left-color: rgb(120, 190, 255);
+    border-right-color: rgb(120, 190, 255);
+    border-top-color: rgb(120, 190, 255);
+    border-bottom-color: rgb(120, 190, 255);
+    color: rgb(255, 255, 255);
+    scale: 1.05 1.05;
+}
+
+.secondary-button:active {
+    background-color: rgba(20, 35, 55, 0.95);
+    scale: 0.96 0.96;
+}
+
+.status {
+    min-height: 24px;
+    margin-top: 14px;
+    color: rgb(255, 220, 145);
+    font-size: 23px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}

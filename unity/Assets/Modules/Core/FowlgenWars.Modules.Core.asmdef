@@ -1,0 +1,17 @@
+{
+    "name": "FowlgenWars.Modules.Core",
+    "rootNamespace": "FowlgenWars.Modules.Core",
+    "references": [
+        "FowlgenWars.Modules.Presentation",
+        "FowlgenWars.Modules.Gameplay"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

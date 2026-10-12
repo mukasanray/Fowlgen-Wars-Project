@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Resources/UI/Derrota.uss?fileID=7433441132597879392&amp;guid=c5807af9b18a84449acad19ca1a2b5b6&amp;type=3#Derrota"/>
+    <ui:VisualElement name="screen" class="screen">
+        <ui:VisualElement name="defeat-panel" class="panel">
+            <ui:VisualElement name="reward-badge" class="reward-badge">
+                <ui:Label text="RECOMPENSA DE PARTICIPAÇÃO" class="reward-badge-header"/>
+                <ui:Label name="reward-details" text="+25 XP   •   +10 FOWL" class="reward-details"/>
+            </ui:VisualElement>
+            <ui:Button name="reward-button" text="Resgatar Recompensa de Consolação" class="primary-button"/>
+            <ui:Button name="explorer-button" text="Ver no Solana Explorer" class="secondary-button"/>
+            <ui:Button name="menu-button" text="Tentar Novamente / Menu Principal" class="secondary-button"/>
+            <ui:Label name="defeat-status" class="status"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

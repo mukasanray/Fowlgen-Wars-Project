@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Resources/UI/Auth.uss?fileID=7433441132597879392&amp;guid=6253bf83fb18eb048858da5d3fe4cc01&amp;type=3#Auth"/>
+    <ui:VisualElement name="screen" class="screen">
+        <ui:VisualElement name="login-panel" class="panel">
+            <ui:Button name="connect-button" text="Conectar Carteira Phantom" class="primary-button"/>
+            <ui:Button name="quick-play-button" text="Entrar com Devnet Local" emoji-fallback-support="false" class="secondary-button"/>
+            <ui:Label name="login-status" class="status"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -60,14 +60,53 @@ Considere os seguintes arquivos como fontes de design, planejamento, processo ou
 - [`🐔 Fowlgen-Wars-Sistema-de-Nivelamento-Proporcional.md`](skills/%F0%9F%90%94%20Fowlgen-Wars-Sistema-de-Nivelamento-Proporcional.md): sistema de nivelamento proporcional e normalização automática em partidas competitivas; separação estrita entre progressão de conta e poder de combate, garantindo fair play e proteção anti-pay-to-win.
 - [`fowlgen-wars-regras-hackathon-2026.md`](skills/fowlgen-wars-regras-hackathon-2026.md): regras oficiais, critérios de avaliação, requisitos de submissão e checklist operacional do Colosseum Global Hackathon 2026 e Trilha Brasil (Superteam Brasil).
 - [`metaplex/SKILL.md`](../.agents/skills/metaplex/SKILL.md): skill do ecossistema Metaplex na pasta `.agents/skills/metaplex/SKILL.md`; referência oficial para criação de coleções Metaplex Core, NFTs, Bubblegum (compressed NFTs), Candy Machine, Token Metadata e comandos da CLI `mplx`.
+- [`Fowlgen-Wars-Setup-FishNet.md`](skills/Fowlgen-Wars-Setup-FishNet.md): guia de setup e parâmetros de rede multiplayer FishNet (arquitetura client-server headless, portas UDP/TCP 7770, spawner de entidades e sincronização de estado).
+- [`Fowlgen-Wars-Setup-SolanaSDK.md`](skills/Fowlgen-Wars-Setup-SolanaSDK.md): setup e inicialização do Solana Unity SDK para conexão com nós RPC da Devnet e envio de transações on-chain a partir do cliente Unity.
+- [`Fowlgen-Wars-Privacidade-ZK-Cloak.md`](skills/Fowlgen-Wars-Privacidade-ZK-Cloak.md): estudo e proposta de arquitetura de privacidade usando ZK-SNARKs / protocolo Cloak para proteção de táticas e mecânicas confidenciais.
+- [`Fowlgen-Wars-Relatorio-Metaplex-Skills-CLI-vs-MCP.md`](skills/Fowlgen-Wars-Relatorio-Metaplex-Skills-CLI-vs-MCP.md): análise técnica comparativa entre a CLI `mplx` e servidores MCP para automação e manipulação de ativos Metaplex na IDE Antigravity.
+- [`Relatorio-Fowlgen-Wars.md`](skills/Relatorio-Fowlgen-Wars.md): relatório técnico consolidado registrando a evolução arquitetural do jogo (FishNet, Solana Devnet, testes e orquestração).
 
-### Relatórios de Fases e Execução
+### Modelagem 3D e Especificações de Personagem (`skills/personagem/`)
+- [`Fowlgen_Wars_Milo_3D_Modeling_Spec_v1.md`](skills/personagem/milo/Fowlgen_Wars_Milo_3D_Modeling_Spec_v1.md): especificação técnica de modelagem 3D do personagem Milo (polycount ≤ 8k triângulos mobile, topologia, loops de deformação para rig, mapeamento UV e texturização PBR).
+
+### Briefings Individuais da Equipe (`skills/Equipe/`)
+- [`Marcos.md`](skills/Equipe/Marcos.md): direcionamento e atribuições do Líder Técnico / Dev Core Unity & Web3 (arquitetura off-chain FishNet, contratos Anchor e coordenação técnica).
+- [`Emanuel.md`](skills/Equipe/Emanuel.md): atribuições do Dev Unity / Gameplay Core focado em layout de arena de 3 rotas, obstáculos, ambiente e colisões.
+- [`Jorge.md`](skills/Equipe/Jorge.md): atribuições do Engenheiro DevSecOps, Cloud Architect (K8s/CI-CD/Docker), suporte Anchor Web3 e áudio/SFX do jogo.
+- [`Maria_Clara.md`](skills/Equipe/Maria_Clara.md): atribuições do QA Funcional (experiência do jogador/UX testing) e coerência da narrativa/lore.
+- [`Ramiro_e_Samuel.md`](skills/Equipe/Ramiro_e_Samuel.md): atribuições integradas de Product Owner (Samuel) e Marketing Estratégico/Relações com Investidores (Ramiro).
+
+### Trilhas Operacionais do MVP (`skills/mvp/`)
+- [`Fowlgen-Wars-Etapas-MVP-Unity.md`](skills/mvp/Fowlgen-Wars-Etapas-MVP-Unity.md): checklist operacional passo a passo de desenvolvimento e polimento da frente Unity do MVP.
+- [`Fowlgen-Wars-Etapas-MVP-Backend.md`](skills/mvp/Fowlgen-Wars-Etapas-MVP-Backend.md): tarefas e etapas operacionais do servidor headless FishNet e serviços de backend.
+- [`Fowlgen-Wars-Etapas-MVP-Web.md`](skills/mvp/Fowlgen-Wars-Etapas-MVP-Web.md): tarefas de desenvolvimento web para o portal e interface web do projeto.
+- [`Fowlgen-Wars-Producao-API-Onix.md`](skills/mvp/Fowlgen-Wars-Producao-API-Onix.md): requisitos de ambiente, configuração e deploy em produção da API Onix.
+
+### Relatórios de Fases e Execução (`files/relatorios/`)
 - [`Relatorio_Fase1_Instalacao.md`](files/relatorios/Relatorio_Fase1_Instalacao.md): Relatório de Inicialização e Setup (WSL, Docker, Autenticação Solana).
 - [`Relatorio_Fase2_MVP.md`](files/relatorios/Relatorio_Fase2_MVP.md): Relatório da Fase 2 (Personagens, Habilidades, HUD, Spawner).
 - [`Relatorio_Fase3_MVP.md`](files/relatorios/Relatorio_Fase3_MVP.md): Relatório da Fase 3 (Mapa de 3 rotas, Torres de defesa, Grid de colisão).
-- [`Relatorio_Fase4_K8s.md`](files/relatorios/Relatorio_Fase4_K8s.md): Relatório da Fase 4 (Migração de infraestrutura: Docker Compose para Kubernetes/Minikube, K8s Secrets).
+- [`Relatorio_Fase4_MVP.md`](files/relatorios/Relatorio_Fase4_MVP.md): Relatório da Fase 4 (Migração de infraestrutura: Docker Compose para Kubernetes/Minikube, K8s Secrets e Dedicated Game Server FishNet).
+- [`Relatorio_Andamento_Etapas_MVP_Unity.md`](files/relatorios/Relatorio_Andamento_Etapas_MVP_Unity.md): relatório de acompanhamento de status das etapas de desenvolvimento do MVP Unity.
+- [`Relatorio_Arquitetura_MVP_ScriptableObjects.md`](files/relatorios/Relatorio_Arquitetura_MVP_ScriptableObjects.md): arquitetura de dados desacoplada baseada em ScriptableObjects para heróis, stats e habilidades.
+- [`Relatorio_Integracao_Auth_FishNet_API.md`](files/relatorios/Relatorio_Integracao_Auth_FishNet_API.md): fluxo integrado de autenticação segura conectando cliente Unity, servidor de autoridade FishNet e API.
+- [`Plano_Arquitetura_Modular_DDD_Csproj.md`](files/relatorios/Plano_Arquitetura_Modular_DDD_Csproj.md): plano de arquitetura modular orientada a domínio (DDD) com isolamento em projetos C# e assemblies.
+- [`Fluxo_Telas_Fowlgen_Wars_Mermaid.md`](files/relatorios/Fluxo_Telas_Fowlgen_Wars_Mermaid.md): diagrama estruturado em Mermaid detalhando a máquina de estados e o fluxo de transição entre todas as telas do jogo.
+- [`relatorio_ajustes_ui_toolkit.md`](files/relatorios/relatorio_ajustes_ui_toolkit.md): documentação técnica dos ajustes e padronização na interface gráfica utilizando UI Toolkit.
+- [`relatorio_analise_instalador.md`](files/relatorios/relatorio_analise_instalador.md): análise e refatoração do script mestre de instalação do ambiente (`Install.sh`).
+- [`Relatorio-Fowlgen-Wars-Producao-API-Onix.md`](files/relatorios/Relatorio-Fowlgen-Wars-Producao-API-Onix.md): planejamento de infraestrutura e ambiente de produção da API Onix.
+- [`Planilha_Analise_Desenvolvimento_EAP.md`](files/relatorios/Planilha_Analise_Desenvolvimento_EAP.md) e [`Fowlgen_Wars_Analise_EAP_MVP.xlsx`](files/relatorios/Fowlgen_Wars_Analise_EAP_MVP.xlsx): Estrutura Analítica de Projeto (EAP/WBS) mapeando escopo, estimativas e entregas do MVP.
 
-O PDF `files/pdf/Site Fowlgenwars.pdf` é uma referência visual disponível no workspace. Consulte-o quando a tarefa envolver o site ou apresentação visual; não infira conteúdo que não possa ser lido/confirmado.
+### Documentos de Referência, Apresentações e PDFs (`files/pdf/` e `files/referencias/`)
+- [`Site Fowlgenwars.pdf`](files/pdf/Site%20Fowlgenwars.pdf): layout e referência visual do site oficial.
+- [`Bibliotecas-efeitos sonoros.pdf`](files/pdf/Bibliotecas-efeitos%20sonoros.pdf): compilação de repositórios e recomendações de bibliotecas SFX para Unity.
+- [`Estudo-Cores.pdf`](files/pdf/Estudo-Cores.pdf): estudo aprofundado de contraste e paleta cromática para MOBAs mobile.
+- [`Faixas-etárias.pdf`](files/pdf/Faixas-et%C3%A1rias.pdf): levantamento estatístico de mercado e demografia de público por faixa etária.
+- [`Ferramentas Wsl Ubuntu, Antigravity IDE - Remote-Wsl e MCPs.pdf`](files/pdf/Ferramentas%20Wsl%20Ubuntu,%20Antigravity%20IDE%20-%20Remote-Wsl%20e%20MCPs.pdf): guia visual de setup do ambiente WSL Ubuntu, Antigravity IDE e MCPs.
+- [`Fowlgen-Wars-Guia-Completo-e-Detalhado.pdf`](files/pdf/Fowlgen-Wars-Guia-Completo-e-Detalhado.pdf): versão diagramada do guia completo de setup Solana/Unity.
+- [`Relatorio_Tecnico_Metaplex_vs_MCP_Solana.pdf`](files/pdf/Relatorio_Tecnico_Metaplex_vs_MCP_Solana.pdf): versão diagramada do relatório comparativo Metaplex vs MCP Solana.
+- [`Fowlgen wars negocio.pdf`](files/pdf/Fowlgen%20wars%20negocio.pdf) e `Fowlgen wars negocio.docx`: tese de negócios, visão estratégica e monetização do projeto.
+- [`referencias/README.md`](files/referencias/README.md): índice e notas de organização dos diretórios de referências visuais e de design.
 
 ## Divergências conhecidas
 

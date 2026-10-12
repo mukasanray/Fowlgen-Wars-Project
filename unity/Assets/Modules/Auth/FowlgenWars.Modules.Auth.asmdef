@@ -1,0 +1,18 @@
+{
+    "name": "FowlgenWars.Modules.Auth",
+    "rootNamespace": "FowlgenWars.Modules.Auth",
+    "references": [
+        "FishNet.Runtime",
+        "FowlgenWars.Modules.Solana",
+        "com.solana.unity_sdk"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

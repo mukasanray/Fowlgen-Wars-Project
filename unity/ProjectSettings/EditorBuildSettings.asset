@@ -6,23 +6,20 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Game/MainMenu.unity
-    guid: a82faf74b3c6c7d4d8f3086aa1fa0b8f
+    path: Assets/Scenes/Game/Auth.unity
+    guid: 2d2c30fc327fcf848be9b2d7130ca209
   - enabled: 1
-    path: Assets/Scenes/POC/POC_01_ProjectFoundation.unity
-    guid: 58f9a60466a49e94ca2808c26b885556
+    path: Assets/Scenes/Game/Play.unity
+    guid: 49bae5b8bacb65e4183221b43c1376c3
   - enabled: 1
-    path: Assets/Scenes/POC/POC_02_SolanaDevnet.unity
-    guid: ece5a414c2609ca4fb3b0936e7065d82
+    path: Assets/Scenes/Game/Arena.unity
+    guid: 08b52aad40f127547b631dc587371808
   - enabled: 1
-    path: Assets/Scenes/POC/POC_03_AnchorWorkspace.unity
-    guid: 3a7e9c1b5d4f48e2a6c0b8d1e4f7a902
+    path: Assets/Scenes/Game/Vitoria.unity
+    guid: 31c4e7a9b2d5486f90123456789abcde
   - enabled: 1
-    path: Assets/Scenes/POC/POC_04_UnityAnchor.unity
-    guid: ce572256ab53f8540ba724b877c85c0d
-  - enabled: 1
-    path: Assets/Scenes/POC/POC_05_WalletTransaction.unity
-    guid: 212a1948497517948947c93080ee5ec8
+    path: Assets/Scenes/Game/Derrota.unity
+    guid: 42d5f8b0c3e6597fa123456789abcdef
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

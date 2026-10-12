@@ -1,0 +1,161 @@
+.screen {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 56px;
+    background-image: resource("Image/Auth/bg_auth");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.panel {
+    width: 700px;
+    max-width: 90%;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+.title {
+    color: rgb(255, 204, 77);
+    font-size: 38px;
+    -unity-font-style: bold;
+    margin-bottom: 8px;
+    -unity-text-align: middle-center;
+}
+
+.subtitle {
+    color: rgb(210, 222, 235);
+    font-size: 16px;
+    margin-bottom: 24px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.login-btn-graphic {
+    width: 330px;
+    height: 128px;
+    background-image: resource("Image/btn_login_green");
+    -unity-background-scale-mode: scale-to-fit;
+    background-color: rgba(0, 0, 0, 0);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    margin-bottom: 8px;
+    transition-property: scale;
+    transition-duration: 0.15s;
+    transition-timing-function: ease-out;
+}
+
+.login-btn-graphic:hover {
+    scale: 1.07 1.07;
+}
+
+.login-btn-graphic:active {
+    scale: 0.94 0.94;
+}
+
+.primary-button {
+    width: 700px;
+    height: 100px;
+    font-size: 35px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    background-color: rgb(52, 195, 38);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-left-color: rgba(255, 230, 80, 0.6);
+    border-right-color: rgba(255, 230, 80, 0.6);
+    border-top-color: rgba(255, 230, 80, 0.6);
+    border-bottom-color: rgba(255, 230, 80, 0.6);
+    margin-bottom: 16px;
+    -unity-text-align: middle-center;
+    transition-property: scale, background-color, border-color;
+    transition-duration: 0.15s;
+    transition-timing-function: ease-out;
+}
+
+.primary-button:hover {
+    background-color: rgb(78, 226, 62);
+    border-left-color: rgb(255, 245, 110);
+    border-right-color: rgb(255, 245, 110);
+    border-top-color: rgb(255, 245, 110);
+    border-bottom-color: rgb(255, 245, 110);
+    scale: 1.05 1.05;
+}
+
+.primary-button:active {
+    background-color: rgb(32, 145, 22);
+    scale: 0.96 0.96;
+}
+
+.secondary-button {
+    width: 700px;
+    height: 100px;
+    font-size: 35px;
+    -unity-font-style: bold;
+    color: rgb(220, 235, 250);
+    background-color: rgba(30, 48, 72, 0.88);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(100, 160, 220, 0.4);
+    border-right-color: rgba(100, 160, 220, 0.4);
+    border-top-color: rgba(100, 160, 220, 0.4);
+    border-bottom-color: rgba(100, 160, 220, 0.4);
+    -unity-text-align: middle-center;
+    transition-property: scale, background-color, border-color, color;
+    transition-duration: 0.15s;
+    transition-timing-function: ease-out;
+}
+
+.secondary-button:hover {
+    background-color: rgba(45, 80, 125, 0.95);
+    border-left-color: rgb(120, 190, 255);
+    border-right-color: rgb(120, 190, 255);
+    border-top-color: rgb(120, 190, 255);
+    border-bottom-color: rgb(120, 190, 255);
+    color: rgb(255, 255, 255);
+    scale: 1.05 1.05;
+}
+
+.secondary-button:active {
+    background-color: rgba(20, 35, 55, 0.95);
+    scale: 0.96 0.96;
+}
+
+.status {
+    min-height: 24px;
+    margin-top: 14px;
+    color: rgb(255, 220, 145);
+    font-size: 23px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
