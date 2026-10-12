@@ -21,11 +21,7 @@ namespace FowlgenWars.Architecture.Views
             SetResources("UI/Vitoria", "UI/Vitoria");
             base.Awake();
 
-            var bgTexture = Resources.Load<Texture2D>("Image/Vitoria");
-            if (bgTexture != null && Root != null)
-            {
-                Root.style.backgroundImage = new StyleBackground(bgTexture);
-            }
+
 
             statusLabel = Root?.Q<Label>("victory-status");
             rewardDetailsLabel = Root?.Q<Label>("reward-details");

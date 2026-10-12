@@ -1,17 +1,15 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Resources/UI/Vitoria.uss?fileID=7433441132597879392&amp;guid=52a21af0262157b4ba86a78588572003&amp;type=3#Vitoria"/>
     <ui:VisualElement name="screen" class="screen">
-        <ui:VisualElement name="gold-vignette" class="gold-overlay" />
         <ui:VisualElement name="victory-panel" class="panel">
-            <ui:Label text="VITÓRIA ÉPICA!" class="title" />
-            <ui:Label text="Você dominou as 3 rotas e destruiu o galinheiro inimigo!" class="subtitle" />
-            <ui:VisualElement name="reward-box" class="reward-box">
-                <ui:Label text="RECOMPENSAS DE CAMPEÃO" class="reward-title" />
-                <ui:Label name="reward-details" text="+120 XP  |  +50 FOWL  |  +0.05 SOL" class="reward-value" />
+            <ui:VisualElement name="reward-badge" class="reward-badge">
+                <ui:Label text="RECOMPENSAS DE CAMPEÃO" class="reward-badge-header"/>
+                <ui:Label name="reward-details" text="+120 XP   •   +50 FOWL   •   +0.05 SOL" class="reward-details"/>
             </ui:VisualElement>
-            <ui:Button name="reward-button" text="Resgatar Recompensa On-Chain" class="primary-button" />
-            <ui:Button name="explorer-button" text="Ver no Solana Explorer" class="secondary-button" />
-            <ui:Button name="menu-button" text="Voltar ao Menu Principal" class="aux-button" />
-            <ui:Label name="victory-status" class="status" />
+            <ui:Button name="reward-button" text="Resgatar Recompensa On-Chain" class="primary-button"/>
+            <ui:Button name="explorer-button" text="Ver no Solana Explorer" class="secondary-button"/>
+            <ui:Button name="menu-button" text="Voltar ao Menu Principal" class="secondary-button"/>
+            <ui:Label name="victory-status" class="status"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

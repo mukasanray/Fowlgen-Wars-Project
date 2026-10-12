@@ -21,11 +21,7 @@ namespace FowlgenWars.Architecture.Views
             SetResources("UI/Derrota", "UI/Derrota");
             base.Awake();
 
-            var bgTexture = Resources.Load<Texture2D>("Image/Derrota");
-            if (bgTexture != null && Root != null)
-            {
-                Root.style.backgroundImage = new StyleBackground(bgTexture);
-            }
+
 
             statusLabel = Root?.Q<Label>("defeat-status");
             rewardDetailsLabel = Root?.Q<Label>("reward-details");

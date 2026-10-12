@@ -15,11 +15,7 @@ namespace FowlgenWars.Architecture.Views
             SetResources("UI/Auth", "UI/Auth");
             base.Awake();
 
-            var bgTexture = Resources.Load<Texture2D>("Image/Auth") ?? Resources.Load<Texture2D>("Image/login");
-            if (bgTexture != null && Root != null)
-            {
-                Root.style.backgroundImage = new StyleBackground(bgTexture);
-            }
+
 
             status = Root?.Q<Label>("login-status");
             var button = Root?.Q<Button>("connect-button");

@@ -20,11 +20,7 @@ namespace FowlgenWars.Architecture.Views
             SetResources("UI/Play", "UI/Play");
             base.Awake();
 
-            var bgTexture = Resources.Load<Texture2D>("Image/Play") ?? Resources.Load<Texture2D>("Image/play");
-            if (bgTexture != null && Root != null)
-            {
-                Root.style.backgroundImage = new StyleBackground(bgTexture);
-            }
+
 
             walletAddressLabel = Root?.Q<Label>("wallet-address-label");
             walletBalanceLabel = Root?.Q<Label>("wallet-balance-label");

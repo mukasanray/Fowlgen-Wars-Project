@@ -3,9 +3,11 @@
     width: 100%;
     height: 100%;
     align-items: center;
-    justify-content: center;
-    background-image: resource("Image/Play");
-    -unity-background-scale-mode: scale-and-crop;
+    justify-content: flex-end;
+    padding-bottom: 56px;
+    background-image: resource("Image/Play/bg-play");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .overlay {
@@ -14,7 +16,7 @@
     top: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(6, 12, 22, 0.40);
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .wallet-bar {
@@ -123,26 +125,19 @@
 }
 
 .panel {
-    width: 520px;
+    width: 720px;
+    max-width: 90%;
     align-items: center;
     justify-content: center;
-    padding-left: 40px;
-    padding-right: 40px;
-    padding-top: 36px;
-    padding-bottom: 36px;
-    background-color: rgba(8, 15, 26, 0.88);
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    border-left-width: 2px;
-    border-right-width: 2px;
-    border-top-width: 2px;
-    border-bottom-width: 2px;
-    border-left-color: rgba(46, 175, 125, 0.45);
-    border-right-color: rgba(46, 175, 125, 0.45);
-    border-top-color: rgba(46, 175, 125, 0.45);
-    border-bottom-color: rgba(46, 175, 125, 0.45);
+    background-color: rgba(0, 0, 0, 0);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .title {
@@ -162,38 +157,50 @@
 }
 
 .primary-button {
-    width: 280px;
-    height: 64px;
-    font-size: 26px;
+    width: 700px;
+    height: 100px;
+    font-size: 35px;
     -unity-font-style: bold;
     color: rgb(255, 255, 255);
-    background-color: rgb(34, 187, 102);
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-    border-left-width: 0;
-    border-right-width: 0;
-    border-top-width: 0;
-    border-bottom-width: 0;
+    background-color: rgb(52, 195, 38);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-left-color: rgba(255, 230, 80, 0.6);
+    border-right-color: rgba(255, 230, 80, 0.6);
+    border-top-color: rgba(255, 230, 80, 0.6);
+    border-bottom-color: rgba(255, 230, 80, 0.6);
+    margin-bottom: 16px;
     -unity-text-align: middle-center;
+    transition-property: scale, background-color, border-color;
+    transition-duration: 0.15s;
+    transition-timing-function: ease-out;
 }
 
 .primary-button:hover {
-    background-color: rgb(46, 214, 120);
-    scale: 1.03 1.03;
+    background-color: rgb(78, 226, 62);
+    border-left-color: rgb(255, 245, 110);
+    border-right-color: rgb(255, 245, 110);
+    border-top-color: rgb(255, 245, 110);
+    border-bottom-color: rgb(255, 245, 110);
+    scale: 1.05 1.05;
 }
 
 .primary-button:active {
-    background-color: rgb(25, 150, 80);
-    scale: 0.98 0.98;
+    background-color: rgb(32, 145, 22);
+    scale: 0.96 0.96;
 }
 
 .status {
     min-height: 24px;
     margin-top: 14px;
     color: rgb(255, 220, 145);
-    font-size: 15px;
+    font-size: 23px;
     -unity-text-align: middle-center;
     white-space: normal;
 }
