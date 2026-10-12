@@ -30,6 +30,13 @@ namespace FowlgenWars.Architecture.Presenters
 
         private void Start()
         {
+            StartCoroutine(InitDisplayRoutine());
+        }
+
+        private System.Collections.IEnumerator InitDisplayRoutine()
+        {
+            RefreshWalletDisplay();
+            yield return null;
             RefreshWalletDisplay();
         }
 

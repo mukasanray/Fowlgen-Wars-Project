@@ -3,7 +3,8 @@
     "rootNamespace": "FowlgenWars.Modules.Core",
     "references": [
         "FowlgenWars.Modules.Presentation",
-        "FowlgenWars.Modules.Gameplay"
+        "FowlgenWars.Modules.Gameplay",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -52,12 +52,29 @@ namespace FowlgenWars.Gameplay
             // 2. Fallback de teclado para teste no Editor
             if (input.sqrMagnitude < 0.01f)
             {
+#if ENABLE_INPUT_SYSTEM
+                var kb = UnityEngine.InputSystem.Keyboard.current;
+                if (kb != null)
+                {
+                    float h = 0f;
+                    float v = 0f;
+                    if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) h += 1f;
+                    if (kb.aKey.isPressed || kb.leftArrowKey.isPressed) h -= 1f;
+                    if (kb.wKey.isPressed || kb.upArrowKey.isPressed) v += 1f;
+                    if (kb.sKey.isPressed || kb.downArrowKey.isPressed) v -= 1f;
+                    if (Mathf.Abs(h) > 0.01f || Mathf.Abs(v) > 0.01f)
+                    {
+                        input = new Vector2(h, v).normalized;
+                    }
+                }
+#elif ENABLE_LEGACY_INPUT_MANAGER
                 float h = Input.GetAxisRaw("Horizontal");
                 float v = Input.GetAxisRaw("Vertical");
                 if (Mathf.Abs(h) > 0.01f || Mathf.Abs(v) > 0.01f)
                 {
                     input = new Vector2(h, v).normalized;
                 }
+#endif
             }
 
             // 2. Converter direção relativa à câmera isométrica / terceira pessoa

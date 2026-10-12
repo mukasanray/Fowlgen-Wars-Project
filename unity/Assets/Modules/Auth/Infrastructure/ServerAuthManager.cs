@@ -33,7 +33,7 @@ namespace FowlgenWars.Auth
         {
             if (Instance != null && Instance != this)
             {
-                Destroy(gameObject);
+                Destroy(this);
                 return;
             }
             Instance = this;
@@ -97,8 +97,8 @@ namespace FowlgenWars.Auth
                     Debug.Log($"[ServerAuth] ✅ Assinatura validada com sucesso para a wallet {walletAddress}");
                     OnPlayerAuthenticated?.Invoke(walletAddress);
 
-                    // Notifica a API Web3 (.NET 9 Onix) em background
-                    if (!string.IsNullOrEmpty(apiBaseUrl))
+                    // Notifica a API Web3 (.NET 9 Onix) em background (apenas se URL configurada e segura)
+                    if (!string.IsNullOrEmpty(apiBaseUrl) && (apiBaseUrl.StartsWith("https://") || Application.isBatchMode))
                     {
                         StartCoroutine(NotifyWebApiLoginRoutine(walletAddress, signature, nonce));
                     }
@@ -140,14 +140,35 @@ namespace FowlgenWars.Auth
             };
 
             string json = JsonUtility.ToJson(payload);
-            using (var request = new UnityWebRequest(url, "POST"))
+            UnityWebRequest request = null;
+            try
             {
+                request = new UnityWebRequest(url, "POST");
                 byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.downloadHandler = new DownloadHandlerBuffer();
                 request.SetRequestHeader("Content-Type", "application/json");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[ServerAuth] WebApi ignorada em ambiente local: {ex.Message}");
+                yield break;
+            }
 
-                yield return request.SendWebRequest();
+            using (request)
+            {
+                UnityWebRequestAsyncOperation op = null;
+                try
+                {
+                    op = request.SendWebRequest();
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"[ServerAuth] WebApi SendWebRequest ignorado: {ex.Message}");
+                    yield break;
+                }
+
+                yield return op;
 
                 if (request.result == UnityWebRequest.Result.Success)
                 {

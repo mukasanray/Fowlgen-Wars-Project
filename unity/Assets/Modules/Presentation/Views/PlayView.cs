@@ -22,28 +22,52 @@ namespace FowlgenWars.Architecture.Views
 
 
 
-            walletAddressLabel = Root?.Q<Label>("wallet-address-label");
-            walletBalanceLabel = Root?.Q<Label>("wallet-balance-label");
-            statusLabel = Root?.Q<Label>("play-status");
+            BindUI();
+        }
 
-            var playBtn = Root?.Q<Button>("play-button");
-            if (playBtn != null)
+        private void Start()
+        {
+            if (playBtn == null)
             {
-                playBtn.clicked += () => PlayClicked?.Invoke();
-            }
-
-            airdropBtn = Root?.Q<Button>("airdrop-button");
-            if (airdropBtn != null)
-            {
-                airdropBtn.clicked += () => AirdropClicked?.Invoke();
-            }
-
-            var disconnectBtn = Root?.Q<Button>("disconnect-button");
-            if (disconnectBtn != null)
-            {
-                disconnectBtn.clicked += () => DisconnectClicked?.Invoke();
+                BindUI();
             }
         }
+
+        private Button playBtn;
+
+        private void BindUI()
+        {
+            if (Root == null) return;
+
+            walletAddressLabel = Root.Q<Label>("wallet-address-label");
+            walletBalanceLabel = Root.Q<Label>("wallet-balance-label");
+            statusLabel = Root.Q<Label>("play-status");
+
+            playBtn = Root.Q<Button>("play-button");
+            if (playBtn != null)
+            {
+                playBtn.clicked -= OnPlayClick;
+                playBtn.clicked += OnPlayClick;
+            }
+
+            airdropBtn = Root.Q<Button>("airdrop-button");
+            if (airdropBtn != null)
+            {
+                airdropBtn.clicked -= OnAirdropClick;
+                airdropBtn.clicked += OnAirdropClick;
+            }
+
+            var disconnectBtn = Root.Q<Button>("disconnect-button");
+            if (disconnectBtn != null)
+            {
+                disconnectBtn.clicked -= OnDisconnectClick;
+                disconnectBtn.clicked += OnDisconnectClick;
+            }
+        }
+
+        private void OnPlayClick() => PlayClicked?.Invoke();
+        private void OnAirdropClick() => AirdropClicked?.Invoke();
+        private void OnDisconnectClick() => DisconnectClicked?.Invoke();
 
         public void SetAirdropEnabled(bool enabled)
         {
