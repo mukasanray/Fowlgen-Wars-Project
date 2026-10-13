@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Fowlgen Wars - Arena WebGL</title>
-    <!-- Estilos 100% Autônomos (Blindados contra bloqueios de CSP do Itch.io) -->
+    <!-- Estilos 100% Autônomos (Sem dependências externas, blindado para Itch.io) -->
     <style>
         * {
             box-sizing: border-box;
@@ -15,7 +15,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #000;
+            background-color: #0b0704;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             user-select: none;
             -webkit-user-select: none;
@@ -29,17 +29,16 @@
             max-width: 1280px;
             height: 720px;
             max-height: 100vh;
-            background: #111;
+            background: #150d08;
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            box-shadow: 0 12px 50px rgba(0,0,0,0.95);
         }
         canvas {
             display: block;
             width: 100%;
             height: 100%;
             object-fit: contain;
-            background: #2b1810;
-            cursor: pointer;
+            cursor: crosshair;
         }
         .overlay {
             position: absolute;
@@ -56,17 +55,17 @@
             z-index: 100;
         }
         .card-panel {
-            background: rgba(10, 5, 2, 0.88);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 3px solid #f59e0b;
+            background: rgba(18, 10, 4, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 4px solid #f59e0b;
             border-radius: 24px;
             padding: 24px;
             text-align: center;
             max-width: 480px;
             width: 92%;
             color: #fff;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.95);
+            box-shadow: 0 15px 45px rgba(0,0,0,0.95);
         }
         .btn-action {
             display: inline-flex;
@@ -91,19 +90,16 @@
             color: #fff;
             font-size: 20px !important;
             padding: 16px !important;
-            box-shadow: 0 6px 20px rgba(225, 29, 72, 0.5);
+            box-shadow: 0 6px 25px rgba(225, 29, 72, 0.6);
             animation: pulse-glow 2s infinite;
         }
         @keyframes pulse-glow {
             0%, 100% { box-shadow: 0 0 15px rgba(225, 29, 72, 0.6); }
-            50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.8); }
+            50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.9); }
         }
         .btn-solana {
             background: #9333ea;
             color: #fff;
-        }
-        .btn-solana:hover {
-            background: #a855f7;
         }
         .btn-paste {
             background: #374151;
@@ -123,14 +119,14 @@
             display: none;
             flex-direction: column;
             justify-content: space-between;
-            padding: 14px;
+            padding: 12px;
             z-index: 50;
         }
         .hud-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 960px;
+            max-width: 980px;
             width: 100%;
             margin: 0 auto;
             pointer-events: auto;
@@ -138,12 +134,12 @@
         }
         .hp-card {
             flex: 1;
-            background: rgba(0, 0, 0, 0.82);
+            background: rgba(0, 0, 0, 0.85);
             border-radius: 14px;
-            padding: 8px 12px;
+            padding: 8px 14px;
             border: 2px solid #555;
             color: #fff;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: bold;
         }
         .hp-card.player { border-color: #f59e0b; }
@@ -171,16 +167,47 @@
             font-weight: bold;
             font-size: 18px;
         }
-        /* Deck Inferior */
+        /* Seletor de Rota e Deck Inferior */
         .hud-bottom {
             pointer-events: auto;
-            max-width: 680px;
+            max-width: 760px;
             width: 100%;
             margin: 0 auto;
-            background: rgba(0, 0, 0, 0.85);
-            border: 2px solid #f59e0b;
+            background: rgba(10, 5, 2, 0.9);
+            border: 3px solid #f59e0b;
             border-radius: 20px;
-            padding: 10px 14px;
+            padding: 8px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.8);
+        }
+        .lane-selector-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.4);
+            padding: 4px;
+            border-radius: 12px;
+        }
+        .lane-btn {
+            flex: 1;
+            padding: 6px 8px;
+            border: 2px solid #4b5563;
+            background: #1f2937;
+            color: #d1d5db;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .lane-btn.active {
+            border-color: #facc15;
+            background: #b45309;
+            color: #fff;
+            transform: scale(1.02);
         }
         .energy-wrapper {
             display: flex;
@@ -189,7 +216,6 @@
             color: #fde047;
             font-size: 13px;
             font-weight: bold;
-            margin-bottom: 6px;
         }
         .energy-bar-bg {
             width: 100%;
@@ -197,7 +223,6 @@
             background: #222;
             border-radius: 4px;
             overflow: hidden;
-            margin-bottom: 8px;
         }
         .energy-bar-fill {
             height: 100%;
@@ -220,31 +245,31 @@
             cursor: pointer;
             transition: all 0.15s;
         }
-        .troop-card.active {
-            border-color: #fff;
-            background: #d97706;
-            transform: scale(1.05);
-            box-shadow: 0 0 12px rgba(245, 158, 11, 0.8);
+        .troop-card:hover {
+            filter: brightness(1.15);
         }
-        .troop-card span.icon { font-size: 24px; display: block; }
-        .troop-card span.name { font-size: 11px; font-weight: bold; display: block; margin: 2px 0; }
-        .troop-card span.cost { font-size: 10px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 6px; color: #fef08a; }
-        /* Toast de Feedback */
+        .troop-card:active {
+            transform: scale(0.95);
+        }
+        .troop-card span.icon { font-size: 26px; display: block; }
+        .troop-card span.name { font-size: 12px; font-weight: bold; display: block; margin: 2px 0; }
+        .troop-card span.cost { font-size: 11px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 6px; color: #fef08a; font-weight: bold; }
+        /* Toast */
         #gameToast {
             position: absolute;
-            top: 20px;
+            top: 65px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.9);
-            color: #fff;
+            background: rgba(0,0,0,0.92);
+            color: #fde047;
             border: 2px solid #f59e0b;
-            padding: 10px 20px;
+            padding: 8px 18px;
             border-radius: 12px;
             font-weight: bold;
             font-size: 13px;
             z-index: 200;
             display: none;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.9);
         }
     </style>
 </head>
@@ -269,17 +294,16 @@
                     ⚡ Carteira: Não conectada (Modo Convidado)
                 </div>
 
-                <!-- Botão Principal de Conexão -->
+                <!-- Botão de Conectar -->
                 <button id="btnConnect" onclick="connectSolana()" class="btn-action btn-solana">
                     🦊 Conectar Phantom / Solflare
                 </button>
 
-                <!-- Opção Manual para Iframe -->
                 <button onclick="promptManualWallet()" class="btn-action btn-paste">
                     📋 Inserir Endereço Manualmente
                 </button>
 
-                <!-- BOTÃO DE ENTRAR NA BATALHA (GARANTIDO) -->
+                <!-- BOTÃO DE ENTRAR NA BATALHA -->
                 <button id="btnStart" onclick="startGame()" class="btn-action btn-battle">
                     ⚔️ ENTRAR NA BATALHA!
                 </button>
@@ -313,33 +337,44 @@
             </div>
 
             <div class="hud-bottom">
+                <!-- Seletor de Rota Ativa -->
+                <div class="lane-selector-row">
+                    <span style="font-size: 11px; color:#aaa; font-weight:bold; margin-right:4px;">ROTA:</span>
+                    <button id="laneBtn-0" onclick="setLane(0)" class="lane-btn">⬆️ Superior</button>
+                    <button id="laneBtn-1" onclick="setLane(1)" class="lane-btn active">➡️ Central</button>
+                    <button id="laneBtn-2" onclick="setLane(2)" class="lane-btn">⬇️ Inferior</button>
+                </div>
+
+                <!-- Energia de Milho -->
                 <div class="energy-wrapper">
-                    <span>🌽 Milho: <b id="cornCountText" style="color:#fff;">5/10</b></span>
-                    <span style="font-size: 11px; color:#aaa;">Clique na carta e toque em uma das 3 rotas!</span>
+                    <span>🌽 Milho Disponível: <b id="cornCountText" style="color:#fff;">5/10</b></span>
+                    <span style="font-size: 11px; color:#fde047;">⚡ Clique na carta para INVOCAR na rota selecionada!</span>
                 </div>
                 <div class="energy-bar-bg">
                     <div id="energyFill" class="energy-bar-fill"></div>
                 </div>
+
+                <!-- Deck de Galinhas (Invoca com 1 clique!) -->
                 <div class="cards-grid">
-                    <div class="troop-card active" id="card-0" onclick="selectCard(0)">
+                    <div class="troop-card" id="card-0" onclick="triggerSpawn(0)">
                         <span class="icon">🐣</span>
                         <span class="name">Pintinho</span>
-                        <span class="cost">🌽 2</span>
+                        <span class="cost">🌽 2 Milhos</span>
                     </div>
-                    <div class="troop-card" id="card-1" onclick="selectCard(1)">
+                    <div class="troop-card" id="card-1" onclick="triggerSpawn(1)">
                         <span class="icon">🐔</span>
                         <span class="name">Guerreira</span>
-                        <span class="cost">🌽 4</span>
+                        <span class="cost">🌽 4 Milhos</span>
                     </div>
-                    <div class="troop-card" id="card-2" onclick="selectCard(2)">
+                    <div class="troop-card" id="card-2" onclick="triggerSpawn(2)">
                         <span class="icon">🛡️</span>
                         <span class="name">Guardião</span>
-                        <span class="cost">🌽 6</span>
+                        <span class="cost">🌽 6 Milhos</span>
                     </div>
-                    <div class="troop-card" id="card-3" onclick="selectCard(3)">
+                    <div class="troop-card" id="card-3" onclick="triggerSpawn(3)">
                         <span class="icon">🔥</span>
                         <span class="name">Cósmica</span>
-                        <span class="cost">🌽 8</span>
+                        <span class="cost">🌽 8 Milhos</span>
                     </div>
                 </div>
             </div>
@@ -385,12 +420,14 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Imagem de Fundo
+        // Imagem Oficial de Fundo
         const bgImg = new Image();
+        let bgLoaded = false;
+        bgImg.onload = () => { bgLoaded = true; };
         bgImg.src = 'assets/bg-play.jpeg';
 
         // Feedback Toast
-        function showToast(msg, duration = 3000) {
+        function showToast(msg, duration = 2500) {
             const t = document.getElementById('gameToast');
             if (!t) return;
             t.innerText = msg;
@@ -398,7 +435,7 @@
             setTimeout(() => { t.style.display = 'none'; }, duration);
         }
 
-        // Áudio Web Audio API (Nativo e Seguro)
+        // Áudio Sintetizado Web Audio API
         let audioCtx = null;
         function initAudio() {
             try {
@@ -424,23 +461,23 @@
 
                 if (type === 'spawn') {
                     osc.frequency.setValueAtTime(260, t);
-                    osc.frequency.exponentialRampToValueAtTime(520, t + 0.12);
-                    gain.gain.setValueAtTime(0.2, t);
+                    osc.frequency.exponentialRampToValueAtTime(540, t + 0.12);
+                    gain.gain.setValueAtTime(0.25, t);
                     gain.gain.linearRampToValueAtTime(0.01, t + 0.12);
                     osc.start(t);
                     osc.stop(t + 0.12);
                 } else if (type === 'hit') {
                     osc.frequency.setValueAtTime(140, t);
-                    osc.frequency.linearRampToValueAtTime(50, t + 0.08);
-                    gain.gain.setValueAtTime(0.25, t);
+                    osc.frequency.linearRampToValueAtTime(45, t + 0.08);
+                    gain.gain.setValueAtTime(0.3, t);
                     gain.gain.linearRampToValueAtTime(0.01, t + 0.08);
                     osc.start(t);
                     osc.stop(t + 0.08);
                 } else if (type === 'win') {
-                    osc.frequency.setValueAtTime(350, t);
-                    osc.frequency.setValueAtTime(450, t + 0.1);
-                    osc.frequency.setValueAtTime(600, t + 0.2);
-                    gain.gain.setValueAtTime(0.3, t);
+                    osc.frequency.setValueAtTime(360, t);
+                    osc.frequency.setValueAtTime(460, t + 0.1);
+                    osc.frequency.setValueAtTime(620, t + 0.2);
+                    gain.gain.setValueAtTime(0.35, t);
                     gain.gain.linearRampToValueAtTime(0.01, t + 0.4);
                     osc.start(t);
                     osc.stop(t + 0.4);
@@ -449,12 +486,12 @@
         }
 
         // Variáveis de Estado
-        const LANES = [190, 360, 530];
+        const LANES = [190, 360, 530]; // Y das 3 rotas
+        let activeLane = 1; // 0=Top, 1=Mid, 2=Bot
         let isGameRunning = false;
         let playerHp = 100;
         let enemyHp = 100;
         let cornEnergy = 5;
-        let selectedCard = 0;
         let lastTime = 0;
         let cornTimer = 0;
         let enemySpawnTimer = 0;
@@ -462,21 +499,81 @@
         let timerInterval = null;
 
         const UNITS = [
-            { name: "Pintinho", cost: 2, hp: 45, damage: 14, speed: 2.6, icon: "🐣" },
-            { name: "Guerreira", cost: 4, hp: 95, damage: 24, speed: 1.8, icon: "🐔" },
-            { name: "Guardião", cost: 6, hp: 210, damage: 18, speed: 1.2, icon: "🛡️" },
-            { name: "Cósmica", cost: 8, hp: 130, damage: 48, speed: 1.5, icon: "🔥" }
+            { name: "Pintinho", cost: 2, hp: 50, damage: 15, speed: 2.6, icon: "🐣" },
+            { name: "Guerreira", cost: 4, hp: 105, damage: 26, speed: 1.8, icon: "🐔" },
+            { name: "Guardião", cost: 6, hp: 220, damage: 20, speed: 1.2, icon: "🛡️" },
+            { name: "Cósmica", cost: 8, hp: 140, damage: 52, speed: 1.5, icon: "🔥" }
         ];
 
         let playerTroops = [];
         let enemyTroops = [];
         let particles = [];
+        let floatingTexts = [];
 
-        // ==========================================
-        // GESTÃO DE CARTEIRA (SOLANA DEVNET)
-        // ==========================================
+        // Controle da Rota Ativa
+        function setLane(laneIndex) {
+            activeLane = laneIndex;
+            document.querySelectorAll('.lane-btn').forEach((b, idx) => {
+                if (idx === laneIndex) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+            const laneNames = ["Superior", "Central", "Inferior"];
+            showToast(`Rota Ativa: ${laneNames[laneIndex]}`);
+        }
+
+        // Invocação com 1 Clique na Carta
+        function triggerSpawn(cardIndex) {
+            if (!isGameRunning) return;
+            const def = UNITS[cardIndex];
+            if (cornEnergy < def.cost) {
+                showToast(`🌽 Falta milho! (${cornEnergy}/${def.cost})`, 1000);
+                return;
+            }
+
+            cornEnergy -= def.cost;
+            updateUI();
+            playSound('spawn');
+
+            const laneY = LANES[activeLane];
+            playerTroops.push({
+                x: 160,
+                y: laneY,
+                lane: activeLane,
+                hp: def.hp,
+                maxHp: def.hp,
+                damage: def.damage,
+                speed: def.speed,
+                icon: def.icon,
+                name: def.name,
+                cooldown: 0
+            });
+
+            const laneNames = ["Superior", "Central", "Inferior"];
+            showToast(`🐣 ${def.name} avançando na rota ${laneNames[activeLane]}!`, 1200);
+        }
+
+        // Toque no Canvas também seleciona rota e invoca!
+        canvas.addEventListener('pointerdown', (e) => {
+            if (!isGameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            const scaleY = canvas.height / rect.height;
+            const y = (e.clientY - rect.top) * scaleY;
+
+            let chosenLane = 0;
+            let minDist = Infinity;
+            LANES.forEach((laneY, idx) => {
+                const dist = Math.abs(y - laneY);
+                if (dist < minDist) {
+                    minDist = dist;
+                    chosenLane = idx;
+                }
+            });
+
+            setLane(chosenLane);
+        });
+
+        // Gestão de Carteira Solana
         let connectedWallet = null;
-
         function applyWallet(walletAddr) {
             if (!walletAddr) return;
             connectedWallet = walletAddr.trim();
@@ -498,24 +595,14 @@
             showToast(`✅ Carteira Conectada: ${short}`);
         }
 
-        // 1. Tenta pegar da URL (?wallet=...)
         try {
             const urlParams = new URLSearchParams(window.location.search);
             const w = urlParams.get('wallet');
             if (w) applyWallet(w);
         } catch (e) {}
 
-        // 2. Conectar com Extensão
         async function connectSolana() {
-            let provider = null;
-            if (window.solana) {
-                provider = window.solana;
-            } else if (window.phantom && window.phantom.solana) {
-                provider = window.phantom.solana;
-            } else if (window.solflare) {
-                provider = window.solflare;
-            }
-
+            let provider = window.solana || (window.phantom && window.phantom.solana) || window.solflare;
             if (provider) {
                 try {
                     showToast("⏳ Solicitando aprovação na Phantom...");
@@ -524,39 +611,32 @@
                     applyWallet(pubKey);
                     return;
                 } catch (e) {
-                    console.warn("Conexão cancelada pelo usuário:", e);
                     showToast("Conexão cancelada.");
                     return;
                 }
             }
-
-            // Fallback: Se estiver em iframe sem acesso à extensão
             promptManualWallet();
         }
 
         function promptManualWallet() {
             const address = prompt(
-                "Extensão Phantom isolada pelo navegador no Itch.io.\n\nCole o seu endereço público da Phantom (Devnet) ou deixe em branco para gerar um endereço automático:",
+                "Extensão isolada pelo navegador no Itch.io.\n\nCole o seu endereço da Phantom ou deixe vazio para gerar um automático:",
                 ""
             );
             if (address !== null) {
                 if (address.trim().length >= 32) {
                     applyWallet(address.trim());
                 } else {
-                    // Gera endereço rápido de teste
-                    const randomAddr = "Fowl" + Math.random().toString(36).substring(2, 10) + "Devnet" + Math.random().toString(36).substring(2, 6);
+                    const randomAddr = "Fowl" + Math.random().toString(36).substring(2, 8) + "Devnet";
                     applyWallet(randomAddr);
                 }
             }
         }
 
-        // ==========================================
-        // INICIALIZAÇÃO DA BATALHA (DESBLOQUEADA)
-        // ==========================================
+        // Início da Batalha
         function startGame() {
             initAudio();
 
-            // Oculta telas do menu com estilo inline direto
             document.getElementById('menuScreen').style.display = 'none';
             document.getElementById('victoryScreen').style.display = 'none';
             document.getElementById('defeatScreen').style.display = 'none';
@@ -568,8 +648,11 @@
             playerTroops = [];
             enemyTroops = [];
             particles = [];
+            floatingTexts = [];
             gameSeconds = 180;
             isGameRunning = true;
+            activeLane = 1;
+            setLane(1);
 
             updateUI();
 
@@ -586,7 +669,7 @@
 
             lastTime = performance.now();
             requestAnimationFrame(loop);
-            showToast("⚔️ Batalha Iniciada! Toque na rota para invocar.");
+            showToast("⚔️ BATALHA INICIADA! Clique nas cartas para invocar galinhas!");
         }
 
         function returnToMenu() {
@@ -598,72 +681,13 @@
             document.getElementById('menuScreen').style.display = 'flex';
         }
 
-        function selectCard(idx) {
-            selectedCard = idx;
-            document.querySelectorAll('.troop-card').forEach((c, i) => {
-                if (i === idx) c.classList.add('active');
-                else c.classList.remove('active');
-            });
-        }
-
-        // ==========================================
-        // INTERAÇÃO NO CANVAS (CLIQUES E TOQUES)
-        // ==========================================
-        function handleInput(e) {
-            if (!isGameRunning) return;
-            const rect = canvas.getBoundingClientRect();
-            const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : null);
-            if (!clientY) return;
-
-            const scaleY = canvas.height / rect.height;
-            const y = (clientY - rect.top) * scaleY;
-
-            let chosenLane = 0;
-            let minDist = Infinity;
-            LANES.forEach((laneY, idx) => {
-                const dist = Math.abs(y - laneY);
-                if (dist < minDist) {
-                    minDist = dist;
-                    chosenLane = idx;
-                }
-            });
-
-            spawnPlayer(chosenLane);
-        }
-
-        canvas.addEventListener('pointerdown', handleInput);
-
-        function spawnPlayer(lane) {
-            const def = UNITS[selectedCard];
-            if (cornEnergy < def.cost) {
-                showToast("🌽 Falta milho para invocar esta tropa!", 1000);
-                return;
-            }
-
-            cornEnergy -= def.cost;
-            updateUI();
-            playSound('spawn');
-
-            playerTroops.push({
-                x: 140,
-                y: LANES[lane],
-                lane: lane,
-                hp: def.hp,
-                maxHp: def.hp,
-                damage: def.damage,
-                speed: def.speed,
-                icon: def.icon,
-                cooldown: 0
-            });
-        }
-
         function spawnEnemy() {
             const lane = Math.floor(Math.random() * 3);
             const type = Math.floor(Math.random() * 3);
             const def = UNITS[type];
 
             enemyTroops.push({
-                x: 1140,
+                x: 1120,
                 y: LANES[lane],
                 lane: lane,
                 hp: def.hp * 0.9,
@@ -671,13 +695,12 @@
                 damage: def.damage * 0.9,
                 speed: def.speed,
                 icon: "🐓",
+                name: "Galo Negro",
                 cooldown: 0
             });
         }
 
-        // ==========================================
-        // LOOP PRINCIPAL & COMBATE
-        // ==========================================
+        // Loop e Combate
         function loop(now) {
             if (!isGameRunning) return;
             const dt = (now - lastTime) / 1000;
@@ -691,9 +714,9 @@
                 updateUI();
             }
 
-            // Invocação da IA
+            // Invocação da IA Inimiga
             enemySpawnTimer += dt;
-            if (enemySpawnTimer >= 3.6) {
+            if (enemySpawnTimer >= 3.4) {
                 spawnEnemy();
                 enemySpawnTimer = 0;
             }
@@ -701,13 +724,14 @@
             // Combate
             updateCombat(dt);
 
-            // Desenhar
+            // Renderização
             render();
 
             requestAnimationFrame(loop);
         }
 
         function updateCombat(dt) {
+            // Tropas Aliadas
             playerTroops.forEach(p => {
                 if (p.cooldown > 0) p.cooldown -= dt;
                 const target = enemyTroops.find(e => e.lane === p.lane && e.x > p.x && (e.x - p.x) < 45);
@@ -717,13 +741,16 @@
                         target.hp -= p.damage;
                         p.cooldown = 0.8;
                         createParticles(target.x, target.y, '#f59e0b');
+                        addFloatingText(`-${Math.round(p.damage)}`, target.x, target.y - 30, '#fde047');
                         playSound('hit');
                     }
-                } else if (p.x >= 1130) {
+                } else if (p.x >= 1100) {
+                    // Ataca Base Inimiga
                     if (p.cooldown <= 0) {
                         enemyHp -= p.damage;
                         p.cooldown = 1.0;
-                        createParticles(1150, p.y, '#ef4444');
+                        createParticles(1130, p.y, '#ef4444');
+                        addFloatingText(`-${Math.round(p.damage)}`, 1130, p.y - 30, '#ef4444');
                         playSound('hit');
                         checkGameOver();
                     }
@@ -732,23 +759,26 @@
                 }
             });
 
+            // Tropas Inimigas
             enemyTroops.forEach(e => {
                 if (e.cooldown > 0) e.cooldown -= dt;
                 const target = playerTroops.find(p => p.lane === e.lane && p.x < e.x && (e.x - p.x) < 45);
 
                 if (target) {
                     if (e.cooldown <= 0) {
-                        playerAheadHp = target.hp;
                         target.hp -= e.damage;
                         e.cooldown = 0.8;
                         createParticles(target.x, target.y, '#ef4444');
+                        addFloatingText(`-${Math.round(e.damage)}`, target.x, target.y - 30, '#f87171');
                         playSound('hit');
                     }
-                } else if (e.x <= 150) {
+                } else if (e.x <= 180) {
+                    // Ataca Base Aliada
                     if (e.cooldown <= 0) {
                         playerHp -= e.damage;
                         e.cooldown = 1.0;
-                        createParticles(130, e.y, '#f59e0b');
+                        createParticles(150, e.y, '#f59e0b');
+                        addFloatingText(`-${Math.round(e.damage)}`, 150, e.y - 30, '#eab308');
                         playSound('hit');
                         checkGameOver();
                     }
@@ -757,29 +787,42 @@
                 }
             });
 
+            // Limpeza de mortos
             playerTroops = playerTroops.filter(p => p.hp > 0);
             enemyTroops = enemyTroops.filter(e => e.hp > 0);
 
+            // Partículas
             particles.forEach(pt => {
                 pt.x += pt.vx;
                 pt.y += pt.vy;
-                pt.alpha -= dt * 2.2;
+                pt.alpha -= dt * 2.5;
             });
             particles = particles.filter(pt => pt.alpha > 0);
+
+            // Textos Flutuantes
+            floatingTexts.forEach(ft => {
+                ft.y -= dt * 25;
+                ft.alpha -= dt * 1.5;
+            });
+            floatingTexts = floatingTexts.filter(ft => ft.alpha > 0);
 
             updateUI();
         }
 
         function createParticles(x, y, color) {
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < 6; i++) {
                 particles.push({
                     x, y,
-                    vx: (Math.random() - 0.5) * 6,
-                    vy: (Math.random() - 0.5) * 6,
+                    vx: (Math.random() - 0.5) * 7,
+                    vy: (Math.random() - 0.5) * 7,
                     color,
                     alpha: 1.0
                 });
             }
+        }
+
+        function addFloatingText(text, x, y, color) {
+            floatingTexts.push({ text, x, y, color, alpha: 1.0 });
         }
 
         function checkGameOver() {
@@ -812,78 +855,140 @@
             if (cFill) cFill.style.width = `${cornEnergy * 10}%`;
         }
 
+        // RENDERIZAÇÃO COMPLETA DA ARENA
         function render() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Fundo
-            if (bgImg.complete && bgImg.naturalWidth > 0) {
+            // 1. Gramado Base da Fazenda (Verde Vibrante)
+            const grassGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grassGrad.addColorStop(0, "#2d6a4f");
+            grassGrad.addColorStop(1, "#1b4332");
+            ctx.fillStyle = grassGrad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Se a imagem de fundo estiver pronta, mescla elegantemente
+            if (bgLoaded && bgImg.naturalWidth > 0) {
+                ctx.globalAlpha = 0.55;
                 ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-            } else {
-                ctx.fillStyle = "#2b1810";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.globalAlpha = 1.0;
             }
 
-            // Linhas das 3 Rotas
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
-            ctx.lineWidth = 3;
-            LANES.forEach(y => {
+            // 2. Desenho das 3 Estradas de Terra da Arena
+            LANES.forEach((y, idx) => {
+                const isActive = (idx === activeLane);
+                
+                // Estrada de Terra
+                ctx.fillStyle = isActive ? "#b45309" : "#78350f";
                 ctx.beginPath();
-                ctx.moveTo(130, y);
-                ctx.lineTo(1150, y);
+                ctx.roundRect(140, y - 48, 1000, 96, 24);
+                ctx.fill();
+
+                // Textura / Borda de Terra
+                ctx.strokeStyle = isActive ? "#facc15" : "rgba(245, 158, 11, 0.4)";
+                ctx.lineWidth = isActive ? 4 : 2;
                 ctx.stroke();
+
+                // Placa Indicadora da Rota à esquerda
+                ctx.fillStyle = isActive ? "#facc15" : "#9ca3af";
+                ctx.font = "bold 13px sans-serif";
+                const labels = ["ROTA SUPERIOR", "ROTA CENTRAL", "ROTA INFERIOR"];
+                ctx.fillText(labels[idx], 155, y - 54);
             });
 
-            // Base Aliada
-            ctx.fillStyle = "#eab308";
+            // 3. BASE ALIADA (Galinheiro Dourado à Esquerda)
+            ctx.fillStyle = "#f59e0b";
             ctx.beginPath();
-            ctx.arc(90, 360, 50, 0, Math.PI * 2);
+            ctx.roundRect(30, 260, 110, 200, 20);
             ctx.fill();
-            ctx.font = "36px serif";
-            ctx.fillText("🏰", 68, 372);
+            ctx.strokeStyle = "#fef08a";
+            ctx.lineWidth = 4;
+            ctx.stroke();
 
-            // Base Inimiga
+            ctx.font = "48px serif";
+            ctx.fillText("🏰", 60, 360);
+            ctx.font = "bold 14px sans-serif";
+            ctx.fillStyle = "#fff";
+            ctx.fillText("SEU NINHO", 44, 430);
+
+            // 4. BASE INIMIGA (Galinheiro Negro da Obsidiana à Direita)
             ctx.fillStyle = "#881337";
             ctx.beginPath();
-            ctx.arc(1190, 360, 50, 0, Math.PI * 2);
+            ctx.roundRect(1140, 260, 110, 200, 20);
             ctx.fill();
-            ctx.fillText("🌋", 1168, 372);
+            ctx.strokeStyle = "#ef4444";
+            ctx.lineWidth = 4;
+            ctx.stroke();
 
-            // Tropas do Jogador
+            ctx.font = "48px serif";
+            ctx.fillText("🌋", 1170, 360);
+            ctx.font = "bold 14px sans-serif";
+            ctx.fillStyle = "#fff";
+            ctx.fillText("OBSIDIANA", 1152, 430);
+
+            // 5. Tropas Aliadas
             playerTroops.forEach(p => {
-                ctx.font = "32px serif";
-                ctx.fillText(p.icon, p.x - 16, p.y + 12);
+                // Sombra da tropa
+                ctx.fillStyle = "rgba(0,0,0,0.3)";
+                ctx.beginPath();
+                ctx.ellipse(p.x, p.y + 18, 18, 8, 0, 0, Math.PI * 2);
+                ctx.fill();
 
+                // Emoji / Sprite
+                ctx.font = "38px serif";
+                ctx.fillText(p.icon, p.x - 18, p.y + 12);
+
+                // Barra de HP
                 const pct = p.hp / p.maxHp;
-                ctx.fillStyle = "rgba(0,0,0,0.6)";
-                ctx.fillRect(p.x - 20, p.y - 28, 40, 6);
+                ctx.fillStyle = "rgba(0,0,0,0.8)";
+                ctx.fillRect(p.x - 22, p.y - 32, 44, 7);
                 ctx.fillStyle = "#22c55e";
-                ctx.fillRect(p.x - 20, p.y - 28, 40 * pct, 6);
+                ctx.fillRect(p.x - 22, p.y - 32, 44 * pct, 7);
+                ctx.strokeStyle = "#fff";
+                ctx.lineWidth = 1;
+                ctx.strokeRect(p.x - 22, p.y - 32, 44, 7);
             });
 
-            // Tropas Inimigas
+            // 6. Tropas Inimigas
             enemyTroops.forEach(e => {
-                ctx.font = "32px serif";
-                ctx.fillText(e.icon, e.x - 16, e.y + 12);
+                ctx.fillStyle = "rgba(0,0,0,0.3)";
+                ctx.beginPath();
+                ctx.ellipse(e.x, e.y + 18, 18, 8, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.font = "38px serif";
+                ctx.fillText(e.icon, e.x - 18, e.y + 12);
 
                 const pct = e.hp / e.maxHp;
-                ctx.fillStyle = "rgba(0,0,0,0.6)";
-                ctx.fillRect(e.x - 20, e.y - 28, 40, 6);
+                ctx.fillStyle = "rgba(0,0,0,0.8)";
+                ctx.fillRect(e.x - 22, e.y - 32, 44, 7);
                 ctx.fillStyle = "#ef4444";
-                ctx.fillRect(e.x - 20, e.y - 28, 40 * pct, 6);
+                ctx.fillRect(e.x - 22, e.y - 32, 44 * pct, 7);
+                ctx.strokeStyle = "#fff";
+                ctx.lineWidth = 1;
+                ctx.strokeRect(e.x - 22, e.y - 32, 44, 7);
             });
 
-            // Partículas
+            // 7. Partículas de Combate
             particles.forEach(pt => {
                 ctx.fillStyle = pt.color;
-                ctx.globalAlpha = pt.alpha;
+                ctx.globalAlpha = Math.max(0, pt.alpha);
                 ctx.beginPath();
-                ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+                ctx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
                 ctx.fill();
+            });
+            ctx.globalAlpha = 1.0;
+
+            // 8. Números de Dano Flutuante
+            floatingTexts.forEach(ft => {
+                ctx.fillStyle = ft.color;
+                ctx.globalAlpha = Math.max(0, ft.alpha);
+                ctx.font = "bold 18px sans-serif";
+                ctx.fillText(ft.text, ft.x - 10, ft.y);
             });
             ctx.globalAlpha = 1.0;
         }
 
-        // Registrar Recompensa na Solana
+        // Recompensa Solana
         async function claimReward() {
             const btn = document.getElementById('btnClaimReward');
             if (window.solana && connectedWallet) {
@@ -901,7 +1006,6 @@
                     btn.disabled = false;
                 }
             }
-            // Simulação graciosa
             btn.innerText = "✅ Vitória Registrada no Smart Contract!";
             btn.style.background = "#2563eb";
             showToast("🎉 Vitória confirmada na Devnet!");
