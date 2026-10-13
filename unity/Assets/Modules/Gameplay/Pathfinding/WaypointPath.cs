@@ -15,6 +15,85 @@ namespace FowlgenWars.Gameplay
         public LaneType Lane => lane;
         public int Count => waypoints.Count;
 
+        [Header("Feedback Visual da Rota (EAP Item 25)")]
+        [SerializeField] private LineRenderer lineRenderer;
+        private Coroutine highlightRoutine;
+
+        private void Start()
+        {
+            SetupVisualLine();
+        }
+
+        private void SetupVisualLine()
+        {
+            if (waypoints == null || waypoints.Count == 0) return;
+
+            if (lineRenderer == null)
+            {
+                lineRenderer = GetComponent<LineRenderer>();
+                if (lineRenderer == null)
+                {
+                    lineRenderer = gameObject.AddComponent<LineRenderer>();
+                }
+            }
+
+            lineRenderer.useWorldSpace = true;
+            lineRenderer.startWidth = 0.20f;
+            lineRenderer.endWidth = 0.20f;
+            lineRenderer.positionCount = waypoints.Count;
+
+            for (int i = 0; i < waypoints.Count; i++)
+            {
+                if (waypoints[i] != null)
+                {
+                    lineRenderer.SetPosition(i, waypoints[i].position + Vector3.up * 0.12f);
+                }
+            }
+
+            Shader shader = Shader.Find("Universal Render Pipeline/Unlit");
+            if (shader == null) shader = Shader.Find("Sprites/Default");
+            if (shader != null)
+            {
+                Material mat = new Material(shader);
+                Color baseCol = gizmoColor;
+                baseCol.a = 0.30f;
+                mat.color = baseCol;
+                lineRenderer.material = mat;
+            }
+            lineRenderer.enabled = true;
+        }
+
+        public void HighlightTemporarily(float duration = 2.5f)
+        {
+            if (!gameObject.activeInHierarchy) return;
+            if (highlightRoutine != null) StopCoroutine(highlightRoutine);
+            highlightRoutine = StartCoroutine(HighlightPulseRoutine(duration));
+        }
+
+        private System.Collections.IEnumerator HighlightPulseRoutine(float duration)
+        {
+            if (lineRenderer == null) yield break;
+            lineRenderer.enabled = true;
+            float elapsed = 0f;
+            Color pulseCol = gizmoColor;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float alpha = Mathf.PingPong(elapsed * 3f, 0.65f) + 0.35f;
+                pulseCol.a = alpha;
+                if (lineRenderer.material != null) lineRenderer.material.color = pulseCol;
+                lineRenderer.startWidth = 0.38f;
+                lineRenderer.endWidth = 0.38f;
+                yield return null;
+            }
+
+            pulseCol.a = 0.25f;
+            if (lineRenderer.material != null) lineRenderer.material.color = pulseCol;
+            lineRenderer.startWidth = 0.20f;
+            lineRenderer.endWidth = 0.20f;
+        }
+
         public Vector3 GetPoint(int index, Team team)
         {
             if (waypoints.Count == 0) return transform.position;

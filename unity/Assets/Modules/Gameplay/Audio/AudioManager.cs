@@ -53,6 +53,14 @@ namespace FowlgenWars.Gameplay.Audio
         private readonly List<AudioSource> sfxPool = new List<AudioSource>();
         private readonly Dictionary<CombatSoundType, AudioClip> proceduralCache = new Dictionary<CombatSoundType, AudioClip>();
 
+        private const string PrefKeyMaster = "FW_Audio_MasterVolume";
+        private const string PrefKeyBgm = "FW_Audio_BgmVolume";
+        private const string PrefKeySfx = "FW_Audio_SfxVolume";
+
+        public float MasterVolume => masterVolume;
+        public float BgmVolume => bgmVolume;
+        public float SfxVolume => sfxVolume;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -63,7 +71,51 @@ namespace FowlgenWars.Gameplay.Audio
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
+            LoadVolumePreferences();
             InitializeAudioSources();
+        }
+
+        private void LoadVolumePreferences()
+        {
+            masterVolume = PlayerPrefs.GetFloat(PrefKeyMaster, masterVolume);
+            bgmVolume = PlayerPrefs.GetFloat(PrefKeyBgm, bgmVolume);
+            sfxVolume = PlayerPrefs.GetFloat(PrefKeySfx, sfxVolume);
+        }
+
+        public void SetMasterVolume(float vol)
+        {
+            masterVolume = Mathf.Clamp01(vol);
+            PlayerPrefs.SetFloat(PrefKeyMaster, masterVolume);
+            PlayerPrefs.Save();
+            ApplyVolumes();
+        }
+
+        public void SetBgmVolume(float vol)
+        {
+            bgmVolume = Mathf.Clamp01(vol);
+            PlayerPrefs.SetFloat(PrefKeyBgm, bgmVolume);
+            PlayerPrefs.Save();
+            ApplyVolumes();
+        }
+
+        public void SetSfxVolume(float vol)
+        {
+            sfxVolume = Mathf.Clamp01(vol);
+            PlayerPrefs.SetFloat(PrefKeySfx, sfxVolume);
+            PlayerPrefs.Save();
+            ApplyVolumes();
+        }
+
+        private void ApplyVolumes()
+        {
+            if (bgmSource != null)
+            {
+                bgmSource.volume = bgmVolume * masterVolume;
+            }
+            if (uiSource != null)
+            {
+                uiSource.volume = sfxVolume * masterVolume;
+            }
         }
 
         private void InitializeAudioSources()

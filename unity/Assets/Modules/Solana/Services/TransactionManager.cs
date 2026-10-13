@@ -191,11 +191,12 @@ namespace FowlgenWars.Solana
                 yield break;
             }
 
-            // 4. Build and sign transaction
+            // 4. Build and sign transaction (com limite otimizado de Compute Units - EAP Item 42)
             Status = TransactionStatus.WaitingSignature;
             TransactionBuilder builder = new TransactionBuilder()
                 .SetFeePayer(signerAccount.PublicKey)
                 .SetRecentBlockHash(recentBlockhash)
+                .AddInstruction(ComputeBudgetProgram.SetComputeUnitLimit(200_000))
                 .AddInstruction(ix);
 
             byte[] txRaw = builder.Build(signerAccount);

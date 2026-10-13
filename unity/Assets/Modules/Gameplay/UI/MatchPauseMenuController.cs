@@ -17,6 +17,11 @@ namespace FowlgenWars.Gameplay.UI
         [SerializeField] private Button btnRestart;
         [SerializeField] private Button btnQuit;
 
+        [Header("Controles de Volume (Opcionais - EAP Item 70)")]
+        [SerializeField] private Slider masterVolumeSlider;
+        [SerializeField] private Slider sfxVolumeSlider;
+        [SerializeField] private Slider bgmVolumeSlider;
+
         private bool isPaused = false;
 
         public bool IsPaused => isPaused;
@@ -28,7 +33,31 @@ namespace FowlgenWars.Gameplay.UI
             if (btnRestart != null) btnRestart.onClick.AddListener(RestartMatch);
             if (btnQuit != null) btnQuit.onClick.AddListener(QuitToPlay);
 
+            InitVolumeSliders();
+
             if (pausePanel != null) pausePanel.SetActive(false);
+        }
+
+        private void InitVolumeSliders()
+        {
+            var audioMgr = Audio.AudioManager.Instance;
+            if (audioMgr == null) return;
+
+            if (masterVolumeSlider != null)
+            {
+                masterVolumeSlider.value = audioMgr.MasterVolume;
+                masterVolumeSlider.onValueChanged.AddListener(v => audioMgr.SetMasterVolume(v));
+            }
+            if (sfxVolumeSlider != null)
+            {
+                sfxVolumeSlider.value = audioMgr.SfxVolume;
+                sfxVolumeSlider.onValueChanged.AddListener(v => audioMgr.SetSfxVolume(v));
+            }
+            if (bgmVolumeSlider != null)
+            {
+                bgmVolumeSlider.value = audioMgr.BgmVolume;
+                bgmVolumeSlider.onValueChanged.AddListener(v => audioMgr.SetBgmVolume(v));
+            }
         }
 
         public void TogglePause()

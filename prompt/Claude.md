@@ -96,6 +96,9 @@ Considere os seguintes arquivos como fontes de design, planejamento, processo ou
 - [`relatorio_analise_instalador.md`](files/relatorios/relatorio_analise_instalador.md): análise e refatoração do script mestre de instalação do ambiente (`Install.sh`).
 - [`Relatorio-Fowlgen-Wars-Producao-API-Onix.md`](files/relatorios/Relatorio-Fowlgen-Wars-Producao-API-Onix.md): planejamento de infraestrutura e ambiente de produção da API Onix.
 - [`Planilha_Analise_Desenvolvimento_EAP.md`](files/relatorios/Planilha_Analise_Desenvolvimento_EAP.md) e [`Fowlgen_Wars_Analise_EAP_MVP.xlsx`](files/relatorios/Fowlgen_Wars_Analise_EAP_MVP.xlsx): Estrutura Analítica de Projeto (EAP/WBS) mapeando escopo, estimativas e entregas do MVP.
+- [`Catalogo_Assets_Audio_VFX_Free.md`](files/relatorios/Catalogo_Assets_Audio_VFX_Free.md): catálogo de pacotes gratuitos de áudio (SFX/BGM) e VFX recomendados da Unity Asset Store para o ecossistema URP mobile.
+- [`Relatorio_Consolidacao_Arena_Clean_MVP.md`](files/relatorios/Relatorio_Consolidacao_Arena_Clean_MVP.md): relatório técnico da consolidação da arena única e canônica `Arena_Clean.unity` e saneamento de cenas legadas.
+- [`Relatorio_Consolidacao_Audio_VFX_Mixamo_Orientacao.md`](files/relatorios/Relatorio_Consolidacao_Audio_VFX_Mixamo_Orientacao.md): relatório técnico de consolidação de texturas dos minions, áudio/VFX procedurais, fix de 180° de orientação de tela e integração do Mixamo MCP.
 
 ### Documentos de Referência, Apresentações e PDFs (`files/pdf/` e `files/referencias/`)
 - [`Site Fowlgenwars.pdf`](files/pdf/Site%20Fowlgenwars.pdf): layout e referência visual do site oficial.

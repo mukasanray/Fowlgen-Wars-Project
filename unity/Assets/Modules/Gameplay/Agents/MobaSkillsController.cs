@@ -8,8 +8,8 @@ namespace FowlgenWars.Gameplay
 {
     /// <summary>
     /// Gerenciador de Habilidades MOBA estilo League of Legends / Wild Rift.
-    /// Gerencia Ataque Básico e Habilidades (Q, W, E, R / Ultimate) com cooldowns,
-    /// suporte a toque em botões do HUD e atalhos de teclado (Q, W, E, R, Espaço).
+    /// Gerencia Ataque Básico e Habilidades (T, G, Y, H / Ultimate) com cooldowns,
+    /// suporte a toque em botões do HUD e atalhos de teclado (T, G, Y, H, Espaço).
     /// </summary>
     public class MobaSkillsController : MonoBehaviour
     {
@@ -115,10 +115,10 @@ namespace FowlgenWars.Gameplay
             if (listenersRegistered) return;
 
             if (attackButton != null) attackButton.onClick.AddListener(OnAttackClicked);
-            if (skillQButton != null) skillQButton.onClick.AddListener(CastSkillQ);
-            if (skillWButton != null) skillWButton.onClick.AddListener(CastSkillW);
-            if (skillEButton != null) skillEButton.onClick.AddListener(CastSkillE);
-            if (skillRButton != null) skillRButton.onClick.AddListener(CastSkillR);
+            if (skillQButton != null) skillQButton.onClick.AddListener(CastSkillT);
+            if (skillWButton != null) skillWButton.onClick.AddListener(CastSkillG);
+            if (skillEButton != null) skillEButton.onClick.AddListener(CastSkillY);
+            if (skillRButton != null) skillRButton.onClick.AddListener(CastSkillH);
 
             listenersRegistered = true;
         }
@@ -168,17 +168,17 @@ namespace FowlgenWars.Gameplay
             if (kb != null)
             {
                 if (kb.spaceKey.wasPressedThisFrame) OnAttackClicked();
-                if (kb.qKey.wasPressedThisFrame) CastSkillQ();
-                if (kb.wKey.wasPressedThisFrame) CastSkillW();
-                if (kb.eKey.wasPressedThisFrame) CastSkillE();
-                if (kb.rKey.wasPressedThisFrame) CastSkillR();
+                if (kb.tKey.wasPressedThisFrame) CastSkillT();
+                if (kb.gKey.wasPressedThisFrame) CastSkillG();
+                if (kb.yKey.wasPressedThisFrame) CastSkillY();
+                if (kb.hKey.wasPressedThisFrame) CastSkillH();
             }
 #elif ENABLE_LEGACY_INPUT_MANAGER
             if (Input.GetKeyDown(KeyCode.Space)) OnAttackClicked();
-            if (Input.GetKeyDown(KeyCode.T)) CastSkillQ();
-            if (Input.GetKeyDown(KeyCode.G)) CastSkillW();
-            if (Input.GetKeyDown(KeyCode.Y)) CastSkillE();
-            if (Input.GetKeyDown(KeyCode.H)) CastSkillR();
+            if (Input.GetKeyDown(KeyCode.T)) CastSkillT();
+            if (Input.GetKeyDown(KeyCode.G)) CastSkillG();
+            if (Input.GetKeyDown(KeyCode.Y)) CastSkillY();
+            if (Input.GetKeyDown(KeyCode.H)) CastSkillH();
 #endif
         }
 
@@ -191,7 +191,7 @@ namespace FowlgenWars.Gameplay
             }
         }
 
-        public void CastSkillQ()
+        public void CastSkillT()
         {
             if (qTimer > 0 || heroAgent == null || !heroAgent.IsAlive) return;
             qTimer = skillQCooldown;
@@ -221,7 +221,7 @@ namespace FowlgenWars.Gameplay
             }
         }
 
-        public void CastSkillW()
+        public void CastSkillG()
         {
             if (wTimer > 0 || heroAgent == null || !heroAgent.IsAlive) return;
             wTimer = skillWCooldown;
@@ -246,7 +246,7 @@ namespace FowlgenWars.Gameplay
             }
         }
 
-        public void CastSkillE()
+        public void CastSkillY()
         {
             if (eTimer > 0 || heroAgent == null || !heroAgent.IsAlive) return;
             eTimer = skillECooldown;
@@ -273,7 +273,7 @@ namespace FowlgenWars.Gameplay
             Debug.Log("[Skill Y - Disparo Sagrado] Penas douradas disparadas!");
         }
 
-        public void CastSkillR()
+        public void CastSkillH()
         {
             if (rTimer > 0 || heroAgent == null || !heroAgent.IsAlive) return;
             rTimer = skillRCooldown;

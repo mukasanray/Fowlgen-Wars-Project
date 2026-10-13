@@ -133,6 +133,8 @@ namespace FowlgenWars.Gameplay
             WaypointPath path = GetPath(lane);
             if (path == null) return false;
 
+            path.HighlightTemporarily(2.5f);
+
             Vector3 spawnPos = playerSpawnPoint != null ? playerSpawnPoint.position : path.GetPoint(0, Team.Player);
             GameObject unitGo = Instantiate(prefab, spawnPos, Quaternion.identity);
             MinionAgent agent = unitGo.GetComponent<MinionAgent>();

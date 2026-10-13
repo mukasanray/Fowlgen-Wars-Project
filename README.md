@@ -171,6 +171,20 @@ anchor test
 
 ---
 
+## ⛓️ Smart Contract On-Chain (Solana Devnet)
+
+O smart contract Anchor (`fowlgen_wars_contract`) está compilado, testado e publicado na rede oficial de testes da Solana:
+
+| Propriedade | Valor / Link |
+| :--- | :--- |
+| **Program ID** | [`81MprTi78xQvtVg9aaK4s4Cw9K62CU6PtcPYsChLNyxE`](https://explorer.solana.com/address/81MprTi78xQvtVg9aaK4s4Cw9K62CU6PtcPYsChLNyxE?cluster=devnet) |
+| **Cluster** | Solana Devnet (`https://api.devnet.solana.com`) |
+| **Instruções Suportadas** | `initialize`, `increment` (`record_battle_result` / liquidação pós-jogo) |
+| **Testes de Integração** | 100% aprovados via LiteSVM (`cargo test` executado e passando) |
+| **IDL Unificado** | `unity/Assets/Resources/fowlgen_wars_contract.json` |
+
+---
+
 ## 🏗️ Arquitetura
 
 ### Separação de Responsabilidades
