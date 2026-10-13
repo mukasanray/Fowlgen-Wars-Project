@@ -50,8 +50,8 @@
 | **28** | Criar Floating Combat Text com dano animado | Full Cycle | **Falta para encerrar o MVP** | Instanciar texto com número flutuante do dano ao acertar o golpe. |
 | **29** | Programar barras de vida flutuantes sobre tropas | Full Cycle | **Encerrado** | `WorldHealthBarView.cs` implementado no topo das unidades. |
 | **30** | Codificar lógica de destruição da base inimiga | Full Cycle | **Encerrado** | `StructureGalinheiro.cs` dispara término e transição para Vitória/Derrota. |
-| **31** | Implementar Camera Shake em impactos críticos | Full Cycle | **Falta para encerrar o MVP** | Adicionar impulso do Cinemachine Impulse Source no acerto crítico. |
-| **32** | Criar contagem regressiva de início de partida | Full Cycle | **Falta para encerrar o MVP** | Overlay de 3, 2, 1, LUTA antes de liberar o movimento do joystick. |
+| **31** | Implementar Camera Shake em impactos críticos | Full Cycle | **Encerrado** | `MobaCameraController.Instance.Shake()` acionado em impactos críticos, explosões e Ultimate R. |
+| **32** | Criar contagem regressiva de início de partida | Full Cycle | **Encerrado** | `MatchCountdownIntro.cs` com overlay animado 3, 2, 1, LUTA!, som de UI e cocoricó sonoro. |
 | **33** | Criar timer regressivo de partida de 3 minutos | Full Cycle | **Encerrado** | `MatchRuntimeStateSO.UpdateTimer()` com exibição na HUD. |
 | **34** | Implementar tela de Vitória e Derrota da partida | Full Cycle | **Encerrado** | Cenas `Vitoria.unity` e `Derrota.unity` com `VitoriaPresenter` e `DerrotaPresenter`. |
 | **35** | Otimizar pooling de objetos para 60 FPS mobile | Full Cycle | **Encerrado** | Sistema com reaproveitamento de instâncias e zero GC aloc no joystick. |
