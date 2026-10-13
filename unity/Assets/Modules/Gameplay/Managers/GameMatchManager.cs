@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using FowlgenWars.Gameplay.UI;
 
 namespace FowlgenWars.Gameplay
 {
@@ -31,9 +32,13 @@ namespace FowlgenWars.Gameplay
         [SerializeField] private GameObject playerMinionPrefab;
         [SerializeField] private GameObject enemyMinionPrefab;
 
+        [Header("Intro (3, 2, 1, LUTA!)")]
+        [SerializeField] private MatchCountdownIntro countdownIntro;
+
         private float currentTimer;
         private float nextEnemyWaveTime;
         private bool isMatchActive;
+        private bool countdownFinished;
 
         // Controle de cooldown de spawn por rota para o jogador
         private readonly Dictionary<LaneType, float> playerCooldowns = new Dictionary<LaneType, float>
@@ -73,18 +78,39 @@ namespace FowlgenWars.Gameplay
                 enemyGalinheiro.OnStructureDestroyed += HandleStructureDestroyed;
             }
 
-            nextEnemyWaveTime = Time.time + matchConfig.EnemyWaveInterval;
+            // Aguarda 3,2,1,LUTA! antes de contar tempo e spawnar
+            if (countdownIntro == null) countdownIntro = FindAnyObjectByType<MatchCountdownIntro>();
+            if (countdownIntro != null)
+            {
+                countdownFinished = false;
+                countdownIntro.OnCountdownFinished += HandleCountdownFinished;
+            }
+            else
+            {
+                countdownFinished = true;
+                nextEnemyWaveTime = Time.time + matchConfig.EnemyWaveInterval;
+            }
+        }
+
+        private void HandleCountdownFinished()
+        {
+            countdownFinished = true;
+            if (matchConfig != null)
+                nextEnemyWaveTime = Time.time + matchConfig.EnemyWaveInterval;
+            if (countdownIntro != null)
+                countdownIntro.OnCountdownFinished -= HandleCountdownFinished;
         }
 
         private void OnDestroy()
         {
+            if (countdownIntro != null) countdownIntro.OnCountdownFinished -= HandleCountdownFinished;
             if (playerGalinheiro != null) playerGalinheiro.OnStructureDestroyed -= HandleStructureDestroyed;
             if (enemyGalinheiro != null) enemyGalinheiro.OnStructureDestroyed -= HandleStructureDestroyed;
         }
 
         private void Update()
         {
-            if (!isMatchActive) return;
+            if (!isMatchActive || !countdownFinished) return;
 
             // 1. Atualizar timer regressivo (3 minutos)
             currentTimer -= Time.deltaTime;
@@ -125,7 +151,7 @@ namespace FowlgenWars.Gameplay
 
         public bool RequestPlayerSpawn(LaneType lane)
         {
-            if (!isMatchActive || !CanSpawnMinion(lane)) return false;
+            if (!isMatchActive || !countdownFinished || !CanSpawnMinion(lane)) return false;
 
             MinionDataSO data = matchConfig != null ? matchConfig.DefaultMinionData : null;
             GameObject prefab = playerMinionPrefab != null ? playerMinionPrefab : (data != null ? data.Prefab : null);

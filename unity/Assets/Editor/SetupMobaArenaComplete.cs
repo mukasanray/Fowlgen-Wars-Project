@@ -390,6 +390,10 @@ namespace FowlgenWars.EditorScripts
             soGmm.FindProperty("botPath").objectReferenceValue = pathBot;
             soGmm.FindProperty("playerSpawnPoint").objectReferenceValue = playerSpawn.transform;
             soGmm.FindProperty("enemySpawnPoint").objectReferenceValue = enemySpawn.transform;
+            // Wiring da contagem 3,2,1,LUTA! — GameMatchManager espera OnCountdownFinished antes de contar tempo/spawnar
+            var pendingIntro = canvasObj.transform.Find("CountdownIntroOverlay")?.GetComponent<FowlgenWars.Gameplay.UI.MatchCountdownIntro>();
+            if (pendingIntro == null) pendingIntro = UnityEngine.Object.FindAnyObjectByType<FowlgenWars.Gameplay.UI.MatchCountdownIntro>();
+            soGmm.FindProperty("countdownIntro").objectReferenceValue = pendingIntro != null ? pendingIntro : null;
             soGmm.ApplyModifiedProperties();
 
             // 11. Configurar ArenaCinematicDirector (Para Pitch Video / Trailer)
