@@ -146,7 +146,7 @@ namespace FowlgenWars.Gameplay
 
             if (Time.time < dashEndTime)
             {
-                if (characterController != null && characterController.enabled)
+                if (characterController != null && characterController.enabled && characterController.gameObject.activeInHierarchy)
                 {
                     characterController.Move(dashDirection * (skillQDashSpeed * Time.deltaTime));
                 }

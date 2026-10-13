@@ -167,8 +167,9 @@ namespace FowlgenWars.Gameplay
 
         private void UpdateAIBehavior()
         {
+            if (characterController == null || !characterController.enabled || !characterController.gameObject.activeInHierarchy) return;
             // 1. Gravidade básica para manter no chão
-            if (characterController != null && !characterController.isGrounded)
+            if (!characterController.isGrounded)
             {
                 characterController.Move(Vector3.down * 9.8f * Time.deltaTime);
             }
@@ -182,7 +183,7 @@ namespace FowlgenWars.Gameplay
                 {
                     ExecuteBasicAttack();
                 }
-                else if (characterController != null)
+                else if (characterController != null && characterController.enabled && characterController.gameObject.activeInHierarchy)
                 {
                     Vector3 moveDir = (target.TargetTransform.position - transform.position).normalized;
                     moveDir.y = 0;
@@ -193,7 +194,7 @@ namespace FowlgenWars.Gameplay
                     }
                 }
             }
-            else if (characterController != null)
+            else if (characterController != null && characterController.enabled && characterController.gameObject.activeInHierarchy)
             {
                 // 3. Sem inimigos no alcance imediato: avançar ofensivamente em direção à base/linha do jogador
                 Vector3 objectiveTarget = new Vector3(0f, transform.position.y, 8.0f);

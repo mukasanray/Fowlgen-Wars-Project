@@ -99,7 +99,7 @@ namespace FowlgenWars.Gameplay
 
         private void Update()
         {
-            if (characterController == null) return;
+            if (characterController == null || !characterController.enabled || !characterController.gameObject.activeInHierarchy) return;
 
             // 1. Obter entrada (Joystick Pack, IJoystickInput ou Teclado no Editor)
             Vector2 input = Vector2.zero;
