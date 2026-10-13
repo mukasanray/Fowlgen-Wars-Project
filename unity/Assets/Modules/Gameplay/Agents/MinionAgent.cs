@@ -52,10 +52,10 @@ namespace FowlgenWars.Gameplay
             if (animator == null) animator = GetComponentInChildren<Animator>();
             if (animator != null) animator.SetBool("IsDead", false);
 
-            if (healthBar != null && data != null)
+            if (healthBar != null)
             {
-                healthBar.UpdateHealth(currentHealth, data.MaxHealth);
-                healthBar.SetColor(team == Team.Player ? Color.green : Color.red);
+                healthBar.SetTeamColor(team);
+                healthBar.UpdateHealth(currentHealth, data != null ? data.MaxHealth : 100);
             }
         }
 
@@ -184,12 +184,11 @@ namespace FowlgenWars.Gameplay
         public void TakeDamage(int damage)
         {
             if (!IsAlive) return;
-
-            currentHealth -= Mathf.Max(0, damage);
-            if (healthBar != null && data != null)
-            {
-                healthBar.UpdateHealth(currentHealth, data.MaxHealth);
-            }
+            damage = Mathf.Max(0, damage);
+            if (damage == 0) return;
+            int maxHp = data != null ? data.MaxHealth : 100;
+            currentHealth = Mathf.Clamp(currentHealth - damage, 0, maxHp);
+            if (healthBar != null) healthBar.UpdateHealth(currentHealth, maxHp);
             Feedback.FloatingCombatTextManager.SpawnDamage(transform.position, damage);
 
             // Penas de acordo com a facção do minion

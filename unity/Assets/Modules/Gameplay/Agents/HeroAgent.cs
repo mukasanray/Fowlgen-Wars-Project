@@ -58,8 +58,8 @@ namespace FowlgenWars.Gameplay
         {
             if (healthBar != null)
             {
+                healthBar.SetTeamColor(team);
                 healthBar.UpdateHealth(currentHealth, maxHealth);
-                healthBar.SetColor(team == Team.Player ? new Color(0.2f, 0.8f, 1f) : new Color(1f, 0.2f, 0.2f));
             }
         }
 
@@ -79,8 +79,8 @@ namespace FowlgenWars.Gameplay
 
             if (healthBar != null)
             {
+                healthBar.SetTeamColor(team);
                 healthBar.UpdateHealth(currentHealth, maxHealth);
-                healthBar.SetColor(team == Team.Player ? new Color(0.2f, 0.8f, 1f) : new Color(1f, 0.2f, 0.2f));
             }
         }
 
@@ -223,12 +223,10 @@ namespace FowlgenWars.Gameplay
         public void TakeDamage(int damage)
         {
             if (isDead) return;
-
-            currentHealth -= Mathf.Max(0, damage);
-            if (healthBar != null)
-            {
-                healthBar.UpdateHealth(currentHealth, maxHealth);
-            }
+            damage = Mathf.Max(0, damage);
+            if (damage == 0) return;
+            currentHealth = Mathf.Clamp(currentHealth - damage, 0, maxHealth);
+            if (healthBar != null) healthBar.UpdateHealth(currentHealth, maxHealth);
             Feedback.FloatingCombatTextManager.SpawnDamage(transform.position, damage);
 
             // Feedback visual de impacto de penas e som
@@ -240,6 +238,7 @@ namespace FowlgenWars.Gameplay
             if (currentHealth <= 0)
             {
                 currentHealth = 0;
+                if (healthBar != null) healthBar.UpdateHealth(0, maxHealth);
                 Die();
             }
         }
@@ -258,7 +257,7 @@ namespace FowlgenWars.Gameplay
             }
 
             if (characterController != null) characterController.enabled = false;
-            if (healthBar != null) healthBar.gameObject.SetActive(false);
+            if (healthBar != null) healthBar.UpdateHealth(0, maxHealth);
 
             // Desativar renderers temporariamente
             var renderers = GetComponentsInChildren<Renderer>();
@@ -286,6 +285,7 @@ namespace FowlgenWars.Gameplay
             if (healthBar != null)
             {
                 healthBar.gameObject.SetActive(true);
+                healthBar.SetTeamColor(team);
                 healthBar.UpdateHealth(currentHealth, maxHealth);
             }
 

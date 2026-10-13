@@ -17,6 +17,8 @@ namespace FowlgenWars.Gameplay
 
         [Header("Feedback Visual da Rota (EAP Item 25)")]
         [SerializeField] private LineRenderer lineRenderer;
+        [Tooltip("DEBUG apenas. Em jogo fica invisível; use HighlightTemporarily para pulsar temporariamente.")]
+        [SerializeField] private bool debugLineVisibleInGame = false;
         private Coroutine highlightRoutine;
 
         private void Start()
@@ -60,7 +62,8 @@ namespace FowlgenWars.Gameplay
                 mat.color = baseCol;
                 lineRenderer.material = mat;
             }
-            lineRenderer.enabled = true;
+            // ponytail: invisível em gameplay; ligue debugLineVisibleInGame para debug
+            lineRenderer.enabled = debugLineVisibleInGame;
         }
 
         public void HighlightTemporarily(float duration = 2.5f)
@@ -88,10 +91,14 @@ namespace FowlgenWars.Gameplay
                 yield return null;
             }
 
-            pulseCol.a = 0.25f;
-            if (lineRenderer.material != null) lineRenderer.material.color = pulseCol;
-            lineRenderer.startWidth = 0.20f;
-            lineRenderer.endWidth = 0.20f;
+            if (!debugLineVisibleInGame) lineRenderer.enabled = false;
+            else
+            {
+                pulseCol.a = 0.25f;
+                if (lineRenderer.material != null) lineRenderer.material.color = pulseCol;
+                lineRenderer.startWidth = 0.20f;
+                lineRenderer.endWidth = 0.20f;
+            }
         }
 
         public Vector3 GetPoint(int index, Team team)
