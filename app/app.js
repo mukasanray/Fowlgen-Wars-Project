@@ -216,13 +216,20 @@ async function sendSupportDonation() {
     await signAuthChallenge();
 }
 
-// ==========================================
-// NAVEGAÇÃO PARA A ARENA (ITCH.IO)
-// ==========================================
 function launchGameOnItch() {
     const sessionParam = appState.publicKey ? `?wallet=${encodeURIComponent(appState.publicKey)}&nick=${encodeURIComponent(appState.nickname)}` : '';
     window.open(`${ITCH_GAME_URL}${sessionParam}`, "_blank");
 }
+
+// Expõe funções para o HTML
+window.launchGameOnItch = launchGameOnItch;
+window.toggleEmbeddedArena = toggleEmbeddedArena;
+window.connectWallet = connectWallet;
+window.disconnectWallet = disconnectWallet;
+window.requestDevnetAirdrop = requestDevnetAirdrop;
+window.signAuthChallenge = signAuthChallenge;
+window.copyWalletAddress = copyWalletAddress;
+window.editNickname = editNickname;
 
 function toggleEmbeddedArena() {
     const arenaContainer = document.getElementById('embeddedArenaContainer');

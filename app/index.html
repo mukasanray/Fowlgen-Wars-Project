@@ -34,9 +34,9 @@
             <!-- Ações Rápidas (Direito) -->
             <div class="flex items-center gap-2.5 w-full md:w-auto justify-center">
                 <!-- Botão Jogar Direto no Itch.io -->
-                <a href="https://fowlgenwars.itch.io/fowlgenwars" target="_blank" class="bg-rose-500 text-white title-font px-4 py-2.5 rounded-2xl hover:bg-rose-600 transition inline-flex items-center justify-center gap-2 cursor-pointer text-sm shadow-md flex-1 md:flex-none text-center">
+                <button onclick="launchGameOnItch()" class="bg-rose-500 text-white title-font px-4 py-2.5 rounded-2xl hover:bg-rose-600 transition inline-flex items-center justify-center gap-2 cursor-pointer text-sm shadow-md flex-1 md:flex-none text-center">
                     <span>🎮</span> <span>Jogar no Itch.io</span>
-                </a>
+                </button>
 
                 <!-- Botão Conectar Carteira Solana -->
                 <button id="connectWalletNavBtn" class="bg-purple-600 text-white title-font px-4 py-2.5 rounded-2xl hover:bg-purple-700 transition inline-flex items-center justify-center gap-2 cursor-pointer text-sm shadow-md flex-1 md:flex-none">
@@ -70,9 +70,9 @@
 
             <!-- Chamadas de Ação Principais -->
             <div class="flex flex-col sm:flex-row justify-center gap-4 px-4 max-w-xl mx-auto">
-                <a href="https://fowlgenwars.itch.io/fowlgenwars" target="_blank" class="bg-rose-600 text-white title-font text-base sm:text-lg px-8 py-4 rounded-2xl fun-shadow-pink hover:bg-rose-700 transition text-center shadow-lg inline-flex items-center justify-center gap-2">
+                <button onclick="launchGameOnItch()" class="bg-rose-600 text-white title-font text-base sm:text-lg px-8 py-4 rounded-2xl fun-shadow-pink hover:bg-rose-700 transition text-center shadow-lg inline-flex items-center justify-center gap-2 cursor-pointer">
                     <span>🐔</span> <span>Batalhar Agora (Itch.io)</span>
-                </a>
+                </button>
                 <button onclick="toggleEmbeddedArena()" class="bg-amber-500 text-white title-font text-base sm:text-lg px-8 py-4 rounded-2xl fun-shadow hover:bg-amber-600 transition text-center shadow-lg inline-flex items-center justify-center gap-2 cursor-pointer">
                     <span>📺</span> <span>Carregar Arena Aqui</span>
                 </button>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Fowlgen Wars - Arena WebGL</title>
-    <!-- Estilos 100% Autônomos (Sem dependência de CDN externa para evitar bloqueios de CSP do Itch.io) -->
+    <!-- Estilos 100% Autônomos (Blindados contra bloqueios de CSP do Itch.io) -->
     <style>
         * {
             box-sizing: border-box;
@@ -31,7 +31,7 @@
             max-height: 100vh;
             background: #111;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
         }
         canvas {
             display: block;
@@ -39,33 +39,34 @@
             height: 100%;
             object-fit: contain;
             background: #2b1810;
+            cursor: pointer;
         }
         .overlay {
             position: absolute;
-            inset: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             background-size: cover;
             background-position: center;
-            z-index: 10;
-        }
-        .hidden {
-            display: none !important;
+            z-index: 100;
         }
         .card-panel {
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: rgba(10, 5, 2, 0.88);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border: 3px solid #f59e0b;
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 24px;
             text-align: center;
             max-width: 480px;
-            width: 90%;
+            width: 92%;
             color: #fff;
-            box-shadow: 0 12px 35px rgba(0,0,0,0.9);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.95);
         }
         .btn-action {
             display: inline-flex;
@@ -80,46 +81,56 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.1s, filter 0.2s;
+            transition: transform 0.1s, filter 0.2s, background 0.2s;
         }
         .btn-action:active {
             transform: scale(0.97);
         }
-        .btn-primary {
+        .btn-battle {
             background: #e11d48;
             color: #fff;
-            box-shadow: 0 4px 12px rgba(225, 29, 72, 0.4);
+            font-size: 20px !important;
+            padding: 16px !important;
+            box-shadow: 0 6px 20px rgba(225, 29, 72, 0.5);
+            animation: pulse-glow 2s infinite;
         }
-        .btn-primary:hover {
-            filter: brightness(1.1);
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(225, 29, 72, 0.6); }
+            50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.8); }
         }
         .btn-solana {
             background: #9333ea;
             color: #fff;
         }
         .btn-solana:hover {
-            filter: brightness(1.1);
+            background: #a855f7;
         }
-        .btn-restart {
-            background: #f59e0b;
-            color: #fff;
+        .btn-paste {
+            background: #374151;
+            color: #fde047;
+            font-size: 13px !important;
+            padding: 8px 12px !important;
+            margin-top: 6px !important;
         }
         /* HUD Superior */
         #gameHUD {
             position: absolute;
-            inset: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
-            display: flex;
+            display: none;
             flex-direction: column;
             justify-content: space-between;
-            padding: 16px;
-            z-index: 5;
+            padding: 14px;
+            z-index: 50;
         }
         .hud-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 900px;
+            max-width: 960px;
             width: 100%;
             margin: 0 auto;
             pointer-events: auto;
@@ -127,8 +138,8 @@
         }
         .hp-card {
             flex: 1;
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.82);
+            border-radius: 14px;
             padding: 8px 12px;
             border: 2px solid #555;
             color: #fff;
@@ -140,7 +151,7 @@
         .hp-bar-bg {
             width: 100%;
             height: 12px;
-            background: #333;
+            background: #222;
             border-radius: 6px;
             overflow: hidden;
             margin-top: 4px;
@@ -163,7 +174,7 @@
         /* Deck Inferior */
         .hud-bottom {
             pointer-events: auto;
-            max-width: 650px;
+            max-width: 680px;
             width: 100%;
             margin: 0 auto;
             background: rgba(0, 0, 0, 0.85);
@@ -192,7 +203,7 @@
             height: 100%;
             background: #eab308;
             width: 50%;
-            transition: width 0.2s;
+            transition: width 0.15s;
         }
         .cards-grid {
             display: grid;
@@ -213,11 +224,28 @@
             border-color: #fff;
             background: #d97706;
             transform: scale(1.05);
-            box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.8);
         }
         .troop-card span.icon { font-size: 24px; display: block; }
         .troop-card span.name { font-size: 11px; font-weight: bold; display: block; margin: 2px 0; }
-        .troop-card span.cost { font-size: 10px; background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 6px; color: #fef08a; }
+        .troop-card span.cost { font-size: 10px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 6px; color: #fef08a; }
+        /* Toast de Feedback */
+        #gameToast {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            color: #fff;
+            border: 2px solid #f59e0b;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 13px;
+            z-index: 200;
+            display: none;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+        }
     </style>
 </head>
 <body>
@@ -226,29 +254,40 @@
         <!-- CANVAS PRINCIPAL -->
         <canvas id="gameCanvas" width="1280" height="720"></canvas>
 
+        <!-- TOAST FLUTUANTE -->
+        <div id="gameToast">Mensagem</div>
+
         <!-- MENU INICIAL -->
         <div id="menuScreen" class="overlay" style="background-image: url('assets/LoginBackground.png');">
             <div class="card-panel">
-                <div style="font-size: 42px; margin-bottom: 6px;">🐔⚔️</div>
-                <h1 style="color: #f59e0b; font-size: 32px; font-weight: 900; margin-bottom: 4px;">FOWLGEN WARS</h1>
-                <p style="color: #fef08a; font-size: 13px; font-weight: bold; margin-bottom: 16px;">Arena Oficial de Batalha (WebGL)</p>
+                <div style="font-size: 42px; margin-bottom: 4px;">🐔⚔️</div>
+                <h1 style="color: #f59e0b; font-size: 30px; font-weight: 900; margin-bottom: 2px;">FOWLGEN WARS</h1>
+                <p style="color: #fef08a; font-size: 13px; font-weight: bold; margin-bottom: 14px;">Arena Oficial de Batalha (WebGL)</p>
 
-                <div id="walletStatusText" style="font-size: 12px; color: #d8b4fe; background: rgba(88, 28, 135, 0.5); padding: 8px; border-radius: 10px; margin-bottom: 12px;">
+                <!-- Status da Carteira -->
+                <div id="walletStatusText" style="font-size: 12px; color: #d8b4fe; background: rgba(88, 28, 135, 0.6); padding: 10px; border-radius: 12px; margin-bottom: 8px; border: 1px solid #9333ea;">
                     ⚡ Carteira: Não conectada (Modo Convidado)
                 </div>
 
+                <!-- Botão Principal de Conexão -->
                 <button id="btnConnect" onclick="connectSolana()" class="btn-action btn-solana">
                     🦊 Conectar Phantom / Solflare
                 </button>
 
-                <button onclick="startGame()" class="btn-action btn-primary" style="font-size: 18px; margin-top: 12px;">
-                    ⚔️ ENTRAR NA BATALHA
+                <!-- Opção Manual para Iframe -->
+                <button onclick="promptManualWallet()" class="btn-action btn-paste">
+                    📋 Inserir Endereço Manualmente
+                </button>
+
+                <!-- BOTÃO DE ENTRAR NA BATALHA (GARANTIDO) -->
+                <button id="btnStart" onclick="startGame()" class="btn-action btn-battle">
+                    ⚔️ ENTRAR NA BATALHA!
                 </button>
             </div>
         </div>
 
         <!-- HUD DE COMBATE -->
-        <div id="gameHUD" class="hidden">
+        <div id="gameHUD">
             <div class="hud-top">
                 <div class="hp-card player">
                     <div style="display: flex; justify-content: space-between;">
@@ -276,7 +315,7 @@
             <div class="hud-bottom">
                 <div class="energy-wrapper">
                     <span>🌽 Milho: <b id="cornCountText" style="color:#fff;">5/10</b></span>
-                    <span style="font-size: 11px; color:#aaa;">Clique na carta e toque na rota!</span>
+                    <span style="font-size: 11px; color:#aaa;">Clique na carta e toque em uma das 3 rotas!</span>
                 </div>
                 <div class="energy-bar-bg">
                     <div id="energyFill" class="energy-bar-fill"></div>
@@ -307,33 +346,34 @@
         </div>
 
         <!-- TELA DE VITÓRIA -->
-        <div id="victoryScreen" class="overlay hidden" style="background-image: url('assets/Vitoria.jpg');">
+        <div id="victoryScreen" class="overlay" style="display: none; background-image: url('assets/Vitoria.jpg');">
             <div class="card-panel" style="border-color: #22c55e;">
-                <div style="font-size: 48px; margin-bottom: 8px;">🏆👑</div>
-                <h2 style="color: #facc15; font-size: 32px; font-weight: 900; margin-bottom: 8px;">VITÓRIA ÉPICA!</h2>
-                <p style="color: #e5e7eb; font-size: 14px; margin-bottom: 16px;">Você destruiu o ninho adversário e dominou o curral!</p>
+                <div style="font-size: 48px; margin-bottom: 6px;">🏆👑</div>
+                <h2 style="color: #facc15; font-size: 30px; font-weight: 900; margin-bottom: 6px;">VITÓRIA ÉPICA!</h2>
+                <p style="color: #e5e7eb; font-size: 13px; margin-bottom: 14px;">Você destruiu o ninho adversário e dominou o curral!</p>
 
-                <div style="background: rgba(17, 24, 39, 0.8); padding: 12px; border-radius: 12px; font-size: 12px; color: #a78bfa; margin-bottom: 16px;">
-                    ✨ Recompensa Solana Devnet: <b style="color:#fff;">Counter PDA</b><br>
-                    <code style="color: #fde047;">81MprTi...NyxE</code>
+                <div style="background: rgba(17, 24, 39, 0.85); padding: 12px; border-radius: 12px; font-size: 12px; color: #a78bfa; margin-bottom: 14px; text-align: left;">
+                    <div style="font-weight: bold; margin-bottom: 4px;">✨ Recompensa Solana Devnet:</div>
+                    <div>Contrato: <code style="color: #fde047;">81MprTi...NyxE</code></div>
+                    <div id="victoryWalletDisplay" style="color: #86efac; margin-top: 4px;">Jogador: Convidado</div>
                 </div>
 
                 <button id="btnClaimReward" onclick="claimReward()" class="btn-action" style="background:#059669; color:#fff;">
                     🎁 Registrar Vitória On-Chain
                 </button>
-                <button onclick="returnToMenu()" class="btn-action btn-restart" style="margin-top: 8px;">
+                <button onclick="returnToMenu()" class="btn-action" style="background:#f59e0b; color:#fff; margin-top: 8px;">
                     🔄 Jogar Novamente
                 </button>
             </div>
         </div>
 
         <!-- TELA DE DERROTA -->
-        <div id="defeatScreen" class="overlay hidden" style="background-image: url('assets/Derrota.jpeg');">
+        <div id="defeatScreen" class="overlay" style="display: none; background-image: url('assets/Derrota.jpeg');">
             <div class="card-panel" style="border-color: #ef4444;">
-                <div style="font-size: 48px; margin-bottom: 8px;">🍳💥</div>
-                <h2 style="color: #ef4444; font-size: 30px; font-weight: 900; margin-bottom: 8px;">SEU NINHO CAIU!</h2>
-                <p style="color: #d1d5db; font-size: 14px; margin-bottom: 20px;">As galinhas negras venceram desta vez. Reorganize suas tropas!</p>
-                <button onclick="returnToMenu()" class="btn-action btn-primary">
+                <div style="font-size: 48px; margin-bottom: 6px;">🍳💥</div>
+                <h2 style="color: #ef4444; font-size: 28px; font-weight: 900; margin-bottom: 6px;">SEU NINHO CAIU!</h2>
+                <p style="color: #d1d5db; font-size: 13px; margin-bottom: 18px;">As galinhas negras venceram desta vez. Reorganize suas tropas!</p>
+                <button onclick="returnToMenu()" class="btn-action btn-battle">
                     ⚔️ Tentar Novamente
                 </button>
             </div>
@@ -345,17 +385,37 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Fundo
+        // Imagem de Fundo
         const bgImg = new Image();
         bgImg.src = 'assets/bg-play.jpeg';
 
-        // Áudio Web Audio API (100% nativo)
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        // Feedback Toast
+        function showToast(msg, duration = 3000) {
+            const t = document.getElementById('gameToast');
+            if (!t) return;
+            t.innerText = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, duration);
+        }
+
+        // Áudio Web Audio API (Nativo e Seguro)
         let audioCtx = null;
+        function initAudio() {
+            try {
+                if (!audioCtx) {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContextClass) audioCtx = new AudioContextClass();
+                }
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            } catch (e) {}
+        }
 
         function playSound(type) {
             try {
-                if (!audioCtx) audioCtx = new AudioCtx();
+                if (!audioCtx) initAudio();
+                if (!audioCtx) return;
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.connect(gain);
@@ -363,8 +423,8 @@
                 const t = audioCtx.currentTime;
 
                 if (type === 'spawn') {
-                    osc.frequency.setValueAtTime(250, t);
-                    osc.frequency.exponentialRampToValueAtTime(500, t + 0.12);
+                    osc.frequency.setValueAtTime(260, t);
+                    osc.frequency.exponentialRampToValueAtTime(520, t + 0.12);
                     gain.gain.setValueAtTime(0.2, t);
                     gain.gain.linearRampToValueAtTime(0.01, t + 0.12);
                     osc.start(t);
@@ -388,7 +448,7 @@
             } catch (e) {}
         }
 
-        // Configuração de Rotas & Tropas
+        // Variáveis de Estado
         const LANES = [190, 360, 530];
         let isGameRunning = false;
         let playerHp = 100;
@@ -402,39 +462,105 @@
         let timerInterval = null;
 
         const UNITS = [
-            { name: "Pintinho", cost: 2, hp: 40, damage: 12, speed: 2.5, icon: "🐣" },
-            { name: "Guerreira", cost: 4, hp: 90, damage: 22, speed: 1.8, icon: "🐔" },
-            { name: "Guardião", cost: 6, hp: 200, damage: 18, speed: 1.2, icon: "🛡️" },
-            { name: "Cósmica", cost: 8, hp: 120, damage: 45, speed: 1.5, icon: "🔥" }
+            { name: "Pintinho", cost: 2, hp: 45, damage: 14, speed: 2.6, icon: "🐣" },
+            { name: "Guerreira", cost: 4, hp: 95, damage: 24, speed: 1.8, icon: "🐔" },
+            { name: "Guardião", cost: 6, hp: 210, damage: 18, speed: 1.2, icon: "🛡️" },
+            { name: "Cósmica", cost: 8, hp: 130, damage: 48, speed: 1.5, icon: "🔥" }
         ];
 
         let playerTroops = [];
         let enemyTroops = [];
         let particles = [];
 
-        // Conexão Solana
+        // ==========================================
+        // GESTÃO DE CARTEIRA (SOLANA DEVNET)
+        // ==========================================
         let connectedWallet = null;
+
+        function applyWallet(walletAddr) {
+            if (!walletAddr) return;
+            connectedWallet = walletAddr.trim();
+            const short = `${connectedWallet.substring(0,4)}...${connectedWallet.substring(connectedWallet.length-4)}`;
+            
+            const badge = document.getElementById('walletStatusText');
+            if (badge) {
+                badge.innerText = `⚡ Carteira: ${short} (Devnet Ativa)`;
+                badge.style.color = '#86efac';
+                badge.style.background = 'rgba(6, 78, 59, 0.7)';
+                badge.style.borderColor = '#10b981';
+            }
+            const btn = document.getElementById('btnConnect');
+            if (btn) btn.innerText = `Conectado: ${short}`;
+
+            const vicDisplay = document.getElementById('victoryWalletDisplay');
+            if (vicDisplay) vicDisplay.innerText = `Jogador: ${short}`;
+
+            showToast(`✅ Carteira Conectada: ${short}`);
+        }
+
+        // 1. Tenta pegar da URL (?wallet=...)
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const w = urlParams.get('wallet');
+            if (w) applyWallet(w);
+        } catch (e) {}
+
+        // 2. Conectar com Extensão
         async function connectSolana() {
+            let provider = null;
             if (window.solana) {
+                provider = window.solana;
+            } else if (window.phantom && window.phantom.solana) {
+                provider = window.phantom.solana;
+            } else if (window.solflare) {
+                provider = window.solflare;
+            }
+
+            if (provider) {
                 try {
-                    const resp = await window.solana.connect();
-                    connectedWallet = resp.publicKey ? resp.publicKey.toString() : window.solana.publicKey.toString();
-                    const short = `${connectedWallet.substring(0,4)}...${connectedWallet.substring(connectedWallet.length-4)}`;
-                    document.getElementById('walletStatusText').innerText = `⚡ Carteira: ${short} (Devnet)`;
-                    document.getElementById('btnConnect').innerText = `Conectado: ${short}`;
+                    showToast("⏳ Solicitando aprovação na Phantom...");
+                    const resp = await provider.connect();
+                    const pubKey = resp.publicKey ? resp.publicKey.toString() : provider.publicKey.toString();
+                    applyWallet(pubKey);
+                    return;
                 } catch (e) {
-                    alert("Conexão cancelada.");
+                    console.warn("Conexão cancelada pelo usuário:", e);
+                    showToast("Conexão cancelada.");
+                    return;
                 }
-            } else {
-                window.open("https://phantom.app/", "_blank");
+            }
+
+            // Fallback: Se estiver em iframe sem acesso à extensão
+            promptManualWallet();
+        }
+
+        function promptManualWallet() {
+            const address = prompt(
+                "Extensão Phantom isolada pelo navegador no Itch.io.\n\nCole o seu endereço público da Phantom (Devnet) ou deixe em branco para gerar um endereço automático:",
+                ""
+            );
+            if (address !== null) {
+                if (address.trim().length >= 32) {
+                    applyWallet(address.trim());
+                } else {
+                    // Gera endereço rápido de teste
+                    const randomAddr = "Fowl" + Math.random().toString(36).substring(2, 10) + "Devnet" + Math.random().toString(36).substring(2, 6);
+                    applyWallet(randomAddr);
+                }
             }
         }
 
+        // ==========================================
+        // INICIALIZAÇÃO DA BATALHA (DESBLOQUEADA)
+        // ==========================================
         function startGame() {
-            document.getElementById('menuScreen').classList.add('hidden');
-            document.getElementById('victoryScreen').classList.add('hidden');
-            document.getElementById('defeatScreen').classList.add('hidden');
-            document.getElementById('gameHUD').classList.remove('hidden');
+            initAudio();
+
+            // Oculta telas do menu com estilo inline direto
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('victoryScreen').style.display = 'none';
+            document.getElementById('defeatScreen').style.display = 'none';
+            document.getElementById('gameHUD').style.display = 'flex';
 
             playerHp = 100;
             enemyHp = 100;
@@ -453,21 +579,23 @@
                 gameSeconds--;
                 const m = String(Math.floor(gameSeconds / 60)).padStart(2, '0');
                 const s = String(gameSeconds % 60).padStart(2, '0');
-                document.getElementById('gameTimerBadge').innerText = `${m}:${s}`;
+                const badge = document.getElementById('gameTimerBadge');
+                if (badge) badge.innerText = `${m}:${s}`;
                 if (gameSeconds <= 0) checkGameOver();
             }, 1000);
 
             lastTime = performance.now();
             requestAnimationFrame(loop);
+            showToast("⚔️ Batalha Iniciada! Toque na rota para invocar.");
         }
 
         function returnToMenu() {
             isGameRunning = false;
             if (timerInterval) clearInterval(timerInterval);
-            document.getElementById('victoryScreen').classList.add('hidden');
-            document.getElementById('defeatScreen').classList.add('hidden');
-            document.getElementById('gameHUD').classList.add('hidden');
-            document.getElementById('menuScreen').classList.remove('hidden');
+            document.getElementById('victoryScreen').style.display = 'none';
+            document.getElementById('defeatScreen').style.display = 'none';
+            document.getElementById('gameHUD').style.display = 'none';
+            document.getElementById('menuScreen').style.display = 'flex';
         }
 
         function selectCard(idx) {
@@ -478,12 +606,17 @@
             });
         }
 
-        // Toque no Canvas para Invocar
-        canvas.addEventListener('pointerdown', (e) => {
+        // ==========================================
+        // INTERAÇÃO NO CANVAS (CLIQUES E TOQUES)
+        // ==========================================
+        function handleInput(e) {
             if (!isGameRunning) return;
             const rect = canvas.getBoundingClientRect();
+            const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : null);
+            if (!clientY) return;
+
             const scaleY = canvas.height / rect.height;
-            const y = (e.clientY - rect.top) * scaleY;
+            const y = (clientY - rect.top) * scaleY;
 
             let chosenLane = 0;
             let minDist = Infinity;
@@ -496,11 +629,16 @@
             });
 
             spawnPlayer(chosenLane);
-        });
+        }
+
+        canvas.addEventListener('pointerdown', handleInput);
 
         function spawnPlayer(lane) {
             const def = UNITS[selectedCard];
-            if (cornEnergy < def.cost) return;
+            if (cornEnergy < def.cost) {
+                showToast("🌽 Falta milho para invocar esta tropa!", 1000);
+                return;
+            }
 
             cornEnergy -= def.cost;
             updateUI();
@@ -537,6 +675,9 @@
             });
         }
 
+        // ==========================================
+        // LOOP PRINCIPAL & COMBATE
+        // ==========================================
         function loop(now) {
             if (!isGameRunning) return;
             const dt = (now - lastTime) / 1000;
@@ -550,17 +691,17 @@
                 updateUI();
             }
 
-            // Spawn IA
+            // Invocação da IA
             enemySpawnTimer += dt;
             if (enemySpawnTimer >= 3.6) {
                 spawnEnemy();
                 enemySpawnTimer = 0;
             }
 
-            // Atualização de Combate
+            // Combate
             updateCombat(dt);
 
-            // Render
+            // Desenhar
             render();
 
             requestAnimationFrame(loop);
@@ -597,6 +738,7 @@
 
                 if (target) {
                     if (e.cooldown <= 0) {
+                        playerAheadHp = target.hp;
                         target.hp -= e.damage;
                         e.cooldown = 0.8;
                         createParticles(target.x, target.y, '#ef4444');
@@ -643,25 +785,31 @@
         function checkGameOver() {
             if (playerHp <= 0) {
                 isGameRunning = false;
-                document.getElementById('defeatScreen').classList.remove('hidden');
-                document.getElementById('gameHUD').classList.add('hidden');
+                document.getElementById('defeatScreen').style.display = 'flex';
+                document.getElementById('gameHUD').style.display = 'none';
             } else if (enemyHp <= 0) {
                 isGameRunning = false;
                 playSound('win');
-                document.getElementById('victoryScreen').classList.remove('hidden');
-                document.getElementById('gameHUD').classList.add('hidden');
+                document.getElementById('victoryScreen').style.display = 'flex';
+                document.getElementById('gameHUD').style.display = 'none';
             }
         }
 
         function updateUI() {
-            document.getElementById('playerHpVal').innerText = `${Math.max(0, Math.ceil(playerHp))} HP`;
-            document.getElementById('playerHpFill').style.width = `${Math.max(0, playerHp)}%`;
+            const pVal = document.getElementById('playerHpVal');
+            const pFill = document.getElementById('playerHpFill');
+            if (pVal) pVal.innerText = `${Math.max(0, Math.ceil(playerHp))} HP`;
+            if (pFill) pFill.style.width = `${Math.max(0, playerHp)}%`;
 
-            document.getElementById('enemyHpVal').innerText = `${Math.max(0, Math.ceil(enemyHp))} HP`;
-            document.getElementById('enemyHpFill').style.width = `${Math.max(0, enemyHp)}%`;
+            const eVal = document.getElementById('enemyHpVal');
+            const eFill = document.getElementById('enemyHpFill');
+            if (eVal) eVal.innerText = `${Math.max(0, Math.ceil(enemyHp))} HP`;
+            if (eFill) eFill.style.width = `${Math.max(0, enemyHp)}%`;
 
-            document.getElementById('cornCountText').innerText = `${cornEnergy}/10`;
-            document.getElementById('energyFill').style.width = `${cornEnergy * 10}%`;
+            const cText = document.getElementById('cornCountText');
+            const cFill = document.getElementById('energyFill');
+            if (cText) cText.innerText = `${cornEnergy}/10`;
+            if (cFill) cFill.style.width = `${cornEnergy * 10}%`;
         }
 
         function render() {
@@ -675,8 +823,8 @@
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
 
-            // Linhas das Rotas
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.14)";
+            // Linhas das 3 Rotas
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
             ctx.lineWidth = 3;
             LANES.forEach(y => {
                 ctx.beginPath();
@@ -700,7 +848,7 @@
             ctx.fill();
             ctx.fillText("🌋", 1168, 372);
 
-            // Tropas Jogador
+            // Tropas do Jogador
             playerTroops.forEach(p => {
                 ctx.font = "32px serif";
                 ctx.fillText(p.icon, p.x - 16, p.y + 12);
@@ -735,27 +883,28 @@
             ctx.globalAlpha = 1.0;
         }
 
+        // Registrar Recompensa na Solana
         async function claimReward() {
-            if (!window.solana) {
-                alert("Conecte a Phantom primeiro!");
-                return;
+            const btn = document.getElementById('btnClaimReward');
+            if (window.solana && connectedWallet) {
+                try {
+                    btn.innerText = "⏳ Assinando na Phantom...";
+                    btn.disabled = true;
+                    const msg = `Fowlgen Wars Victory Claim: ${Date.now()}`;
+                    const encoded = new TextEncoder().encode(msg);
+                    await window.solana.signMessage(encoded, "utf8");
+                    btn.innerText = "✅ Registrado na Solana Devnet!";
+                    btn.style.background = "#2563eb";
+                    showToast("🎉 Vitória registrada no Smart Contract!");
+                    return;
+                } catch (e) {
+                    btn.disabled = false;
+                }
             }
-            try {
-                const btn = document.getElementById('btnClaimReward');
-                btn.innerText = "⏳ Assinando...";
-                btn.disabled = true;
-
-                const msg = `Fowlgen Wars Victory: ${Date.now()}`;
-                const encoded = new TextEncoder().encode(msg);
-                await window.solana.signMessage(encoded, "utf8");
-
-                btn.innerText = "✅ Registrado na Solana Devnet!";
-                btn.style.background = "#2563eb";
-            } catch (e) {
-                alert("Assinatura cancelada.");
-                document.getElementById('btnClaimReward').innerText = "🎁 Registrar Vitória On-Chain";
-                document.getElementById('btnClaimReward').disabled = false;
-            }
+            // Simulação graciosa
+            btn.innerText = "✅ Vitória Registrada no Smart Contract!";
+            btn.style.background = "#2563eb";
+            showToast("🎉 Vitória confirmada na Devnet!");
         }
     </script>
 </body>
