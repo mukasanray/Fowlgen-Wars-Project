@@ -1,0 +1,5 @@
+=== PONTES E ESTRUTURAS EM Arena_Clean ===
+Bridges at (0.00, 0.00, 0.00)
+Bridge_Center at (-0.15, 9.67, 0.10)
+Bridge_Left at (-9.45, 9.69, 0.56)
+Bridge_Right at (9.39, 9.67, -0.52)

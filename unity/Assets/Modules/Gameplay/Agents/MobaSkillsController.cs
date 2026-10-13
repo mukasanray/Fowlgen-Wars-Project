@@ -279,6 +279,7 @@ namespace FowlgenWars.Gameplay
                     targetsHit++;
                 }
             }
+            MobaCameraController.Instance?.Shake(0.40f, 0.50f);
             Debug.Log($"[Skill R - ULTIMATE] Fúria Aviária detonada! {targetsHit} inimigos atingidos com {skillRDamage} de dano!");
         }
 

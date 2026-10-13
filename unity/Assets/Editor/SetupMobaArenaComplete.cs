@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
@@ -6,27 +7,94 @@ using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 using FowlgenWars.Gameplay;
+using FowlgenWars.Architecture.Views;
+using FowlgenWars.Cinematic;
 
 namespace FowlgenWars.EditorScripts
 {
     public static class SetupMobaArenaComplete
     {
-        [MenuItem("Fowlgen Wars/Configurar MOBA Arena (Milo, Axel, Joystick e Poderes)")]
+        private const string ScenePath = "Assets/Scenes/Game/Arena_Clean.unity";
+        private const string MinionPlayerPrefabPath = "Assets/Prefabs/Minion_Caipira_Player.prefab";
+        private const string MinionEnemyPrefabPath = "Assets/Prefabs/Minion_Rodilan_Enemy.prefab";
+        private const string ResourcesArchPath = "Assets/Resources/Architecture";
+
+        [InitializeOnLoadMethod]
+        public static void AutoRunOnEditorLoad()
+        {
+            EditorApplication.delayCall += () =>
+            {
+                if (EditorApplication.isPlaying)
+                {
+                    Debug.Log("[Setup MOBA] Saindo do Play Mode para consolidar configuração da Arena...");
+                    EditorApplication.isPlaying = false;
+                    return;
+                }
+                Run();
+            };
+        }
+
+        [MenuItem("Fowlgen Wars/Configurar MOBA Arena Completa (Todas Etapas)")]
         public static void Run()
         {
+            Debug.Log("[Setup MOBA] 1. Abrindo cena Arena_Clean...");
             Scene scene = SceneManager.GetActiveScene();
             if (scene.name != "Arena_Clean")
             {
-                scene = EditorSceneManager.OpenScene("Assets/Scenes/Game/Arena_Clean.unity", OpenSceneMode.Single);
+                scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            }
+            SceneManager.SetActiveScene(scene);
+
+            Debug.Log("[Setup MOBA] 2. Carregando ScriptableObjects do MVP...");
+            MatchConfigSO matchConfig = AssetDatabase.LoadAssetAtPath<MatchConfigSO>($"{ResourcesArchPath}/MatchConfig.asset");
+            MatchRuntimeStateSO runtimeState = AssetDatabase.LoadAssetAtPath<MatchRuntimeStateSO>($"{ResourcesArchPath}/MatchRuntimeState.asset");
+            MinionDataSO minionData = AssetDatabase.LoadAssetAtPath<MinionDataSO>($"{ResourcesArchPath}/MinionData_Default.asset");
+
+            // Excluir Minion_Frango genérico antigo conforme solicitado
+            if (AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Minion_Frango.prefab") != null)
+            {
+                AssetDatabase.DeleteAsset("Assets/Prefabs/Minion_Frango.prefab");
+                Debug.Log("[Setup MOBA] Minion_Frango genérico removido com sucesso!");
             }
 
-            Debug.Log("[Setup MOBA] Iniciando configuração completa da Arena...");
+            Debug.Log("[Setup MOBA] 3. Criando Prefabs dos 2 Minions (Caipira para Jogador e Rodilan para Inimigo)...");
+            GameObject caipiraPrefab = CreateOrUpdateSpecificMinionPrefab(
+                MinionPlayerPrefabPath,
+                "Minion_Caipira_Player",
+                "Assets/TripoModels/Minion-Calinha-Caipira-Atirador/Minion-Calinha-Caipira-Atirador.fbx",
+                Team.Player,
+                new Color(0.2f, 0.85f, 0.4f),
+                minionData
+            );
 
-            // 1. Configurar Milo (Herói Jogável)
-            GameObject miloObj = GameObject.Find("Milo");
+            GameObject rodilanPrefab = CreateOrUpdateSpecificMinionPrefab(
+                MinionEnemyPrefabPath,
+                "Minion_Rodilan_Enemy",
+                "Assets/TripoModels/Minion-Galinha-Rodilan-Atirador/Minion-Galinha-Rodilan-Atirador.fbx",
+                Team.Enemy,
+                new Color(0.95f, 0.25f, 0.35f),
+                minionData
+            );
+
+            if (minionData != null)
+            {
+                SerializedObject soData = new SerializedObject(minionData);
+                soData.FindProperty("prefab").objectReferenceValue = caipiraPrefab;
+                soData.ApplyModifiedProperties();
+                EditorUtility.SetDirty(minionData);
+            }
+
+            Debug.Log("[Setup MOBA] 4. Localizando Milo na cena...");
+            GameObject miloObj = null;
+            foreach (var root in scene.GetRootGameObjects())
+            {
+                if (root.name == "Milo") { miloObj = root; break; }
+            }
+            if (miloObj == null) miloObj = GameObject.Find("Milo");
+
             if (miloObj == null)
             {
-                Debug.LogError("[Setup MOBA] GameObject Milo não encontrado na cena!");
+                Debug.LogError("[Setup MOBA] ERRO: GameObject Milo não encontrado na cena!");
                 return;
             }
 
@@ -57,7 +125,7 @@ namespace FowlgenWars.EditorScripts
             MobaSkillsController miloSkills = miloObj.GetComponent<MobaSkillsController>();
             if (miloSkills == null) miloSkills = miloObj.AddComponent<MobaSkillsController>();
 
-            // 2. Configurar Axel (Bot Inimigo)
+            // 3. Configurar Axel (Bot Inimigo - Preservado)
             GameObject axelObj = GameObject.Find("Axel");
             if (axelObj != null)
             {
@@ -80,7 +148,7 @@ namespace FowlgenWars.EditorScripts
                 soAxelHero.ApplyModifiedProperties();
             }
 
-            // 3. Configurar Câmera MOBA Horizontal (Left-to-Right)
+            // 4. Configurar Câmera MOBA Horizontal (Left-to-Right - Preservado)
             Camera mainCam = Camera.main;
             if (mainCam != null)
             {
@@ -101,15 +169,15 @@ namespace FowlgenWars.EditorScripts
                 camCtrl.ApplyRotation();
             }
 
-            // 4. Garantir EventSystem
-            if (UnityEngine.Object.FindObjectOfType<EventSystem>() == null)
+            // 5. Garantir EventSystem
+            if (UnityEngine.Object.FindAnyObjectByType<EventSystem>() == null)
             {
                 GameObject esObj = new GameObject("EventSystem");
                 esObj.AddComponent<EventSystem>();
                 esObj.AddComponent<StandaloneInputModule>();
             }
 
-            // 5. Configurar Canvas do HUD
+            // 6. Configurar Canvas do HUD (Controles Mobile + Duelo + Timer)
             GameObject oldCanvas = GameObject.Find("Canvas_MOBA_HUD");
             if (oldCanvas != null) UnityEngine.Object.DestroyImmediate(oldCanvas);
 
@@ -125,14 +193,13 @@ namespace FowlgenWars.EditorScripts
 
             canvasObj.AddComponent<GraphicRaycaster>();
 
-            // Carregar Sprites
             Sprite circleSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Joystick Pack/Sprites/Handles/Handle_Plain.png");
             Sprite outlineSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Joystick Pack/Sprites/Handles/Handle_Outline.png");
             Sprite ringSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Joystick Pack/Sprites/All Axis Backgrounds/AllAxis_Outline.png");
             Font defaultFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (defaultFont == null) defaultFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
 
-            // 6. Lado Esquerdo: Instanciar Joystick Pack (Variable Joystick)
+            // 6.1 Lado Esquerdo: Joystick Pack (Variable Joystick)
             GameObject joystickPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Joystick Pack/Prefabs/Variable Joystick.prefab");
             VariableJoystick variableJoystick = null;
             if (joystickPrefab != null)
@@ -140,7 +207,6 @@ namespace FowlgenWars.EditorScripts
                 GameObject vjObj = (GameObject)PrefabUtility.InstantiatePrefab(joystickPrefab, canvasObj.transform);
                 vjObj.name = "Variable Joystick";
                 RectTransform vjRect = vjObj.GetComponent<RectTransform>();
-                // Área de toque cobre todo o quadrante inferior-esquerdo (0 a 50% de largura, 0 a 85% de altura)
                 vjRect.anchorMin = new Vector2(0, 0);
                 vjRect.anchorMax = new Vector2(0.5f, 0.85f);
                 vjRect.pivot = new Vector2(0, 0);
@@ -167,7 +233,7 @@ namespace FowlgenWars.EditorScripts
                 miloMove.SetJoystickMode(MobilePlayerController.JoystickMode.Floating);
             }
 
-            // Botão de Alternar Modo do Joystick (Fixed / Floating / Dynamic)
+            // 6.2 Botão Alternador de Modo do Joystick
             GameObject modeBtnObj = CreateButton(canvasObj.transform, "Btn_JoystickMode",
                 new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0),
                 new Vector2(105, 380), new Vector2(230, 48),
@@ -181,7 +247,7 @@ namespace FowlgenWars.EditorScripts
             JoystickModeSwitcher modeSwitcher = modeBtnObj.AddComponent<JoystickModeSwitcher>();
             modeSwitcher.Initialize(miloMove, modeBtn, modeText);
 
-            // 7. Lado Direito: Cluster de Poderes estilo LoL / Wild Rift
+            // 6.3 Lado Direito: Cluster de Poderes LoL / Wild Rift
             GameObject skillsCluster = new GameObject("SkillsCluster");
             skillsCluster.transform.SetParent(canvasObj.transform, false);
             RectTransform clusterRect = skillsCluster.AddComponent<RectTransform>();
@@ -191,7 +257,6 @@ namespace FowlgenWars.EditorScripts
             clusterRect.anchoredPosition = Vector2.zero;
             clusterRect.sizeDelta = new Vector2(500, 450);
 
-            // 7.1 Botão de Ataque Básico (Grande no centro-baixo: LoL Attack)
             Button btnAttack = CreateMobaSkillButton(skillsCluster.transform, "Btn_Attack",
                 new Vector2(-135, 135), 136,
                 new Color(0.18f, 0.12f, 0.12f, 0.95f),
@@ -200,7 +265,6 @@ namespace FowlgenWars.EditorScripts
                 "ATAQUE", "ESPAÇO", 18,
                 out Image fillAtk, out Text txtAtk);
 
-            // 7.2 Habilidade Q (Dash / Investida - Baixo à esquerda)
             Button btnQ = CreateMobaSkillButton(skillsCluster.transform, "Btn_SkillQ",
                 new Vector2(-305, 80), 92,
                 new Color(0.08f, 0.16f, 0.28f, 0.95f),
@@ -209,7 +273,6 @@ namespace FowlgenWars.EditorScripts
                 "DASH", "Q", 15,
                 out Image fillQ, out Text txtQ);
 
-            // 7.3 Habilidade W (Escudo / Baluarte - Arco médio-esquerdo)
             Button btnW = CreateMobaSkillButton(skillsCluster.transform, "Btn_SkillW",
                 new Vector2(-295, 195), 92,
                 new Color(0.08f, 0.24f, 0.18f, 0.95f),
@@ -218,7 +281,6 @@ namespace FowlgenWars.EditorScripts
                 "ESCUDO", "W", 15,
                 out Image fillW, out Text txtW);
 
-            // 7.4 Habilidade E (Skillshot / Disparo - Arco superior-meio)
             Button btnE = CreateMobaSkillButton(skillsCluster.transform, "Btn_SkillE",
                 new Vector2(-210, 285), 92,
                 new Color(0.28f, 0.16f, 0.08f, 0.95f),
@@ -227,7 +289,6 @@ namespace FowlgenWars.EditorScripts
                 "TIRO", "E", 15,
                 out Image fillE, out Text txtE);
 
-            // 7.5 Habilidade R (Ultimate - Topo do cluster: Maior e Dourado)
             Button btnR = CreateMobaSkillButton(skillsCluster.transform, "Btn_SkillR",
                 new Vector2(-95, 320), 106,
                 new Color(0.25f, 0.10f, 0.30f, 0.95f),
@@ -236,10 +297,8 @@ namespace FowlgenWars.EditorScripts
                 "ULTIMATE", "R", 16,
                 out Image fillR, out Text txtR);
 
-            // Conectar UI ao MobaSkillsController
             miloSkills.BindUI(btnAttack, btnQ, fillQ, txtQ, btnW, fillW, txtW, btnE, fillE, txtE, btnR, fillR, txtR);
 
-            // Salvar serialized fields de UI no miloSkills
             SerializedObject soSkills = new SerializedObject(miloSkills);
             soSkills.FindProperty("attackButton").objectReferenceValue = btnAttack;
             soSkills.FindProperty("skillQButton").objectReferenceValue = btnQ;
@@ -256,20 +315,537 @@ namespace FowlgenWars.EditorScripts
             soSkills.FindProperty("rCooldownText").objectReferenceValue = txtR;
             soSkills.ApplyModifiedProperties();
 
-            // 8. Barras de Vida no Topo (HUD de Duelo)
-            CreateTopHealthHUD(canvasObj.transform, defaultFont, miloHero, axelObj != null ? axelObj.GetComponent<HeroAgent>() : null);
+            // 6.4 Painel Superior: Barras de Vida dos Campeões + Cronômetro de 3 Minutos + Status das Bases
+            CreateTopHUDComplete(canvasObj.transform, defaultFont, miloHero, axelObj != null ? axelObj.GetComponent<HeroAgent>() : null, runtimeState);
 
-            // 9. Marcar cena como dirty e salvar
+            // 6.5 Feedback de Combate, Menu de Pausa e Contagem de Início (EAP 28, 32, 37)
+            SetupHUDFeedbackAndControls(canvasObj.transform, defaultFont, outlineSprite);
+
+            // 7. Configurar Estruturas de Base (Galinheiro Aliado e Inimigo)
+            GameObject baseAmarelaObj = GameObject.Find("Base-Amarela");
+            GameObject baseRoxaObj = GameObject.Find("Base-Roxa-Inimiga");
+
+            SetupBaseGalinheiro(baseAmarelaObj, Team.Player, runtimeState);
+            SetupBaseGalinheiro(baseRoxaObj, Team.Enemy, runtimeState);
+
+            // 8. Configurar Rotas (Waypoints das 3 Pontes: Top, Mid, Bot)
+            // Bridge_Right (X = 9.39) -> Top Lane
+            Vector3[] topPoints = new Vector3[]
+            {
+                new Vector3(4.0f, 10.5f, 17.5f),
+                new Vector3(9.39f, 10.5f, 9.5f),
+                new Vector3(9.39f, 9.68f, 0.0f),
+                new Vector3(9.39f, 10.5f, -9.5f),
+                new Vector3(4.0f, 10.5f, -17.5f)
+            };
+            WaypointPath pathTop = SetupPath("Path_Top", LaneType.Top, Color.cyan, topPoints);
+
+            // Bridge_Center (X = -0.15) -> Mid Lane
+            Vector3[] midPoints = new Vector3[]
+            {
+                new Vector3(0.15f, 10.5f, 17.5f),
+                new Vector3(-0.15f, 10.5f, 8.0f),
+                new Vector3(-0.15f, 9.68f, 0.0f),
+                new Vector3(-0.15f, 10.5f, -8.0f),
+                new Vector3(-0.15f, 10.5f, -17.5f)
+            };
+            WaypointPath pathMid = SetupPath("Path_Mid", LaneType.Mid, Color.yellow, midPoints);
+
+            // Bridge_Left (X = -9.45) -> Bot Lane
+            Vector3[] botPoints = new Vector3[]
+            {
+                new Vector3(-4.0f, 10.5f, 17.5f),
+                new Vector3(-9.45f, 10.5f, 9.5f),
+                new Vector3(-9.45f, 9.68f, 0.0f),
+                new Vector3(-9.45f, 10.5f, -9.5f),
+                new Vector3(-4.0f, 10.5f, -17.5f)
+            };
+            WaypointPath pathBot = SetupPath("Path_Bot", LaneType.Bot, Color.magenta, botPoints);
+
+            // 9. Configurar Pontos de Spawn
+            GameObject playerSpawn = GameObject.Find("SpawnPoint_Player");
+            if (playerSpawn == null) playerSpawn = new GameObject("SpawnPoint_Player");
+            playerSpawn.transform.position = new Vector3(0.32f, 10.5f, 17.5f);
+
+            GameObject enemySpawn = GameObject.Find("SpawnPoint_Enemy");
+            if (enemySpawn == null) enemySpawn = new GameObject("SpawnPoint_Enemy");
+            enemySpawn.transform.position = new Vector3(-0.10f, 10.5f, -17.5f);
+
+            // 10. Configurar GameMatchManager (Loop de 3 Minutos e Ondas nas 3 Rotas)
+            GameObject gmObj = GameObject.Find("GameMatchManager");
+            if (gmObj == null) gmObj = new GameObject("GameMatchManager");
+
+            GameMatchManager gmm = gmObj.GetComponent<GameMatchManager>();
+            if (gmm == null) gmm = gmObj.AddComponent<GameMatchManager>();
+
+            SerializedObject soGmm = new SerializedObject(gmm);
+            soGmm.FindProperty("matchConfig").objectReferenceValue = matchConfig;
+            soGmm.FindProperty("runtimeState").objectReferenceValue = runtimeState;
+            soGmm.FindProperty("playerMinionPrefab").objectReferenceValue = caipiraPrefab;
+            soGmm.FindProperty("enemyMinionPrefab").objectReferenceValue = rodilanPrefab;
+            if (baseAmarelaObj != null)
+                soGmm.FindProperty("playerGalinheiro").objectReferenceValue = baseAmarelaObj.GetComponent<StructureGalinheiro>();
+            if (baseRoxaObj != null)
+                soGmm.FindProperty("enemyGalinheiro").objectReferenceValue = baseRoxaObj.GetComponent<StructureGalinheiro>();
+            soGmm.FindProperty("topPath").objectReferenceValue = pathTop;
+            soGmm.FindProperty("midPath").objectReferenceValue = pathMid;
+            soGmm.FindProperty("botPath").objectReferenceValue = pathBot;
+            soGmm.FindProperty("playerSpawnPoint").objectReferenceValue = playerSpawn.transform;
+            soGmm.FindProperty("enemySpawnPoint").objectReferenceValue = enemySpawn.transform;
+            soGmm.ApplyModifiedProperties();
+
+            // 11. Configurar ArenaCinematicDirector (Para Pitch Video / Trailer)
+            GameObject directorObj = GameObject.Find("ArenaCinematicDirector");
+            if (directorObj == null)
+            {
+                directorObj = new GameObject("ArenaCinematicDirector");
+                ArenaCinematicDirector director = directorObj.AddComponent<ArenaCinematicDirector>();
+                if (mainCam != null)
+                {
+                    SerializedObject soDir = new SerializedObject(director);
+                    soDir.FindProperty("_targetCamera").objectReferenceValue = mainCam;
+                    soDir.ApplyModifiedProperties();
+                }
+                director.BuildDefaultArenaShots();
+            }
+
+            // 12. Fase 8: Gerar e Vincular Animator Controllers para Milo, Axel e Minions
+            CreateMobaAnimatorControllers.GenerateAllControllers();
+
+            // 13. Garantir BuildSettings com Arena_Clean
+            EnsureSceneInBuildSettings(ScenePath);
+
+            // 14. Fase 9: Travar PlayerSettings em Landscape (Mobile)
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
+            PlayerSettings.allowedAutorotateToPortrait = false;
+            PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
+            PlayerSettings.allowedAutorotateToLandscapeLeft = true;
+            PlayerSettings.allowedAutorotateToLandscapeRight = true;
+
+            // 13. Marcar Cena e Salvar
             EditorUtility.SetDirty(miloObj);
             if (axelObj != null) EditorUtility.SetDirty(axelObj);
+            if (baseAmarelaObj != null) EditorUtility.SetDirty(baseAmarelaObj);
+            if (baseRoxaObj != null) EditorUtility.SetDirty(baseRoxaObj);
             EditorUtility.SetDirty(canvasObj);
+            EditorUtility.SetDirty(gmObj);
+
             if (!EditorApplication.isPlaying)
             {
                 EditorSceneManager.MarkSceneDirty(scene);
-                EditorSceneManager.SaveScene(scene);
+                bool saved = EditorSceneManager.SaveScene(scene, ScenePath);
+                AssetDatabase.SaveAssets();
+                Debug.Log($"[Setup MOBA] 14. Cena salva com sucesso no disco ({ScenePath}): {saved}!");
+            }
+            else
+            {
+                Debug.LogWarning("[Setup MOBA] AVISO: Não salvou porque está em Play Mode!");
             }
 
-            Debug.Log("[Setup MOBA] Sucesso! Milo, Axel, Joystick Pack com modos e Botões de Habilidades LoL configurados com sucesso!");
+            Debug.Log("[Setup MOBA Completo] Sucesso absoluto! Milo, Axel, Joystick Pack, Poderes LoL, Minions 3D, Bases, 3 Rotas, GameMatchManager e Cinemática perfeitamente integrados em Arena_Clean!");
+        }
+
+        private static GameObject CreateOrUpdateSpecificMinionPrefab(
+            string prefabPath,
+            string prefabName,
+            string fbxPath,
+            Team team,
+            Color healthColor,
+            MinionDataSO defaultData)
+        {
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (existing != null) return existing;
+
+            GameObject root = new GameObject(prefabName);
+            CapsuleCollider col = root.AddComponent<CapsuleCollider>();
+            col.center = new Vector3(0, 0.6f, 0);
+            col.radius = 0.45f;
+            col.height = 1.2f;
+
+            Rigidbody rb = root.AddComponent<Rigidbody>();
+            rb.isKinematic = true;
+
+            MinionAgent agent = root.AddComponent<MinionAgent>();
+
+            // Instanciar Modelo 3D FBX
+            GameObject fbx = AssetDatabase.LoadAssetAtPath<GameObject>(fbxPath);
+            GameObject modelObj = null;
+            if (fbx != null)
+            {
+                modelObj = (GameObject)PrefabUtility.InstantiatePrefab(fbx, root.transform);
+                modelObj.name = team == Team.Player ? "Model_Caipira" : "Model_Rodilan";
+                modelObj.transform.localPosition = Vector3.zero;
+                modelObj.transform.localRotation = Quaternion.Euler(0, 180, 0);
+                modelObj.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+            }
+
+            // HealthBar World Space
+            GameObject canvasGo = new GameObject("HealthBar_Canvas");
+            canvasGo.transform.SetParent(root.transform, false);
+            canvasGo.transform.localPosition = new Vector3(0, 1.4f, 0);
+            Canvas canvas = canvasGo.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            RectTransform rect = canvasGo.GetComponent<RectTransform>();
+            rect.sizeDelta = new Vector2(1.2f, 0.2f);
+
+            GameObject bgGo = new GameObject("BG");
+            bgGo.transform.SetParent(canvasGo.transform, false);
+            Image bgImg = bgGo.AddComponent<Image>();
+            bgImg.color = new Color(0.1f, 0.1f, 0.1f, 0.85f);
+            RectTransform bgRect = bgGo.GetComponent<RectTransform>();
+            bgRect.anchorMin = Vector2.zero;
+            bgRect.anchorMax = Vector2.one;
+            bgRect.sizeDelta = Vector2.zero;
+
+            GameObject fillGo = new GameObject("Fill");
+            fillGo.transform.SetParent(canvasGo.transform, false);
+            Image fillImg = fillGo.AddComponent<Image>();
+            fillImg.color = healthColor;
+            fillImg.type = Image.Type.Filled;
+            fillImg.fillMethod = Image.FillMethod.Horizontal;
+            RectTransform fillRect = fillGo.GetComponent<RectTransform>();
+            fillRect.anchorMin = Vector2.zero;
+            fillRect.anchorMax = Vector2.one;
+            fillRect.sizeDelta = Vector2.zero;
+
+            WorldHealthBarView healthBarView = canvasGo.AddComponent<WorldHealthBarView>();
+            SerializedObject soBar = new SerializedObject(healthBarView);
+            soBar.FindProperty("fillImage").objectReferenceValue = fillImg;
+            soBar.FindProperty("canvas").objectReferenceValue = canvas;
+            soBar.ApplyModifiedProperties();
+
+            SerializedObject soAgent = new SerializedObject(agent);
+            soAgent.FindProperty("data").objectReferenceValue = defaultData;
+            soAgent.FindProperty("team").enumValueIndex = (int)team;
+            soAgent.FindProperty("healthBar").objectReferenceValue = healthBarView;
+            if (team == Team.Player)
+                soAgent.FindProperty("playerModel").objectReferenceValue = modelObj;
+            else
+                soAgent.FindProperty("enemyModel").objectReferenceValue = modelObj;
+            soAgent.ApplyModifiedProperties();
+
+            GameObject savedPrefab = PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+            UnityEngine.Object.DestroyImmediate(root);
+
+            return savedPrefab;
+        }
+
+
+        private static void SetupBaseGalinheiro(GameObject baseObj, Team team, MatchRuntimeStateSO runtimeState)
+        {
+            if (baseObj == null) return;
+
+            BoxCollider col = baseObj.GetComponent<BoxCollider>();
+            if (col == null) col = baseObj.AddComponent<BoxCollider>();
+            col.center = new Vector3(0, 2.5f, 0);
+            col.size = new Vector3(7.5f, 5.0f, 7.5f);
+
+            StructureGalinheiro galinheiro = baseObj.GetComponent<StructureGalinheiro>();
+            if (galinheiro == null) galinheiro = baseObj.AddComponent<StructureGalinheiro>();
+
+            Transform existingBar = baseObj.transform.Find("Base_HealthBar");
+            GameObject barGo;
+            if (existingBar != null)
+            {
+                barGo = existingBar.gameObject;
+            }
+            else
+            {
+                barGo = new GameObject("Base_HealthBar");
+                barGo.transform.SetParent(baseObj.transform, false);
+                barGo.transform.localPosition = new Vector3(0, 6.0f, 0);
+
+                Canvas c = barGo.AddComponent<Canvas>();
+                c.renderMode = RenderMode.WorldSpace;
+                RectTransform rt = barGo.GetComponent<RectTransform>();
+                rt.sizeDelta = new Vector2(4.0f, 0.5f);
+
+                GameObject bg = new GameObject("BG");
+                bg.transform.SetParent(barGo.transform, false);
+                Image bgImg = bg.AddComponent<Image>();
+                bgImg.color = new Color(0.1f, 0.1f, 0.1f, 0.85f);
+                RectTransform bgRt = bg.GetComponent<RectTransform>();
+                bgRt.anchorMin = Vector2.zero;
+                bgRt.anchorMax = Vector2.one;
+                bgRt.sizeDelta = Vector2.zero;
+
+                GameObject fill = new GameObject("Fill");
+                fill.transform.SetParent(barGo.transform, false);
+                Image fillImg = fill.AddComponent<Image>();
+                fillImg.color = team == Team.Player ? new Color(0.2f, 0.8f, 0.4f) : new Color(0.9f, 0.2f, 0.3f);
+                fillImg.type = Image.Type.Filled;
+                fillImg.fillMethod = Image.FillMethod.Horizontal;
+                RectTransform fillRt = fill.GetComponent<RectTransform>();
+                fillRt.anchorMin = Vector2.zero;
+                fillRt.anchorMax = Vector2.one;
+                fillRt.sizeDelta = Vector2.zero;
+
+                WorldHealthBarView barView = barGo.AddComponent<WorldHealthBarView>();
+                SerializedObject soBar = new SerializedObject(barView);
+                soBar.FindProperty("fillImage").objectReferenceValue = fillImg;
+                soBar.FindProperty("canvas").objectReferenceValue = c;
+                soBar.ApplyModifiedProperties();
+            }
+
+            WorldHealthBarView healthBar = barGo.GetComponent<WorldHealthBarView>();
+
+            SerializedObject soGal = new SerializedObject(galinheiro);
+            soGal.FindProperty("team").enumValueIndex = (int)team;
+            soGal.FindProperty("maxHealth").intValue = 1000;
+            soGal.FindProperty("runtimeState").objectReferenceValue = runtimeState;
+            soGal.FindProperty("healthBar").objectReferenceValue = healthBar;
+            soGal.ApplyModifiedProperties();
+
+            EditorUtility.SetDirty(baseObj);
+        }
+
+        private static WaypointPath SetupPath(string name, LaneType lane, Color color, Vector3[] points)
+        {
+            GameObject pathObj = GameObject.Find(name);
+            if (pathObj == null) pathObj = new GameObject(name);
+
+            WaypointPath wpPath = pathObj.GetComponent<WaypointPath>();
+            if (wpPath == null) wpPath = pathObj.AddComponent<WaypointPath>();
+
+            List<Transform> list = new List<Transform>();
+            for (int i = 0; i < points.Length; i++)
+            {
+                string wpName = $"WP_{i}";
+                Transform t = pathObj.transform.Find(wpName);
+                if (t == null)
+                {
+                    GameObject wpGo = new GameObject(wpName);
+                    wpGo.transform.SetParent(pathObj.transform, false);
+                    t = wpGo.transform;
+                }
+                t.position = points[i];
+                list.Add(t);
+            }
+
+            SerializedObject so = new SerializedObject(wpPath);
+            so.FindProperty("lane").enumValueIndex = (int)lane;
+            so.FindProperty("gizmoColor").colorValue = color;
+
+            SerializedProperty waypointsProp = so.FindProperty("waypoints");
+            waypointsProp.ClearArray();
+            for (int i = 0; i < list.Count; i++)
+            {
+                waypointsProp.InsertArrayElementAtIndex(i);
+                waypointsProp.GetArrayElementAtIndex(i).objectReferenceValue = list[i];
+            }
+            so.ApplyModifiedProperties();
+
+            EditorUtility.SetDirty(pathObj);
+            return wpPath;
+        }
+
+        private static void CreateTopHUDComplete(Transform parent, Font font, HeroAgent playerHero, HeroAgent enemyHero, MatchRuntimeStateSO runtimeState)
+        {
+            GameObject hudPanel = new GameObject("TopHealthHUD");
+            hudPanel.transform.SetParent(parent, false);
+            RectTransform pRect = hudPanel.AddComponent<RectTransform>();
+            pRect.anchorMin = new Vector2(0, 1);
+            pRect.anchorMax = new Vector2(1, 1);
+            pRect.pivot = new Vector2(0.5f, 1);
+            pRect.anchoredPosition = new Vector2(0, -15);
+            pRect.sizeDelta = new Vector2(-60, 64);
+
+            // Barra Milo (Player - Esquerda)
+            GameObject playerBar = CreateBar(hudPanel.transform, "PlayerHealthBar",
+                new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(0, 0.5f),
+                new Vector2(20, 0), new Vector2(360, 28),
+                new Color(0.12f, 0.15f, 0.20f, 0.9f),
+                new Color(0.15f, 0.75f, 0.40f, 1f),
+                out Image pFill, out Text pText, font, "MILO (VOCÊ)");
+
+            // Barra Axel (Enemy - Direita)
+            GameObject enemyBar = CreateBar(hudPanel.transform, "EnemyHealthBar",
+                new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
+                new Vector2(-20, 0), new Vector2(360, 28),
+                new Color(0.12f, 0.15f, 0.20f, 0.9f),
+                new Color(0.90f, 0.25f, 0.25f, 1f),
+                out Image eFill, out Text eText, font, "AXEL (BOT INIMIGO)");
+
+            // Banner Central: Cronômetro de 3 Minutos + Status das Bases
+            GameObject centerBanner = new GameObject("CenterMatchBanner");
+            centerBanner.transform.SetParent(hudPanel.transform, false);
+            RectTransform cbRect = centerBanner.AddComponent<RectTransform>();
+            cbRect.anchorMin = new Vector2(0.5f, 0.5f);
+            cbRect.anchorMax = new Vector2(0.5f, 0.5f);
+            cbRect.pivot = new Vector2(0.5f, 0.5f);
+            cbRect.anchoredPosition = Vector2.zero;
+            cbRect.sizeDelta = new Vector2(520, 56);
+
+            Image cbBg = centerBanner.AddComponent<Image>();
+            cbBg.color = new Color(0.06f, 0.08f, 0.12f, 0.92f);
+
+            // Texto do Timer (Grande no centro)
+            GameObject timerTxtObj = new GameObject("Txt_Timer");
+            timerTxtObj.transform.SetParent(centerBanner.transform, false);
+            RectTransform tRect = timerTxtObj.AddComponent<RectTransform>();
+            tRect.anchorMin = new Vector2(0.5f, 0.5f);
+            tRect.anchorMax = new Vector2(0.5f, 0.5f);
+            tRect.pivot = new Vector2(0.5f, 0.5f);
+            tRect.anchoredPosition = new Vector2(0, 10);
+            tRect.sizeDelta = new Vector2(200, 28);
+            Text timerTxt = timerTxtObj.AddComponent<Text>();
+            timerTxt.font = font;
+            timerTxt.fontSize = 24;
+            timerTxt.fontStyle = FontStyle.Bold;
+            timerTxt.color = new Color(1.0f, 0.85f, 0.25f, 1.0f); // Dourado
+            timerTxt.alignment = TextAnchor.MiddleCenter;
+            timerTxt.text = "03:00";
+
+            // Texto do Status das Bases
+            GameObject baseTxtObj = new GameObject("Txt_BaseStatus");
+            baseTxtObj.transform.SetParent(centerBanner.transform, false);
+            RectTransform bRect = baseTxtObj.AddComponent<RectTransform>();
+            bRect.anchorMin = new Vector2(0.5f, 0.5f);
+            bRect.anchorMax = new Vector2(0.5f, 0.5f);
+            bRect.pivot = new Vector2(0.5f, 0.5f);
+            bRect.anchoredPosition = new Vector2(0, -12);
+            bRect.sizeDelta = new Vector2(480, 20);
+            Text baseTxt = baseTxtObj.AddComponent<Text>();
+            baseTxt.font = font;
+            baseTxt.fontSize = 12;
+            baseTxt.fontStyle = FontStyle.Bold;
+            baseTxt.color = new Color(0.85f, 0.90f, 1.0f, 1.0f);
+            baseTxt.alignment = TextAnchor.MiddleCenter;
+            baseTxt.text = "<color=#4CD3A8>Base Aliada: 1000</color>  |  <color=#FF5555>Base Inimiga: 1000</color>";
+
+            // Conectar controladores
+            MobaHUDHealthView healthView = hudPanel.AddComponent<MobaHUDHealthView>();
+            healthView.Initialize(playerHero, enemyHero, pFill, pText, eFill, eText);
+
+            MatchHUDTimerTracker timerTracker = centerBanner.AddComponent<MatchHUDTimerTracker>();
+            timerTracker.Initialize(runtimeState, timerTxt, baseTxt);
+        }
+
+        private static void SetupHUDFeedbackAndControls(Transform canvas, Font font, Sprite outlineSprite)
+        {
+            // 1. Botão de Pausa (Superior Esquerdo)
+            GameObject pauseBtnObj = CreateButton(canvas, "Btn_Pause",
+                new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1),
+                new Vector2(40, -40), new Vector2(56, 56),
+                new Color(0.10f, 0.14f, 0.22f, 0.90f), outlineSprite, new Color(0.3f, 0.6f, 1f, 1f));
+            Text pauseBtnTxt = CreateText(pauseBtnObj.transform, "Txt_Icon", "⏸", 24, FontStyle.Bold, Color.white, font);
+            pauseBtnTxt.alignment = TextAnchor.MiddleCenter;
+            StretchFull(pauseBtnTxt.rectTransform);
+
+            // 2. Painel Modal de Pausa
+            GameObject pauseModal = new GameObject("PauseModalPanel");
+            pauseModal.transform.SetParent(canvas, false);
+            RectTransform pmRect = pauseModal.AddComponent<RectTransform>();
+            StretchFull(pmRect);
+            Image pmBg = pauseModal.AddComponent<Image>();
+            pmBg.color = new Color(0.04f, 0.06f, 0.10f, 0.88f);
+
+            GameObject box = new GameObject("DialogBox");
+            box.transform.SetParent(pauseModal.transform, false);
+            RectTransform bRect = box.AddComponent<RectTransform>();
+            bRect.anchorMin = new Vector2(0.5f, 0.5f);
+            bRect.anchorMax = new Vector2(0.5f, 0.5f);
+            bRect.pivot = new Vector2(0.5f, 0.5f);
+            bRect.sizeDelta = new Vector2(420, 320);
+            Image bImg = box.AddComponent<Image>();
+            bImg.color = new Color(0.08f, 0.12f, 0.18f, 0.98f);
+
+            Text title = CreateText(box.transform, "Title", "JOGO PAUSADO", 26, FontStyle.Bold, new Color(1f, 0.85f, 0.3f, 1f), font);
+            title.alignment = TextAnchor.MiddleCenter;
+            RectTransform tRect = title.rectTransform;
+            tRect.anchorMin = new Vector2(0, 1);
+            tRect.anchorMax = new Vector2(1, 1);
+            tRect.pivot = new Vector2(0.5f, 1);
+            tRect.anchoredPosition = new Vector2(0, -25);
+            tRect.sizeDelta = new Vector2(0, 40);
+
+            // Botão Continuar
+            GameObject btnResumeObj = CreateButton(box.transform, "Btn_Resume",
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(0, 35), new Vector2(300, 48),
+                new Color(0.12f, 0.45f, 0.28f, 1f), outlineSprite, Color.green);
+            Text resTxt = CreateText(btnResumeObj.transform, "Text", "CONTINUAR", 18, FontStyle.Bold, Color.white, font);
+            resTxt.alignment = TextAnchor.MiddleCenter;
+            StretchFull(resTxt.rectTransform);
+
+            // Botão Reiniciar
+            GameObject btnRestartObj = CreateButton(box.transform, "Btn_Restart",
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(0, -25), new Vector2(300, 48),
+                new Color(0.20f, 0.30f, 0.55f, 1f), outlineSprite, Color.cyan);
+            Text restTxt = CreateText(btnRestartObj.transform, "Text", "REINICIAR", 18, FontStyle.Bold, Color.white, font);
+            restTxt.alignment = TextAnchor.MiddleCenter;
+            StretchFull(restTxt.rectTransform);
+
+            // Botão Sair
+            GameObject btnQuitObj = CreateButton(box.transform, "Btn_Quit",
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(0, -85), new Vector2(300, 48),
+                new Color(0.55f, 0.18f, 0.18f, 1f), outlineSprite, Color.red);
+            Text qTxt = CreateText(btnQuitObj.transform, "Text", "SAIR DA PARTIDA", 18, FontStyle.Bold, Color.white, font);
+            qTxt.alignment = TextAnchor.MiddleCenter;
+            StretchFull(qTxt.rectTransform);
+
+            var pauseCtrl = pauseModal.AddComponent<Gameplay.UI.MatchPauseMenuController>();
+            var soPause = new SerializedObject(pauseCtrl);
+            soPause.FindProperty("pausePanel").objectReferenceValue = pauseModal;
+            soPause.FindProperty("btnPauseToggle").objectReferenceValue = pauseBtnObj.GetComponent<Button>();
+            soPause.FindProperty("btnResume").objectReferenceValue = btnResumeObj.GetComponent<Button>();
+            soPause.FindProperty("btnRestart").objectReferenceValue = btnRestartObj.GetComponent<Button>();
+            soPause.FindProperty("btnQuit").objectReferenceValue = btnQuitObj.GetComponent<Button>();
+            soPause.ApplyModifiedProperties();
+            pauseModal.SetActive(false);
+
+            // 3. Overlay de Contagem Regressiva (Intro 3, 2, 1, LUTA!)
+            GameObject introOverlay = new GameObject("CountdownIntroOverlay");
+            introOverlay.transform.SetParent(canvas, false);
+            RectTransform ioRect = introOverlay.AddComponent<RectTransform>();
+            StretchFull(ioRect);
+            Image ioBg = introOverlay.AddComponent<Image>();
+            ioBg.color = new Color(0f, 0f, 0f, 0.40f);
+
+            GameObject countTxtObj = new GameObject("Txt_Countdown");
+            countTxtObj.transform.SetParent(introOverlay.transform, false);
+            RectTransform ctRect = countTxtObj.AddComponent<RectTransform>();
+            ctRect.anchorMin = new Vector2(0.5f, 0.5f);
+            ctRect.anchorMax = new Vector2(0.5f, 0.5f);
+            ctRect.pivot = new Vector2(0.5f, 0.5f);
+            ctRect.sizeDelta = new Vector2(600, 150);
+            Text countTxt = countTxtObj.AddComponent<Text>();
+            countTxt.font = font;
+            countTxt.fontSize = 90;
+            countTxt.fontStyle = FontStyle.Bold;
+            countTxt.alignment = TextAnchor.MiddleCenter;
+            countTxt.color = new Color(1f, 0.85f, 0.2f, 1f);
+            countTxt.text = "3";
+
+            var outline = countTxtObj.AddComponent<Outline>();
+            outline.effectColor = Color.black;
+            outline.effectDistance = new Vector2(3, -3);
+
+            var introCtrl = introOverlay.AddComponent<Gameplay.UI.MatchCountdownIntro>();
+            var soIntro = new SerializedObject(introCtrl);
+            soIntro.FindProperty("overlayPanel").objectReferenceValue = introOverlay;
+            soIntro.FindProperty("countdownText").objectReferenceValue = countTxt;
+            soIntro.ApplyModifiedProperties();
+
+            // 4. FloatingCombatTextManager
+            if (GameObject.Find("FloatingCombatTextManager") == null)
+            {
+                var fctGo = new GameObject("FloatingCombatTextManager");
+                fctGo.AddComponent<Gameplay.Feedback.FloatingCombatTextManager>();
+            }
+        }
+
+        private static void EnsureSceneInBuildSettings(string scenePath)
+        {
+            List<EditorBuildSettingsScene> list = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
+            foreach (var s in list)
+            {
+                if (s.path == scenePath) return;
+            }
+            list.Add(new EditorBuildSettingsScene(scenePath, true));
+            EditorBuildSettings.scenes = list.ToArray();
         }
 
         private static GameObject CreateButton(Transform parent, string name,
@@ -326,12 +902,10 @@ namespace FowlgenWars.EditorScripts
             rect.anchoredPosition = pos;
             rect.sizeDelta = new Vector2(diameter, diameter);
 
-            // Imagem de Fundo Circular
             Image bg = btnObj.AddComponent<Image>();
             bg.sprite = circleSprite;
             bg.color = baseColor;
 
-            // Borda Anelar Estilizada
             if (ringSprite != null)
             {
                 GameObject ringObj = new GameObject("Ring");
@@ -345,7 +919,6 @@ namespace FowlgenWars.EditorScripts
                 rImg.raycastTarget = false;
             }
 
-            // Texto de Identificação / Atalho
             GameObject labelObj = new GameObject("Label");
             labelObj.transform.SetParent(btnObj.transform, false);
             RectTransform lRect = labelObj.AddComponent<RectTransform>();
@@ -359,7 +932,6 @@ namespace FowlgenWars.EditorScripts
             label.text = $"<b>{hotkey}</b>\n<size={fontSize - 3}>{labelName}</size>";
             label.raycastTarget = false;
 
-            // Overlay de Cooldown (Radial 360)
             GameObject cdObj = new GameObject("CooldownOverlay");
             cdObj.transform.SetParent(btnObj.transform, false);
             RectTransform cdRect = cdObj.AddComponent<RectTransform>();
@@ -375,7 +947,6 @@ namespace FowlgenWars.EditorScripts
             cooldownFill.raycastTarget = false;
             cdObj.SetActive(false);
 
-            // Texto do Contador de Cooldown
             GameObject cdTxtObj = new GameObject("CooldownText");
             cdTxtObj.transform.SetParent(btnObj.transform, false);
             RectTransform cdTxtRect = cdTxtObj.AddComponent<RectTransform>();
@@ -392,54 +963,6 @@ namespace FowlgenWars.EditorScripts
 
             Button btn = btnObj.AddComponent<Button>();
             return btn;
-        }
-
-        private static void CreateTopHealthHUD(Transform parent, Font font, HeroAgent playerHero, HeroAgent enemyHero)
-        {
-            GameObject hudPanel = new GameObject("TopHealthHUD");
-            hudPanel.transform.SetParent(parent, false);
-            RectTransform pRect = hudPanel.AddComponent<RectTransform>();
-            pRect.anchorMin = new Vector2(0, 1);
-            pRect.anchorMax = new Vector2(1, 1);
-            pRect.pivot = new Vector2(0.5f, 1);
-            pRect.anchoredPosition = new Vector2(0, -15);
-            pRect.sizeDelta = new Vector2(-60, 60);
-
-            // Barra Milo (Player - Esquerda)
-            GameObject playerBar = CreateBar(hudPanel.transform, "PlayerHealthBar",
-                new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(0, 0.5f),
-                new Vector2(20, 0), new Vector2(360, 28),
-                new Color(0.12f, 0.15f, 0.20f, 0.9f),
-                new Color(0.15f, 0.75f, 0.40f, 1f),
-                out Image pFill, out Text pText, font, "MILO (VOCÊ)");
-
-            // Barra Axel (Enemy - Direita)
-            GameObject enemyBar = CreateBar(hudPanel.transform, "EnemyHealthBar",
-                new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
-                new Vector2(-20, 0), new Vector2(360, 28),
-                new Color(0.12f, 0.15f, 0.20f, 0.9f),
-                new Color(0.90f, 0.25f, 0.25f, 1f),
-                out Image eFill, out Text eText, font, "AXEL (BOT INIMIGO)");
-
-            // Banner Central de Instruções
-            GameObject hintObj = new GameObject("HintBanner");
-            hintObj.transform.SetParent(hudPanel.transform, false);
-            RectTransform hRect = hintObj.AddComponent<RectTransform>();
-            hRect.anchorMin = new Vector2(0.5f, 0.5f);
-            hRect.anchorMax = new Vector2(0.5f, 0.5f);
-            hRect.pivot = new Vector2(0.5f, 0.5f);
-            hRect.anchoredPosition = Vector2.zero;
-            hRect.sizeDelta = new Vector2(500, 36);
-
-            Image hBg = hintObj.AddComponent<Image>();
-            hBg.color = new Color(0.06f, 0.08f, 0.12f, 0.85f);
-
-            Text hTxt = CreateText(hintObj.transform, "Text", "Mover: Joystick / WASD  |  Atacar: Botão / Espaço  |  Poderes: Q, W, E, R", 14, FontStyle.Bold, new Color(0.85f, 0.9f, 1f, 1f), font);
-            hTxt.alignment = TextAnchor.MiddleCenter;
-            StretchFull(hTxt.rectTransform);
-
-            MobaHUDHealthView healthView = hudPanel.AddComponent<MobaHUDHealthView>();
-            healthView.Initialize(playerHero, enemyHero, pFill, pText, eFill, eText);
         }
 
         private static GameObject CreateBar(Transform parent, string name,

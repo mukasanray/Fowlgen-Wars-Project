@@ -28,11 +28,17 @@ namespace FowlgenWars.Gameplay
         [SerializeField] private float minZ = -16f;
         [SerializeField] private float maxZ = 16f;
 
+        public static MobaCameraController Instance { get; private set; }
+
+        private float shakeDuration = 0f;
+        private float shakeMagnitude = 0.35f;
+
         public float CameraPitch { get => cameraPitch; set { cameraPitch = value; ApplyRotation(); } }
         public float CameraYaw { get => cameraYaw; set { cameraYaw = value; ApplyRotation(); } }
 
         private void Awake()
         {
+            Instance = this;
             ApplyRotation();
         }
 
@@ -61,6 +67,12 @@ namespace FowlgenWars.Gameplay
             followTarget = follow;
         }
 
+        public void Shake(float duration = 0.25f, float magnitude = 0.35f)
+        {
+            shakeDuration = Mathf.Max(shakeDuration, duration);
+            shakeMagnitude = magnitude;
+        }
+
         private void LateUpdate()
         {
             ApplyRotation();
@@ -76,6 +88,14 @@ namespace FowlgenWars.Gameplay
                 );
 
                 transform.position = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed * Time.deltaTime);
+            }
+
+            // Aplicar Screen Shake em impactos críticos / Ultimate
+            if (shakeDuration > 0f)
+            {
+                Vector3 shakeOffset = Random.insideUnitSphere * shakeMagnitude;
+                transform.position += shakeOffset;
+                shakeDuration -= Time.deltaTime;
             }
         }
     }

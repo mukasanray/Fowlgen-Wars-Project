@@ -61,11 +61,14 @@ namespace FowlgenWars.Gameplay
                 healthBar.UpdateHealth(currentHealth, maxHealth);
             }
 
+            Feedback.FloatingCombatTextManager.SpawnDamage(transform.position + Vector3.up * 2.5f, damage, isCritical: true);
+
             SyncWithRuntimeState();
 
             if (currentHealth <= 0)
             {
                 currentHealth = 0;
+                MobaCameraController.Instance?.Shake(0.5f, 0.6f);
                 OnStructureDestroyed?.Invoke(team);
             }
         }

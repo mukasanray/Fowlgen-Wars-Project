@@ -22,6 +22,9 @@ namespace FowlgenWars.Gameplay
         [Header("Modo do Joystick")]
         [SerializeField] private JoystickMode joystickMode = JoystickMode.Floating;
 
+        [Header("Animação")]
+        [SerializeField] private Animator animator;
+
         public enum JoystickMode
         {
             Fixed,
@@ -41,6 +44,7 @@ namespace FowlgenWars.Gameplay
         private void Awake()
         {
             characterController = GetComponent<CharacterController>();
+            if (animator == null) animator = GetComponentInChildren<Animator>();
             mainCamera = Camera.main;
 
             if (joystickSource is IJoystickInput input)
@@ -173,6 +177,13 @@ namespace FowlgenWars.Gameplay
             // 5. Mover CharacterController
             Vector3 finalMotion = (moveDirection * moveSpeed + verticalVelocity) * Time.deltaTime;
             characterController.Move(finalMotion);
+
+            // 6. Atualizar parâmetro de locomoção no Animator
+            if (animator != null)
+            {
+                float currentSpeed = moveDirection.sqrMagnitude > 0.001f ? (input.magnitude * moveSpeed) : 0f;
+                animator.SetFloat("Speed", currentSpeed);
+            }
         }
     }
 }

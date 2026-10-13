@@ -21,8 +21,9 @@ namespace FowlgenWars.Gameplay
         [SerializeField] private float attackInterval = 0.9f;
         [SerializeField] private float respawnTime = 6.0f;
 
-        [Header("Feedback Visual")]
+        [Header("Feedback Visual & Animação")]
         [SerializeField] private WorldHealthBarView healthBar;
+        [SerializeField] private Animator animator;
 
         private int currentHealth;
         private float nextAttackTime;
@@ -46,6 +47,7 @@ namespace FowlgenWars.Gameplay
         private void Awake()
         {
             characterController = GetComponent<CharacterController>();
+            if (animator == null) animator = GetComponentInChildren<Animator>();
             spawnPosition = transform.position;
             currentHealth = maxHealth;
         }
@@ -68,6 +70,11 @@ namespace FowlgenWars.Gameplay
             currentHealth = maxHealth;
             isDead = false;
 
+            if (animator != null)
+            {
+                animator.SetBool("IsDead", false);
+            }
+
             if (healthBar != null)
             {
                 healthBar.UpdateHealth(currentHealth, maxHealth);
@@ -78,6 +85,13 @@ namespace FowlgenWars.Gameplay
         private void Update()
         {
             if (isDead) return;
+
+            // Atualizar parâmetro de locomoção no Animator
+            if (animator != null && characterController != null)
+            {
+                float spd = characterController.velocity.magnitude;
+                animator.SetFloat("Speed", spd);
+            }
 
             // Se for controlado por IA adversária, buscar alvos e combater automaticamente
             if (isAI)
@@ -93,7 +107,7 @@ namespace FowlgenWars.Gameplay
         {
             if (isDead || Time.time < nextAttackTime) return false;
 
-            IDamageable target = FindNearestEnemy();
+            IDamageable target = FindNearestEnemy(attackRange);
             if (target != null)
             {
                 // Rotacionar em direção ao alvo
@@ -107,16 +121,24 @@ namespace FowlgenWars.Gameplay
                 nextAttackTime = Time.time + attackInterval;
                 target.TakeDamage(attackDamage);
 
-                // Feedback sonoro/visual futuro (VFX de corte)
+                if (animator != null)
+                {
+                    animator.SetTrigger("Attack");
+                }
+
+                if (isAI)
+                {
+                    Debug.Log($"[Combate IA] {gameObject.name} atacou {target.TargetTransform.name} causando {attackDamage} de dano!");
+                }
                 return true;
             }
 
             return false;
         }
 
-        private IDamageable FindNearestEnemy()
+        private IDamageable FindNearestEnemy(float searchRadius = 18.0f)
         {
-            int hits = Physics.OverlapSphereNonAlloc(transform.position, attackRange, TargetBuffer);
+            int hits = Physics.OverlapSphereNonAlloc(transform.position, searchRadius, TargetBuffer);
             float closestDistance = float.MaxValue;
             IDamageable bestTarget = null;
 
@@ -142,9 +164,15 @@ namespace FowlgenWars.Gameplay
 
         private void UpdateAIBehavior()
         {
-            // Busca alvos no raio de visão (6 metros)
-            IDamageable target = FindNearestEnemy();
-            if (target != null)
+            // 1. Gravidade básica para manter no chão
+            if (characterController != null && !characterController.isGrounded)
+            {
+                characterController.Move(Vector3.down * 9.8f * Time.deltaTime);
+            }
+
+            // 2. Busca alvos prioritários no raio de visão e combate agressivo (18 metros)
+            IDamageable target = FindNearestEnemy(18.0f);
+            if (target != null && target.TargetTransform != null)
             {
                 float dist = Vector3.Distance(transform.position, target.TargetTransform.position);
                 if (dist <= attackRange)
@@ -155,8 +183,23 @@ namespace FowlgenWars.Gameplay
                 {
                     Vector3 moveDir = (target.TargetTransform.position - transform.position).normalized;
                     moveDir.y = 0;
-                    transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(moveDir), 8f * Time.deltaTime);
-                    characterController.Move(moveDir * (3.5f * Time.deltaTime));
+                    if (moveDir.sqrMagnitude > 0.001f)
+                    {
+                        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(moveDir), 8f * Time.deltaTime);
+                        characterController.Move(moveDir * (4.5f * Time.deltaTime));
+                    }
+                }
+            }
+            else if (characterController != null)
+            {
+                // 3. Sem inimigos no alcance imediato: avançar ofensivamente em direção à base/linha do jogador
+                Vector3 objectiveTarget = new Vector3(0f, transform.position.y, 8.0f);
+                Vector3 moveDir = (objectiveTarget - transform.position).normalized;
+                moveDir.y = 0;
+                if (moveDir.sqrMagnitude > 0.001f)
+                {
+                    transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(moveDir), 4f * Time.deltaTime);
+                    characterController.Move(moveDir * (3.0f * Time.deltaTime));
                 }
             }
         }
@@ -169,6 +212,7 @@ namespace FowlgenWars.Gameplay
             {
                 healthBar.UpdateHealth(currentHealth, maxHealth);
             }
+            Feedback.FloatingCombatTextManager.SpawnHeal(transform.position, amount);
         }
 
         public void TakeDamage(int damage)
@@ -180,6 +224,7 @@ namespace FowlgenWars.Gameplay
             {
                 healthBar.UpdateHealth(currentHealth, maxHealth);
             }
+            Feedback.FloatingCombatTextManager.SpawnDamage(transform.position, damage);
 
             if (currentHealth <= 0)
             {
@@ -192,6 +237,11 @@ namespace FowlgenWars.Gameplay
         {
             isDead = true;
             OnHeroDied?.Invoke(this);
+
+            if (animator != null)
+            {
+                animator.SetBool("IsDead", true);
+            }
 
             if (characterController != null) characterController.enabled = false;
             if (healthBar != null) healthBar.gameObject.SetActive(false);
@@ -209,6 +259,11 @@ namespace FowlgenWars.Gameplay
             isDead = false;
             currentHealth = maxHealth;
             transform.position = spawnPosition;
+
+            if (animator != null)
+            {
+                animator.SetBool("IsDead", false);
+            }
 
             var renderers = GetComponentsInChildren<Renderer>();
             foreach (var r in renderers) r.enabled = true;
