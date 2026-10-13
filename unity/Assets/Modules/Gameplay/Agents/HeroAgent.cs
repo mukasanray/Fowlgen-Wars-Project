@@ -161,6 +161,16 @@ namespace FowlgenWars.Gameplay
             }
         }
 
+        public void Heal(int amount)
+        {
+            if (isDead) return;
+            currentHealth = Mathf.Min(maxHealth, currentHealth + Mathf.Max(0, amount));
+            if (healthBar != null)
+            {
+                healthBar.UpdateHealth(currentHealth, maxHealth);
+            }
+        }
+
         public void TakeDamage(int damage)
         {
             if (isDead) return;

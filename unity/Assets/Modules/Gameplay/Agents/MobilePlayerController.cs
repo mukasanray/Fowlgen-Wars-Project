@@ -16,12 +16,27 @@ namespace FowlgenWars.Gameplay
         [SerializeField] private float gravity = 9.81f;
 
         [Header("Referência da View (Joystick)")]
+        [SerializeField] private Joystick joystickPack;
         [SerializeField] private MonoBehaviour joystickSource;
+
+        [Header("Modo do Joystick")]
+        [SerializeField] private JoystickMode joystickMode = JoystickMode.Floating;
+
+        public enum JoystickMode
+        {
+            Fixed,
+            Floating,
+            Dynamic
+        }
 
         private IJoystickInput joystick;
         private CharacterController characterController;
         private Camera mainCamera;
         private Vector3 verticalVelocity;
+
+        public Joystick JoystickPack => joystickPack;
+        public JoystickMode CurrentJoystickMode => joystickMode;
+        public float MoveSpeed { get => moveSpeed; set => moveSpeed = value; }
 
         private void Awake()
         {
@@ -32,6 +47,8 @@ namespace FowlgenWars.Gameplay
             {
                 joystick = input;
             }
+
+            ApplyJoystickMode();
         }
 
         public void BindJoystick(IJoystickInput joystickInput)
@@ -39,13 +56,54 @@ namespace FowlgenWars.Gameplay
             joystick = joystickInput;
         }
 
+        public void BindJoystickPack(Joystick js)
+        {
+            joystickPack = js;
+            ApplyJoystickMode();
+        }
+
+        public void SetJoystickMode(JoystickMode mode)
+        {
+            joystickMode = mode;
+            ApplyJoystickMode();
+        }
+
+        public void CycleJoystickMode()
+        {
+            joystickMode = (JoystickMode)(((int)joystickMode + 1) % 3);
+            ApplyJoystickMode();
+        }
+
+        private void ApplyJoystickMode()
+        {
+            if (joystickPack is VariableJoystick vj)
+            {
+                switch (joystickMode)
+                {
+                    case JoystickMode.Fixed:
+                        vj.SetMode(JoystickType.Fixed);
+                        break;
+                    case JoystickMode.Floating:
+                        vj.SetMode(JoystickType.Floating);
+                        break;
+                    case JoystickMode.Dynamic:
+                        vj.SetMode(JoystickType.Dynamic);
+                        break;
+                }
+            }
+        }
+
         private void Update()
         {
             if (characterController == null) return;
 
-            // 1. Obter entrada (Joystick mobile ou Teclado no Editor)
+            // 1. Obter entrada (Joystick Pack, IJoystickInput ou Teclado no Editor)
             Vector2 input = Vector2.zero;
-            if (joystick != null && joystick.InputDirection.sqrMagnitude > 0.01f)
+            if (joystickPack != null && joystickPack.Direction.sqrMagnitude > 0.01f)
+            {
+                input = joystickPack.Direction;
+            }
+            else if (joystick != null && joystick.InputDirection.sqrMagnitude > 0.01f)
             {
                 input = joystick.InputDirection;
             }
