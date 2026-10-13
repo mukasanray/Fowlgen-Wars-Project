@@ -22,8 +22,10 @@ namespace FowlgenWars.EditorScripts
         [InitializeOnLoadMethod]
         public static void AutoRunOnEditorLoad()
         {
+            if (Application.isBatchMode) return;
             EditorApplication.delayCall += () =>
             {
+                if (Application.isBatchMode) return;
                 if (EditorApplication.isPlaying)
                 {
                     Debug.Log("[Setup MOBA] Saindo do Play Mode para consolidar configuração da Arena...");
@@ -37,6 +39,7 @@ namespace FowlgenWars.EditorScripts
         [MenuItem("Fowlgen Wars/Configurar MOBA Arena Completa (Todas Etapas)")]
         public static void Run()
         {
+            if (Application.isBatchMode) return;
             Debug.Log("[Setup MOBA] 1. Abrindo cena Arena_Clean...");
             Scene scene = SceneManager.GetActiveScene();
             if (scene.name != "Arena_Clean")

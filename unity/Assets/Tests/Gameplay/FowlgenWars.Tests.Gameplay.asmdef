@@ -1,0 +1,21 @@
+{
+    "name": "FowlgenWars.Tests.Gameplay",
+    "rootNamespace": "FowlgenWars.Tests.Gameplay",
+    "references": [
+        "FowlgenWars.Modules.Gameplay"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false,
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}
