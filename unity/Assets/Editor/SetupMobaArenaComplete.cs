@@ -260,36 +260,36 @@ namespace FowlgenWars.EditorScripts
                 "ATAQUE", "ESPAÇO", 18,
                 out Image fillAtk, out Text txtAtk);
 
-            Button btnQ = CreateMobaSkillButton(skillsCluster.transform, "Btn_SkillQ",
+            Button btnQ = CreateMobaSkillButton(skillsCluster.transform, "Btn_SkillT",
                 new Vector2(-305, 80), 92,
                 new Color(0.08f, 0.16f, 0.28f, 0.95f),
                 new Color(0.15f, 0.70f, 0.95f, 1f),
                 circleSprite, ringSprite, defaultFont,
-                "DASH", "Q", 15,
+                "DASH", "T", 15,
                 out Image fillQ, out Text txtQ);
 
-            Button btnW = CreateMobaSkillButton(skillsCluster.transform, "Btn_SkillW",
+            Button btnW = CreateMobaSkillButton(skillsCluster.transform, "Btn_SkillG",
                 new Vector2(-295, 195), 92,
                 new Color(0.08f, 0.24f, 0.18f, 0.95f),
                 new Color(0.20f, 0.85f, 0.55f, 1f),
                 circleSprite, ringSprite, defaultFont,
-                "ESCUDO", "W", 15,
+                "ESCUDO", "G", 15,
                 out Image fillW, out Text txtW);
 
-            Button btnE = CreateMobaSkillButton(skillsCluster.transform, "Btn_SkillE",
+            Button btnE = CreateMobaSkillButton(skillsCluster.transform, "Btn_SkillY",
                 new Vector2(-210, 285), 92,
                 new Color(0.28f, 0.16f, 0.08f, 0.95f),
                 new Color(0.95f, 0.55f, 0.15f, 1f),
                 circleSprite, ringSprite, defaultFont,
-                "TIRO", "E", 15,
+                "TIRO", "Y", 15,
                 out Image fillE, out Text txtE);
 
-            Button btnR = CreateMobaSkillButton(skillsCluster.transform, "Btn_SkillR",
+            Button btnR = CreateMobaSkillButton(skillsCluster.transform, "Btn_SkillH",
                 new Vector2(-95, 320), 106,
                 new Color(0.25f, 0.10f, 0.30f, 0.95f),
                 new Color(0.98f, 0.85f, 0.25f, 1f),
                 circleSprite, ringSprite, defaultFont,
-                "ULTIMATE", "R", 16,
+                "ULTIMATE", "H", 16,
                 out Image fillR, out Text txtR);
 
             miloSkills.BindUI(btnAttack, btnQ, fillQ, txtQ, btnW, fillW, txtW, btnE, fillE, txtE, btnR, fillR, txtR);
@@ -866,6 +866,14 @@ namespace FowlgenWars.EditorScripts
             {
                 var vfxGo = new GameObject("CombatVFXManager");
                 vfxGo.AddComponent<Gameplay.Feedback.CombatVFXManager>();
+            }
+
+            // 7. NetworkStatusMonitor (EAP Item 38: Alerta de perda de conexão)
+            if (GameObject.Find("NetworkStatusMonitor") == null)
+            {
+                var netGo = new GameObject("NetworkStatusMonitor");
+                netGo.transform.SetParent(canvas, false);
+                netGo.AddComponent<Gameplay.UI.NetworkStatusMonitor>();
             }
         }
 
