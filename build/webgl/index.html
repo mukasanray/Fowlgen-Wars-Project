@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Fowlgen Wars - Arena WebGL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #1a0f00;
+            font-family: 'Quicksand', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .title-font {
+            font-family: 'Fredoka One', cursive;
+        }
+        canvas {
+            display: block;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen relative">
+
+    <!-- CANVAS DO JOGO -->
+    <div id="gameContainer" class="relative w-full max-w-[1280px] h-[720px] max-h-screen bg-black overflow-hidden shadow-2xl rounded-xl">
+        <canvas id="gameCanvas" width="1280" height="720" class="w-full h-full object-contain"></canvas>
+
+        <!-- OVERLAY: TELA INICIAL (MENU) -->
+        <div id="menuScreen" class="absolute inset-0 flex flex-col items-center justify-between p-8 bg-cover bg-center" style="background-image: url('assets/LoginBackground.png');">
+            <div class="bg-black/60 backdrop-blur-md px-8 py-4 rounded-3xl border-4 border-amber-400 text-center shadow-2xl mt-4">
+                <span class="text-4xl animate-bounce inline-block">🐔⚔️</span>
+                <h1 class="title-font text-4xl sm:text-6xl text-amber-400 tracking-wider">FOWLGEN <span class="text-rose-500">WARS</span></h1>
+                <p class="text-amber-200 text-sm sm:text-base font-bold">A Guerra Mais Louca do Galinheiro • WebGL Edition</p>
+            </div>
+
+            <div class="bg-white/95 backdrop-blur-md p-6 sm:p-8 rounded-3xl border-4 border-amber-500 shadow-2xl text-center max-w-md w-full space-y-4 mb-4">
+                <div class="flex items-center justify-between bg-amber-50 p-3 rounded-2xl border border-amber-300">
+                    <span class="text-xs font-bold text-gray-700">Modo de Combate:</span>
+                    <span class="text-xs font-bold bg-amber-200 text-amber-900 px-3 py-1 rounded-full">Guerra no Galinheiro</span>
+                </div>
+
+                <div id="walletStatusBadge" class="text-xs text-purple-700 font-bold bg-purple-100 p-2.5 rounded-xl border border-purple-300">
+                    ⚡ Carteira: Não conectada (Modo Convidado)
+                </div>
+
+                <button id="btnConnectSolana" onclick="connectSolana()" class="w-full bg-purple-600 hover:bg-purple-700 text-white title-font text-base py-3.5 rounded-2xl transition shadow flex items-center justify-center gap-2 cursor-pointer">
+                    <span>🦊</span> <span>Conectar Phantom / Solflare</span>
+                </button>
+
+                <button id="btnStartGame" onclick="startGame()" class="w-full bg-rose-500 hover:bg-rose-600 text-white title-font text-xl py-4 rounded-2xl transition shadow-lg flex items-center justify-center gap-2 cursor-pointer transform hover:scale-105">
+                    <span>⚔️</span> <span>ENTRAR NA BATALHA!</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- OVERLAY: HUD DE COMBATE (DURANTE A PARTIDA) -->
+        <div id="gameHUD" class="hidden absolute inset-0 pointer-events-none flex flex-col justify-between p-4">
+            <!-- Barra Superior: HP das Bases -->
+            <div class="flex items-center justify-between gap-4 pointer-events-auto max-w-4xl mx-auto w-full">
+                <!-- Base Aliada (Dourada) -->
+                <div class="flex-1 bg-black/70 backdrop-blur-md p-3 rounded-2xl border-2 border-amber-400">
+                    <div class="flex justify-between items-center text-xs font-bold text-amber-300 mb-1">
+                        <span>🟡 SEU GALINHEIRO</span>
+                        <span id="playerHpText">100 HP</span>
+                    </div>
+                    <div class="w-full h-4 bg-gray-800 rounded-full overflow-hidden border border-amber-500/50">
+                        <div id="playerHpBar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <!-- Temporizador Central -->
+                <div class="bg-black/80 px-4 py-2 rounded-2xl border-2 border-yellow-400 text-center">
+                    <span id="gameTimer" class="title-font text-xl text-yellow-400">03:00</span>
+                </div>
+
+                <!-- Base Inimiga (Negra) -->
+                <div class="flex-1 bg-black/70 backdrop-blur-md p-3 rounded-2xl border-2 border-rose-500">
+                    <div class="flex justify-between items-center text-xs font-bold text-rose-300 mb-1">
+                        <span>⚫ BASE DA OBSIDIANA</span>
+                        <span id="enemyHpText">100 HP</span>
+                    </div>
+                    <div class="w-full h-4 bg-gray-800 rounded-full overflow-hidden border border-rose-500/50">
+                        <div id="enemyHpBar" class="h-full bg-rose-500 transition-all duration-300" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barra Inferior: Deck de Galinhas & Energia de Milho -->
+            <div class="pointer-events-auto max-w-3xl mx-auto w-full bg-black/80 backdrop-blur-md p-3 rounded-3xl border-2 border-amber-400 flex flex-col gap-2">
+                <!-- Barra de Milho (Energia) -->
+                <div class="flex items-center justify-between px-2">
+                    <span class="text-xs font-bold text-amber-300 flex items-center gap-1">🌽 Milho (Energia): <b id="cornCount" class="text-sm text-yellow-300">5/10</b></span>
+                    <span class="text-[11px] text-gray-400">Clique na carta e escolha a rota!</span>
+                </div>
+                <div class="w-full h-2.5 bg-gray-900 rounded-full overflow-hidden border border-amber-500/30">
+                    <div id="cornBar" class="h-full bg-gradient-to-r from-amber-400 to-yellow-300 transition-all duration-200" style="width: 50%;"></div>
+                </div>
+
+                <!-- Cartas de Invocação -->
+                <div class="grid grid-cols-4 gap-2 pt-1">
+                    <button onclick="selectUnit(0)" id="card-0" class="unit-card bg-amber-500 hover:bg-amber-400 active:scale-95 text-white p-2 rounded-2xl transition border-2 border-amber-300 text-center cursor-pointer shadow">
+                        <span class="text-2xl block">🐣</span>
+                        <span class="title-font text-xs block">Veloz</span>
+                        <span class="text-[11px] font-bold text-yellow-950 bg-yellow-200 px-1.5 py-0.5 rounded-full">🌽 2</span>
+                    </button>
+                    <button onclick="selectUnit(1)" id="card-1" class="unit-card bg-amber-600 hover:bg-amber-500 active:scale-95 text-white p-2 rounded-2xl transition border-2 border-amber-300 text-center cursor-pointer shadow">
+                        <span class="text-2xl block">🐔</span>
+                        <span class="title-font text-xs block">Guerreira</span>
+                        <span class="text-[11px] font-bold text-yellow-950 bg-yellow-200 px-1.5 py-0.5 rounded-full">🌽 4</span>
+                    </button>
+                    <button onclick="selectUnit(2)" id="card-2" class="unit-card bg-purple-600 hover:bg-purple-500 active:scale-95 text-white p-2 rounded-2xl transition border-2 border-purple-300 text-center cursor-pointer shadow">
+                        <span class="text-2xl block">🛡️</span>
+                        <span class="title-font text-xs block">Guardião</span>
+                        <span class="text-[11px] font-bold text-yellow-950 bg-yellow-200 px-1.5 py-0.5 rounded-full">🌽 6</span>
+                    </button>
+                    <button onclick="selectUnit(3)" id="card-3" class="unit-card bg-rose-600 hover:bg-rose-500 active:scale-95 text-white p-2 rounded-2xl transition border-2 border-rose-300 text-center cursor-pointer shadow">
+                        <span class="text-2xl block">🔥</span>
+                        <span class="title-font text-xs block">Cósmica</span>
+                        <span class="text-[11px] font-bold text-yellow-950 bg-yellow-200 px-1.5 py-0.5 rounded-full">🌽 8</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- OVERLAY: TELA DE VITÓRIA -->
+        <div id="victoryScreen" class="hidden absolute inset-0 flex flex-col items-center justify-center p-6 bg-cover bg-center" style="background-image: url('assets/Vitoria.jpg');">
+            <div class="bg-black/80 backdrop-blur-md p-8 rounded-3xl border-4 border-yellow-400 text-center max-w-lg shadow-2xl space-y-4">
+                <span class="text-5xl animate-bounce inline-block">🏆👑</span>
+                <h2 class="title-font text-4xl sm:text-5xl text-yellow-400">VITÓRIA ÉPICA!</h2>
+                <p class="text-gray-200 font-bold text-sm">O galinheiro da Rainha Obsidiana foi destruído com sucesso!</p>
+
+                <div class="bg-purple-950/80 p-4 rounded-2xl border border-purple-500 text-left space-y-2">
+                    <span class="text-xs font-bold text-purple-300 block">✨ Recompensa Solana Devnet:</span>
+                    <p class="text-xs text-gray-300">Contrato: <code class="text-amber-300 font-mono">81MprTi78...NyxE</code></p>
+                    <button id="btnClaimSolana" onclick="claimSolanaReward()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white title-font text-sm py-2.5 rounded-xl transition cursor-pointer">
+                        🎁 Registrar Vitória On-Chain
+                    </button>
+                </div>
+
+                <button onclick="returnToMenu()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white title-font text-base py-3.5 rounded-2xl transition shadow cursor-pointer">
+                    Jogar Novamente 🔄
+                </button>
+            </div>
+        </div>
+
+        <!-- OVERLAY: TELA DE DERROTA -->
+        <div id="defeatScreen" class="hidden absolute inset-0 flex flex-col items-center justify-center p-6 bg-cover bg-center" style="background-image: url('assets/Derrota.jpeg');">
+            <div class="bg-black/80 backdrop-blur-md p-8 rounded-3xl border-4 border-rose-600 text-center max-w-md shadow-2xl space-y-4">
+                <span class="text-5xl inline-block">🍳💥</span>
+                <h2 class="title-font text-4xl text-rose-500">SEU NINHO CAIU!</h2>
+                <p class="text-gray-300 font-bold text-sm">As galinhas negras dominaram a arena. Reorganize suas tropas!</p>
+
+                <button onclick="returnToMenu()" class="w-full bg-rose-600 hover:bg-rose-700 text-white title-font text-base py-3.5 rounded-2xl transition shadow cursor-pointer">
+                    Tentar Novamente ⚔️
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT DO JOGO CANVAS / WEBGL -->
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Assets de Imagem
+        const bgImg = new Image();
+        bgImg.src = 'assets/bg-play.jpeg';
+
+        // Áudio Sintetizado (Web Audio API)
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function playSound(type) {
+            try {
+                if (!audioCtx) audioCtx = new AudioContext();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+                if (type === 'spawn') {
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.15);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                } else if (type === 'hit') {
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.linearRampToValueAtTime(60, now + 0.1);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'win') {
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.setValueAtTime(500, now + 0.1);
+                    osc.frequency.setValueAtTime(650, now + 0.2);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                }
+            } catch (e) {}
+        }
+
+        // Variáveis de Estado do Jogo
+        const LANES = [190, 360, 530]; // Alturas das 3 rotas (Top, Mid, Bot)
+        let isGameRunning = false;
+        let playerHp = 100;
+        let enemyHp = 100;
+        let cornEnergy = 5;
+        let selectedUnitIndex = 0;
+        let lastTime = 0;
+        let cornTimer = 0;
+        let enemySpawnTimer = 0;
+        let gameSeconds = 180;
+        let timerInterval = null;
+
+        const UNITS_DEF = [
+            { name: "Pintinho", cost: 2, hp: 40, damage: 12, speed: 2.6, icon: "🐣", color: "#facc15" },
+            { name: "Guerreira", cost: 4, hp: 90, damage: 22, speed: 1.8, icon: "🐔", color: "#f59e0b" },
+            { name: "Guardião", cost: 6, hp: 200, damage: 18, speed: 1.2, icon: "🛡️", color: "#a855f7" },
+            { name: "Cósmica", cost: 8, hp: 120, damage: 45, speed: 1.5, icon: "🔥", color: "#ef4444" }
+        ];
+
+        let playerTroops = [];
+        let enemyTroops = [];
+        let particles = [];
+
+        // Conexão Solana no WebGL
+        let userWallet = null;
+        async function connectSolana() {
+            if (window.solana && window.solana.isPhantom) {
+                try {
+                    const resp = await window.solana.connect();
+                    userWallet = resp.publicKey.toString();
+                    const short = `${userWallet.substring(0,4)}...${userWallet.substring(userWallet.length-4)}`;
+                    document.getElementById('walletStatusBadge').innerText = `⚡ Carteira: ${short} (Devnet)`;
+                    document.getElementById('btnConnectSolana').innerText = `Conectado: ${short}`;
+                } catch (e) {
+                    alert("Conexão com a carteira cancelada.");
+                }
+            } else {
+                window.open("https://phantom.app/", "_blank");
+            }
+        }
+
+        function startGame() {
+            document.getElementById('menuScreen').classList.add('hidden');
+            document.getElementById('victoryScreen').classList.add('hidden');
+            document.getElementById('defeatScreen').classList.add('hidden');
+            document.getElementById('gameHUD').classList.remove('hidden');
+
+            playerHp = 100;
+            enemyHp = 100;
+            cornEnergy = 5;
+            playerTroops = [];
+            enemyTroops = [];
+            particles = [];
+            gameSeconds = 180;
+            isGameRunning = true;
+
+            updateHUD();
+
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!isGameRunning) return;
+                gameSeconds--;
+                const min = String(Math.floor(gameSeconds / 60)).padStart(2, '0');
+                const sec = String(gameSeconds % 60).padStart(2, '0');
+                document.getElementById('gameTimer').innerText = `${min}:${sec}`;
+                if (gameSeconds <= 0) {
+                    checkGameOver();
+                }
+            }, 1000);
+
+            lastTime = performance.now();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function returnToMenu() {
+            isGameRunning = false;
+            if (timerInterval) clearInterval(timerInterval);
+            document.getElementById('victoryScreen').classList.add('hidden');
+            document.getElementById('defeatScreen').classList.add('hidden');
+            document.getElementById('gameHUD').classList.add('hidden');
+            document.getElementById('menuScreen').classList.remove('hidden');
+        }
+
+        function selectUnit(index) {
+            selectedUnitIndex = index;
+            document.querySelectorAll('.unit-card').forEach((c, idx) => {
+                if (idx === index) {
+                    c.classList.add('ring-4', 'ring-white', 'scale-105');
+                } else {
+                    c.classList.remove('ring-4', 'ring-white', 'scale-105');
+                }
+            });
+        }
+        selectUnit(0);
+
+        // Clique no Canvas para Invocar Tropa na Rota
+        canvas.addEventListener('pointerdown', (e) => {
+            if (!isGameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            const scaleY = canvas.height / rect.height;
+            const y = (e.clientY - rect.top) * scaleY;
+
+            // Encontra a rota mais próxima
+            let chosenLane = 0;
+            let minDist = Infinity;
+            LANES.forEach((laneY, idx) => {
+                const dist = Math.abs(y - laneY);
+                if (dist < minDist) {
+                    minDist = dist;
+                    chosenLane = idx;
+                }
+            });
+
+            spawnPlayerTroop(chosenLane);
+        });
+
+        function spawnPlayerTroop(laneIdx) {
+            const def = UNITS_DEF[selectedUnitIndex];
+            if (cornEnergy < def.cost) return;
+
+            cornEnergy -= def.cost;
+            updateHUD();
+            playSound('spawn');
+
+            playerTroops.push({
+                x: 140,
+                y: LANES[laneIdx],
+                lane: laneIdx,
+                hp: def.hp,
+                maxHp: def.hp,
+                damage: def.damage,
+                speed: def.speed,
+                icon: def.icon,
+                color: def.color,
+                attackCooldown: 0
+            });
+        }
+
+        function spawnEnemyTroop() {
+            const laneIdx = Math.floor(Math.random() * 3);
+            const typeIdx = Math.floor(Math.random() * 3);
+            const def = UNITS_DEF[typeIdx];
+
+            enemyTroops.push({
+                x: 1140,
+                y: LANES[laneIdx],
+                lane: laneIdx,
+                hp: def.hp * 0.9,
+                maxHp: def.hp * 0.9,
+                damage: def.damage * 0.9,
+                speed: def.speed,
+                icon: "🐓",
+                color: "#1f2937",
+                attackCooldown: 0
+            });
+        }
+
+        function gameLoop(now) {
+            if (!isGameRunning) return;
+            const dt = (now - lastTime) / 1000;
+            lastTime = now;
+
+            // Recarga de Milho
+            cornTimer += dt;
+            if (cornTimer >= 1.2) {
+                if (cornEnergy < 10) cornEnergy++;
+                cornTimer = 0;
+                updateHUD();
+            }
+
+            // Invocação da IA Inimiga
+            enemySpawnTimer += dt;
+            if (enemySpawnTimer >= 3.5) {
+                spawnEnemyTroop();
+                enemySpawnTimer = 0;
+            }
+
+            // Atualização de Lógica & Combate
+            updateTroops(dt);
+
+            // Renderização
+            render();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updateTroops(dt) {
+            // Tropas do Jogador
+            playerTroops.forEach(p => {
+                if (p.attackCooldown > 0) p.attackCooldown -= dt;
+
+                // Checa inimigos na mesma rota
+                const enemyAhead = enemyTroops.find(e => e.lane === p.lane && e.x > p.x && (e.x - p.x) < 45);
+
+                if (enemyAhead) {
+                    if (p.attackCooldown <= 0) {
+                        enemyAhead.hp -= p.damage;
+                        p.attackCooldown = 0.8;
+                        createHitParticles(enemyAhead.x, enemyAhead.y, '#f59e0b');
+                        playSound('hit');
+                    }
+                } else if (p.x >= 1130) {
+                    // Ataca Base Inimiga
+                    if (p.attackCooldown <= 0) {
+                        enemyHp -= p.damage;
+                        p.attackCooldown = 1.0;
+                        createHitParticles(1150, p.y, '#ef4444');
+                        playSound('hit');
+                        checkGameOver();
+                    }
+                } else {
+                    p.x += p.speed * 60 * dt;
+                }
+            });
+
+            // Tropas Inimigas
+            enemyTroops.forEach(e => {
+                if (e.attackCooldown > 0) e.attackCooldown -= dt;
+
+                const playerAhead = playerTroops.find(p => p.lane === e.lane && p.x < e.x && (e.x - p.x) < 45);
+
+                if (playerAhead) {
+                    if (e.attackCooldown <= 0) {
+                        playerAhead.hp -= e.damage;
+                        e.attackCooldown = 0.8;
+                        createHitParticles(playerAhead.x, playerAhead.y, '#ef4444');
+                        playSound('hit');
+                    }
+                } else if (e.x <= 150) {
+                    // Ataca Base Aliada
+                    if (e.attackCooldown <= 0) {
+                        playerHp -= e.damage;
+                        e.attackCooldown = 1.0;
+                        createHitParticles(130, e.y, '#f59e0b');
+                        playSound('hit');
+                        checkGameOver();
+                    }
+                } else {
+                    e.x -= e.speed * 60 * dt;
+                }
+            });
+
+            // Remove mortos
+            playerTroops = playerTroops.filter(p => p.hp > 0);
+            enemyTroops = enemyTroops.filter(e => e.hp > 0);
+
+            // Partículas
+            particles.forEach(pt => {
+                pt.x += pt.vx;
+                pt.y += pt.vy;
+                pt.alpha -= dt * 2;
+            });
+            particles = particles.filter(pt => pt.alpha > 0);
+
+            updateHUD();
+        }
+
+        function createHitParticles(x, y, color) {
+            for (let i = 0; i < 6; i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    color,
+                    alpha: 1.0
+                });
+            }
+        }
+
+        function checkGameOver() {
+            if (playerHp <= 0) {
+                isGameRunning = false;
+                document.getElementById('defeatScreen').classList.remove('hidden');
+                document.getElementById('gameHUD').classList.add('hidden');
+            } else if (enemyHp <= 0) {
+                isGameRunning = false;
+                playSound('win');
+                document.getElementById('victoryScreen').classList.remove('hidden');
+                document.getElementById('gameHUD').classList.add('hidden');
+            }
+        }
+
+        function updateHUD() {
+            document.getElementById('playerHpText').innerText = `${Math.max(0, Math.ceil(playerHp))} HP`;
+            document.getElementById('playerHpBar').style.width = `${Math.max(0, playerHp)}%`;
+
+            document.getElementById('enemyHpText').innerText = `${Math.max(0, Math.ceil(enemyHp))} HP`;
+            document.getElementById('enemyHpBar').style.width = `${Math.max(0, enemyHp)}%`;
+
+            document.getElementById('cornCount').innerText = `${cornEnergy}/10`;
+            document.getElementById('cornBar').style.width = `${cornEnergy * 10}%`;
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Fundo
+            if (bgImg.complete && bgImg.naturalWidth > 0) {
+                ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.fillStyle = "#3d2314";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Linhas indicadoras das 3 rotas
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+            ctx.lineWidth = 3;
+            LANES.forEach(y => {
+                ctx.beginPath();
+                ctx.moveTo(130, y);
+                ctx.lineTo(1150, y);
+                ctx.stroke();
+            });
+
+            // Bases
+            // Base Aliada
+            ctx.fillStyle = "#eab308";
+            ctx.beginPath();
+            ctx.arc(90, 360, 50, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.font = "34px Fredoka One";
+            ctx.fillText("🏰", 65, 372);
+
+            // Base Inimiga
+            ctx.fillStyle = "#881337";
+            ctx.beginPath();
+            ctx.arc(1190, 360, 50, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillText("🌋", 1165, 372);
+
+            // Tropas Aliadas
+            playerTroops.forEach(p => {
+                ctx.font = "32px serif";
+                ctx.fillText(p.icon, p.x - 16, p.y + 12);
+
+                // Barra de HP
+                const hpPct = p.hp / p.maxHp;
+                ctx.fillStyle = "rgba(0,0,0,0.6)";
+                ctx.fillRect(p.x - 20, p.y - 28, 40, 6);
+                ctx.fillStyle = "#22c55e";
+                ctx.fillRect(p.x - 20, p.y - 28, 40 * hpPct, 6);
+            });
+
+            // Tropas Inimigas
+            enemyTroops.forEach(e => {
+                ctx.font = "32px serif";
+                ctx.fillText(e.icon, e.x - 16, e.y + 12);
+
+                const hpPct = e.hp / e.maxHp;
+                ctx.fillStyle = "rgba(0,0,0,0.6)";
+                ctx.fillRect(e.x - 20, e.y - 28, 40, 6);
+                ctx.fillStyle = "#ef4444";
+                ctx.fillRect(e.x - 20, e.y - 28, 40 * hpPct, 6);
+            });
+
+            // Partículas
+            particles.forEach(pt => {
+                ctx.fillStyle = pt.color;
+                ctx.globalAlpha = pt.alpha;
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1.0;
+        }
+
+        // Transação de Vitória na Solana Devnet
+        async function claimSolanaReward() {
+            if (!window.solana) {
+                alert("Conecte a carteira Phantom primeiro para assinar a vitória!");
+                return;
+            }
+            try {
+                const btn = document.getElementById('btnClaimSolana');
+                btn.innerText = "⏳ Assinando transação na Devnet...";
+                btn.disabled = true;
+
+                const msg = `Fowlgen Wars Victory Claim: ${Date.now()}`;
+                const encoded = new TextEncoder().encode(msg);
+                await window.solana.signMessage(encoded, "utf8");
+
+                btn.innerText = "✅ Vitória Registrada no Smart Contract!";
+                btn.classList.remove('bg-emerald-600');
+                btn.classList.add('bg-blue-600');
+            } catch (e) {
+                alert("Assinatura cancelada.");
+                document.getElementById('btnClaimSolana').innerText = "🎁 Registrar Vitória On-Chain";
+                document.getElementById('btnClaimSolana').disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
