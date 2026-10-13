@@ -42,6 +42,7 @@ namespace FowlgenWars.Solana
             }
 
             Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
 
         /// <summary>
@@ -166,6 +167,7 @@ namespace FowlgenWars.Solana
 
             try
             {
+#if UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL
                 Account acc = await Web3.Instance.LoginWalletAdapter();
                 if (acc != null)
                 {
@@ -183,6 +185,10 @@ namespace FowlgenWars.Solana
                     status = WalletStatus.Error;
                     callback?.Invoke(false, "Conexão cancelada pelo usuário ou falhou.");
                 }
+#else
+                Debug.Log("[WalletManager] Plataforma desktop/editor detectada: redirecionando para carteira Devnet local.");
+                callback?.Invoke(false, "Wallet Adapter requer dispositivo móvel (MWA) ou WebGL. Usando Devnet local.");
+#endif
             }
             catch (System.Exception ex)
             {

@@ -40,6 +40,13 @@
       },
       "hash": "4c8056fc698853d48b125546fe09189b8213fbaa"
     },
+    "com.mixamo.mcp": {
+      "version": "https://github.com/HaD0Yun/unity-mcp-mixamo.git?path=unity-helper",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "6170d5eca609eb5cdbbbd6b1a3fc6276362f6701"
+    },
     "com.solana.unity_sdk": {
       "version": "file:com.solana.unity_sdk",
       "depth": 0,
@@ -47,6 +54,14 @@
       "dependencies": {
         "com.unity.nuget.newtonsoft-json": "3.0.2",
         "com.unity.textmeshpro": "3.0.6"
+      }
+    },
+    "com.tripo3d.unitybridge": {
+      "version": "file:D:/Tripo3d_Unity_Bridge-latest (1)/Tripo3d_Unity_Bridge",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.modules.jsonserialize": "1.0.0"
       }
     },
     "com.unity.2d.sprite": {

@@ -27,6 +27,10 @@ namespace FowlgenWars.Gameplay
         [SerializeField] private Transform playerSpawnPoint;
         [SerializeField] private Transform enemySpawnPoint;
 
+        [Header("Prefabs de Minions por Equipe")]
+        [SerializeField] private GameObject playerMinionPrefab;
+        [SerializeField] private GameObject enemyMinionPrefab;
+
         private float currentTimer;
         private float nextEnemyWaveTime;
         private bool isMatchActive;
@@ -94,10 +98,11 @@ namespace FowlgenWars.Gameplay
                 return;
             }
 
-            // 2. IA Inimiga: geração contínua de ondas automáticas
+            // 2. Geração contínua de ondas automáticas para ambos os lados
             if (Time.time >= nextEnemyWaveTime)
             {
                 SpawnEnemyWave();
+                SpawnPlayerWave();
                 nextEnemyWaveTime = Time.time + matchConfig.EnemyWaveInterval;
             }
         }
@@ -121,28 +126,31 @@ namespace FowlgenWars.Gameplay
         {
             if (!isMatchActive || !CanSpawnMinion(lane)) return false;
 
-            MinionDataSO data = matchConfig.DefaultMinionData;
-            if (data == null || data.Prefab == null) return false;
+            MinionDataSO data = matchConfig != null ? matchConfig.DefaultMinionData : null;
+            GameObject prefab = playerMinionPrefab != null ? playerMinionPrefab : (data != null ? data.Prefab : null);
+            if (prefab == null) return false;
 
             WaypointPath path = GetPath(lane);
             if (path == null) return false;
 
             Vector3 spawnPos = playerSpawnPoint != null ? playerSpawnPoint.position : path.GetPoint(0, Team.Player);
-            GameObject unitGo = Instantiate(data.Prefab, spawnPos, Quaternion.identity);
+            GameObject unitGo = Instantiate(prefab, spawnPos, Quaternion.identity);
             MinionAgent agent = unitGo.GetComponent<MinionAgent>();
             if (agent == null) agent = unitGo.AddComponent<MinionAgent>();
 
             agent.Initialize(data, Team.Player, lane, path);
 
             // Registrar cooldown
-            playerCooldowns[lane] = Time.time + data.SpawnCooldown;
+            float cd = data != null ? data.SpawnCooldown : 3f;
+            playerCooldowns[lane] = Time.time + cd;
             return true;
         }
 
         private void SpawnEnemyWave()
         {
-            MinionDataSO data = matchConfig.DefaultMinionData;
-            if (data == null || data.Prefab == null) return;
+            MinionDataSO data = matchConfig != null ? matchConfig.DefaultMinionData : null;
+            GameObject prefab = enemyMinionPrefab != null ? enemyMinionPrefab : (data != null ? data.Prefab : null);
+            if (prefab == null) return;
 
             // Gera minions nas rotas Top, Mid e Bot para a IA
             LaneType[] lanes = { LaneType.Top, LaneType.Mid, LaneType.Bot };
@@ -151,12 +159,34 @@ namespace FowlgenWars.Gameplay
                 WaypointPath path = GetPath(lane);
                 if (path == null) continue;
 
-                Vector3 spawnPos = enemySpawnPoint != null ? enemySpawnPoint.position : path.GetPoint(0, Team.Enemy);
-                GameObject unitGo = Instantiate(data.Prefab, spawnPos, Quaternion.identity);
+                Vector3 spawnPos = path.GetPoint(0, Team.Enemy);
+                GameObject unitGo = Instantiate(prefab, spawnPos, Quaternion.identity);
                 MinionAgent agent = unitGo.GetComponent<MinionAgent>();
                 if (agent == null) agent = unitGo.AddComponent<MinionAgent>();
 
                 agent.Initialize(data, Team.Enemy, lane, path);
+            }
+        }
+
+        private void SpawnPlayerWave()
+        {
+            MinionDataSO data = matchConfig != null ? matchConfig.DefaultMinionData : null;
+            GameObject prefab = playerMinionPrefab != null ? playerMinionPrefab : (data != null ? data.Prefab : null);
+            if (prefab == null) return;
+
+            // Gera minions nas rotas Top, Mid e Bot para o Jogador
+            LaneType[] lanes = { LaneType.Top, LaneType.Mid, LaneType.Bot };
+            foreach (var lane in lanes)
+            {
+                WaypointPath path = GetPath(lane);
+                if (path == null) continue;
+
+                Vector3 spawnPos = path.GetPoint(0, Team.Player);
+                GameObject unitGo = Instantiate(prefab, spawnPos, Quaternion.identity);
+                MinionAgent agent = unitGo.GetComponent<MinionAgent>();
+                if (agent == null) agent = unitGo.AddComponent<MinionAgent>();
+
+                agent.Initialize(data, Team.Player, lane, path);
             }
         }
 

@@ -121,13 +121,19 @@ namespace FowlgenWars.Architecture.Presenters
                         session.SetAuthenticated(pubKey);
 
                     view?.SetStatus("Autenticado pelo Servidor Dedicado! Carregando...");
-                    navigationService.Load(navigation != null ? navigation.PlayScene : "Play");
+                    StartCoroutine(TransitionToPlayRoutine());
                 }
                 else
                 {
                     view?.SetStatus($"Falha na autenticação: {message}");
                 }
             });
+        }
+
+        private System.Collections.IEnumerator TransitionToPlayRoutine()
+        {
+            yield return new WaitForSeconds(0.4f);
+            navigationService.Load(navigation != null ? navigation.PlayScene : "Play");
         }
     }
 }

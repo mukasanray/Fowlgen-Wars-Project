@@ -243,17 +243,21 @@ namespace FowlgenWars.Cinematic
 
         private void HandleKeyboard()
         {
-            if (Input.GetKeyDown(KeyCode.C))
-                Play();
-
-            if (Input.GetKeyDown(KeyCode.Escape))
-                Stop();
-
-            if (Input.GetKeyDown(KeyCode.Space))
-                TogglePause();
-
-            if (Input.GetKeyDown(KeyCode.H))
-                _overlayHidden = !_overlayHidden;
+#if ENABLE_INPUT_SYSTEM
+            var kb = UnityEngine.InputSystem.Keyboard.current;
+            if (kb != null)
+            {
+                if (kb.cKey.wasPressedThisFrame) Play();
+                if (kb.escapeKey.wasPressedThisFrame) Stop();
+                if (kb.spaceKey.wasPressedThisFrame) TogglePause();
+                if (kb.hKey.wasPressedThisFrame) _overlayHidden = !_overlayHidden;
+            }
+#elif ENABLE_LEGACY_INPUT_MANAGER
+            if (Input.GetKeyDown(KeyCode.C)) Play();
+            if (Input.GetKeyDown(KeyCode.Escape)) Stop();
+            if (Input.GetKeyDown(KeyCode.Space)) TogglePause();
+            if (Input.GetKeyDown(KeyCode.H)) _overlayHidden = !_overlayHidden;
+#endif
         }
 
         // ── Coroutines ────────────────────────────────────────────────────────

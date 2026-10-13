@@ -1,3 +1,4 @@
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using FowlgenWars.Architecture.Contracts;
 
@@ -10,6 +11,7 @@ namespace FowlgenWars.Architecture.Services
             if (string.IsNullOrWhiteSpace(sceneName))
                 return;
 
+            Debug.Log($"[Navigation] Carregando cena: {sceneName}");
             SceneManager.LoadScene(sceneName);
         }
     }

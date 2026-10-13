@@ -71,13 +71,13 @@
 | **49** | Exibir hash da transação com link Solana Explorer | Full Cycle | **Falta para encerrar o MVP** | Mostrar link clicável do explorer após receber a recompensa. |
 | **50** | Implementar tratamento de erro e timeout RPC | Full Cycle | **Encerrado** | Try/catch e fallback para chave local implementados no `AuthPresenter`. |
 | **51** | Modelar galos guerreiros low-poly no Blender | Multimídia | **Em andamento** | Modelos 3D iniciais (`Milo`, `BlueRooster`) importados em `Assets/Art/Characters`. |
-| **52** | Modelar galinhas e tropas de apoio low-poly | Multimídia | **Em andamento** | Modelo e prefab `Minion_Frango` integrados na cena. |
+| **52** | Modelar galinhas e tropas de apoio low-poly | Multimídia | **Encerrado** | Tropas `Minion_Caipira_Player` e `Minion_Rodilan_Enemy` com texturas e materiais URP Lit dedicados. |
 | **53** | Criar rigs dos 5 arquétipos de personagens | Multimídia | **Em andamento** | Esqueleto básico dos personagens principais configurado. |
 | **54** | Criar ciclos de animação Idle, Run e Attack | Multimídia | **Em andamento** | Clipes básicos atribuídos no Animator. |
 | **55** | Criar animações de dano Hit e morte Death | Multimídia | **Falta para encerrar o MVP** | Adicionar clipes de animação de reação a golpe e queda. |
 | **56** | Configurar materiais e texturas leves URP | Multimídia | **Encerrado** | Materiais URP organizados na diretriz `Assets/Art/Materials/`. |
 | **57** | Exportar prefabs com Animator Controller | Multimídia | **Encerrado** | Prefabs de minions gerados e conectados. |
-| **58** | Criar partículas VFX de ataque e explosão | Multimídia | **Falta para encerrar o MVP** | Partícula de penas voando e poeira no impacto do galo. |
+| **58** | Criar partículas VFX de ataque e explosão | Multimídia | **Encerrado** | `CombatVFXManager.cs` implementado com penas procedurais (feather burst), faíscas, aura de cura, shockwave e explosão. |
 | **59** | Desenhar layout do HUD touch mobile no Figma | Produto & GD | **Encerrado** | Layout de 4 telas e HUD landscape definidos. |
 | **60** | Criar logotipo oficial e ícone do app mobile | Multimídia | **Encerrado** | Identidade visual documentada e ícones de app. |
 | **61** | Exportar sprites 2D de botões, barras e ícones | Multimídia | **Encerrado** | Sprites aplicados nos UXML/USS e joysticks táteis. |
@@ -86,9 +86,9 @@
 | **64** | Compor trilha sonora dinâmica de batalha | Multimídia | **Em andamento** | Trilha preliminar de arena produzida. |
 | **65** | Compor tema musical cômico para o Menu | Multimídia | **Falta para encerrar o MVP** | BGM de lobby suave para as telas Auth e Play. |
 | **66** | Produzir efeitos sonoros de cacarejos e passos | Multimídia | **Em andamento** | Efeitos sonoros coletados na biblioteca de SFX. |
-| **67** | Produzir SFX de golpes, projéteis e explosões | Multimídia | **Falta para encerrar o MVP** | Adicionar SFX de bicada e destruição do galinheiro. |
+| **67** | Produzir SFX de golpes, projéteis e explosões | Multimídia | **Encerrado** | SFX procedurais e suporte a clips de soco, impacto, cocoricó, explosão e habilidades em `AudioManager.cs`. |
 | **68** | Configurar Audio Mixer Groups com Ducking | Multimídia | **Falta para encerrar o MVP** | Criar AudioMixer com canais Master, BGM e SFX no Unity. |
-| **69** | Integrar AudioManager com pool de sons na Unity | Full Cycle | **Falta para encerrar o MVP** | Script tocador de áudio disparado por eventos de gameplay. |
+| **69** | Integrar AudioManager com pool de sons na Unity | Full Cycle | **Encerrado** | `AudioManager.cs` integrado com pool de áudio, conectado a Milo, Axel, Minions, Galinheiro e Countdown. |
 | **70** | Programar controle de volume com PlayerPrefs | Full Cycle | **Falta para encerrar o MVP** | Sliders de volume salvar configurações no PlayerPrefs. |
 | **71** | Integrar fluxo de login de carteira no MainMenu | Full Cycle | **Encerrado** | Fluxo de login e Phantom MWA concluído na tela `Auth`. |
 | **72** | Exibir saldo de SOL e chave pública na UI | Full Cycle | **Em andamento** | Chave pública exibida na tela Play; binding visual do saldo em SOL em finalização. |

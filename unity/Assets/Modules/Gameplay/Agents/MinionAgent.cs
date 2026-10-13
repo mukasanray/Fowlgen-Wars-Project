@@ -1,4 +1,6 @@
 using UnityEngine;
+using FowlgenWars.Gameplay.Audio;
+using FowlgenWars.Gameplay.Feedback;
 
 namespace FowlgenWars.Gameplay
 {
@@ -15,6 +17,11 @@ namespace FowlgenWars.Gameplay
 
         [Header("Componentes Visuais")]
         [SerializeField] private WorldHealthBarView healthBar;
+        [SerializeField] private Animator animator;
+
+        [Header("Modelos por Equipe")]
+        [SerializeField] private GameObject playerModel;
+        [SerializeField] private GameObject enemyModel;
 
         private int currentHealth;
         private int currentWaypointIndex;
@@ -38,7 +45,13 @@ namespace FowlgenWars.Gameplay
             path = waypointPath;
             currentWaypointIndex = 0;
 
+            if (playerModel != null) playerModel.SetActive(team == Team.Player);
+            if (enemyModel != null) enemyModel.SetActive(team == Team.Enemy);
+
             currentHealth = data != null ? data.MaxHealth : 100;
+            if (animator == null) animator = GetComponentInChildren<Animator>();
+            if (animator != null) animator.SetBool("IsDead", false);
+
             if (healthBar != null && data != null)
             {
                 healthBar.UpdateHealth(currentHealth, data.MaxHealth);
@@ -70,6 +83,7 @@ namespace FowlgenWars.Gameplay
 
                 if (distance <= attackRange)
                 {
+                    if (animator != null) animator.SetFloat("Speed", 0f);
                     RotateTowards(currentTarget.TargetTransform.position);
                     ExecuteAttack();
                     return;
@@ -122,6 +136,7 @@ namespace FowlgenWars.Gameplay
             int damage = data != null ? data.AttackDamage : 15;
 
             nextAttackTime = Time.time + interval;
+            if (animator != null) animator.SetTrigger("Attack");
             currentTarget?.TakeDamage(damage);
         }
 
@@ -147,6 +162,7 @@ namespace FowlgenWars.Gameplay
         private void MoveTowards(Vector3 targetPosition)
         {
             float speed = data != null ? data.MoveSpeed : 3.5f;
+            if (animator != null) animator.SetFloat("Speed", speed);
             RotateTowards(targetPosition);
 
             Vector3 dir = (targetPosition - transform.position).normalized;
@@ -174,6 +190,12 @@ namespace FowlgenWars.Gameplay
             {
                 healthBar.UpdateHealth(currentHealth, data.MaxHealth);
             }
+            Feedback.FloatingCombatTextManager.SpawnDamage(transform.position, damage);
+
+            // Penas de acordo com a facção do minion
+            Color minionFeathers = team == Team.Player ? new Color(0.95f, 0.85f, 0.6f) : new Color(0.85f, 0.35f, 0.45f);
+            CombatVFXManager.Instance?.SpawnFeatherBurst(transform.position, 6, minionFeathers);
+            AudioManager.Instance?.PlayCombatSound(CombatSoundType.Hit, transform.position, 0.5f);
 
             if (currentHealth <= 0)
             {
@@ -184,6 +206,12 @@ namespace FowlgenWars.Gameplay
 
         private void Die()
         {
+            if (animator != null) animator.SetBool("IsDead", true);
+
+            Color minionFeathers = team == Team.Player ? new Color(0.95f, 0.85f, 0.6f) : new Color(0.85f, 0.35f, 0.45f);
+            CombatVFXManager.Instance?.SpawnFeatherBurst(transform.position, 15, minionFeathers);
+            AudioManager.Instance?.PlayCombatSound(CombatSoundType.FeatherFlutter, transform.position, 0.5f);
+
             // Desativação limpa para reaproveitamento em pooling futuro
             gameObject.SetActive(false);
             Destroy(gameObject, 0.1f);

@@ -14,7 +14,7 @@ namespace FowlgenWars.Editor
     public static class FowlgenPlaySceneSetup
     {
         private const string ArenaScenePath = "Assets/Scenes/Game/Arena.unity";
-        private const string MinionPrefabPath = "Assets/Prefabs/Minion_Frango.prefab";
+        private const string MinionPrefabPath = "Assets/Prefabs/Minion_Caipira_Player.prefab";
         private const string ResourcesArchPath = "Assets/Resources/Architecture";
 
         [MenuItem("Fowlgen Wars/Setup Arena Scene + Prefabs (MVP)")]
@@ -102,7 +102,7 @@ namespace FowlgenWars.Editor
 
             // Criar minion geométrico otimizado
             var root = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            root.name = "Minion_Frango";
+            root.name = "Minion_Caipira_Player";
             root.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
 
             var rb = root.AddComponent<Rigidbody>();

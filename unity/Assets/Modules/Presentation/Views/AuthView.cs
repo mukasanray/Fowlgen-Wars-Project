@@ -17,19 +17,39 @@ namespace FowlgenWars.Architecture.Views
 
 
 
-            status = Root?.Q<Label>("login-status");
-            var button = Root?.Q<Button>("connect-button");
-            if (button != null)
-            {
-                button.clicked += () => ConnectClicked?.Invoke();
-            }
+            BindUI();
+        }
 
-            var quickButton = Root?.Q<Button>("quick-play-button");
-            if (quickButton != null)
+        private void Start()
+        {
+            if (status == null)
             {
-                quickButton.clicked += () => QuickPlayClicked?.Invoke();
+                BindUI();
             }
         }
+
+        private void BindUI()
+        {
+            if (Root == null) return;
+
+            status = Root.Q<Label>("login-status");
+            var button = Root.Q<Button>("connect-button");
+            if (button != null)
+            {
+                button.clicked -= OnConnectClick;
+                button.clicked += OnConnectClick;
+            }
+
+            var quickButton = Root.Q<Button>("quick-play-button");
+            if (quickButton != null)
+            {
+                quickButton.clicked -= OnQuickPlayClick;
+                quickButton.clicked += OnQuickPlayClick;
+            }
+        }
+
+        private void OnConnectClick() => ConnectClicked?.Invoke();
+        private void OnQuickPlayClick() => QuickPlayClicked?.Invoke();
 
         public override void SetStatus(string message)
         {

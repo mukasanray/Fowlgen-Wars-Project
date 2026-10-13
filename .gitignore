@@ -17,6 +17,8 @@ unity/*/Logs/
 unity/*/UserSettings/
 unity/*/MemoryCaptures/
 unity/*/Recording/
+unity/**/_Recovery/
+unity/**/_Recovery.meta
 
 # Unity3D generated meta files
 *.pidb.meta
