@@ -228,6 +228,7 @@ namespace FowlgenWars.Gameplay
             currentHealth = Mathf.Clamp(currentHealth - damage, 0, maxHealth);
             if (healthBar != null) healthBar.UpdateHealth(currentHealth, maxHealth);
             Feedback.FloatingCombatTextManager.SpawnDamage(transform.position, damage);
+            if (animator != null && currentHealth > 0) animator.SetTrigger("Hit");
 
             // Feedback visual de impacto de penas e som
             Color featherCol = team == Team.Player ? new Color(1f, 0.95f, 0.8f) : new Color(0.45f, 0.25f, 0.6f);

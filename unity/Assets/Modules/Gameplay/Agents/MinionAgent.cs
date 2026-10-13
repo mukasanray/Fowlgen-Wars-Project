@@ -190,6 +190,7 @@ namespace FowlgenWars.Gameplay
             currentHealth = Mathf.Clamp(currentHealth - damage, 0, maxHp);
             if (healthBar != null) healthBar.UpdateHealth(currentHealth, maxHp);
             Feedback.FloatingCombatTextManager.SpawnDamage(transform.position, damage);
+            if (animator != null && currentHealth > 0) animator.SetTrigger("Hit");
 
             // Penas de acordo com a facção do minion
             Color minionFeathers = team == Team.Player ? new Color(0.95f, 0.85f, 0.6f) : new Color(0.85f, 0.35f, 0.45f);

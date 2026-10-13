@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 namespace FowlgenWars.Gameplay.Audio
 {
@@ -26,6 +28,14 @@ namespace FowlgenWars.Gameplay.Audio
     public class AudioManager : MonoBehaviour
     {
         public static AudioManager Instance { get; private set; }
+
+        [Header("Audio Mixer (EAP Item 68 - opcional, criado via Window > Audio > Audio Mixer)")]
+        [SerializeField] private AudioMixer audioMixer;
+        [SerializeField] private string masterVolParam = "MasterVolume";
+        [SerializeField] private string bgmVolParam = "BgmVolume";
+        [SerializeField] private string sfxVolParam = "SfxVolume";
+        [SerializeField] private float duckVolumeDb = -12f;
+        [SerializeField] private float duckDuration = 0.35f;
 
         [Header("Audio Sources")]
         [SerializeField] private AudioSource bgmSource;
@@ -108,14 +118,41 @@ namespace FowlgenWars.Gameplay.Audio
 
         private void ApplyVolumes()
         {
-            if (bgmSource != null)
+            // Mixer path (quando mixer atribuído, usa dB). Fallback: volume direto nos sources.
+            if (audioMixer != null)
             {
-                bgmSource.volume = bgmVolume * masterVolume;
+                float masterDb = masterVolume <= 0.0001f ? -80f : Mathf.Log10(masterVolume) * 20f;
+                float bgmDb = bgmVolume <= 0.0001f ? -80f : Mathf.Log10(bgmVolume) * 20f;
+                float sfxDb = sfxVolume <= 0.0001f ? -80f : Mathf.Log10(sfxVolume) * 20f;
+                audioMixer.SetFloat(masterVolParam, masterDb);
+                audioMixer.SetFloat(bgmVolParam, bgmDb);
+                audioMixer.SetFloat(sfxVolParam, sfxDb);
             }
-            if (uiSource != null)
+            if (bgmSource != null) bgmSource.volume = audioMixer == null ? bgmVolume * masterVolume : 1f;
+            if (uiSource != null) uiSource.volume = audioMixer == null ? sfxVolume * masterVolume : 1f;
+        }
+
+        /// <summary>EAP Item 68: ducking BGM durante SFX marcante.</summary>
+        public void DuckBgm(bool duck)
+        {
+            if (audioMixer == null || string.IsNullOrEmpty(bgmVolParam)) return;
+            StopCoroutine(nameof(DuckRoutine));
+            StartCoroutine(DuckRoutine(duck));
+        }
+
+        private IEnumerator DuckRoutine(bool duck)
+        {
+            float target = duck ? duckVolumeDb : (bgmVolume <= 0.0001f ? -80f : Mathf.Log10(bgmVolume) * 20f);
+            audioMixer.GetFloat(bgmVolParam, out float cur);
+            float t = 0f;
+            while (t < duckDuration)
             {
-                uiSource.volume = sfxVolume * masterVolume;
+                t += Time.unscaledDeltaTime;
+                float v = Mathf.Lerp(cur, target, t / duckDuration);
+                audioMixer.SetFloat(bgmVolParam, v);
+                yield return null;
             }
+            audioMixer.SetFloat(bgmVolParam, target);
         }
 
         private void InitializeAudioSources()
