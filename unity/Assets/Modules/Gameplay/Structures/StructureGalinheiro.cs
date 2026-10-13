@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using FowlgenWars.Gameplay.Audio;
+using FowlgenWars.Gameplay.Feedback;
 
 namespace FowlgenWars.Gameplay
 {
@@ -61,7 +63,9 @@ namespace FowlgenWars.Gameplay
                 healthBar.UpdateHealth(currentHealth, maxHealth);
             }
 
-            Feedback.FloatingCombatTextManager.SpawnDamage(transform.position + Vector3.up * 2.5f, damage, isCritical: true);
+            FloatingCombatTextManager.SpawnDamage(transform.position + Vector3.up * 2.5f, damage, isCritical: true);
+            CombatVFXManager.Instance?.SpawnHitImpact(transform.position + Vector3.up * 2f);
+            AudioManager.Instance?.PlayCombatSound(CombatSoundType.Hit);
 
             SyncWithRuntimeState();
 
@@ -69,6 +73,8 @@ namespace FowlgenWars.Gameplay
             {
                 currentHealth = 0;
                 MobaCameraController.Instance?.Shake(0.5f, 0.6f);
+                CombatVFXManager.Instance?.SpawnExplosion(transform.position);
+                AudioManager.Instance?.PlayCombatSound(CombatSoundType.Explosion);
                 OnStructureDestroyed?.Invoke(team);
             }
         }

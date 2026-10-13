@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: MinionData_Default
   m_EditorClassIdentifier: Assembly-CSharp::FowlgenWars.Architecture.Models.MinionDataSO
   unitName: Minion Frango
-  prefab: {fileID: 2212575245476652382, guid: aca18f5f3812e7e44b49a152c0266482, type: 3}
+  prefab: {fileID: 5658727679704551364, guid: aca18f5f3812e7e44b49a152c0266482, type: 3}
   maxHealth: 120
   attackDamage: 15
   attackRange: 1.8

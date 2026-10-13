@@ -20,4 +20,4 @@ foreach ($p in $processes) {
     }
 }
 Start-Sleep -Seconds 5
-Write-Host "Minion Prefab Exists:" (Test-Path "d:/Dev/Fowlgen-Wars-Project/unity/Assets/Prefabs/Minion_Frango.prefab")
+Write-Host "Minion Prefab Exists:" (Test-Path "d:/Dev/Fowlgen-Wars-Project/unity/Assets/Prefabs/Minion_Caipira_Player.prefab")

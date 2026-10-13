@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using FowlgenWars.Gameplay.Audio;
+using FowlgenWars.Gameplay.Feedback;
 
 namespace FowlgenWars.Gameplay
 {
@@ -173,10 +175,10 @@ namespace FowlgenWars.Gameplay
             }
 #elif ENABLE_LEGACY_INPUT_MANAGER
             if (Input.GetKeyDown(KeyCode.Space)) OnAttackClicked();
-            if (Input.GetKeyDown(KeyCode.Q)) CastSkillQ();
-            if (Input.GetKeyDown(KeyCode.W)) CastSkillW();
-            if (Input.GetKeyDown(KeyCode.E)) CastSkillE();
-            if (Input.GetKeyDown(KeyCode.R)) CastSkillR();
+            if (Input.GetKeyDown(KeyCode.T)) CastSkillQ();
+            if (Input.GetKeyDown(KeyCode.G)) CastSkillW();
+            if (Input.GetKeyDown(KeyCode.Y)) CastSkillE();
+            if (Input.GetKeyDown(KeyCode.H)) CastSkillR();
 #endif
         }
 
@@ -201,6 +203,9 @@ namespace FowlgenWars.Gameplay
             isDashing = true;
             dashEndTime = Time.time + skillQDashDuration;
 
+            CombatVFXManager.Instance?.SpawnDashTrail(transform.position, dashDirection);
+            AudioManager.Instance?.PlayCombatSound(CombatSoundType.Whoosh);
+
             // Dano nos inimigos a frente
             Collider[] hits = Physics.OverlapSphere(transform.position + dashDirection * 3f, 2.5f);
             foreach (var hit in hits)
@@ -210,7 +215,8 @@ namespace FowlgenWars.Gameplay
                 if (target != null && target.IsAlive && target.UnitTeam != heroAgent.UnitTeam)
                 {
                     target.TakeDamage(skillQDamage);
-                    Debug.Log($"[Skill Q - Investida] Acertou {hit.name} causando {skillQDamage} de dano!");
+                    CombatVFXManager.Instance?.SpawnHitImpact(hit.transform.position);
+                    Debug.Log($"[Skill T - Investida] Acertou {hit.name} causando {skillQDamage} de dano!");
                 }
             }
         }
@@ -222,8 +228,10 @@ namespace FowlgenWars.Gameplay
 
             // Escudo / Cura
             heroAgent.Heal(skillWHealAmount);
+            CombatVFXManager.Instance?.SpawnHealAura(transform.position);
+            AudioManager.Instance?.PlayCombatSound(CombatSoundType.Heal);
             StartCoroutine(ApplySpeedBuff());
-            Debug.Log($"[Skill W - Baluarte] Ativado! Milo reforçou a defesa e recuperou {skillWHealAmount} de vida!");
+            Debug.Log($"[Skill G - Baluarte] Ativado! Milo reforçou a defesa e recuperou {skillWHealAmount} de vida!");
         }
 
         private System.Collections.IEnumerator ApplySpeedBuff()
@@ -249,16 +257,20 @@ namespace FowlgenWars.Gameplay
             dir.y = 0;
             dir.Normalize();
 
+            CombatVFXManager.Instance?.SpawnFeatherBurst(origin + dir * 2f, 16, new Color(1f, 0.85f, 0.2f));
+            AudioManager.Instance?.PlayCombatSound(CombatSoundType.RoosterCrow);
+
             if (Physics.Raycast(origin, dir, out RaycastHit hit, skillERange))
             {
                 var target = hit.collider.GetComponentInParent<IDamageable>();
                 if (target != null && target.IsAlive && target.UnitTeam != heroAgent.UnitTeam)
                 {
                     target.TakeDamage(skillEDamage);
-                    Debug.Log($"[Skill E - Disparo Sagrado] Acertou {hit.collider.name} causando {skillEDamage} de dano!");
+                    CombatVFXManager.Instance?.SpawnHitImpact(hit.point);
+                    Debug.Log($"[Skill Y - Disparo Sagrado] Acertou {hit.collider.name} causando {skillEDamage} de dano!");
                 }
             }
-            Debug.Log("[Skill E - Disparo Sagrado] Penas douradas disparadas!");
+            Debug.Log("[Skill Y - Disparo Sagrado] Penas douradas disparadas!");
         }
 
         public void CastSkillR()
@@ -267,6 +279,9 @@ namespace FowlgenWars.Gameplay
             rTimer = skillRCooldown;
 
             // Ultimate AoE (Explosão em área ao redor de Milo)
+            CombatVFXManager.Instance?.SpawnUltimateShockwave(transform.position);
+            AudioManager.Instance?.PlayCombatSound(CombatSoundType.Ultimate);
+
             Collider[] hits = Physics.OverlapSphere(transform.position, skillRRadius);
             int targetsHit = 0;
             foreach (var hit in hits)
@@ -276,11 +291,12 @@ namespace FowlgenWars.Gameplay
                 if (target != null && target.IsAlive && target.UnitTeam != heroAgent.UnitTeam)
                 {
                     target.TakeDamage(skillRDamage);
+                    CombatVFXManager.Instance?.SpawnHitImpact(hit.transform.position);
                     targetsHit++;
                 }
             }
             MobaCameraController.Instance?.Shake(0.40f, 0.50f);
-            Debug.Log($"[Skill R - ULTIMATE] Fúria Aviária detonada! {targetsHit} inimigos atingidos com {skillRDamage} de dano!");
+            Debug.Log($"[Skill H - ULTIMATE] Fúria Aviária detonada! {targetsHit} inimigos atingidos com {skillRDamage} de dano!");
         }
 
         private void UpdateUI()

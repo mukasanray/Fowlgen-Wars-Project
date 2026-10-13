@@ -50,18 +50,12 @@ namespace FowlgenWars.EditorScripts
             MatchRuntimeStateSO runtimeState = AssetDatabase.LoadAssetAtPath<MatchRuntimeStateSO>($"{ResourcesArchPath}/MatchRuntimeState.asset");
             MinionDataSO minionData = AssetDatabase.LoadAssetAtPath<MinionDataSO>($"{ResourcesArchPath}/MinionData_Default.asset");
 
-            // Excluir Minion_Frango genérico antigo conforme solicitado
-            if (AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Minion_Frango.prefab") != null)
-            {
-                AssetDatabase.DeleteAsset("Assets/Prefabs/Minion_Frango.prefab");
-                Debug.Log("[Setup MOBA] Minion_Frango genérico removido com sucesso!");
-            }
-
-            Debug.Log("[Setup MOBA] 3. Criando Prefabs dos 2 Minions (Caipira para Jogador e Rodilan para Inimigo)...");
+            Debug.Log("[Setup MOBA] 3. Configurando Prefabs dos 2 Minions (Caipira para Jogador e Rodilan para Inimigo)...");
             GameObject caipiraPrefab = CreateOrUpdateSpecificMinionPrefab(
                 MinionPlayerPrefabPath,
                 "Minion_Caipira_Player",
                 "Assets/TripoModels/Minion-Calinha-Caipira-Atirador/Minion-Calinha-Caipira-Atirador.fbx",
+                "Assets/TripoModels/Minion-Calinha-Caipira-Atirador/Materials/Minion-Calinha-Caipira-Atirador.mat",
                 Team.Player,
                 new Color(0.2f, 0.85f, 0.4f),
                 minionData
@@ -71,6 +65,7 @@ namespace FowlgenWars.EditorScripts
                 MinionEnemyPrefabPath,
                 "Minion_Rodilan_Enemy",
                 "Assets/TripoModels/Minion-Galinha-Rodilan-Atirador/Minion-Galinha-Rodilan-Atirador.fbx",
+                "Assets/TripoModels/Minion-Galinha-Rodilan-Atirador/Materials/Minion-Galinha-Rodilan-Atirador.mat",
                 Team.Enemy,
                 new Color(0.95f, 0.25f, 0.35f),
                 minionData
@@ -449,12 +444,27 @@ namespace FowlgenWars.EditorScripts
             string prefabPath,
             string prefabName,
             string fbxPath,
+            string matPath,
             Team team,
             Color healthColor,
             MinionDataSO defaultData)
         {
+            Material minionMat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
             GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
-            if (existing != null) return existing;
+            if (existing != null)
+            {
+                if (minionMat != null)
+                {
+                    GameObject prefabContents = PrefabUtility.LoadPrefabContents(prefabPath);
+                    foreach (var rend in prefabContents.GetComponentsInChildren<Renderer>(true))
+                    {
+                        rend.sharedMaterial = minionMat;
+                    }
+                    PrefabUtility.SaveAsPrefabAsset(prefabContents, prefabPath);
+                    PrefabUtility.UnloadPrefabContents(prefabContents);
+                }
+                return existing;
+            }
 
             GameObject root = new GameObject(prefabName);
             CapsuleCollider col = root.AddComponent<CapsuleCollider>();
@@ -477,6 +487,14 @@ namespace FowlgenWars.EditorScripts
                 modelObj.transform.localPosition = Vector3.zero;
                 modelObj.transform.localRotation = Quaternion.Euler(0, 180, 0);
                 modelObj.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+
+                if (minionMat != null)
+                {
+                    foreach (var rend in modelObj.GetComponentsInChildren<Renderer>(true))
+                    {
+                        rend.sharedMaterial = minionMat;
+                    }
+                }
             }
 
             // HealthBar World Space
@@ -834,6 +852,20 @@ namespace FowlgenWars.EditorScripts
             {
                 var fctGo = new GameObject("FloatingCombatTextManager");
                 fctGo.AddComponent<Gameplay.Feedback.FloatingCombatTextManager>();
+            }
+
+            // 5. AudioManager (SFX, BGM, UI)
+            if (GameObject.Find("AudioManager") == null)
+            {
+                var audioGo = new GameObject("AudioManager");
+                audioGo.AddComponent<Gameplay.Audio.AudioManager>();
+            }
+
+            // 6. CombatVFXManager (Penas, Impactos, Cura, Explosões)
+            if (GameObject.Find("CombatVFXManager") == null)
+            {
+                var vfxGo = new GameObject("CombatVFXManager");
+                vfxGo.AddComponent<Gameplay.Feedback.CombatVFXManager>();
             }
         }
 

@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using FowlgenWars.Gameplay.Audio;
+using FowlgenWars.Gameplay.Feedback;
 
 namespace FowlgenWars.Gameplay.UI
 {
@@ -40,6 +42,16 @@ namespace FowlgenWars.Gameplay.UI
                 {
                     countdownText.text = steps[i];
                     countdownText.color = colors[i];
+                }
+
+                if (i == steps.Length - 1)
+                {
+                    AudioManager.Instance?.PlayCombatSound(CombatSoundType.RoosterCrow);
+                    CombatVFXManager.Instance?.SpawnUltimateShockwave(Vector3.zero);
+                }
+                else
+                {
+                    AudioManager.Instance?.PlayCombatSound(CombatSoundType.UIClick);
                 }
 
                 // Efeito punch de escala (1.4 -> 1.0)

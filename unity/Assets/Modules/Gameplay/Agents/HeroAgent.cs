@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using FowlgenWars.Gameplay.Audio;
+using FowlgenWars.Gameplay.Feedback;
 
 namespace FowlgenWars.Gameplay
 {
@@ -120,6 +122,7 @@ namespace FowlgenWars.Gameplay
 
                 nextAttackTime = Time.time + attackInterval;
                 target.TakeDamage(attackDamage);
+                AudioManager.Instance?.PlayCombatSound(CombatSoundType.Punch);
 
                 if (animator != null)
                 {
@@ -212,7 +215,9 @@ namespace FowlgenWars.Gameplay
             {
                 healthBar.UpdateHealth(currentHealth, maxHealth);
             }
-            Feedback.FloatingCombatTextManager.SpawnHeal(transform.position, amount);
+            FloatingCombatTextManager.SpawnHeal(transform.position, amount);
+            CombatVFXManager.Instance?.SpawnHealAura(transform.position);
+            AudioManager.Instance?.PlayCombatSound(CombatSoundType.Heal);
         }
 
         public void TakeDamage(int damage)
@@ -226,6 +231,12 @@ namespace FowlgenWars.Gameplay
             }
             Feedback.FloatingCombatTextManager.SpawnDamage(transform.position, damage);
 
+            // Feedback visual de impacto de penas e som
+            Color featherCol = team == Team.Player ? new Color(1f, 0.95f, 0.8f) : new Color(0.45f, 0.25f, 0.6f);
+            CombatVFXManager.Instance?.SpawnHitImpact(transform.position);
+            CombatVFXManager.Instance?.SpawnFeatherBurst(transform.position, 12, featherCol);
+            AudioManager.Instance?.PlayCombatSound(CombatSoundType.Hit);
+
             if (currentHealth <= 0)
             {
                 currentHealth = 0;
@@ -237,6 +248,9 @@ namespace FowlgenWars.Gameplay
         {
             isDead = true;
             OnHeroDied?.Invoke(this);
+
+            CombatVFXManager.Instance?.SpawnFeatherBurst(transform.position, 30, Color.red);
+            AudioManager.Instance?.PlayCombatSound(CombatSoundType.RoosterCrow);
 
             if (animator != null)
             {
