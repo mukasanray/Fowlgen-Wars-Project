@@ -80,19 +80,25 @@ namespace FowlgenWars.EditorScripts
                 soAxelHero.ApplyModifiedProperties();
             }
 
-            // 3. Configurar Câmera MOBA
+            // 3. Configurar Câmera MOBA Horizontal (Left-to-Right)
             Camera mainCam = Camera.main;
             if (mainCam != null)
             {
+                mainCam.transform.position = new Vector3(-22f, 28.5f, -1.5f);
+                mainCam.transform.rotation = Quaternion.Euler(40.8f, 88.2f, 0f);
+
                 MobaCameraController camCtrl = mainCam.GetComponent<MobaCameraController>();
                 if (camCtrl == null) camCtrl = mainCam.gameObject.AddComponent<MobaCameraController>();
                 camCtrl.SetTarget(miloObj.transform);
                 SerializedObject soCam = new SerializedObject(camCtrl);
                 soCam.FindProperty("target").objectReferenceValue = miloObj.transform;
-                soCam.FindProperty("offset").vector3Value = new Vector3(0, 16f, -14f);
-                soCam.FindProperty("cameraAngle").floatValue = 50f;
-                soCam.FindProperty("smoothSpeed").floatValue = 8f;
+                soCam.FindProperty("horizontalOffset").vector3Value = new Vector3(-22f, 26f, 0f);
+                soCam.FindProperty("cameraPitch").floatValue = 40.8f;
+                soCam.FindProperty("cameraYaw").floatValue = 88.2f;
+                soCam.FindProperty("smoothSpeed").floatValue = 6f;
+                soCam.FindProperty("followTarget").boolValue = true;
                 soCam.ApplyModifiedProperties();
+                camCtrl.ApplyRotation();
             }
 
             // 4. Garantir EventSystem
@@ -257,8 +263,11 @@ namespace FowlgenWars.EditorScripts
             EditorUtility.SetDirty(miloObj);
             if (axelObj != null) EditorUtility.SetDirty(axelObj);
             EditorUtility.SetDirty(canvasObj);
-            EditorSceneManager.MarkSceneDirty(scene);
-            EditorSceneManager.SaveScene(scene);
+            if (!EditorApplication.isPlaying)
+            {
+                EditorSceneManager.MarkSceneDirty(scene);
+                EditorSceneManager.SaveScene(scene);
+            }
 
             Debug.Log("[Setup MOBA] Sucesso! Milo, Axel, Joystick Pack com modos e Botões de Habilidades LoL configurados com sucesso!");
         }
