@@ -16,8 +16,10 @@ namespace FowlgenWars.Gameplay.Optimization
             Application.targetFrameRate = 60;
             QualitySettings.vSyncCount = 0;
 
-            // 2. Travar orientação estritamente na Horizontal (Paisagem)
-            Screen.orientation = ScreenOrientation.LandscapeLeft;
+            // 2. Travar orientação estritamente na Horizontal (Paisagem com Auto-rotação livre)
+            // Permite ajuste automático entre Paisagem Esquerda e Direita (impedindo tela de cabeça para baixo),
+            // enquanto bloqueia estritamente qualquer modo vertical (Retrato).
+            Screen.orientation = ScreenOrientation.AutoRotation;
             Screen.autorotateToPortrait = false;
             Screen.autorotateToPortraitUpsideDown = false;
             Screen.autorotateToLandscapeLeft = true;

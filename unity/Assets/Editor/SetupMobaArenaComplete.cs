@@ -410,8 +410,8 @@ namespace FowlgenWars.EditorScripts
             // 13. Garantir BuildSettings com Arena_Clean
             EnsureSceneInBuildSettings(ScenePath);
 
-            // 14. Fase 9: Travar PlayerSettings em Landscape (Mobile)
-            PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
+            // 14. Fase 9: Travar PlayerSettings em Landscape (AutoRotation apenas horizontal)
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
             PlayerSettings.allowedAutorotateToPortrait = false;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
             PlayerSettings.allowedAutorotateToLandscapeLeft = true;
