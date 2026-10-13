@@ -33,6 +33,9 @@ namespace FowlgenWars.Gameplay
             enemyGalinheiroHp = maxHp;
             currentState = MatchState.Playing;
             OnStateChanged?.Invoke(currentState);
+            OnTimerUpdated?.Invoke(remainingSeconds);
+            OnPlayerHpUpdated?.Invoke(playerGalinheiroHp, maxHp);
+            OnEnemyHpUpdated?.Invoke(enemyGalinheiroHp, maxHp);
         }
 
         public void UpdateTimer(float timeRemaining)

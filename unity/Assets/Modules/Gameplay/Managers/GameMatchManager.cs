@@ -45,6 +45,7 @@ namespace FowlgenWars.Gameplay
 
         private void Start()
         {
+            Time.timeScale = 1f;
             if (matchConfig == null)
             {
                 Debug.LogError("[GameMatchManager] MatchConfigSO não atribuído!");

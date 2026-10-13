@@ -21,23 +21,48 @@ namespace FowlgenWars.Architecture.Views
             runtimeState = state;
             timerText = timer;
             baseStatusText = baseStatus;
-
-            if (runtimeState != null)
-            {
-                runtimeState.OnTimerUpdated += HandleTimerUpdated;
-                runtimeState.OnPlayerHpUpdated += HandlePlayerHpUpdated;
-                runtimeState.OnEnemyHpUpdated += HandleEnemyHpUpdated;
-            }
+            BindRuntimeState();
+            RefreshFromState();
         }
 
-        private void OnDestroy()
+        private void OnEnable()
         {
-            if (runtimeState != null)
+            BindRuntimeState();
+            // Caso GameMatchManager já tenha inicializado antes deste OnEnable (ordem de Start indefinida),
+            // garante que o HUD reflita o valor atual sem esperar o próximo Update.
+            if (runtimeState != null && runtimeState.RemainingSeconds > 0f)
             {
-                runtimeState.OnTimerUpdated -= HandleTimerUpdated;
-                runtimeState.OnPlayerHpUpdated -= HandlePlayerHpUpdated;
-                runtimeState.OnEnemyHpUpdated -= HandleEnemyHpUpdated;
+                HandleTimerUpdated(runtimeState.RemainingSeconds);
+                UpdateBaseStatus();
             }
+        }
+        private void OnDisable() => UnbindRuntimeState();
+        private void OnDestroy() => UnbindRuntimeState();
+
+        private void BindRuntimeState()
+        {
+            if (runtimeState == null) return;
+            runtimeState.OnTimerUpdated -= HandleTimerUpdated;
+            runtimeState.OnPlayerHpUpdated -= HandlePlayerHpUpdated;
+            runtimeState.OnEnemyHpUpdated -= HandleEnemyHpUpdated;
+            runtimeState.OnTimerUpdated += HandleTimerUpdated;
+            runtimeState.OnPlayerHpUpdated += HandlePlayerHpUpdated;
+            runtimeState.OnEnemyHpUpdated += HandleEnemyHpUpdated;
+        }
+
+        private void UnbindRuntimeState()
+        {
+            if (runtimeState == null) return;
+            runtimeState.OnTimerUpdated -= HandleTimerUpdated;
+            runtimeState.OnPlayerHpUpdated -= HandlePlayerHpUpdated;
+            runtimeState.OnEnemyHpUpdated -= HandleEnemyHpUpdated;
+        }
+
+        private void RefreshFromState()
+        {
+            if (runtimeState == null) return;
+            HandleTimerUpdated(runtimeState.RemainingSeconds);
+            UpdateBaseStatus();
         }
 
         private void HandleTimerUpdated(float remainingSeconds)
