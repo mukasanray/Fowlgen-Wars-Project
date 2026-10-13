@@ -1,5 +1,5 @@
-// POC / Backlog - FishNet demo alinhado a Arena_Clean (nao ativo em cena)
-// Requer NetworkObject + este NetworkBehaviour em Arena_Clean para testar; fora do MVP.
+// Integrado na Arena_Clean - testar com 2 instancias (Host + Client)
+// Requer NetworkObject neste GO + NetworkManager+Tugboat na cena
 // Arena_Clean refs: Base-Amarela (Player) (0.32,10.5,20.65) | Base-Roxa-Inimiga (Enemy) (-0.10,10.5,-20.23)
 // SpawnPlayer (0.32,10.5,17.5) | SpawnEnemy (-0.10,10.5,-17.5) | Paths Top/Mid/Bot em SetupMobaArenaComplete.cs
 using FishNet.Object;
