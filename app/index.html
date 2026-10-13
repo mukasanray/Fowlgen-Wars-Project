@@ -39,7 +39,7 @@
                 </button>
 
                 <!-- Botão Conectar Carteira Solana -->
-                <button id="connectWalletNavBtn" class="bg-purple-600 text-white title-font px-4 py-2.5 rounded-2xl hover:bg-purple-700 transition inline-flex items-center justify-center gap-2 cursor-pointer text-sm shadow-md flex-1 md:flex-none">
+                <button id="connectWalletNavBtn" onclick="handleWalletClick()" class="bg-purple-600 text-white title-font px-4 py-2.5 rounded-2xl hover:bg-purple-700 transition inline-flex items-center justify-center gap-2 cursor-pointer text-sm shadow-md flex-1 md:flex-none">
                     <span>⚡</span> <span id="navWalletText">Conectar Carteira</span>
                 </button>
             </div>
@@ -153,14 +153,22 @@
                 </button>
             </div>
 
-            <!-- Contêiner do Iframe -->
-            <div id="embeddedArenaContainer" class="hidden mt-6 bg-white rounded-3xl p-4 sm:p-6 border-4 border-amber-400 shadow-2xl transition-all">
-                <div class="flex items-center justify-between pb-3 mb-3 border-b-2 border-gray-100">
-                    <span class="text-xs font-bold text-gray-500">Arena Embutida: fowlgenwars.itch.io</span>
-                    <a href="https://fowlgenwars.itch.io/fowlgenwars" target="_blank" class="text-xs text-rose-600 font-bold hover:underline">Abrir em Tela Cheia ↗</a>
+            <!-- Contêiner do Iframe da Arena -->
+            <div id="embeddedArenaContainer" style="display: none;" class="mt-6 bg-white rounded-3xl p-4 sm:p-6 border-4 border-amber-400 shadow-2xl transition-all">
+                <div class="flex flex-col sm:flex-row items-center justify-between pb-3 mb-3 border-b-2 border-gray-100 gap-2">
+                    <span class="text-xs font-bold text-gray-700">Arena Oficial: fowlgenwars.itch.io</span>
+                    <button onclick="launchGameOnItch()" class="text-xs bg-rose-500 hover:bg-rose-600 text-white font-bold px-3 py-1.5 rounded-xl shadow cursor-pointer">
+                        🚀 Abrir em Tela Cheia (Itch.io) ↗
+                    </button>
                 </div>
-                <div class="w-full aspect-video max-h-[640px] rounded-2xl overflow-hidden bg-black shadow-inner flex items-center justify-center relative">
-                    <iframe id="arenaIframe" src="about:blank" class="w-full h-full border-0" allow="fullscreen; autoplay" title="Fowlgen Wars WebGL Arena"></iframe>
+                <div class="w-full aspect-video max-h-[640px] rounded-2xl overflow-hidden bg-black shadow-inner flex flex-col items-center justify-center relative">
+                    <iframe id="arenaIframe" src="about:blank" class="w-full h-full border-0" allow="fullscreen; autoplay; clipboard-write; encrypted-media" title="Fowlgen Wars WebGL Arena"></iframe>
+                </div>
+                <div class="mt-3 text-center">
+                    <p class="text-xs text-gray-500">
+                        💡 Se o seu navegador bloquear o carregamento embutido por segurança da Itch.io, 
+                        <a href="javascript:void(0)" onclick="launchGameOnItch()" class="text-rose-600 font-bold underline">clique aqui para abrir direto no Itch.io</a> com sua carteira sincronizada!
+                    </p>
                 </div>
             </div>
         </div>
@@ -267,7 +275,7 @@
                     </p>
                 </div>
                 <div class="text-center pt-4 flex flex-col sm:flex-row justify-center gap-4">
-                    <button id="connectWalletBtn" class="bg-purple-600 text-white title-font text-base sm:text-lg px-8 py-3.5 rounded-2xl hover:bg-purple-700 transition inline-flex items-center justify-center gap-2 shadow cursor-pointer">
+                    <button id="connectWalletBtn" onclick="handleWalletClick()" class="bg-purple-600 text-white title-font text-base sm:text-lg px-8 py-3.5 rounded-2xl hover:bg-purple-700 transition inline-flex items-center justify-center gap-2 shadow cursor-pointer">
                         ⚡ Conectar Carteira e Apoiar
                     </button>
                     <a href="https://phantom.app/" target="_blank" class="bg-white text-purple-700 border-2 border-purple-600 title-font text-base sm:text-lg px-6 py-3.5 rounded-2xl hover:bg-purple-50 transition inline-flex items-center justify-center gap-2 shadow text-center">

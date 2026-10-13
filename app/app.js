@@ -1,50 +1,78 @@
 /**
- * FOWLGEN WARS - HUB WEB & SOLANA INTEGRATION (MODO TURBO)
- * Gerencia a conexão com carteiras Solana (Phantom/Solflare), saldo na Devnet,
- * autenticação e o redirecionamento/integração com a arena na Itch.io.
+ * FOWLGEN WARS - HUB WEB OFICIAL (VERCEL)
+ * Conexão com Solana (Devnet), Suporte a Phantom/Solflare, Gestão do Perfil
+ * e Redirecionamento/Visualização da Arena na Itch.io.
  */
 
 const SOLANA_DEVNET_RPC = "https://api.devnet.solana.com";
 const ITCH_GAME_URL = "https://fowlgenwars.itch.io/fowlgenwars";
-const API_BASE_URL = "http://localhost:5000/api"; // URL padrão de desenvolvimento da API Onix
+const API_BASE_URL = "http://localhost:5000/api";
 
-// Estado da Aplicação
+// Estado Global
 const appState = {
     connected: false,
     publicKey: null,
-    balanceSol: 0,
+    balanceSol: "0.000",
     nickname: localStorage.getItem('fowlgen_nickname') || 'Galinha Guerreira',
     jwtToken: localStorage.getItem('fowlgen_jwt') || null
 };
 
 // ==========================================
-// DETECÇÃO DE CARTEIRAS (SOLANA)
+// DETECÇÃO DE CARTEIRA (SOLANA DEVNET)
 // ==========================================
 function getSolanaProvider() {
-    if ("solana" in window) {
-        const provider = window.solana;
-        if (provider.isPhantom || provider.isBackpack) {
-            return provider;
-        }
+    if (window.solana) {
+        return window.solana;
     }
-    if ("solflare" in window) {
+    if (window.phantom && window.phantom.solana) {
+        return window.phantom.solana;
+    }
+    if (window.solflare) {
         return window.solflare;
     }
     return null;
 }
 
 // ==========================================
-// CONEXÃO & GESTÃO DA CARTEIRA
+// AÇÃO DO BOTÃO "CONECTAR CARTEIRA"
 // ==========================================
-async function connectWallet(autoConnect = false) {
-    const provider = getSolanaProvider();
+async function handleWalletClick() {
+    if (appState.connected) {
+        // Se já está conectado, rola até o dashboard e destaca
+        const dashboard = document.getElementById('playerDashboard');
+        if (dashboard) {
+            dashboard.style.display = 'block';
+            dashboard.classList.remove('hidden');
+            dashboard.scrollIntoView({ behavior: 'smooth' });
+        }
+        showNotification(`🦊 Carteira Ativa: ${shortenAddress(appState.publicKey)}`, "info");
+        return;
+    }
+
+    await connectWallet();
+}
+
+async function connectWallet(silent = false) {
+    let provider = getSolanaProvider();
+
+    // Se o provedor demorar alguns milissegundos para injetar, espera um pouco
+    if (!provider) {
+        await new Promise(resolve => setTimeout(resolve, 250));
+        provider = getSolanaProvider();
+    }
 
     if (!provider) {
-        if (!autoConnect) {
-            const userChoice = confirm(
-                "Nenhuma carteira Solana detectada (ex: Phantom ou Solflare).\nDeseja abrir o site oficial da Phantom para instalar a extensão?"
+        if (!silent) {
+            const manualAddr = prompt(
+                "Nenhuma extensão de carteira Solana (Phantom ou Solflare) detectada automaticamente neste navegador.\n\nCole o seu endereço público da Phantom (Devnet) para conectar seu perfil agora:",
+                ""
             );
-            if (userChoice) {
+            if (manualAddr && manualAddr.trim().length >= 32) {
+                applyConnectedWallet(manualAddr.trim());
+                return;
+            }
+            const wantInstall = confirm("Deseja abrir o site oficial da Phantom para instalar a extensão?");
+            if (wantInstall) {
                 window.open("https://phantom.app/", "_blank");
             }
         }
@@ -52,34 +80,46 @@ async function connectWallet(autoConnect = false) {
     }
 
     try {
-        const resp = await provider.connect({ onlyIfTrusted: autoConnect });
-        const pubKey = resp.publicKey ? resp.publicKey.toString() : provider.publicKey.toString();
-        
-        appState.connected = true;
-        appState.publicKey = pubKey;
-        localStorage.setItem('fowlgen_wallet', pubKey);
-
-        updateWalletUI();
-        await fetchDevnetBalance(pubKey);
-        showNotification(`🐔 Carteira conectada: ${shortenAddress(pubKey)}`, "success");
+        showNotification("⏳ Aguardando aprovação na Phantom...", "info");
+        const resp = await provider.connect();
+        const pubKey = resp && resp.publicKey ? resp.publicKey.toString() : provider.publicKey.toString();
+        applyConnectedWallet(pubKey);
 
         // Listener de desconexão
-        provider.on("disconnect", () => {
-            disconnectWallet();
-        });
-
+        if (provider.on) {
+            provider.on("disconnect", () => {
+                disconnectWallet();
+            });
+        }
     } catch (err) {
-        if (!autoConnect) {
-            console.error("Erro ao conectar à carteira:", err);
+        console.warn("Conexão cancelada:", err);
+        if (!silent) {
             showNotification("Conexão com a carteira cancelada.", "error");
         }
+    }
+}
+
+function applyConnectedWallet(pubKey) {
+    appState.connected = true;
+    appState.publicKey = pubKey;
+    localStorage.setItem('fowlgen_wallet', pubKey);
+
+    updateWalletUI();
+    fetchDevnetBalance(pubKey);
+    showNotification(`🐔 Carteira conectada: ${shortenAddress(pubKey)}`, "success");
+
+    const dashboard = document.getElementById('playerDashboard');
+    if (dashboard) {
+        dashboard.style.display = 'block';
+        dashboard.classList.remove('hidden');
+        dashboard.scrollIntoView({ behavior: 'smooth' });
     }
 }
 
 function disconnectWallet() {
     appState.connected = false;
     appState.publicKey = null;
-    appState.balanceSol = 0;
+    appState.balanceSol = "0.000";
     appState.jwtToken = null;
     localStorage.removeItem('fowlgen_wallet');
     localStorage.removeItem('fowlgen_jwt');
@@ -88,7 +128,7 @@ function disconnectWallet() {
 }
 
 // ==========================================
-// CONSULTA DE SALDO & AIRDROP DEVNET (RPC)
+// CONSULTA DE SALDO RPC & AIRDROP DEVNET
 // ==========================================
 async function fetchDevnetBalance(pubKey) {
     const balanceElem = document.getElementById('walletBalance');
@@ -108,15 +148,15 @@ async function fetchDevnetBalance(pubKey) {
 
         const data = await response.json();
         if (data.result && typeof data.result.value === 'number') {
-            const sol = data.result.value / 1000000000;
-            appState.balanceSol = sol.toFixed(3);
-            if (balanceElem) balanceElem.innerText = `${appState.balanceSol} SOL (Devnet)`;
+            const sol = (data.result.value / 1000000000).toFixed(3);
+            appState.balanceSol = sol;
+            if (balanceElem) balanceElem.innerText = `${sol} SOL (Devnet)`;
             const navBalance = document.getElementById('navWalletBalance');
-            if (navBalance) navBalance.innerText = `${appState.balanceSol} SOL`;
+            if (navBalance) navBalance.innerText = `${sol} SOL`;
         }
     } catch (err) {
-        console.warn("Falha ao consultar saldo RPC:", err);
-        if (balanceElem) balanceElem.innerText = "0.000 SOL (Offline)";
+        console.warn("Falha no RPC Devnet:", err);
+        if (balanceElem) balanceElem.innerText = "0.000 SOL";
     }
 }
 
@@ -126,7 +166,7 @@ async function requestDevnetAirdrop() {
         return;
     }
 
-    showNotification("⏳ Solicitando 1 SOL na Devnet...", "info");
+    showNotification("⏳ Solicitando 1 SOL gratuito na Devnet...", "info");
     const airdropBtn = document.getElementById('airdropBtn');
     if (airdropBtn) airdropBtn.disabled = true;
 
@@ -138,7 +178,7 @@ async function requestDevnetAirdrop() {
                 jsonrpc: "2.0",
                 id: 1,
                 method: "requestAirdrop",
-                params: [appState.publicKey, 1000000000] // 1 SOL em Lamports
+                params: [appState.publicKey, 1000000000]
             })
         });
 
@@ -150,14 +190,14 @@ async function requestDevnetAirdrop() {
             showNotification("Limite do faucet da Devnet atingido. Tente novamente mais tarde.", "error");
         }
     } catch (err) {
-        showNotification("Erro de conexão ao solicitar airdrop.", "error");
+        showNotification("Erro ao solicitar airdrop.", "error");
     } finally {
         if (airdropBtn) airdropBtn.disabled = false;
     }
 }
 
 // ==========================================
-// ASSINATURA DE AUTENTICAÇÃO (LOGIN CRIPTOGRÁFICO)
+// ASSINATURA DE AUTENTICAÇÃO
 // ==========================================
 async function signAuthChallenge() {
     const provider = getSolanaProvider();
@@ -167,69 +207,24 @@ async function signAuthChallenge() {
     }
 
     try {
-        const messageText = `Fowlgen Wars Login Challenge: ${Date.now()} | Nickname: ${appState.nickname}`;
-        const encodedMessage = new TextEncoder().encode(messageText);
-        
-        showNotification("Confirme a assinatura na sua carteira...", "info");
-        const signed = await provider.signMessage(encodedMessage, "utf8");
-        
-        showNotification("✅ Assinatura criptográfica verificada! Sessão ativa.", "success");
-        console.log("Assinatura recebida:", signed);
-        
-        // Simulação / Integração com a API Onix (.NET 9) se disponível
-        tryRegisterOrLoginAPI(appState.publicKey, messageText, signed);
-
+        const messageText = `Fowlgen Wars Login Challenge: ${Date.now()} | Nick: ${appState.nickname}`;
+        const encoded = new TextEncoder().encode(messageText);
+        showNotification("Confirme a assinatura na Phantom...", "info");
+        await provider.signMessage(encoded, "utf8");
+        showNotification("✅ Sessão criptográfica autenticada!", "success");
     } catch (err) {
-        console.error("Assinatura cancelada ou rejeitada:", err);
-        showNotification("Assinatura cancelada pelo usuário.", "error");
-    }
-}
-
-async function tryRegisterOrLoginAPI(walletAddress, message, signedData) {
-    try {
-        // Tenta enviar para a API local ou remota se disponível
-        await fetch(`${API_BASE_URL}/users`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                email: `${walletAddress.substring(0, 6)}@fowlgenwars.com`,
-                nickname: appState.nickname
-            })
-        });
-    } catch (e) {
-        // Sem problemas se a API estiver em ambiente local/offline
-        console.log("API offline ou rodando em modo puramente descentralizado.");
+        showNotification("Assinatura cancelada.", "error");
     }
 }
 
 // ==========================================
-// APOIADORES & DOAÇÃO ON-CHAIN
+// AÇÕES DA ARENA & ITCH.IO
 // ==========================================
-async function sendSupportDonation() {
-    const provider = getSolanaProvider();
-    if (!provider || !appState.publicKey) {
-        showNotification("Conecte a carteira para apoiar!", "error");
-        return;
-    }
-
-    showNotification("💡 No ambiente Devnet, a doação demonstra a transação Web3 da galinha!", "info");
-    await signAuthChallenge();
-}
-
 function launchGameOnItch() {
     const sessionParam = appState.publicKey ? `?wallet=${encodeURIComponent(appState.publicKey)}&nick=${encodeURIComponent(appState.nickname)}` : '';
-    window.open(`${ITCH_GAME_URL}${sessionParam}`, "_blank");
+    const finalUrl = `${ITCH_GAME_URL}${sessionParam}`;
+    window.open(finalUrl, "_blank");
 }
-
-// Expõe funções para o HTML
-window.launchGameOnItch = launchGameOnItch;
-window.toggleEmbeddedArena = toggleEmbeddedArena;
-window.connectWallet = connectWallet;
-window.disconnectWallet = disconnectWallet;
-window.requestDevnetAirdrop = requestDevnetAirdrop;
-window.signAuthChallenge = signAuthChallenge;
-window.copyWalletAddress = copyWalletAddress;
-window.editNickname = editNickname;
 
 function toggleEmbeddedArena() {
     const arenaContainer = document.getElementById('embeddedArenaContainer');
@@ -237,19 +232,27 @@ function toggleEmbeddedArena() {
     
     if (!arenaContainer) return;
 
-    if (arenaContainer.classList.contains('hidden')) {
+    const isCurrentlyHidden = (arenaContainer.style.display === 'none' || arenaContainer.classList.contains('hidden'));
+
+    if (isCurrentlyHidden) {
+        arenaContainer.style.display = 'block';
         arenaContainer.classList.remove('hidden');
-        if (arenaIframe && (!arenaIframe.src || arenaIframe.src === "about:blank")) {
-            arenaIframe.src = ITCH_GAME_URL;
+
+        if (arenaIframe && (!arenaIframe.src || arenaIframe.src === "about:blank" || arenaIframe.src === window.location.href)) {
+            const sessionParam = appState.publicKey ? `?wallet=${encodeURIComponent(appState.publicKey)}&nick=${encodeURIComponent(appState.nickname)}` : '';
+            arenaIframe.src = `${ITCH_GAME_URL}${sessionParam}`;
         }
+
         arenaContainer.scrollIntoView({ behavior: 'smooth' });
+        showNotification("📺 Arena carregada abaixo! Ou use o botão de tela cheia.", "info");
     } else {
+        arenaContainer.style.display = 'none';
         arenaContainer.classList.add('hidden');
     }
 }
 
 // ==========================================
-// ATUALIZAÇÃO DE INTERFACE
+// INTERFACE & UTILITÁRIOS
 // ==========================================
 function shortenAddress(addr) {
     if (!addr) return "";
@@ -257,11 +260,9 @@ function shortenAddress(addr) {
 }
 
 function updateWalletUI() {
-    const connectNavBtn = document.getElementById('connectWalletNavBtn');
     const navText = document.getElementById('navWalletText');
+    const connectNavBtn = document.getElementById('connectWalletNavBtn');
     const dashboard = document.getElementById('playerDashboard');
-    const heroPlayBtn = document.getElementById('heroPlayBtn');
-    const walletSection = document.getElementById('walletSectionCard');
     const walletAddressDisplay = document.getElementById('walletAddressDisplay');
     const explorerLink = document.getElementById('solanaExplorerLink');
     const playerNickDisplay = document.getElementById('playerNickDisplay');
@@ -274,17 +275,16 @@ function updateWalletUI() {
             connectNavBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
         }
 
-        if (dashboard) dashboard.classList.remove('hidden');
+        if (dashboard) {
+            dashboard.style.display = 'block';
+            dashboard.classList.remove('hidden');
+        }
         if (walletAddressDisplay) walletAddressDisplay.innerText = appState.publicKey;
         if (playerNickDisplay) playerNickDisplay.innerText = appState.nickname;
         if (explorerLink) {
             explorerLink.href = `https://explorer.solana.com/address/${appState.publicKey}?cluster=devnet`;
+            explorerLink.style.display = 'inline';
             explorerLink.classList.remove('hidden');
-        }
-
-        if (walletSection) {
-            walletSection.classList.remove('border-amber-400');
-            walletSection.classList.add('border-emerald-500');
         }
     } else {
         if (navText) navText.innerText = "Conectar Carteira";
@@ -292,8 +292,14 @@ function updateWalletUI() {
             connectNavBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
             connectNavBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
         }
-        if (dashboard) dashboard.classList.add('hidden');
-        if (explorerLink) explorerLink.classList.add('hidden');
+        if (dashboard) {
+            dashboard.style.display = 'none';
+            dashboard.classList.add('hidden');
+        }
+        if (explorerLink) {
+            explorerLink.style.display = 'none';
+            explorerLink.classList.add('hidden');
+        }
     }
 }
 
@@ -320,6 +326,7 @@ function showNotification(msg, type = "info") {
     if (!toast) return;
 
     toast.innerText = msg;
+    toast.style.display = 'flex';
     toast.className = "fixed bottom-5 right-5 z-50 px-6 py-3 rounded-2xl shadow-2xl font-bold text-white transition-all duration-300 transform translate-y-0 opacity-100 flex items-center gap-2";
 
     if (type === "success") {
@@ -332,37 +339,27 @@ function showNotification(msg, type = "info") {
 
     setTimeout(() => {
         toast.classList.add("opacity-0", "translate-y-5");
-    }, 4000);
+        setTimeout(() => { toast.style.display = 'none'; }, 300);
+    }, 3500);
 }
 
 // ==========================================
-// INICIALIZAÇÃO AO CARREGAR A PÁGINA
+// EXPOSIÇÃO GLOBAL NO ESCOPO WINDOW
 // ==========================================
+window.handleWalletClick = handleWalletClick;
+window.connectWallet = connectWallet;
+window.disconnectWallet = disconnectWallet;
+window.launchGameOnItch = launchGameOnItch;
+window.toggleEmbeddedArena = toggleEmbeddedArena;
+window.requestDevnetAirdrop = requestDevnetAirdrop;
+window.signAuthChallenge = signAuthChallenge;
+window.copyWalletAddress = copyWalletAddress;
+window.editNickname = editNickname;
+
+// Inicialização
 document.addEventListener('DOMContentLoaded', () => {
-    // Tenta reconectar se a carteira já estiver autorizada
     const savedWallet = localStorage.getItem('fowlgen_wallet');
     if (savedWallet) {
         connectWallet(true);
-    }
-
-    // Configurar listeners
-    const connectNavBtn = document.getElementById('connectWalletNavBtn');
-    if (connectNavBtn) {
-        connectNavBtn.addEventListener('click', () => {
-            if (appState.connected) {
-                // Alterna visualização do dashboard
-                const dashboard = document.getElementById('playerDashboard');
-                if (dashboard) {
-                    dashboard.scrollIntoView({ behavior: 'smooth' });
-                }
-            } else {
-                connectWallet();
-            }
-        });
-    }
-
-    const connectSectionBtn = document.getElementById('connectWalletBtn');
-    if (connectSectionBtn) {
-        connectSectionBtn.addEventListener('click', () => connectWallet());
     }
 });
