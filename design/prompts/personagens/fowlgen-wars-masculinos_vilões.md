@@ -1,0 +1,136 @@
+# Personagens Masculinos de Alinhamento Vilões
+
+## VALERIUS
+
+```
+NOME: Valerius
+GÊNERO: Masculino
+ESPÉCIE: Galinha + Vampiro
+CLÃ / CIVILIZAÇÃO: Vampiro
+ALINHAMENTO: Vilão
+CLASSE PRINCIPAL: Guerreiro
+CLASSE SECUNDÁRIA, SE EXISTIR: Bruxo
+FUNÇÃO NO GAMEPLAY: Top
+PERSONALIDADE: Nobre, Sério
+TEMA VISUAL: Antigo
+ARMA PRINCIPAL: Espada
+ARMA OU EQUIPAMENTO SECUNDÁRIO: Armadura negra
+PODER / ELEMENTO / HABILIDADE VISUAL: Sangue e Trevas
+CORES PRINCIPAIS: Vermelho e Preto
+CARACTERÍSTICAS ESPECIAIS:
+Físico: Alto e Forte
+```
+
+---
+
+## AXEL
+
+```
+NOME: Axel
+GÊNERO: Masculino
+ESPÉCIE: Galinha + Tucano
+CLÃ / CIVILIZAÇÃO: Astronauta
+ALINHAMENTO: Vilão
+CLASSE PRINCIPAL: Protetor
+CLASSE SECUNDÁRIA, SE EXISTIR: —
+FUNÇÃO NO GAMEPLAY: Suporte
+PERSONALIDADE: Confiante
+TEMA VISUAL: Espacial
+ARMA PRINCIPAL: Escudo
+ARMA OU EQUIPAMENTO SECUNDÁRIO: —
+PODER / ELEMENTO / HABILIDADE VISUAL: Trevas
+CORES PRINCIPAIS: Amarelo e Preto
+CARACTERÍSTICAS ESPECIAIS:
+Físico: Baixo e Gordo
+```
+
+---
+
+## KAGE
+
+```
+NOME: Kage
+GÊNERO: Masculino
+ESPÉCIE: Galinha Assassina
+ALINHAMENTO: Vilão
+CLASSE PRINCIPAL: Assassino 
+CLASSE SECUNDÁRIA, SE EXISTIR: Mago
+FUNÇÃO NO GAMEPLAY: Mid
+PERSONALIDADE: Maligno, Serio
+TEMA VISUAL:  —
+ARMA PRINCIPAL: Luvas com adaga
+ARMA OU EQUIPAMENTO SECUNDÁRIO: —
+PODER / ELEMENTO / HABILIDADE VISUAL: Trevas
+CORES PRINCIPAIS: Preto e Roxo
+CARACTERÍSTICAS ESPECIAIS: 
+FISICO: Magro e Medio.
+```
+
+---
+
+## KURO
+
+```
+NOME: Kuro
+GÊNERO: Masculino
+ESPÉCIE: Galinha + Minotauro
+ALINHAMENTO: Vilão
+CLASSE PRINCIPAL: Colosso 
+CLASSE SECUNDÁRIA, SE EXISTIR: —
+FUNÇÃO NO GAMEPLAY: Top
+PERSONALIDADE: Agrecivo, Tolo
+TEMA VISUAL:  Gladiador
+ARMA PRINCIPAL: Maça de Ferro
+ARMA OU EQUIPAMENTO SECUNDÁRIO: —
+PODER / ELEMENTO / HABILIDADE VISUAL: Força, Fogo
+CORES PRINCIPAIS: Vermelho e Preto
+CARACTERÍSTICAS ESPECIAIS: 
+FISICO: Forte e Alto.
+```
+
+---
+
+## JIN
+
+```
+NOME: Jin
+GÊNERO: Masculino
+ESPÉCIE: Galinha + Mico-Leão-Dourado
+ALINHAMENTO: Vilão
+CLASSE PRINCIPAL: Lutador 
+CLASSE SECUNDÁRIA, SE EXISTIR: —
+FUNÇÃO NO GAMEPLAY: Top
+PERSONALIDADE: Burro, Engraçado
+TEMA VISUAL:  Cyberpunk
+ARMA PRINCIPAL: Bastão
+ARMA OU EQUIPAMENTO SECUNDÁRIO: —
+PODER / ELEMENTO / HABILIDADE VISUAL: Velocidade, Eletricidade
+CORES PRINCIPAIS: Amarelo e Preto
+CARACTERÍSTICAS ESPECIAIS: 
+FISICO: magro e Baixo.
+```
+
+---
+
+## OTTO
+
+```
+NOME: Otto
+GÊNERO: Masculino
+ESPÉCIE: Galinha Mago
+CLÃ / CIVILIZAÇÃO: Torre dos Magos
+ALINHAMENTO: Vilão
+CLASSE PRINCIPAL: Mago
+CLASSE SECUNDÁRIA, SE EXISTIR: —
+FUNÇÃO NO GAMEPLAY: Mid
+PERSONALIDADE: Misterioso, Desconfiado
+TEMA VISUAL: Interdimencional
+ARMA PRINCIPAL: Cajado
+ARMA OU EQUIPAMENTO SECUNDÁRIO: Livro/Grimorio
+PODER / ELEMENTO / HABILIDADE VISUAL: Espacial
+CORES PRINCIPAIS: Roxo
+CARACTERÍSTICAS ESPECIAIS:
+Físico: Medio
+```
+
+---

@@ -1,0 +1,138 @@
+{
+  "character": {
+    "id": "[CHAR_ID]",
+    "name": "[NOME]",
+    "class": "[CLASSE]",
+    "role": "[FUNÇÃO]",
+    "species": "[RAÇA]",
+    "clan": "[CLÃ]",
+    "theme": "[TEMA]",
+    "route": "[ROTA]",
+    "visual_summary": "[1 frase]"
+  },
+  "references": {
+    "concept_main": "[arquivo/id]",
+    "turn_front": "[arquivo/id]",
+    "turn_left": "[arquivo/id]",
+    "turn_right": "[arquivo/id]",
+    "turn_back": "[arquivo/id]",
+    "turn_3q_front": "[arquivo/id opcional]",
+    "turn_3q_back": "[arquivo/id opcional]",
+    "detail_sheet": "[arquivo/id]",
+    "detail_head": "[arquivo/id]",
+    "detail_torso": "[arquivo/id]",
+    "detail_weapon": "[arquivo/id]"
+  },
+  "coordinate_system": {
+    "blender_unit_m": 1.0,
+    "origin": "center_between_feet",
+    "ground_z": 0.0,
+    "front": "-Y",
+    "right": "+X",
+    "back": "+Y",
+    "height_m": null,
+    "width_m": null,
+    "depth_m": null,
+    "production_pose": "[A-pose/T-pose/neutra]"
+  },
+  "geometry": {
+    "lod0": {
+      "tris_target": null,
+      "tris_min": null,
+      "tris_max": null,
+      "faces_estimated": null,
+      "verts_estimated": null
+    },
+    "lod1": {
+      "tris_target": null
+    },
+    "lod2": {
+      "tris_target": null
+    },
+    "actual": {
+      "vertices": null,
+      "faces": null,
+      "triangles": null
+    }
+  },
+  "palette": [
+    {
+      "id": "P01",
+      "name": "[Cor principal]",
+      "hex": "#------",
+      "usage": "[área exata]",
+      "material": "[M01]",
+      "visual_percent": null
+    }
+  ],
+  "materials": [
+    {
+      "id": "M01",
+      "type": "[Pena/Pele/Tecido/Metal/Couro]",
+      "areas": [],
+      "metallic": null,
+      "roughness": null,
+      "normal": true
+    }
+  ],
+  "components": [
+    {
+      "id": "C01",
+      "name": "[componente]",
+      "category": "[Anatomia/Armadura/Roupa/Acessório/Equipamento]",
+      "separate_object": false,
+      "deforms": true,
+      "material_ids": [
+        "M01"
+      ],
+      "color_ids": [
+        "P01"
+      ],
+      "tris_target": null,
+      "faces_estimated": null,
+      "verts_estimated": null,
+      "bbox_m": {
+        "x": [
+          null,
+          null
+        ],
+        "y": [
+          null,
+          null
+        ],
+        "z": [
+          null,
+          null
+        ]
+      },
+      "priority": "[Alta/Média/Baixa]",
+      "notes": ""
+    }
+  ],
+  "textures": {
+    "production_resolution": "2048x2048",
+    "mobile_export": "1024x1024 or 2048x2048",
+    "basecolor": "sRGB",
+    "normal": true,
+    "orm_optional": true,
+    "uv_padding_px_2k": 12,
+    "max_materials": 2
+  },
+  "rig": {
+    "type": "[Humanoid custom/Generic]",
+    "bones_target": null,
+    "equipment_parent_bone": "[bone]",
+    "facial": "[none/simple/bones/blendshapes]"
+  },
+  "unity": {
+    "engine": "Unity 6",
+    "pipeline": "URP",
+    "scale": "1 unit = 1 m",
+    "prefab": "[CHAR]_Prefab",
+    "ready": false
+  },
+  "status": {
+    "stage": "[CONCEPT/3D/RETOPO/RIG/GAME_READY]",
+    "blockers": []
+  }
+}

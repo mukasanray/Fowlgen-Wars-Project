@@ -1,0 +1,96 @@
+# Personagens Masculinos de Alinhamento Vilões
+
+## MILO
+
+```
+NOME: Milo
+GÊNERO: Masculino
+ESPÉCIE: Galinha Tank
+ALINHAMENTO: Heroi
+CLASSE PRINCIPAL: Tank 
+CLASSE SECUNDÁRIA, SE EXISTIR: —
+FUNÇÃO NO GAMEPLAY: Top
+PERSONALIDADE: Animado, Protetor
+TEMA VISUAL: Medieval 
+ARMA PRINCIPAL: Grande Escudo
+ARMA OU EQUIPAMENTO SECUNDÁRIO: —
+PODER / ELEMENTO / HABILIDADE VISUAL: Metal
+CORES PRINCIPAIS: Cinza, Azul e Dourado 
+CARACTERÍSTICAS ESPECIAIS: 
+FISICO: Forte e Alto.
+```
+
+---
+
+## BARON
+
+```
+NOME: Baron
+GÊNERO: Masculino
+ESPÉCIE: Galinha + Lobo-guará
+CLÃ / CIVILIZAÇÃO: Clã dos Caçadores
+ALINHAMENTO: Herói
+CLASSE PRINCIPAL: Caçador
+CLASSE SECUNDÁRIA, SE EXISTIR: —
+FUNÇÃO NO GAMEPLAY: Jungle
+PERSONALIDADE: Alegre, Confiante
+TEMA VISUAL: Tribal
+ARMA PRINCIPAL: Adagas
+ARMA OU EQUIPAMENTO SECUNDÁRIO: —
+PODER / ELEMENTO / HABILIDADE VISUAL: Velocidade, Raio
+CORES PRINCIPAIS: Amarelo
+CARACTERÍSTICAS ESPECIAIS:
+Físico: Alto e Magro
+```
+
+---
+
+## CODY
+
+```
+NOME: Cody
+GÊNERO: Masculino
+ESPÉCIE: Galinha Ciborgue
+CLÃ / CIVILIZAÇÃO: Tecnológica
+ALINHAMENTO: Herói
+CLASSE PRINCIPAL: Atirador
+CLASSE SECUNDÁRIA, SE EXISTIR: Tank
+FUNÇÃO NO GAMEPLAY: ADC
+PERSONALIDADE: Feroz, Agressivo
+TEMA VISUAL: Futurista
+ARMA PRINCIPAL: Canhão na mão esquerda
+ARMA OU EQUIPAMENTO SECUNDÁRIO: —
+PODER / ELEMENTO / HABILIDADE VISUAL: Metal
+CORES PRINCIPAIS: Cinza
+CARACTERÍSTICAS ESPECIAIS:
+Físico: Forte e Alto
+```
+
+---
+
+## KAITO
+
+```
+NOME: Kaito
+GÊNERO: Masculino
+ESPÉCIE: Galinha
+CLÃ / CIVILIZAÇÃO: Reino das Savanas
+ALINHAMENTO: Heroi
+CLASSE PRINCIPAL: Lutador
+CLASSE SECUNDÁRIA, SE EXISTIR: —
+FUNÇÃO NO GAMEPLAY: Top
+PERSONALIDADE: Competitivo, sede por luta e 
+vitória
+TEMA VISUAL: Tribal
+ARMA PRINCIPAL: Manoplas
+ARMA OU EQUIPAMENTO SECUNDÁRIO: —
+PODER / ELEMENTO / HABILIDADE VISUAL: Força / Terra
+CORES PRINCIPAIS: Laranja, Marrom
+CARACTERÍSTICAS ESPECIAIS:
+Físico: Forte e Baixo
+```
+
+---
+
+
+
