@@ -102,41 +102,39 @@ namespace FowlgenWars.Gameplay
             }
         }
 
+        public float AttackInterval => attackInterval;
+        public float NextAttackTime => nextAttackTime;
+
         /// <summary>
         /// Acionado pelo botão de Ataque do HUD (estilo Mobile Legends / LoL) ou tecla de atalho.
+        /// Sempre consome cooldown e toca feedback (acerto ou whiff) para botão nunca parecer travado.
         /// </summary>
         public bool ExecuteBasicAttack()
         {
             if (isDead || Time.time < nextAttackTime) return false;
 
             IDamageable target = FindNearestEnemy(attackRange);
+            nextAttackTime = Time.time + attackInterval;
+
             if (target != null)
             {
-                // Rotacionar em direção ao alvo
                 Vector3 dir = (target.TargetTransform.position - transform.position).normalized;
                 dir.y = 0;
                 if (dir.sqrMagnitude > 0.001f)
-                {
                     transform.rotation = Quaternion.LookRotation(dir);
-                }
 
-                nextAttackTime = Time.time + attackInterval;
                 target.TakeDamage(attackDamage);
                 AudioManager.Instance?.PlayCombatSound(CombatSoundType.Punch);
-
-                if (animator != null)
-                {
-                    animator.SetTrigger("Attack");
-                }
-
-                if (isAI)
-                {
-                    Debug.Log($"[Combate IA] {gameObject.name} atacou {target.TargetTransform.name} causando {attackDamage} de dano!");
-                }
+                if (animator != null) animator.SetTrigger("Attack");
+                if (isAI) Debug.Log($"[Combate IA] {gameObject.name} atacou {target.TargetTransform.name} causando {attackDamage} de dano!");
                 return true;
             }
 
-            return false;
+            // Whiff: sem alvo no alcance — feedback para botão não parecer morto
+            if (animator != null) animator.SetTrigger("Attack");
+            AudioManager.Instance?.PlayCombatSound(CombatSoundType.Whoosh);
+            CombatVFXManager.Instance?.SpawnHitImpact(transform.position + transform.forward * 1.2f + Vector3.up * 1f);
+            return true;
         }
 
         private IDamageable FindNearestEnemy(float searchRadius = 18.0f)

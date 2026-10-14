@@ -167,12 +167,32 @@ namespace FowlgenWars.EditorScripts
                 camCtrl.ApplyRotation();
             }
 
-            // 5. Garantir EventSystem
-            if (UnityEngine.Object.FindAnyObjectByType<EventSystem>() == null)
+            // 5. Garantir EventSystem compatível com Input System (Both: 2)
+            var existingES = UnityEngine.Object.FindAnyObjectByType<EventSystem>();
+            if (existingES == null)
             {
                 GameObject esObj = new GameObject("EventSystem");
                 esObj.AddComponent<EventSystem>();
+#if ENABLE_INPUT_SYSTEM
+                var psb = esObj.GetComponent<StandaloneInputModule>();
+                if (psb != null) UnityEngine.Object.DestroyImmediate(psb);
+                var uiModuleType = System.Type.GetType("UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem");
+                if (uiModuleType != null) esObj.AddComponent(uiModuleType);
+                else esObj.AddComponent<StandaloneInputModule>();
+#else
                 esObj.AddComponent<StandaloneInputModule>();
+#endif
+            }
+            else
+            {
+#if ENABLE_INPUT_SYSTEM
+                if (existingES.GetComponent<StandaloneInputModule>() != null && existingES.GetComponent(System.Type.GetType("UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem")) == null)
+                {
+                    UnityEngine.Object.DestroyImmediate(existingES.GetComponent<StandaloneInputModule>());
+                    var uiModuleType2 = System.Type.GetType("UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem");
+                    if (uiModuleType2 != null) existingES.gameObject.AddComponent(uiModuleType2);
+                }
+#endif
             }
 
             // 6. Configurar Canvas do HUD (Controles Mobile + Duelo + Timer)
@@ -295,7 +315,17 @@ namespace FowlgenWars.EditorScripts
                 "ULTIMATE", "H", 16,
                 out Image fillR, out Text txtR);
 
+            // Toggle AUTO vertical ao lado direito do ATAQUE (Toggle nativo, não Button)
+            var autoToggle = CreateAutoAttackToggleVertical(skillsCluster.transform, defaultFont, outlineSprite, circleSprite,
+                anchorForAttack: new Vector2(-135, 135), toggleSize: new Vector2(56, 92));
             miloSkills.BindUI(btnAttack, btnQ, fillQ, txtQ, btnW, fillW, txtW, btnE, fillE, txtE, btnR, fillR, txtR);
+            miloSkills.BindAutoToggle(autoToggle.toggle, autoToggle.bg, autoToggle.lbl, autoToggle.handleRect);
+            // Fix raycast do botão ATAQUE (label/ring não devem bloquear clique)
+            foreach (var img in btnAttack.GetComponentsInChildren<Image>(true))
+                if (img.gameObject != btnAttack.gameObject) img.raycastTarget = false;
+            foreach (var t in btnAttack.GetComponentsInChildren<Text>(true)) t.raycastTarget = false;
+            var baseAtkImg = btnAttack.GetComponent<Image>();
+            if (baseAtkImg != null) baseAtkImg.raycastTarget = true;
 
             SerializedObject soSkills = new SerializedObject(miloSkills);
             soSkills.FindProperty("attackButton").objectReferenceValue = btnAttack;
@@ -311,6 +341,10 @@ namespace FowlgenWars.EditorScripts
             soSkills.FindProperty("skillRButton").objectReferenceValue = btnR;
             soSkills.FindProperty("rCooldownFill").objectReferenceValue = fillR;
             soSkills.FindProperty("rCooldownText").objectReferenceValue = txtR;
+            soSkills.FindProperty("autoAttackToggle").objectReferenceValue = autoToggle.toggle;
+            soSkills.FindProperty("autoAttackToggleBg").objectReferenceValue = autoToggle.bg;
+            soSkills.FindProperty("autoAttackToggleLabel").objectReferenceValue = autoToggle.lbl;
+            soSkills.FindProperty("autoAttackHandleRect").objectReferenceValue = autoToggle.handleRect;
             soSkills.ApplyModifiedProperties();
 
             // 6.4 Painel Superior: Barras de Vida dos Campeões + Cronômetro de 3 Minutos + Status das Bases
@@ -395,6 +429,9 @@ namespace FowlgenWars.EditorScripts
             if (pendingIntro == null) pendingIntro = UnityEngine.Object.FindAnyObjectByType<FowlgenWars.Gameplay.UI.MatchCountdownIntro>();
             soGmm.FindProperty("countdownIntro").objectReferenceValue = pendingIntro != null ? pendingIntro : null;
             soGmm.ApplyModifiedProperties();
+
+            // 10b. Física anti-queda: paredes invisíveis ao redor do cenário
+            EnsureArenaBoundary();
 
             // 11. Configurar ArenaCinematicDirector (Para Pitch Video / Trailer)
             GameObject directorObj = GameObject.Find("ArenaCinematicDirector");
@@ -1050,6 +1087,95 @@ namespace FowlgenWars.EditorScripts
             return barObj;
         }
 
+        private static (Toggle toggle, Image bg, Text lbl, RectTransform handleRect) CreateAutoAttackToggleVertical(Transform parent, Font font, Sprite borderSprite, Sprite circleSprite, Vector2 anchorForAttack, Vector2 toggleSize)
+        {
+            // Toggle vertical ao lado direito do botão ATAQUE (136 diametro, gap 10)
+            // ATAQUE pos -135,135 -> borda direita ~ -67. Coloca toggle em -38 (gap ~29)
+            Vector2 togglePos = new Vector2(anchorForAttack.x + 136 * 0.5f + toggleSize.x * 0.5f + 10f, anchorForAttack.y);
+            GameObject go = new GameObject("Toggle_AutoAttack");
+            go.transform.SetParent(parent, false);
+            RectTransform rt = go.AddComponent<RectTransform>();
+            rt.anchorMin = new Vector2(1, 0);
+            rt.anchorMax = new Vector2(1, 0);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = togglePos;
+            rt.sizeDelta = toggleSize;
+
+            // Background vertical (trilho)
+            GameObject bgGo = new GameObject("Background");
+            bgGo.transform.SetParent(go.transform, false);
+            RectTransform bgRt = bgGo.AddComponent<RectTransform>();
+            StretchFull(bgRt);
+            Image bg = bgGo.AddComponent<Image>();
+            bg.color = new Color(0.26f, 0.26f, 0.30f, 0.95f);
+            if (circleSprite != null)
+            {
+                bg.sprite = circleSprite;
+                bg.type = Image.Type.Sliced;
+            }
+
+            // Borda sutil
+            if (borderSprite != null)
+            {
+                var border = new GameObject("Border");
+                border.transform.SetParent(bgGo.transform, false);
+                var brt = border.AddComponent<RectTransform>();
+                StretchFull(brt);
+                brt.sizeDelta = new Vector2(4, 4);
+                var bimg = border.AddComponent<Image>();
+                bimg.sprite = borderSprite;
+                bimg.color = new Color(0.95f, 0.65f, 0.15f, 0.55f);
+                bimg.raycastTarget = false;
+            }
+
+            // Checkmark/Handle que desliza vertical
+            GameObject handleGo = new GameObject("Handle");
+            handleGo.transform.SetParent(bgGo.transform, false);
+            RectTransform handleRt = handleGo.AddComponent<RectTransform>();
+            handleRt.anchorMin = new Vector2(0.5f, 0.5f);
+            handleRt.anchorMax = new Vector2(0.5f, 0.5f);
+            handleRt.pivot = new Vector2(0.5f, 0.5f);
+            handleRt.sizeDelta = new Vector2(toggleSize.x - 10f, toggleSize.x - 10f);
+            handleRt.anchoredPosition = new Vector2(0f, -14f);
+            Image handleImg = handleGo.AddComponent<Image>();
+            if (circleSprite != null) { handleImg.sprite = circleSprite; handleImg.type = Image.Type.Sliced; }
+            handleImg.color = Color.white;
+            handleImg.raycastTarget = false;
+
+            // Label AUTO acima do toggle
+            GameObject labelGo = new GameObject("Label");
+            labelGo.transform.SetParent(go.transform, false);
+            RectTransform lrt = labelGo.AddComponent<RectTransform>();
+            lrt.anchorMin = new Vector2(0.5f, 1f);
+            lrt.anchorMax = new Vector2(0.5f, 1f);
+            lrt.pivot = new Vector2(0.5f, 0f);
+            lrt.anchoredPosition = new Vector2(0f, 6f);
+            lrt.sizeDelta = new Vector2(64, 18);
+            Text lbl = labelGo.AddComponent<Text>();
+            lbl.font = font;
+            lbl.fontSize = 10;
+            lbl.fontStyle = FontStyle.Bold;
+            lbl.alignment = TextAnchor.MiddleCenter;
+            lbl.color = new Color(0.75f, 0.78f, 0.82f, 1f);
+            lbl.text = "AUTO";
+            lbl.raycastTarget = false;
+
+            // Toggle nativo
+            Toggle toggle = go.AddComponent<Toggle>();
+            toggle.targetGraphic = bg;
+            toggle.graphic = handleImg;
+            toggle.isOn = false;
+            // Transição de cor no bg
+            var cb = toggle.colors;
+            cb.normalColor = Color.white;
+            cb.highlightedColor = Color.white;
+            cb.pressedColor = new Color(0.9f, 0.9f, 0.9f, 1f);
+            cb.selectedColor = Color.white;
+            toggle.colors = cb;
+
+            return (toggle, bg, lbl, handleRt);
+        }
+
         private static Text CreateText(Transform parent, string name, string content, int size, FontStyle style, Color color, Font font)
         {
             GameObject txtObj = new GameObject(name);
@@ -1061,6 +1187,18 @@ namespace FowlgenWars.EditorScripts
             txt.color = color;
             txt.font = font;
             return txt;
+        }
+
+        private static void EnsureArenaBoundary()
+        {
+            var existing = GameObject.Find("ArenaBoundary");
+            var t = System.Type.GetType("FowlgenWars.Gameplay.ArenaBoundaryEnforcer, FowlgenWars.Modules.Gameplay");
+            if (t == null) t = System.Type.GetType("FowlgenWars.Gameplay.ArenaBoundaryEnforcer, Assembly-CSharp");
+            if (t == null) return;
+            if (existing != null && existing.GetComponent(t) != null) return;
+            var root = existing != null ? existing : new GameObject("ArenaBoundary");
+            if (root.GetComponent(t) == null)
+                root.AddComponent(t);
         }
 
         private static void StretchFull(RectTransform rect)
