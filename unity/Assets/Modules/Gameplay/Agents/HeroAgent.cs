@@ -23,6 +23,9 @@ namespace FowlgenWars.Gameplay
         [SerializeField] private float attackInterval = 0.9f;
         [SerializeField] private float respawnTime = 6.0f;
 
+        [Header("Balance Fase 1 — ficha §8.1 (se atribuído, sobrepõe acima)")]
+        [SerializeField] private FowlgenBalanceConfigSO balanceConfig;
+
         [Header("Feedback Visual & Animação")]
         [SerializeField] private WorldHealthBarView healthBar;
         [SerializeField] private Animator animator;
@@ -48,10 +51,25 @@ namespace FowlgenWars.Gameplay
 
         private void Awake()
         {
+            ApplyBalanceConfig();
             characterController = GetComponent<CharacterController>();
             if (animator == null) animator = GetComponentInChildren<Animator>();
             spawnPosition = transform.position;
             currentHealth = maxHealth;
+        }
+
+        private void ApplyBalanceConfig()
+        {
+            if (balanceConfig == null) return;
+            var b = heroName.Contains("Axel") || team == Team.Enemy ? balanceConfig.Axel : balanceConfig.Milo;
+            // só sobrepõe se ficha válida (HP>0)
+            if (b.maxHealth > 0) maxHealth = b.maxHealth;
+            if (b.attackDamage > 0) attackDamage = b.attackDamage;
+            if (b.attackRange > 0) attackRange = b.attackRange;
+            if (b.attackInterval > 0) attackInterval = b.attackInterval;
+            if (b.respawnTime > 0) respawnTime = b.respawnTime;
+            var mover = GetComponent<MobilePlayerController>();
+            if (mover != null && b.moveSpeed > 0) mover.MoveSpeed = b.moveSpeed;
         }
 
         private void Start()

@@ -13,6 +13,7 @@ namespace FowlgenWars.Gameplay
     {
         [Header("Configurações (Models)")]
         [SerializeField] private MatchConfigSO matchConfig;
+        [SerializeField] private FowlgenBalanceConfigSO balanceConfig; // Fase1: ficha única §8.1 — se atribuído, sobrepõe MatchConfig sem quebrar fallback
         [SerializeField] private MatchRuntimeStateSO runtimeState;
 
         [Header("Estruturas (Galinheiros)")]
@@ -51,14 +52,14 @@ namespace FowlgenWars.Gameplay
         private void Start()
         {
             Time.timeScale = 1f;
-            if (matchConfig == null)
+            if (matchConfig == null && balanceConfig == null)
             {
-                Debug.LogError("[GameMatchManager] MatchConfigSO não atribuído!");
+                Debug.LogError("[GameMatchManager] MatchConfigSO nem BalanceConfig atribuídos!");
                 return;
             }
 
-            int baseHp = matchConfig.BaseGalinheiroHealth;
-            currentTimer = matchConfig.MatchDurationSeconds;
+            int baseHp = balanceConfig != null ? balanceConfig.BaseGalinheiroHealth : matchConfig.BaseGalinheiroHealth;
+            currentTimer = balanceConfig != null ? balanceConfig.MatchDurationSeconds : matchConfig.MatchDurationSeconds;
             isMatchActive = true;
 
             if (runtimeState != null)
@@ -88,15 +89,16 @@ namespace FowlgenWars.Gameplay
             else
             {
                 countdownFinished = true;
-                nextEnemyWaveTime = Time.time + matchConfig.EnemyWaveInterval;
+                float interval2 = balanceConfig != null ? balanceConfig.EnemyWaveInterval : matchConfig.EnemyWaveInterval;
+                nextEnemyWaveTime = Time.time + interval2;
             }
         }
 
         private void HandleCountdownFinished()
         {
             countdownFinished = true;
-            if (matchConfig != null)
-                nextEnemyWaveTime = Time.time + matchConfig.EnemyWaveInterval;
+            float interval = balanceConfig != null ? balanceConfig.EnemyWaveInterval : (matchConfig != null ? matchConfig.EnemyWaveInterval : 8f);
+            nextEnemyWaveTime = Time.time + interval;
             if (countdownIntro != null)
                 countdownIntro.OnCountdownFinished -= HandleCountdownFinished;
         }
@@ -130,7 +132,8 @@ namespace FowlgenWars.Gameplay
             {
                 SpawnEnemyWave();
                 SpawnPlayerWave();
-                nextEnemyWaveTime = Time.time + matchConfig.EnemyWaveInterval;
+                float interval = balanceConfig != null ? balanceConfig.EnemyWaveInterval : matchConfig.EnemyWaveInterval;
+                nextEnemyWaveTime = Time.time + interval;
             }
         }
 

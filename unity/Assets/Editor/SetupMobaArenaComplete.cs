@@ -52,6 +52,14 @@ namespace FowlgenWars.EditorScripts
             MatchConfigSO matchConfig = AssetDatabase.LoadAssetAtPath<MatchConfigSO>($"{ResourcesArchPath}/MatchConfig.asset");
             MatchRuntimeStateSO runtimeState = AssetDatabase.LoadAssetAtPath<MatchRuntimeStateSO>($"{ResourcesArchPath}/MatchRuntimeState.asset");
             MinionDataSO minionData = AssetDatabase.LoadAssetAtPath<MinionDataSO>($"{ResourcesArchPath}/MinionData_Default.asset");
+            FowlgenBalanceConfigSO balanceConfig = AssetDatabase.LoadAssetAtPath<FowlgenBalanceConfigSO>($"{ResourcesArchPath}/FowlgenBalanceConfig.asset");
+            if (balanceConfig == null)
+            {
+                balanceConfig = ScriptableObject.CreateInstance<FowlgenBalanceConfigSO>();
+                AssetDatabase.CreateAsset(balanceConfig, $"{ResourcesArchPath}/FowlgenBalanceConfig.asset");
+                AssetDatabase.SaveAssets();
+                Debug.Log("[Setup MOBA] Criado FowlgenBalanceConfig.asset (Fase1 ficha §8.1) — tuning 5-10% exposto no Inspector.");
+            }
 
             Debug.Log("[Setup MOBA] 3. Configurando Prefabs dos 2 Minions (Caipira para Jogador e Rodilan para Inimigo)...");
             GameObject caipiraPrefab = CreateOrUpdateSpecificMinionPrefab(
@@ -114,6 +122,8 @@ namespace FowlgenWars.EditorScripts
             soMiloHero.FindProperty("maxHealth").intValue = 1000;
             soMiloHero.FindProperty("attackDamage").intValue = 55;
             soMiloHero.FindProperty("attackRange").floatValue = 4.0f;
+            if (soMiloHero.FindProperty("balanceConfig") != null)
+                soMiloHero.FindProperty("balanceConfig").objectReferenceValue = balanceConfig;
             soMiloHero.ApplyModifiedProperties();
 
             MobilePlayerController miloMove = miloObj.GetComponent<MobilePlayerController>();
@@ -143,6 +153,8 @@ namespace FowlgenWars.EditorScripts
                 soAxelHero.FindProperty("maxHealth").intValue = 1200;
                 soAxelHero.FindProperty("attackDamage").intValue = 40;
                 soAxelHero.FindProperty("attackRange").floatValue = 3.5f;
+                if (soAxelHero.FindProperty("balanceConfig") != null)
+                    soAxelHero.FindProperty("balanceConfig").objectReferenceValue = balanceConfig;
                 soAxelHero.ApplyModifiedProperties();
             }
 
@@ -410,8 +422,20 @@ namespace FowlgenWars.EditorScripts
             GameMatchManager gmm = gmObj.GetComponent<GameMatchManager>();
             if (gmm == null) gmm = gmObj.AddComponent<GameMatchManager>();
 
+            // MinionData lê BalanceConfig via override (ficha §8.1)
+            if (minionData != null)
+            {
+                var soData = new SerializedObject(minionData);
+                if (soData.FindProperty("balanceOverride") != null)
+                {
+                    soData.FindProperty("balanceOverride").objectReferenceValue = balanceConfig;
+                    soData.ApplyModifiedProperties();
+                }
+            }
             SerializedObject soGmm = new SerializedObject(gmm);
             soGmm.FindProperty("matchConfig").objectReferenceValue = matchConfig;
+            if (soGmm.FindProperty("balanceConfig") != null)
+                soGmm.FindProperty("balanceConfig").objectReferenceValue = balanceConfig;
             soGmm.FindProperty("runtimeState").objectReferenceValue = runtimeState;
             soGmm.FindProperty("playerMinionPrefab").objectReferenceValue = caipiraPrefab;
             soGmm.FindProperty("enemyMinionPrefab").objectReferenceValue = rodilanPrefab;
@@ -430,7 +454,10 @@ namespace FowlgenWars.EditorScripts
             soGmm.FindProperty("countdownIntro").objectReferenceValue = pendingIntro != null ? pendingIntro : null;
             soGmm.ApplyModifiedProperties();
 
-            // 10b. Física anti-queda: paredes invisíveis ao redor do cenário
+            // 10b. Balance Fase1: garantir collector em cena (§8.2 métricas)
+            EnsureBalanceMetrics(runtimeState, balanceConfig);
+
+            // 10c. Física anti-queda: paredes invisíveis ao redor do cenário
             EnsureArenaBoundary();
 
             // 11. Configurar ArenaCinematicDirector (Para Pitch Video / Trailer)
@@ -1187,6 +1214,23 @@ namespace FowlgenWars.EditorScripts
             txt.color = color;
             txt.font = font;
             return txt;
+        }
+
+        private static void EnsureBalanceMetrics(MatchRuntimeStateSO runtime, FowlgenBalanceConfigSO balance)
+        {
+            string rootName = "BalanceMetricsCollector";
+            var existing = GameObject.Find(rootName);
+            var t = System.Type.GetType("FowlgenWars.Gameplay.BalanceMetricsCollector, FowlgenWars.Modules.Gameplay");
+            if (t == null) t = System.Type.GetType("FowlgenWars.Gameplay.BalanceMetricsCollector, Assembly-CSharp");
+            if (t == null) { Debug.LogWarning("[Setup MOBA] BalanceMetricsCollector type não encontrado."); return; }
+            var go = existing != null ? existing : new GameObject(rootName);
+            var comp = go.GetComponent(t);
+            if (comp == null) comp = go.AddComponent(t);
+            var so = new SerializedObject(comp);
+            if (so.FindProperty("runtimeState") != null) so.FindProperty("runtimeState").objectReferenceValue = runtime;
+            if (so.FindProperty("balanceConfig") != null) so.FindProperty("balanceConfig").objectReferenceValue = balance;
+            so.ApplyModifiedProperties();
+            EditorUtility.SetDirty(go);
         }
 
         private static void EnsureArenaBoundary()
