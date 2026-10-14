@@ -47,6 +47,10 @@ namespace FowlgenWars.Gameplay.Audio
         [Range(0f, 1f)] [SerializeField] private float sfxVolume = 0.9f;
         [Range(0f, 1f)] [SerializeField] private float bgmVolume = 0.65f;
 
+        [Header("BGM Persistente (Login/Play/Arena_Clean)")]
+        [SerializeField] private AudioClip defaultBgm;
+        [SerializeField] private string defaultBgmResourcePath = "Audio/music-fowlGenwars_001";
+
         [Header("Audio Clips Opcionais (Asset Store / Custom)")]
         [SerializeField] private AudioClip clipPunch;
         [SerializeField] private AudioClip clipWhoosh;
@@ -83,6 +87,50 @@ namespace FowlgenWars.Gameplay.Audio
 
             LoadVolumePreferences();
             InitializeAudioSources();
+            ResolveDefaultBgm();
+        }
+
+        private void ResolveDefaultBgm()
+        {
+            if (defaultBgm != null) return;
+            if (string.IsNullOrWhiteSpace(defaultBgmResourcePath)) return;
+
+            // Fallback via Resources (copia em Resources/Audio + original em Assets/Audio)
+            var loaded = Resources.Load<AudioClip>(defaultBgmResourcePath);
+            if (loaded != null) defaultBgm = loaded;
+        }
+
+        private void Start()
+        {
+            // Auto-play BGM persistente se ainda nao estiver tocando
+            if (bgmSource != null && !bgmSource.isPlaying && defaultBgm != null)
+            {
+                PlayBGM(defaultBgm);
+            }
+        }
+
+        /// <summary>Garante BGM persistente tocando. Usado por Auth/Play/Arena ao entrarem.</summary>
+        public void EnsureBgmPlaying(AudioClip clip = null, float volume = 1f)
+        {
+            AudioClip target = clip != null ? clip : defaultBgm;
+            if (target == null)
+            {
+                ResolveDefaultBgm();
+                target = defaultBgm;
+            }
+            if (target == null) return;
+
+            if (bgmSource != null && bgmSource.isPlaying && bgmSource.clip == target)
+                return;
+
+            PlayBGM(target, volume);
+        }
+
+        public bool IsBgmPlaying(AudioClip clip = null)
+        {
+            if (bgmSource == null || !bgmSource.isPlaying || bgmSource.clip == null) return false;
+            if (clip == null) return true;
+            return bgmSource.clip == clip;
         }
 
         private void LoadVolumePreferences()
