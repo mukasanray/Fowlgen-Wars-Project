@@ -354,6 +354,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FowlgenWars.Modules.Gameplay::FowlgenWars.Gameplay.WorldHealthBarView
   fillImage: {fileID: 2298129427536237380}
+  bgImage: {fileID: 0}
   canvas: {fileID: 8904754285948634569}
 --- !u!1001 &7149428469354341413
 PrefabInstance:
