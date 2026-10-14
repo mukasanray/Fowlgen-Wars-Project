@@ -1799,7 +1799,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d6f919bb787a1e48ab7be22eb5fa25c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 10.669
+      value: 10.76
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d6f919bb787a1e48ab7be22eb5fa25c, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1894,6 +1894,7 @@ MonoBehaviour:
   attackRange: 4
   attackInterval: 0.9
   respawnTime: 6
+  balanceConfig: {fileID: 0}
   healthBar: {fileID: 432177629}
   animator: {fileID: 0}
 --- !u!114 &185892417
@@ -2087,7 +2088,7 @@ MonoBehaviour:
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 90
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -4972,6 +4973,7 @@ MonoBehaviour:
   attackRange: 3.5
   attackInterval: 0.9
   respawnTime: 6
+  balanceConfig: {fileID: 0}
   healthBar: {fileID: 3786639}
   animator: {fileID: 0}
 --- !u!143 &398055752
@@ -5822,6 +5824,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FowlgenWars.Modules.Gameplay::FowlgenWars.Gameplay.GameMatchManager
   matchConfig: {fileID: 11400000, guid: dcab8def5bf0ca247bcae2235884dbb0, type: 2}
+  balanceConfig: {fileID: 0}
   runtimeState: {fileID: 11400000, guid: 84ebcc2f3f0dc0d43a663568668c271c, type: 2}
   playerGalinheiro: {fileID: 1961363677}
   enemyGalinheiro: {fileID: 1362329118}
