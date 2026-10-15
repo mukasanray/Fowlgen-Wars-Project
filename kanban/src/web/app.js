@@ -41,6 +41,18 @@ const gitBranchBannerText = document.getElementById('git-branch-banner-text');
 const gitBranchBannerActions = document.getElementById('git-branch-banner-actions');
 const btnCommitOpenspec = document.getElementById('btn-commit-openspec');
 
+// Board View State: 'tasks' (Tarefas da Sprint) vs 'ideas' (Funil de Ideias)
+let currentBoardView = 'tasks';
+let currentAssigneeFilter = 'all';
+
+const btnViewTasks = document.getElementById('btn-view-tasks');
+const btnViewIdeas = document.getElementById('btn-view-ideas');
+const badgeTotalTasksView = document.getElementById('badge-total-tasks-view');
+const badgeTotalIdeasView = document.getElementById('badge-total-ideas-view');
+const colTitle1 = document.getElementById('col-title-1');
+const colTitle2 = document.getElementById('col-title-2');
+const colTitle3 = document.getElementById('col-title-3');
+const colTitle4 = document.getElementById('col-title-4');
 
 // Tab Management
 document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -377,7 +389,50 @@ function updateStats(features) {
   statDoneTasks.textContent = doneTasks;
 }
 
-// Render Kanban Cards
+// Board View Switcher (Tarefas da Sprint vs Funil de Ideias)
+function setBoardView(view) {
+  currentBoardView = view;
+  if (view === 'tasks') {
+    btnViewTasks?.classList.add('active');
+    btnViewIdeas?.classList.remove('active');
+    if (colTitle1) colTitle1.innerHTML = '📋 A Fazer';
+    if (colTitle2) colTitle2.innerHTML = '⚡ Em Progresso';
+    if (colTitle3) colTitle3.innerHTML = '👀 Em Revisão';
+    if (colTitle4) colTitle4.innerHTML = '✅ Concluído';
+  } else {
+    btnViewIdeas?.classList.add('active');
+    btnViewTasks?.classList.remove('active');
+    if (colTitle1) colTitle1.innerHTML = '💡 Novas Ideias';
+    if (colTitle2) colTitle2.innerHTML = '🔍 Em Validação';
+    if (colTitle3) colTitle3.innerHTML = '✅ Aprovadas';
+    if (colTitle4) colTitle4.innerHTML = '❌ Rejeitadas';
+  }
+  renderFeatures(currentFeatures);
+}
+
+btnViewTasks?.addEventListener('click', () => setBoardView('tasks'));
+btnViewIdeas?.addEventListener('click', () => setBoardView('ideas'));
+
+// Member Filter Handler
+function setMemberFilter(assignee) {
+  currentAssigneeFilter = assignee;
+  document.querySelectorAll('.member-pill').forEach(pill => {
+    if (pill.getAttribute('data-assignee') === assignee) {
+      pill.classList.add('active');
+    } else {
+      pill.classList.remove('active');
+    }
+  });
+  renderFeatures(currentFeatures);
+}
+
+document.querySelectorAll('.member-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    setMemberFilter(pill.getAttribute('data-assignee') || 'all');
+  });
+});
+
+// Render Kanban Cards (Sprint Tasks or Ideas Funnel)
 function renderFeatures(features) {
   const colBacklog = document.getElementById('cards-backlog');
   const colProgress = document.getElementById('cards-progress');
@@ -391,28 +446,225 @@ function renderFeatures(features) {
 
   let countBacklog = 0, countProgress = 0, countReview = 0, countDone = 0;
 
-  features.forEach(feature => {
-    const card = createFeatureCard(feature);
+  // Atualiza os badges de contagem do alternador de visão
+  const totalTasksCount = features.reduce((acc, f) => acc + (f.totalTasks || 0), 0);
+  if (badgeTotalTasksView) badgeTotalTasksView.textContent = totalTasksCount;
+  if (badgeTotalIdeasView) badgeTotalIdeasView.textContent = features.length;
 
-    if (feature.kanbanColumn === 'Done') {
-      colDone.appendChild(card);
-      countDone++;
-    } else if (feature.kanbanColumn === 'In Progress') {
-      colProgress.appendChild(card);
-      countProgress++;
-    } else if (feature.kanbanColumn === 'Ready') {
-      colReview.appendChild(card);
-      countReview++;
-    } else {
-      colBacklog.appendChild(card);
-      countBacklog++;
-    }
+  // Filtragem por integrante
+  const filtered = features.filter(feature => {
+    if (currentAssigneeFilter === 'all') return true;
+    const filterLower = currentAssigneeFilter.toLowerCase();
+    
+    // Verifica em ideaAssignee
+    if (feature.ideaAssignee && feature.ideaAssignee.toLowerCase().includes(filterLower)) return true;
+    
+    // Verifica na lista de assignees da feature
+    if (feature.assignees && feature.assignees.some(a => a.toLowerCase().includes(filterLower))) return true;
+    
+    // Verifica nas tarefas individuais
+    if (feature.tasks && feature.tasks.some(t => {
+      const text = (t.text || '').toLowerCase();
+      const raw = (t.raw || '').toLowerCase();
+      const assignee = (t.assignee || '').toLowerCase();
+      return text.includes(filterLower) || raw.includes(filterLower) || assignee.includes(filterLower);
+    })) return true;
+
+    return false;
   });
+
+  if (currentBoardView === 'tasks') {
+    // -----------------------------------------------------------------
+    // VISÃO DE TAREFAS TÉCNICAS (Sprint)
+    // -----------------------------------------------------------------
+    filtered.forEach(feature => {
+      const card = createFeatureCard(feature);
+
+      if (feature.kanbanColumn === 'Done') {
+        colDone.appendChild(card);
+        countDone++;
+      } else if (feature.kanbanColumn === 'In Progress') {
+        colProgress.appendChild(card);
+        countProgress++;
+      } else if (feature.kanbanColumn === 'Ready') {
+        colReview.appendChild(card);
+        countReview++;
+      } else {
+        colBacklog.appendChild(card);
+        countBacklog++;
+      }
+    });
+  } else {
+    // -----------------------------------------------------------------
+    // VISÃO DE FUNIL DE IDEIAS (Game Design & Propostas)
+    // -----------------------------------------------------------------
+    filtered.forEach(feature => {
+      const card = createIdeaCard(feature);
+
+      const ideaCol = feature.ideaColumn || feature.ideaStatus || 'Criado';
+      if (ideaCol === 'Aprovado') {
+        colReview.appendChild(card); // Coluna 3: Aprovadas
+        countReview++;
+      } else if (ideaCol === 'Validado') {
+        colProgress.appendChild(card); // Coluna 2: Em Validação
+        countProgress++;
+      } else if (ideaCol === 'Rejeitado') {
+        colDone.appendChild(card); // Coluna 4: Rejeitadas
+        countDone++;
+      } else {
+        colBacklog.appendChild(card); // Coluna 1: Novas Ideias
+        countBacklog++;
+      }
+    });
+  }
 
   document.getElementById('count-backlog').textContent = countBacklog;
   document.getElementById('count-progress').textContent = countProgress;
   document.getElementById('count-review').textContent = countReview;
   document.getElementById('count-done').textContent = countDone;
+}
+
+function createIdeaCard(feature) {
+  const card = document.createElement('div');
+  card.className = 'feature-card idea-card';
+
+  const status = feature.ideaStatus || 'Criado';
+  let tagClass = 'tag-created';
+  let statusEmoji = '💡';
+  if (status === 'Aprovado') {
+    tagClass = 'tag-approved';
+    statusEmoji = '✅';
+  } else if (status === 'Validado') {
+    tagClass = 'tag-validated';
+    statusEmoji = '🔍';
+  } else if (status === 'Rejeitado') {
+    tagClass = 'tag-rejected';
+    statusEmoji = '❌';
+  }
+
+  const assigneeBadge = `<span class="badge-tag" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); font-size: 10px;">👤 ${feature.ideaAssignee || 'dev-team'}</span>`;
+
+  const modifiedBadge = feature.isModifiedLocally
+    ? `<span class="badge-modified-git" title="Alterações locais pendentes de salvar">⚡ Modificado</span>`
+    : '';
+
+  // Quick Action Buttons for the Idea
+  let actionButtonsHtml = '';
+  if (status === 'Criado') {
+    actionButtonsHtml = `
+      <div class="idea-actions-row">
+        <button type="button" class="btn-idea-action btn-val" title="Marcar como validado tecnicamente">🔍 Validar</button>
+        <button type="button" class="btn-idea-action btn-app" title="Aprovar para desenvolvimento">✅ Aprovar</button>
+        <button type="button" class="btn-idea-action btn-rej" title="Rejeitar proposta">❌ Rejeitar</button>
+      </div>
+    `;
+  } else if (status === 'Validado') {
+    actionButtonsHtml = `
+      <div class="idea-actions-row">
+        <button type="button" class="btn-idea-action btn-app" title="Aprovar para desenvolvimento">✅ Aprovar para Sprint</button>
+        <button type="button" class="btn-idea-action btn-rej" title="Rejeitar proposta">❌ Rejeitar</button>
+      </div>
+    `;
+  } else if (status === 'Aprovado') {
+    actionButtonsHtml = `
+      <div class="idea-actions-row">
+        <button type="button" class="btn-idea-action btn-goto-tasks" style="color: #34d399;" title="Ver tarefas no quadro de sprint">🎯 Ver Tarefas (${feature.totalTasks})</button>
+        <button type="button" class="btn-idea-action btn-reset" title="Voltar para análise">↺ Reabrir</button>
+      </div>
+    `;
+  } else if (status === 'Rejeitado') {
+    actionButtonsHtml = `
+      <div class="idea-actions-row">
+        <button type="button" class="btn-idea-action btn-reset" title="Reconsiderar ideia">↺ Reconsiderar</button>
+      </div>
+    `;
+  }
+
+  const title = feature.title || feature.name;
+  const summary = feature.summary || 'Proposta de feature para Fowlgen Wars.';
+
+  card.innerHTML = `
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 6px; flex-wrap: wrap;">
+      <span class="card-tag ${tagClass}">${statusEmoji} ${status}</span>
+      <div style="display: flex; gap: 4px; align-items: center;">
+        ${assigneeBadge}
+        ${modifiedBadge}
+      </div>
+    </div>
+    <h3 class="card-title" style="margin-bottom: 4px;">${title}</h3>
+    <div style="font-size: 11px; color: var(--text-dim); margin-bottom: 8px; font-family: var(--font-mono);">📁 ${feature.name}</div>
+    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px;">${summary}</p>
+    <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--text-muted);">
+      <span>📋 ${feature.totalTasks} tarefa(s) vinculada(s)</span>
+      <span>${feature.progress}% concluído</span>
+    </div>
+    ${actionButtonsHtml}
+  `;
+
+  // Click card to populate form inputs
+  card.addEventListener('click', (e) => {
+    if (!e.target.closest('button')) {
+      inputIdeaId.value = feature.name;
+      inputIdeaTitle.value = feature.title || feature.name;
+      selectFeatureTask.value = feature.name;
+      updateCommandPreview();
+    }
+  });
+
+  // Action button clicks
+  card.querySelector('.btn-val')?.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    await triggerIdeaAction(feature.name, 'validate');
+  });
+
+  card.querySelector('.btn-app')?.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const assignee = currentAssigneeFilter !== 'all' ? currentAssigneeFilter : (feature.ideaAssignee || 'dev-team');
+    await triggerIdeaAction(feature.name, 'approve', assignee);
+  });
+
+  card.querySelector('.btn-rej')?.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const reason = prompt(`Motivo da rejeição da ideia "${feature.name}":`, 'Fora do escopo da sprint atual');
+    if (reason !== null) {
+      await triggerIdeaAction(feature.name, 'reject', undefined, reason);
+    }
+  });
+
+  card.querySelector('.btn-reset')?.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    await triggerIdeaAction(feature.name, 'reset');
+  });
+
+  card.querySelector('.btn-goto-tasks')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    selectFeatureTask.value = feature.name;
+    setBoardView('tasks');
+    showToast(`Visualizando tarefas da feature "${feature.name}"!`, 'info');
+  });
+
+  return card;
+}
+
+async function triggerIdeaAction(featureName, action, assignee, reason) {
+  try {
+    const res = await fetch('/api/features/action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feature: featureName, action, assignee, reason })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      appendLog(data.message);
+      fetchFeatures();
+      fetchGitInfo();
+    } else {
+      showToast(data.error || 'Erro ao processar ideia', 'error');
+    }
+  } catch (err) {
+    showToast('Erro de conexão ao processar ideia', 'error');
+  }
 }
 
 function createFeatureCard(feature) {
@@ -430,23 +682,32 @@ function createFeatureCard(feature) {
     ? `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px;">🌿 ${feature.branch}</span>`
     : '';
 
+  const assigneesHtml = feature.assignees && feature.assignees.length > 0
+    ? feature.assignees.map(a => `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px;">👤 ${a}</span>`).join(' ')
+    : `<span class="badge-tag" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; font-size: 10px;">👥 dev-team</span>`;
+
   // Task Items HTML
-  const tasksHtml = feature.tasks.slice(0, 5).map(t => `
+  const tasksHtml = feature.tasks.slice(0, 5).map(t => {
+    const cleanText = t.text.replace(/\(([^)]+)\)|@([\w-]+)|\[([\w-]+)\]/g, '').trim();
+    return `
     <label class="task-item ${t.done ? 'done' : ''}">
       <input type="checkbox" ${t.done ? 'checked' : ''} ${feature.isFromGitBranch ? 'disabled title="Modo Histórico da branch (somente leitura)"' : ''} data-feature="${feature.name}" data-task-id="${t.id}" class="task-checkbox">
-      <span><strong>${t.id ? '**' + t.id + '**' : ''}</strong> ${t.text}</span>
+      <span><strong>${t.id ? '**' + t.id + '**' : ''}</strong> ${cleanText || t.text}</span>
+      ${t.assignee ? `<span style="font-size: 10px; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); padding: 1px 6px; border-radius: 10px; margin-left: 6px; white-space: nowrap;">👤 ${t.assignee}</span>` : ''}
     </label>
-  `).join('');
+    `;
+  }).join('');
 
   card.innerHTML = `
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 6px; flex-wrap: wrap;">
       <span class="card-tag ${tagClass}">${feature.kanbanColumn}</span>
-      <div style="display: flex; gap: 4px; align-items: center;">
+      <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+        ${assigneesHtml}
         ${modifiedBadge}
         ${branchBadge}
       </div>
     </div>
-    <h3 class="card-title">${feature.name}</h3>
+    <h3 class="card-title">${feature.title || feature.name}</h3>
     <div class="progress-container">
       <div class="progress-header">
         <span>Progresso (${feature.doneTasks}/${feature.totalTasks})</span>
@@ -570,6 +831,40 @@ document.getElementById('btn-action-list-tasks').addEventListener('click', () =>
   updateCommandPreview(cmd);
   fetchFeatures();
   showToast('Tarefas atualizadas no quadro!', 'success');
+});
+
+// 4.5. Gerar Proposta e Tarefas com IA Local
+document.getElementById('btn-action-generate-ai')?.addEventListener('click', async () => {
+  const featureId = inputIdeaId.value.trim();
+  const title = inputIdeaTitle.value.trim() || featureId;
+  if (!featureId) {
+    showToast('Informe o ID ou nome da feature para gerar com IA (ex: sistema-ranking)', 'warning');
+    inputIdeaId.focus();
+    return;
+  }
+
+  showToast('🪄 IA Local analisando e gerando proposta...', 'info');
+  appendLog(`Gerando proposta e checklist com IA Local para "${featureId}"...`);
+
+  try {
+    const res = await fetch('/api/features/ai-generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ featureId, title })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      appendLog(data.message);
+      updateCommandPreview(data.command);
+      fetchFeatures();
+      fetchGitInfo();
+    } else {
+      showToast(data.error || 'Erro ao gerar feature com IA', 'error');
+    }
+  } catch (err) {
+    showToast('Erro ao comunicar com gerador local', 'error');
+  }
 });
 
 // 5. Nova Feature Completa: agent criar openspec/changes/<id>/proposal.md "# Feature: ..."
@@ -753,29 +1048,11 @@ const githubAvatarImg = document.getElementById('github-avatar-img');
 const githubUserName = document.getElementById('github-user-name');
 const githubUserLogin = document.getElementById('github-user-login');
 
-// Database Elements
-const inputDbHost = document.getElementById('input-db-host');
-const inputDbPort = document.getElementById('input-db-port');
-const inputDbUser = document.getElementById('input-db-user');
-const inputDbDatabase = document.getElementById('input-db-database');
-const inputDbPassword = document.getElementById('input-db-password');
-const btnToggleDbEye = document.getElementById('btn-toggle-dbpass-eye');
-const dbStatusBanner = document.getElementById('db-status-banner');
-const modalDbStatusDot = document.getElementById('modal-db-status-dot');
-const dbStatusTitleText = document.getElementById('db-status-title-text');
-const dbStatusDescText = document.getElementById('db-status-desc-text');
-const dbStatusPill = document.getElementById('db-status-pill');
-const dbStatusDot = document.getElementById('db-status-dot');
-const btnTestDb = document.getElementById('btn-test-db');
-const btnInitDb = document.getElementById('btn-init-db');
-const btnSyncDb = document.getElementById('btn-sync-db');
-
 const btnSaveSettings = document.getElementById('btn-save-settings');
 
 // Open / Close Modal
 btnOpenSettings.addEventListener('click', () => {
   modalSettings.classList.add('open');
-  checkDatabaseStatus();
 });
 
 function closeModal() {
@@ -800,66 +1077,6 @@ btnToggleEye.addEventListener('click', () => {
   btnToggleEye.textContent = isPass ? '🙈' : '👁️';
 });
 
-// Toggle DB Password Visibility
-if (btnToggleDbEye && inputDbPassword) {
-  btnToggleDbEye.addEventListener('click', () => {
-    const isPass = inputDbPassword.type === 'password';
-    inputDbPassword.type = isPass ? 'text' : 'password';
-    btnToggleDbEye.textContent = isPass ? '🙈' : '👁️';
-  });
-}
-
-// Check Database Status
-async function checkDatabaseStatus() {
-  try {
-    const res = await fetch('/api/database/status');
-    if (!res.ok) throw new Error('Status offline');
-    const data = await res.json();
-
-    if (data.connected) {
-      if (dbStatusDot) {
-        dbStatusDot.style.background = 'var(--accent-emerald)';
-        dbStatusDot.style.boxShadow = '0 0 6px var(--accent-emerald)';
-      }
-      if (modalDbStatusDot) {
-        modalDbStatusDot.style.background = 'var(--accent-emerald)';
-        modalDbStatusDot.style.boxShadow = '0 0 8px var(--accent-emerald)';
-      }
-      if (dbStatusBanner) dbStatusBanner.className = 'db-status-banner connected';
-      if (dbStatusTitleText) dbStatusTitleText.textContent = `PostgreSQL: Conectado (${data.database})`;
-      if (dbStatusDescText) dbStatusDescText.textContent = `Sincronização tri-direcional ativa em ${data.host}:${data.port}`;
-      if (dbStatusPill) {
-        dbStatusPill.className = 'db-status-pill online';
-        dbStatusPill.textContent = 'Online';
-      }
-    } else {
-      if (dbStatusDot) {
-        dbStatusDot.style.background = '#64748b';
-        dbStatusDot.style.boxShadow = 'none';
-      }
-      if (modalDbStatusDot) {
-        modalDbStatusDot.style.background = 'var(--accent-gold)';
-        modalDbStatusDot.style.boxShadow = '0 0 8px var(--accent-gold)';
-      }
-      if (dbStatusBanner) dbStatusBanner.className = 'db-status-banner disconnected';
-      if (dbStatusTitleText) dbStatusTitleText.textContent = 'PostgreSQL: Desconectado / Offline';
-      if (dbStatusDescText) {
-        const hint = data.error ? ` (${data.error})` : '';
-        dbStatusDescText.textContent = `Modo híbrido ativo: persistindo no OpenSpec local${hint}.`;
-      }
-      if (dbStatusPill) {
-        dbStatusPill.className = 'db-status-pill offline';
-        dbStatusPill.textContent = 'Offline';
-      }
-    }
-  } catch (err) {
-    if (dbStatusDot) {
-      dbStatusDot.style.background = '#64748b';
-      dbStatusDot.style.boxShadow = 'none';
-    }
-  }
-}
-
 // Load Config
 async function loadConfig() {
   try {
@@ -881,16 +1098,6 @@ async function loadConfig() {
         tokenStatusDot.style.background = '#64748b';
         tokenStatusDot.style.boxShadow = 'none';
       }
-
-      if (cfg.database) {
-        if (cfg.database.host && inputDbHost) inputDbHost.value = cfg.database.host;
-        if (cfg.database.port && inputDbPort) inputDbPort.value = cfg.database.port;
-        if (cfg.database.user && inputDbUser) inputDbUser.value = cfg.database.user;
-        if (cfg.database.database && inputDbDatabase) inputDbDatabase.value = cfg.database.database;
-        if (cfg.database.hasPassword && inputDbPassword) {
-          inputDbPassword.placeholder = '•••••••• (configurada)';
-        }
-      }
     }
   } catch (err) {
     // Offline mode: load from localStorage
@@ -899,8 +1106,6 @@ async function loadConfig() {
       inputGithubToken.value = savedToken;
       tokenStatusDot.style.background = 'var(--accent-emerald)';
     }
-  } finally {
-    checkDatabaseStatus();
   }
 }
 
@@ -940,110 +1145,13 @@ btnTestToken.addEventListener('click', async () => {
   }
 });
 
-// Test PostgreSQL Connection
-if (btnTestDb) {
-  btnTestDb.addEventListener('click', async () => {
-    btnTestDb.disabled = true;
-    btnTestDb.textContent = 'Testando...';
-
-    try {
-      const res = await fetch('/api/database/test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          host: inputDbHost.value.trim(),
-          port: inputDbPort.value.trim(),
-          user: inputDbUser.value.trim(),
-          password: inputDbPassword.value,
-          database: inputDbDatabase.value.trim()
-        })
-      });
-      const data = await res.json();
-
-      if (data.connected) {
-        showToast(`Conectado ao PostgreSQL com sucesso (${data.database})!`, 'success');
-        appendLog(`Conexão PostgreSQL OK: banco '${data.database}'.`);
-      } else {
-        showToast(`Falha na conexão: ${data.error || 'PostgreSQL não alcançado'}`, 'error');
-        appendLog(`PostgreSQL offline ou erro de credenciais: ${data.error}`);
-      }
-      checkDatabaseStatus();
-    } catch (err) {
-      showToast('Erro ao contatar API de teste do banco', 'error');
-    } finally {
-      btnTestDb.disabled = false;
-      btnTestDb.textContent = '🧪 Testar Conexão';
-    }
-  });
-}
-
-// Init Database & Schema
-if (btnInitDb) {
-  btnInitDb.addEventListener('click', async () => {
-    btnInitDb.disabled = true;
-    btnInitDb.textContent = 'Inicializando...';
-
-    try {
-      const res = await fetch('/api/database/init', { method: 'POST' });
-      const data = await res.json();
-
-      if (data.success) {
-        showToast(data.message, 'success');
-        appendLog(`Schema do PostgreSQL inicializado com sucesso.`);
-        checkDatabaseStatus();
-      } else {
-        showToast(data.error || 'Falha ao inicializar schema', 'error');
-        appendLog(`Erro ao criar schema: ${data.error}`);
-      }
-    } catch (err) {
-      showToast('Erro na requisição para criar banco', 'error');
-    } finally {
-      btnInitDb.disabled = false;
-      btnInitDb.textContent = '⚡ Criar Schema';
-    }
-  });
-}
-
-// Sync Database OpenSpec <-> Postgres
-if (btnSyncDb) {
-  btnSyncDb.addEventListener('click', async () => {
-    btnSyncDb.disabled = true;
-    btnSyncDb.textContent = 'Sincronizando...';
-
-    try {
-      const res = await fetch('/api/database/sync', { method: 'POST' });
-      const data = await res.json();
-
-      if (data.success) {
-        showToast(data.message, 'success');
-        appendLog(data.message);
-        fetchFeatures();
-      } else {
-        showToast(data.error || 'Erro na sincronização', 'error');
-        appendLog(`Erro sync: ${data.error}`);
-      }
-    } catch (err) {
-      showToast('Erro ao disparar sincronização com banco', 'error');
-    } finally {
-      btnSyncDb.disabled = false;
-      btnSyncDb.textContent = '🔄 Sync OpenSpec';
-    }
-  });
-}
-
-// Save Settings (GitHub + Database)
+// Save Settings (GitHub & Projects)
 btnSaveSettings.addEventListener('click', async () => {
   const token = inputGithubToken.value.trim();
   const repo = inputConfigRepo.value.trim();
   const branch = inputConfigBranch.value.trim();
   const projectId = inputConfigProjectId.value.trim();
   const assignee = inputConfigAssignee.value.trim();
-
-  const dbHost = inputDbHost ? inputDbHost.value.trim() : '';
-  const dbPort = inputDbPort ? inputDbPort.value.trim() : '';
-  const dbUser = inputDbUser ? inputDbUser.value.trim() : '';
-  const dbPassword = inputDbPassword ? inputDbPassword.value : '';
-  const dbDatabase = inputDbDatabase ? inputDbDatabase.value.trim() : '';
 
   if (token) localStorage.setItem('fowlgen_gh_token', token);
   if (repo) localStorage.setItem('fowlgen_gh_repo', repo);
@@ -1056,19 +1164,14 @@ btnSaveSettings.addEventListener('click', async () => {
         token,
         repo,
         projectId,
-        assignee,
-        dbHost,
-        dbPort,
-        dbUser,
-        dbPassword,
-        dbDatabase
+        assignee
       })
     });
     const data = await res.json();
 
     if (data.success) {
       showToast('Configurações salvas com sucesso!', 'success');
-      appendLog('Configurações de GitHub e Banco PostgreSQL gravadas.');
+      appendLog('Configurações de GitHub salvas com sucesso.');
       closeModal();
       loadConfig();
     } else {
@@ -1080,9 +1183,227 @@ btnSaveSettings.addEventListener('click', async () => {
   }
 });
 
+// -------------------------------------------------------------
+// Team Members Management (Cadastro e Filtro Dinâmico)
+// -------------------------------------------------------------
+let teamMembers = [];
+let memberSearchQuery = '';
+
+const memberFilterPillsContainer = document.getElementById('member-filter-pills');
+const inputSearchMembers = document.getElementById('input-search-members');
+const btnQuickManageMembers = document.getElementById('btn-quick-manage-members');
+
+const inputMemberEditId = document.getElementById('input-member-edit-id');
+const memberFormTitle = document.getElementById('member-form-title');
+const btnCancelEditMember = document.getElementById('btn-cancel-edit-member');
+const inputMemberName = document.getElementById('input-member-name');
+const inputMemberRole = document.getElementById('input-member-role');
+const inputMemberAvatar = document.getElementById('input-member-avatar');
+const inputMemberColor = document.getElementById('input-member-color');
+const btnSaveMember = document.getElementById('btn-save-member');
+const membersListCards = document.getElementById('members-list-cards');
+const memberCountBadge = document.getElementById('member-count-badge');
+
+async function fetchMembers() {
+  try {
+    const res = await fetch('/api/members');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.success && data.members) {
+      teamMembers = data.members;
+      renderMemberFilterPills();
+      renderModalMembersList();
+    }
+  } catch (err) {
+    console.warn('Erro ao carregar integrantes:', err);
+  }
+}
+
+function renderMemberFilterPills() {
+  if (!memberFilterPillsContainer) return;
+  memberFilterPillsContainer.innerHTML = '';
+
+  // 1. Botão "Todos"
+  const allBtn = document.createElement('button');
+  allBtn.type = 'button';
+  allBtn.className = `member-pill ${currentAssigneeFilter === 'all' ? 'active' : ''}`;
+  allBtn.setAttribute('data-assignee', 'all');
+  allBtn.textContent = '👥 Todos';
+  allBtn.addEventListener('click', () => setMemberFilter('all'));
+  memberFilterPillsContainer.appendChild(allBtn);
+
+  // 2. Filtra membros pelo input de busca se houver
+  const filtered = teamMembers.filter(m => {
+    if (!memberSearchQuery) return true;
+    return m.name.toLowerCase().includes(memberSearchQuery) ||
+           (m.role && m.role.toLowerCase().includes(memberSearchQuery));
+  });
+
+  filtered.forEach(m => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    const isAct = currentAssigneeFilter.toLowerCase() === m.id.toLowerCase() ||
+                  currentAssigneeFilter.toLowerCase() === m.name.toLowerCase();
+    btn.className = `member-pill ${isAct ? 'active' : ''}`;
+    btn.setAttribute('data-assignee', m.name);
+    btn.style.borderLeft = `3px solid ${m.color || '#38bdf8'}`;
+    btn.innerHTML = `${m.avatar || '👤'} ${m.name}`;
+    btn.title = `${m.name} (${m.role || 'Membro'})`;
+    btn.addEventListener('click', () => setMemberFilter(m.name));
+    memberFilterPillsContainer.appendChild(btn);
+  });
+}
+
+function renderModalMembersList() {
+  if (!membersListCards) return;
+  membersListCards.innerHTML = '';
+  if (memberCountBadge) memberCountBadge.textContent = teamMembers.length;
+
+  teamMembers.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'member-row-card';
+    card.innerHTML = `
+      <div class="member-info-left">
+        <div class="member-avatar-circle" style="border-color: ${m.color || '#38bdf8'}; color: ${m.color || '#38bdf8'};">
+          ${m.avatar || '👤'}
+        </div>
+        <div>
+          <div class="member-details-name">${m.name}</div>
+          <div class="member-details-role">${m.role || 'Membro da Equipe'}</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 6px;">
+        <button type="button" class="btn btn-secondary btn-sm btn-edit-member" style="padding: 4px 8px; font-size: 11px;" title="Alterar dados do integrante">
+          ✏️ Editar
+        </button>
+        <button type="button" class="btn btn-danger btn-sm btn-delete-member" style="padding: 4px 8px; font-size: 11px;" title="Remover integrante">
+          🗑️ Excluir
+        </button>
+      </div>
+    `;
+
+    card.querySelector('.btn-edit-member')?.addEventListener('click', () => {
+      startEditMember(m);
+    });
+
+    card.querySelector('.btn-delete-member')?.addEventListener('click', async () => {
+      if (confirm(`Deseja remover o integrante "${m.name}"?`)) {
+        if (inputMemberEditId && inputMemberEditId.value === m.id) {
+          cancelEditMember();
+        }
+        await deleteMember(m.id);
+      }
+    });
+
+    membersListCards.appendChild(card);
+  });
+}
+
+function startEditMember(m) {
+  if (inputMemberEditId) inputMemberEditId.value = m.id;
+  if (inputMemberName) inputMemberName.value = m.name;
+  if (inputMemberRole) inputMemberRole.value = m.role || '';
+  if (inputMemberAvatar) inputMemberAvatar.value = m.avatar || '👤';
+  if (inputMemberColor) inputMemberColor.value = m.color || '#38bdf8';
+
+  if (memberFormTitle) memberFormTitle.innerHTML = `✏️ Alterar Integrante (${m.name})`;
+  if (btnSaveMember) btnSaveMember.innerHTML = '💾 Salvar Alterações';
+  if (btnCancelEditMember) btnCancelEditMember.style.display = 'inline-block';
+
+  inputMemberName?.focus();
+}
+
+function cancelEditMember() {
+  if (inputMemberEditId) inputMemberEditId.value = '';
+  if (inputMemberName) inputMemberName.value = '';
+  if (inputMemberRole) inputMemberRole.value = '';
+  if (inputMemberAvatar) inputMemberAvatar.value = '👤';
+  if (inputMemberColor) inputMemberColor.value = '#38bdf8';
+
+  if (memberFormTitle) memberFormTitle.innerHTML = '➕ Novo Integrante';
+  if (btnSaveMember) btnSaveMember.innerHTML = '💾 Cadastrar Integrante';
+  if (btnCancelEditMember) btnCancelEditMember.style.display = 'none';
+}
+
+async function saveOrUpdateMember() {
+  const editId = inputMemberEditId?.value.trim();
+  const name = inputMemberName?.value.trim();
+  const role = inputMemberRole?.value.trim() || 'Membro da Equipe';
+  const avatar = inputMemberAvatar?.value || '👤';
+  const color = inputMemberColor?.value || '#38bdf8';
+
+  if (!name) {
+    showToast('Informe o nome do integrante', 'warning');
+    inputMemberName?.focus();
+    return;
+  }
+
+  const isEditing = Boolean(editId);
+  const endpoint = isEditing ? '/api/members/update' : '/api/members';
+  const method = isEditing ? 'PUT' : 'POST';
+  const payload = isEditing ? { id: editId, name, role, avatar, color } : { name, role, avatar, color };
+
+  try {
+    const res = await fetch(endpoint, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      appendLog(data.message);
+      cancelEditMember();
+      fetchMembers();
+      fetchFeatures();
+    } else {
+      showToast(data.error || 'Erro ao salvar integrante', 'error');
+    }
+  } catch (err) {
+    showToast('Erro de conexão ao salvar integrante', 'error');
+  }
+}
+
+async function deleteMember(id) {
+  try {
+    const res = await fetch('/api/members/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      appendLog(data.message);
+      fetchMembers();
+    } else {
+      showToast(data.error || 'Erro ao excluir integrante', 'error');
+    }
+  } catch (err) {
+    showToast('Erro de conexão ao excluir integrante', 'error');
+  }
+}
+
+// Quick Search
+inputSearchMembers?.addEventListener('input', (e) => {
+  memberSearchQuery = e.target.value.trim().toLowerCase();
+  renderMemberFilterPills();
+});
+
+// Quick Manage button in header
+btnQuickManageMembers?.addEventListener('click', () => {
+  modalSettings?.classList.add('open');
+  document.getElementById('modal-tab-members')?.click();
+});
+
+// Save or update member button in modal
+btnSaveMember?.addEventListener('click', saveOrUpdateMember);
+btnCancelEditMember?.addEventListener('click', cancelEditMember);
+
 // Initialize on Load
 window.addEventListener('DOMContentLoaded', () => {
   fetchGitInfo();
+  fetchMembers();
   fetchFeatures();
   loadConfig();
   updateCommandPreview();

@@ -11,9 +11,7 @@
     "status": "tsx src/scripts/VIEW_STATUS.ts",
     "dashboard": "tsx src/scripts/generate-dashboard.ts",
     "app": "tsx src/server/server.ts",
-    "dev": "tsx src/server/server.ts",
-    "db:init": "tsx src/database/init-db.ts",
-    "db:sync": "tsx src/database/sync-cli.ts"
+    "dev": "tsx src/server/server.ts"
   },
   "keywords": [
     "openspec",
@@ -28,12 +26,8 @@
   "engines": {
     "node": ">=16.0.0"
   },
-  "dependencies": {
-    "pg": "^8.13.1"
-  },
   "devDependencies": {
     "@types/node": "^20.17.0",
-    "@types/pg": "^8.11.10",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   },

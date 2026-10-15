@@ -3,13 +3,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
-import { testConnection, getDbConfig, closePool } from '../database/db.ts';
-import { SyncService } from '../database/sync-service.ts';
-import { initDatabase } from '../database/init-db.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
-const syncService = new SyncService();
 
 const REPO_ROOT = path.resolve(__dirname, '../../../');
 const OPEN_SPEC_DIR = path.resolve(__dirname, '../../../openspec/changes');
@@ -17,6 +13,53 @@ const WEB_DIR = path.resolve(__dirname, '../web');
 const KANBAN_ROOT = path.resolve(__dirname, '../../');
 const ENV_PATH = path.join(KANBAN_ROOT, '.env');
 const CONFIG_PATH = path.join(KANBAN_ROOT, 'src/config/kanban-config.json');
+const MEMBERS_PATH = path.join(KANBAN_ROOT, 'src/config/members.json');
+
+function getMembers(): Array<{ id: string; name: string; role: string; avatar: string; color: string }> {
+  if (fs.existsSync(MEMBERS_PATH)) {
+    try {
+      return JSON.parse(fs.readFileSync(MEMBERS_PATH, 'utf8'));
+    } catch {}
+  }
+  return [
+    { id: 'marcos', name: 'Marcos', role: 'Unity / C# Developer', avatar: '👤', color: '#38bdf8' },
+    { id: 'samuel', name: 'Samuel', role: 'Game Designer & Lead', avatar: '👑', color: '#f59e0b' },
+    { id: 'dev-team', name: 'Dev Team', role: 'Equipe Geral', avatar: '👥', color: '#10b981' },
+    { id: 'ia', name: 'Agente IA', role: 'Automação & Copilot', avatar: '🤖', color: '#a855f7' }
+  ];
+}
+
+function saveMembers(members: any[]) {
+  fs.writeFileSync(MEMBERS_PATH, JSON.stringify(members, null, 2), 'utf8');
+}
+
+function updateOpenSpecTask(featureId: string, taskNumber: string, isCompleted: boolean, status?: string, assignee?: string, text?: string): void {
+  const tasksPath = path.join(OPEN_SPEC_DIR, featureId, 'tasks.md');
+  if (fs.existsSync(tasksPath)) {
+    const content = fs.readFileSync(tasksPath, 'utf8');
+    const lines = content.split('\n');
+    let found = false;
+
+    const newLines = lines.map(line => {
+      if (line.includes(`**${taskNumber}**`)) {
+        found = true;
+        const mark = isCompleted ? '[x]' : '[ ]';
+        let updated = line.replace(/\[[ xX]\]/, mark);
+        if (assignee && !updated.includes(assignee)) {
+          updated += ` (${assignee})`;
+        }
+        return updated;
+      }
+      return line;
+    });
+
+    if (!found && text) {
+      newLines.push(`- [${isCompleted ? 'x' : ' '}] **${taskNumber}** ${text}${assignee ? ` (${assignee})` : ''}`);
+    }
+
+    fs.writeFileSync(tasksPath, newLines.join('\n'), 'utf8');
+  }
+}
 
 function loadEnvFile() {
   if (fs.existsSync(ENV_PATH)) {
@@ -121,14 +164,41 @@ function getFeaturesFromGitBranch(branch: string) {
         const featureName = match[1].trim();
         let proposal = '';
         let status = 'Backlog';
+        let ideaStatus = 'Criado';
+        let ideaAssignee = 'dev-team';
+        let title = featureName.replace(/-/g, ' ');
+        let summary = '';
+        const assigneesSet = new Set<string>();
+
         try {
           proposal = execSync(`git show ${branch}:openspec/changes/${featureName}/proposal.md`, { encoding: 'utf8', cwd: REPO_ROOT, stdio: ['pipe', 'pipe', 'ignore'] });
-          if (proposal.includes('[APROVADO]')) status = 'Aprovado';
-          else if (proposal.includes('[VALIDADO]')) status = 'Validado';
-          else if (proposal.includes('[REJEITADO]')) status = 'Rejeitado';
+          const titleMatch = proposal.match(/##\s*Title\s*\n+([^\n#]+)/i);
+          if (titleMatch) title = titleMatch[1].trim();
+
+          const summaryMatch = proposal.match(/##\s*Summary\s*\n+([^\n#]+)/i);
+          if (summaryMatch) summary = summaryMatch[1].trim();
+
+          if (proposal.includes('[APROVADO]')) {
+            status = 'Aprovado';
+            ideaStatus = 'Aprovado';
+          } else if (proposal.includes('[VALIDADO]')) {
+            status = 'Validado';
+            ideaStatus = 'Validado';
+          } else if (proposal.includes('[REJEITADO]')) {
+            status = 'Rejeitado';
+            ideaStatus = 'Rejeitado';
+          } else {
+            ideaStatus = 'Criado';
+          }
+
+          const teamMatch = proposal.match(/\[APROVADO\]\s+por\s+([^\s\n]+)/i);
+          if (teamMatch) {
+            ideaAssignee = teamMatch[1].trim();
+            assigneesSet.add(ideaAssignee);
+          }
         } catch {}
 
-        let tasks: Array<{ id: string; text: string; done: boolean; raw: string; section: string }> = [];
+        let tasks: Array<{ id: string; text: string; done: boolean; assignee?: string; raw: string; section: string }> = [];
         try {
           const tasksContent = execSync(`git show ${branch}:openspec/changes/${featureName}/tasks.md`, { encoding: 'utf8', cwd: REPO_ROOT, stdio: ['pipe', 'pipe', 'ignore'] });
           const tlines = tasksContent.split('\n');
@@ -144,10 +214,19 @@ function getFeaturesFromGitBranch(branch: string) {
               const done = taskMatch[1].toLowerCase() === 'x';
               const taskId = taskMatch[3] ? taskMatch[3].trim() : '';
               const text = taskMatch[4] ? taskMatch[4].trim() : '';
+
+              const assigneeMatch = text.match(/@([\w-]+)|\[([\w-]+)\]|\(([^)]+)\)/i);
+              let taskAssignee = assigneeMatch ? (assigneeMatch[1] || assigneeMatch[2] || assigneeMatch[3]).trim() : '';
+              if (!taskAssignee && ideaAssignee && ideaAssignee !== 'dev-team') {
+                taskAssignee = ideaAssignee;
+              }
+              if (taskAssignee) assigneesSet.add(taskAssignee);
+
               tasks.push({
                 id: taskId,
                 text,
                 done,
+                assignee: taskAssignee,
                 raw: tl.trim(),
                 section: currentSection
               });
@@ -168,9 +247,19 @@ function getFeaturesFromGitBranch(branch: string) {
           kanbanColumn = 'Ready';
         }
 
+        if (assigneesSet.size === 0) {
+          assigneesSet.add('dev-team');
+        }
+
         features.push({
           name: featureName,
+          title,
+          summary,
           status,
+          ideaStatus,
+          ideaColumn: ideaStatus,
+          ideaAssignee,
+          assignees: Array.from(assigneesSet),
           kanbanColumn,
           proposal,
           tasks,
@@ -214,19 +303,42 @@ function getFeaturesData() {
 
     let proposal = '';
     let status = 'Backlog';
+    let ideaStatus = 'Criado';
+    let ideaAssignee = 'dev-team';
+    let title = name.replace(/-/g, ' ');
+    let summary = '';
+    const assigneesSet = new Set<string>();
 
     if (fs.existsSync(proposalPath)) {
       proposal = fs.readFileSync(proposalPath, 'utf8');
+
+      const titleMatch = proposal.match(/##\s*Title\s*\n+([^\n#]+)/i);
+      if (titleMatch) title = titleMatch[1].trim();
+
+      const summaryMatch = proposal.match(/##\s*Summary\s*\n+([^\n#]+)/i);
+      if (summaryMatch) summary = summaryMatch[1].trim();
+
       if (proposal.includes('[APROVADO]')) {
         status = 'Aprovado';
+        ideaStatus = 'Aprovado';
       } else if (proposal.includes('[VALIDADO]')) {
         status = 'Validado';
+        ideaStatus = 'Validado';
       } else if (proposal.includes('[REJEITADO]')) {
         status = 'Rejeitado';
+        ideaStatus = 'Rejeitado';
+      } else {
+        ideaStatus = 'Criado';
+      }
+
+      const teamMatch = proposal.match(/\[APROVADO\]\s+por\s+([^\s\n]+)/i);
+      if (teamMatch) {
+        ideaAssignee = teamMatch[1].trim();
+        assigneesSet.add(ideaAssignee);
       }
     }
 
-    const tasks: Array<{ id: string; text: string; done: boolean; raw: string; section: string }> = [];
+    const tasks: Array<{ id: string; text: string; done: boolean; assignee?: string; raw: string; section: string }> = [];
     if (fs.existsSync(tasksPath)) {
       const content = fs.readFileSync(tasksPath, 'utf8');
       const lines = content.split('\n');
@@ -244,10 +356,19 @@ function getFeaturesData() {
           const done = taskMatch[1].toLowerCase() === 'x';
           const taskId = taskMatch[3] ? taskMatch[3].trim() : '';
           const text = taskMatch[4] ? taskMatch[4].trim() : '';
+
+          const assigneeMatch = text.match(/@([\w-]+)|\[([\w-]+)\]|\(([^)]+)\)/i);
+          let taskAssignee = assigneeMatch ? (assigneeMatch[1] || assigneeMatch[2] || assigneeMatch[3]).trim() : '';
+          if (!taskAssignee && ideaAssignee && ideaAssignee !== 'dev-team') {
+            taskAssignee = ideaAssignee;
+          }
+          if (taskAssignee) assigneesSet.add(taskAssignee);
+
           tasks.push({
             id: taskId,
             text,
             done,
+            assignee: taskAssignee,
             raw: line.trim(),
             section: currentSection
           });
@@ -269,9 +390,19 @@ function getFeaturesData() {
       kanbanColumn = 'Ready';
     }
 
+    if (assigneesSet.size === 0) {
+      assigneesSet.add('dev-team');
+    }
+
     return {
       name,
+      title,
+      summary,
       status,
+      ideaStatus,
+      ideaColumn: ideaStatus,
+      ideaAssignee,
+      assignees: Array.from(assigneesSet),
       kanbanColumn,
       proposal,
       tasks,
@@ -283,6 +414,109 @@ function getFeaturesData() {
   });
 }
 
+function generateSmartOpenSpec(featureId: string, title?: string) {
+  const cleanId = featureId.trim().toLowerCase().replace(/\s+/g, '-');
+  const cleanTitle = title && title.trim() ? title.trim() : cleanId.replace(/-/g, ' ');
+
+  const textToScan = `${cleanId} ${cleanTitle}`.toLowerCase();
+  const isCombat = /combat|dano|health|vida|tiro|skill|poder|ataque|hero|minion|torre|bala|arma/i.test(textToScan);
+  const isUI = /ui|hud|menu|tela|painel|botao|joystick|ranking|placar|indicador/i.test(textToScan);
+  const isEconomy = /ouro|gold|moeda|loja|recompensa|nft|token|solana|metaplex|inventario/i.test(textToScan);
+
+  let motivation = `Atender à evolução contínua do Fowlgen Wars com especificação clara, modular e alinhada ao Mini-MOBA MVP.`;
+  let solution = `Implementar componentes modulares respeitando as convenções de Claude.md e validando em Play mode na cena Arena_Clean.`;
+  let alternatives = `Tentativas monolíticas sem isolamento de componentes foram descartadas para evitar conflitos na árvore de prefabs.`;
+
+  let tasks = [
+    {
+      section: "1. Planejamento & Arquitetura",
+      items: [
+        `Mapear contratos de interface e referências na cena Arena_Clean para "${cleanTitle}"`,
+        `Definir escopo estrito de componentes sem afetar sistemas globais de balanceamento`
+      ]
+    },
+    {
+      section: "2. Implementação Técnica",
+      items: [
+        `Implementar scripts modulares C# e componentes para "${cleanTitle}"`,
+        `Conectar eventos de jogo e garantir serialização correta de dados`,
+        `Garantir tratamento defensivo contra referências nulas (NullReferenceException)`
+      ]
+    },
+    {
+      section: "3. Validação & Testes",
+      items: [
+        `Validar execução sem erros no Console durante Play mode na cena Arena_Clean`,
+        `Verificar aderência ao checklist DevSecOps e integridade do repositório`
+      ]
+    }
+  ];
+
+  if (isCombat) {
+    motivation = `Aprimorar a dinâmica tática de combate e feedback visual/sonoro dos heróis e tropas no mapa de 3 rotas.`;
+    solution = `Adaptar a lógica de combate mantendo contratos de dano/vida existentes e testando em modo Play na Arena_Clean.`;
+    tasks[1].items = [
+      `Implementar controlador de combate/efeitos para "${cleanTitle}"`,
+      `Ajustar colisores, sincronização de HP e feedbacks visuais`,
+      `Configurar time A (Verde #22C55E) e time B (Vermelho #EF4444) adequadamente`
+    ];
+  } else if (isUI) {
+    motivation = `Garantir ergonomia e legibilidade de interface para jogadores mobile e desktop em proporção widescreen.`;
+    solution = `Criar UI com Canvas adaptativo, âncoras relativas e isolamento de eventos de clique/toque.`;
+    tasks[1].items = [
+      `Construir layout Canvas e âncoras responsivas para "${cleanTitle}"`,
+      `Conectar bindings de dados e reatividade aos eventos do jogo`,
+      `Verificar contraste visual e área de toque para mobile landscape`
+    ];
+  } else if (isEconomy) {
+    motivation = `Estruturar progressão e recompensas fair-play respeitando as diretrizes de Solana e Web3 modular.`;
+    solution = `Separar estado de inventário do gameplay em tempo real, integrando chamadas RPC seguras.`;
+    tasks[1].items = [
+      `Implementar estrutura de dados para moedas/ativos de "${cleanTitle}"`,
+      `Conectar validação de regras de inventário sem afetar a latência da partida`,
+      `Integrar eventos de sincronização com o backend/blockchain`
+    ];
+  }
+
+  const proposal = `# Feature: ${cleanId}
+
+## Title
+${cleanTitle}
+
+## Summary
+Implementação da funcionalidade "${cleanTitle}" para o Fowlgen Wars com escopo delimitado, componentes modulares e verificação em Arena_Clean.
+
+## Motivation
+${motivation}
+
+## Proposed Solution
+${solution}
+
+## Alternatives Considered
+${alternatives}
+
+## Impact
+- [ ] Breaking changes
+- [x] Preserva balanceamento existente e isola alterações em componentes específicos
+
+## Status
+[CRIADO]
+`;
+
+  let tasksMd = `# Tasks for ${cleanId}\n\n`;
+  tasks.forEach((sec, sIdx) => {
+    tasksMd += `## ${sec.section}\n`;
+    sec.items.forEach((item, iIdx) => {
+      tasksMd += `- [ ] **${sIdx + 1}.${iIdx + 1}** ${item}\n`;
+    });
+    tasksMd += `\n`;
+  });
+
+  const totalTasks = tasks.reduce((acc, s) => acc + s.items.length, 0);
+
+  return { cleanId, cleanTitle, proposal, tasksMd, totalTasks };
+}
+
 const server = http.createServer(async (req, res) => {
   const parsedUrl = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
   const pathname = parsedUrl.pathname;
@@ -291,7 +525,7 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type'
     });
     res.end();
@@ -299,6 +533,148 @@ const server = http.createServer(async (req, res) => {
   }
 
   try {
+    // API: Get members list
+    if (req.method === 'GET' && pathname === '/api/members') {
+      const members = getMembers();
+      sendJSON(res, 200, { success: true, members });
+      return;
+    }
+
+    // API: Add new member
+    if (req.method === 'POST' && pathname === '/api/members') {
+      const { name, role, avatar, color } = await parseJSONBody(req);
+      if (!name || !name.trim()) {
+        sendJSON(res, 400, { success: false, error: 'O nome do integrante é obrigatório.' });
+        return;
+      }
+
+      const cleanName = name.trim();
+      const cleanId = cleanName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      const members = getMembers();
+
+      const existing = members.find(m => m.id === cleanId || m.name.toLowerCase() === cleanName.toLowerCase());
+      if (existing) {
+        sendJSON(res, 400, { success: false, error: `Já existe um integrante cadastrado com o nome "${cleanName}".` });
+        return;
+      }
+
+      const newMember = {
+        id: cleanId,
+        name: cleanName,
+        role: role && role.trim() ? role.trim() : 'Membro da Equipe',
+        avatar: avatar && avatar.trim() ? avatar.trim() : '👤',
+        color: color && color.trim() ? color.trim() : '#38bdf8'
+      };
+
+      members.push(newMember);
+      saveMembers(members);
+
+      sendJSON(res, 200, {
+        success: true,
+        message: `Integrante ${cleanName} cadastrado com sucesso!`,
+        member: newMember,
+        members
+      });
+      return;
+    }
+
+    // API: Update member (PUT /api/members, PUT /api/members/:id ou POST /api/members/update)
+    const isMemberUpdate = (req.method === 'PUT' && (pathname === '/api/members' || pathname.startsWith('/api/members/'))) ||
+                           ((req.method === 'POST' || req.method === 'PUT') && pathname === '/api/members/update');
+
+    if (isMemberUpdate) {
+      const body = await parseJSONBody(req);
+      let targetId = body.id;
+      if (!targetId && pathname.startsWith('/api/members/') && pathname !== '/api/members/update') {
+        targetId = decodeURIComponent(pathname.substring('/api/members/'.length));
+      }
+
+      if (!targetId) {
+        sendJSON(res, 400, { success: false, error: 'ID do integrante é obrigatório para alteração.' });
+        return;
+      }
+
+      const members = getMembers();
+      const memberIndex = members.findIndex(m => m.id === targetId || m.name.toLowerCase() === String(targetId).toLowerCase());
+
+      if (memberIndex === -1) {
+        sendJSON(res, 404, { success: false, error: `Integrante com identificador "${targetId}" não encontrado.` });
+        return;
+      }
+
+      const current = members[memberIndex];
+      const newName = body.name !== undefined ? String(body.name).trim() : current.name;
+      const newRole = body.role !== undefined ? String(body.role).trim() : current.role;
+      const newAvatar = body.avatar !== undefined ? String(body.avatar).trim() : current.avatar;
+      const newColor = body.color !== undefined ? String(body.color).trim() : current.color;
+
+      if (!newName) {
+        sendJSON(res, 400, { success: false, error: 'O nome do integrante não pode ficar vazio.' });
+        return;
+      }
+
+      // Verifica se o novo nome colide com OUTRO integrante diferente
+      const conflict = members.find((m, idx) => idx !== memberIndex && m.name.toLowerCase() === newName.toLowerCase());
+      if (conflict) {
+        sendJSON(res, 400, { success: false, error: `Já existe outro integrante cadastrado com o nome "${newName}".` });
+        return;
+      }
+
+      members[memberIndex] = {
+        ...current,
+        name: newName,
+        role: newRole,
+        avatar: newAvatar,
+        color: newColor
+      };
+
+      saveMembers(members);
+
+      sendJSON(res, 200, {
+        success: true,
+        message: `Integrante ${newName} atualizado com sucesso!`,
+        member: members[memberIndex],
+        members
+      });
+      return;
+    }
+
+    // API: Delete member (DELETE /api/members/:id, DELETE /api/members ou POST /api/members/delete)
+    const isMemberDelete = (req.method === 'POST' && pathname === '/api/members/delete') ||
+                           (req.method === 'DELETE' && (pathname === '/api/members' || pathname.startsWith('/api/members/')));
+
+    if (isMemberDelete) {
+      let targetId = '';
+      if (req.method === 'DELETE' && pathname.startsWith('/api/members/')) {
+        targetId = decodeURIComponent(pathname.substring('/api/members/'.length));
+      } else {
+        const body = await parseJSONBody(req);
+        targetId = body.id;
+      }
+
+      if (!targetId) {
+        sendJSON(res, 400, { success: false, error: 'ID do integrante é obrigatório.' });
+        return;
+      }
+
+      let members = getMembers();
+      const initialCount = members.length;
+      members = members.filter(m => m.id !== targetId && m.name.toLowerCase() !== String(targetId).toLowerCase());
+
+      if (members.length === initialCount) {
+        sendJSON(res, 404, { success: false, error: 'Integrante não encontrado.' });
+        return;
+      }
+
+      saveMembers(members);
+      sendJSON(res, 200, {
+        success: true,
+        message: 'Integrante removido com sucesso.',
+        members
+      });
+      return;
+    }
+
     // API: Get GitHub and project config + Database info
     if (req.method === 'GET' && pathname === '/api/config') {
       let configData: any = {};
@@ -310,7 +686,6 @@ const server = http.createServer(async (req, res) => {
 
       const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '';
       const maskedToken = token ? `${token.substring(0, 4)}••••••••${token.slice(-4)}` : '';
-      const dbCfg = getDbConfig();
 
       sendJSON(res, 200, {
         success: true,
@@ -318,24 +693,17 @@ const server = http.createServer(async (req, res) => {
           repo: configData.github?.repo || 'mukasanray/Fowlgen-Wars-Project',
           branch: configData.github?.branch || 'main',
           projectId: configData.projectId || '',
-          assignee: configData.assignee || 'Samuel Menon Ramos',
+          assignee: configData.assignee || 'Marcos',
           hasToken: Boolean(token),
-          tokenMasked: maskedToken,
-          database: {
-            host: dbCfg.host,
-            port: dbCfg.port,
-            user: dbCfg.user,
-            database: dbCfg.database,
-            hasPassword: Boolean(dbCfg.password)
-          }
+          tokenMasked: maskedToken
         }
       });
       return;
     }
 
-    // API: Save GitHub config, token and Database credentials
+    // API: Save GitHub config and token
     if (req.method === 'POST' && pathname === '/api/config') {
-      const { token, repo, projectId, assignee, dbHost, dbPort, dbUser, dbPassword, dbDatabase } = await parseJSONBody(req);
+      const { token, repo, projectId, assignee } = await parseJSONBody(req);
 
       if (token && token.trim()) {
         const cleanToken = token.trim();
@@ -343,31 +711,15 @@ const server = http.createServer(async (req, res) => {
         process.env.GITHUB_TOKEN = cleanToken;
       }
 
-      if (dbHost) process.env.POSTGRES_HOST = dbHost.trim();
-      if (dbPort) process.env.POSTGRES_PORT = String(dbPort).trim();
-      if (dbUser) process.env.POSTGRES_USER = dbUser.trim();
-      if (dbPassword !== undefined && dbPassword !== '') process.env.POSTGRES_PASSWORD = dbPassword;
-      if (dbDatabase) process.env.POSTGRES_DB = dbDatabase.trim();
-
       // Grava no .env
       const currentToken = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '';
       const envContent = [
         `# Fowlgen Wars - Kanban & OpenSpec Environment`,
         `GH_TOKEN=${currentToken}`,
         `GITHUB_TOKEN=${currentToken}`,
-        ``,
-        `# PostgreSQL Database (Produção / install.sh)`,
-        `POSTGRES_HOST=${process.env.POSTGRES_HOST || 'localhost'}`,
-        `POSTGRES_PORT=${process.env.POSTGRES_PORT || '5432'}`,
-        `POSTGRES_USER=${process.env.POSTGRES_USER || 'fowlgen'}`,
-        `POSTGRES_PASSWORD=${process.env.POSTGRES_PASSWORD || 'fowlgen_password'}`,
-        `POSTGRES_DB=${process.env.POSTGRES_DB || 'fowlgen_kanban'}`,
         ``
       ].join('\n');
       fs.writeFileSync(ENV_PATH, envContent, 'utf8');
-
-      // Fecha pool existente para recarregar com novas credenciais
-      await closePool();
 
       if (fs.existsSync(CONFIG_PATH)) {
         try {
@@ -386,7 +738,7 @@ const server = http.createServer(async (req, res) => {
 
       sendJSON(res, 200, {
         success: true,
-        message: 'Configurações de GitHub e Banco PostgreSQL salvas com sucesso!'
+        message: 'Configurações de GitHub salvas com sucesso!'
       });
       return;
     }
@@ -433,59 +785,6 @@ const server = http.createServer(async (req, res) => {
           error: `Erro ao conectar com GitHub: ${err.message}`
         });
       }
-      return;
-    }
-
-    // API: Test PostgreSQL Connection
-    if (req.method === 'POST' && pathname === '/api/database/test') {
-      const body = await parseJSONBody(req);
-      const conn = await testConnection({
-        host: body.host || process.env.POSTGRES_HOST || 'localhost',
-        port: parseInt(body.port || process.env.POSTGRES_PORT || '5432', 10),
-        user: body.user || process.env.POSTGRES_USER || 'fowlgen',
-        password: body.password !== undefined ? body.password : (process.env.POSTGRES_PASSWORD || 'fowlgen_password'),
-        database: body.database || process.env.POSTGRES_DB || 'fowlgen_kanban'
-      });
-      sendJSON(res, 200, {
-        success: conn.connected,
-        connected: conn.connected,
-        database: conn.database,
-        error: conn.error
-      });
-      return;
-    }
-
-    // API: Database status
-    if (req.method === 'GET' && pathname === '/api/database/status') {
-      const cfg = getDbConfig();
-      const conn = await testConnection();
-      sendJSON(res, 200, {
-        success: true,
-        connected: conn.connected,
-        database: conn.database || cfg.database,
-        host: cfg.host,
-        port: cfg.port,
-        user: cfg.user,
-        error: conn.error
-      });
-      return;
-    }
-
-    // API: Initialize database
-    if (req.method === 'POST' && pathname === '/api/database/init') {
-      const result = await initDatabase();
-      sendJSON(res, 200, result);
-      return;
-    }
-
-    // API: Sync OpenSpec <-> PostgreSQL
-    if (req.method === 'POST' && pathname === '/api/database/sync') {
-      const result = await syncService.importFromOpenSpec();
-      sendJSON(res, 200, {
-        success: true,
-        message: `Sincronização concluída: ${result.importedFeatures} features e ${result.importedTasks} tarefas no PostgreSQL.`,
-        data: result
-      });
       return;
     }
 
@@ -558,8 +857,8 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
-      // Sincroniza no PostgreSQL e OpenSpec
-      await syncService.syncTask(feature, taskId || '1.0', false, 'Backlog', 'Equipe', text);
+      // Sincroniza diretamente no OpenSpec Markdown
+      updateOpenSpecTask(feature, taskId || '1.0', false, 'Backlog', 'Marcos', text);
 
       const idPrefix = taskId ? `**${taskId}** ` : '';
       sendJSON(res, 200, {
@@ -578,11 +877,11 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
-      // Sincroniza no OpenSpec (e banco se ativo)
-      await syncService.syncTask(feature, taskId, Boolean(done), status, assignee);
+      // Sincroniza diretamente no OpenSpec Markdown
+      updateOpenSpecTask(feature, taskId, Boolean(done), status, assignee);
 
       const displayStatus = done ? 'Concluído' : (status || 'Em Andamento');
-      const displayAssignee = assignee || 'Equipe';
+      const displayAssignee = assignee || 'Marcos';
 
       sendJSON(res, 200, {
         success: true,
@@ -628,6 +927,37 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // API: AI Generate feature (Proposta estruturada e tarefas 100% locais)
+    if (req.method === 'POST' && pathname === '/api/features/ai-generate') {
+      const { featureId, title } = await parseJSONBody(req);
+      if (!featureId) {
+        sendJSON(res, 400, { success: false, error: 'ID ou tema da feature é obrigatório.' });
+        return;
+      }
+
+      const generated = generateSmartOpenSpec(featureId, title);
+      const featureDir = path.join(OPEN_SPEC_DIR, generated.cleanId);
+
+      if (fs.existsSync(featureDir)) {
+        sendJSON(res, 400, { success: false, error: `A feature "${generated.cleanId}" já existe no OpenSpec.` });
+        return;
+      }
+
+      fs.mkdirSync(featureDir, { recursive: true });
+      fs.writeFileSync(path.join(featureDir, 'proposal.md'), generated.proposal, 'utf8');
+      fs.writeFileSync(path.join(featureDir, 'tasks.md'), generated.tasksMd, 'utf8');
+
+      sendJSON(res, 200, {
+        success: true,
+        featureId: generated.cleanId,
+        title: generated.cleanTitle,
+        totalTasks: generated.totalTasks,
+        message: `IA Local: Proposta e ${generated.totalTasks} tarefas geradas para "${generated.cleanTitle}"!`,
+        command: `agent criar openspec/changes/${generated.cleanId}/proposal.md "# Feature: ${generated.cleanTitle}"`
+      });
+      return;
+    }
+
     // API: Feature actions (validar, aprovar, rejeitar, deletar)
     if (req.method === 'POST' && pathname === '/api/features/action') {
       const { feature, action, assignee, reason } = await parseJSONBody(req);
@@ -668,6 +998,9 @@ const server = http.createServer(async (req, res) => {
         const mot = reason || 'Sem valor de negócio';
         proposalContent += `\n\n## Status\n[REJEITADO] Motivo: ${mot} em ${new Date().toISOString().split('T')[0]}\n`;
         command = `agent rejeitar ideia "${feature}" "${mot}"`;
+      } else if (action === 'reset' || action === 'created') {
+        proposalContent += `\n\n## Status\n[CRIADO] em ${new Date().toISOString().split('T')[0]}\n`;
+        command = `agent resetar ideia "${feature}"`;
       }
 
       fs.writeFileSync(proposalPath, proposalContent, 'utf8');

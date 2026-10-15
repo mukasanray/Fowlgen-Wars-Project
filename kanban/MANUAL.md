@@ -61,36 +61,74 @@ No topo da página, você encontra os seguintes controles principais:
 
 ---
 
-### 3.2. As 4 Colunas do Kanban
+### 3.2. Dois Modos de Quadro: Tarefas da Sprint vs Funil de Ideias
 
-As tarefas do OpenSpec são organizadas automaticamente em 4 estágios:
+No topo do quadro visual, você pode alternar entre duas perspectivas de trabalho:
 
-| Coluna | Significado | Como uma tarefa entra aqui |
-|---|---|---|
-| **📋 A Fazer (To Do)** | Tarefas planejadas e prontas para início. | Tarefa não iniciada (`[ ]`) no `tasks.md`. |
-| **⚡ Em Progresso (In Progress)** | Tarefas que alguém já começou a codificar. | Marcada como em andamento ou arrastada para esta coluna. |
-| **👀 Em Revisão (In Review)** | Tarefas codificadas aguardando validação ou teste. | Arrastada para revisão ou quando subtarefas técnicas são concluídas. |
-| **✅ Concluído (Done)** | Tarefas 100% finalizadas e testadas. | Todos os checkboxes marcados ou card arrastado para Concluído. |
+```
+[ 🎯 Tarefas da Sprint (7) ] [ 💡 Funil de Ideias (2) ]  |  👤 Integrante: [ 👥 Todos ] [ 👤 Marcos ] [ 👤 Samuel ] [ 👥 Dev Team ] [ 🤖 Agente IA ]
+```
+
+1. **`🎯 Modo Tarefas da Sprint`** *(Foco em Desenvolvimento)*:
+   * Colunas:
+     * **📋 A Fazer (To Do)**: Tarefas planejadas e prontas para início.
+     * **⚡ Em Progresso (In Progress)**: Tarefas que já começaram a ser codificadas.
+     * **👀 Em Revisão (In Review)**: Tarefas codificadas aguardando validação ou teste de arena.
+     * **✅ Concluído (Done)**: Tarefas 100% finalizadas e testadas.
+
+2. **`💡 Modo Funil de Ideias`** *(Foco em Game Design & Propostas)*:
+   * Colunas:
+     * **💡 Novas Ideias (Propostas)**: Ideias recém-criadas (`[CRIADO]`), com botões rápidos de `🔍 Validar`, `✅ Aprovar` e `❌ Rejeitar`.
+     * **🔍 Em Validação**: Ideias em teste técnico ou prova de conceito na `Arena_Clean`.
+     * **✅ Aprovadas**: Ideias prontas para o time ou IA codificar. Suas tarefas aparecem ativas no modo Tarefas da Sprint.
+     * **❌ Rejeitadas**: Ideias descartadas com o motivo registrado e botão de reconsideração.
 
 ---
 
-### 3.3. Interações nos Cards de Tarefas
+### 3.3. Filtro Rápido por Integrante (Meu Quadro Pessoal)
 
-Cada card representa uma funcionalidade ou conjunto de tarefas de uma mudança no OpenSpec:
+Permite isolar as tarefas e ideias de um integrante específico com 1 clique ou pesquisar no campo `🔍 Buscar...`:
 
-* **Checkbox de Subtarefa**: Clique diretamente na caixinha de seleção dentro do card para marcar `[x]` ou desmarcar `[ ]`. A barra de progresso do card atualiza na mesma hora.
-* **Arrastar e Soltar (Drag & Drop)**: Segure o card e arraste-o entre as colunas para atualizar seu status.
-* **Detalhes da Tarefa**: Clique no card para abrir o modal com a descrição completa, responsável (*assignee*), dependências e checklist detalhado.
-* **Filtro por Feature**: No topo do quadro, use o dropdown para isolar uma única funcionalidade (ex: `health-bar-black-bg`) ou exibir todas ao mesmo tempo.
+* **`👥 Todos`**: Visão panorâmica de todo o projeto da Sprint.
+* **`👑 Samuel`**: Product Owner • Game Design • Gestão do Kanban.
+* **`💻 Marcos`**: Líder Técnico • Dev Core Unity & Web3.
+* **`🕹️ Manuel`**: Dev Unity • Gameplay Core & Ambiente.
+* **`🛡️ Jorge Espindola`**: DevSecOps Engineer & Web3 • Áudio & Docs.
+* **`🌐 Junior`**: Dev Web (React/Node) • Docs & Prompts.
+* **`🧪 Maria Clara`**: QA Funcional • UX Testing & Lore.
+* **`📈 Ramiro`**: Marketing Estratégico & Pitch Deck.
+* **`👥 Dev Team`**: Equipe Técnica Geral.
+* **`🤖 Agente IA`**: Automação & Copilot de Código.
+
+> **Gerenciamento e Edição de Integrantes**: Clique no botão **`⚙️ Gerenciar`** na barra de integrantes (ou acesse `⚙️ Configurações` > `👥 Integrantes da Equipe`) para:
+> * **Adicionar novo integrante**: preencha nome, papel, avatar e cor da tag.
+> * **Alterar dados do integrante**: clique no botão **`✏️ Editar`** em qualquer integrante para carregar os dados no formulário, ajustar qualquer informação e salvar com `💾 Salvar Alterações`.
+> * **Excluir integrante**: clique em `🗑️ Excluir` para remover da lista.
+> * **API REST Disponível**:
+>   * `GET /api/members`: Lista todos os integrantes.
+>   * `POST /api/members`: Cadastra novo integrante.
+>   * `PUT /api/members/:id` ou `POST /api/members/update`: Altera nome, papel, avatar ou cor.
+>   * `DELETE /api/members/:id` ou `POST /api/members/delete`: Remove integrante.
+>   * Todos os dados ficam salvos de forma 100% Git-Native em `kanban/src/config/members.json`.
+
+### 3.4. Interações nos Cards de Tarefas e Ideias
+
+* **Checkboxes de Subtarefas**: Marque diretamente no card da Sprint (`[x]` ou `[ ]`) para atualizar o progresso em tempo real.
+* **Botões de Ação Rápida de Ideia**: Valide, aprove ou rejeite uma ideia direto no card sem precisar abrir formulários.
+* **Arrastar e Soltar (Drag & Drop)**: Mova os cards entre as colunas para atualizar status automaticamente.
+* **Filtro por Feature**: No topo do painel, isole uma feature específica (ex: `health-bar-black-bg`) quando desejar foco total.
 
 ---
 
-### 3.4. Gerador de Comandos para Agentes de IA
+### 3.4. Gestão de Ideias e Automação com IA Local
 
 Abaixo do quadro Kanban, você encontra a seção de **Controle e Automação**:
 
 * **Aba Tarefas**: Preencha o ID da tarefa, status e responsável para gerar o comando padronizado (ex.: `agent atualizar "**2.1**" "in_progress" "Marcos"`).
-* **Aba Ideias**: Permite aprovar ou arquivar propostas de ideias de novos sistemas.
+* **Aba Ideias**:
+  * **`🪄 Gerar Tarefas com IA`**: Digite o ID e título da ideia (ex: `sistema-ranking`). O gerador de IA local cria automaticamente a proposta completa e o checklist de 3 fases (`Planejamento`, `Implementação`, `Validação em Arena_Clean`) pronto para o Kanban.
+  * **`📁 Nova Feature`**: Cria uma estrutura limpa de arquivos em branco.
+  * **`🔍 Validar Ideia` / `✅ Aprovar` / `❌ Rejeitar`**: Atualiza o status oficial no `proposal.md` com um clique.
 * **Botão "Copiar Comando"**: Copia o comando formatado com um clique para colar diretamente no chat com agentes ou no terminal.
 
 ---
@@ -122,11 +160,9 @@ kanban/
 │   │   ├── main-orchestrator.ts # Script de sincronização automática com o GitHub
 │   │   ├── sync-to-github.ts    # Envio de tarefas para o GitHub Projects API v2 (GraphQL)
 │   │   └── VIEW_STATUS.ts       # Visualizador de status via linha de comando
-│   ├── database/              # (Opcional) Conector PostgreSQL para cenários legados
-│   │   ├── init-db.ts
-│   │   └── sync-cli.ts
 │   └── config/
-│       └── kanban-config.json # Configuração de colunas e mapeamentos
+│       ├── kanban-config.json # Configuração de colunas e mapeamentos
+│       └── members.json       # Cadastro Git-Native de integrantes da equipe
 ├── package.json               # Dependências e scripts de execução
 └── MANUAL.md                  # Este manual
 ```
@@ -141,15 +177,13 @@ kanban/
 | `npm run sync` | Roda o orquestrador para sincronizar o OpenSpec local com o GitHub Projects. |
 | `npm run status` | Exibe no terminal o resumo das tarefas de todas as features ativas. |
 | `npm run verify` | Valida se todos os caminhos do OpenSpec e ferramentas estão funcionando. |
-| `npm run db:init` | *(Opcional)* Cria as tabelas no PostgreSQL caso queira espelhar localmente. |
-| `npm run db:sync` | *(Opcional)* Sincroniza os arquivos Markdown com o banco PostgreSQL. |
 
 ---
 
 ## 7. Perguntas Frequentes (FAQ)
 
-### P: Preciso do PostgreSQL rodando para usar o Kanban?
-**R:** **Não.** O modo oficial de produção é **Git-Native**. Todas as tarefas ficam salvas em arquivos Markdown no repositório (`openspec/changes/*/tasks.md`), o que garante histórico de versões completo, funciona offline e não tem custo de infraestrutura. O PostgreSQL é apenas um recurso extra e opcional.
+### P: Preciso de banco de dados para usar o Kanban?
+**R:** **Não!** O sistema é **100% Git-Native**. Todas as tarefas, ideias e integrantes ficam salvos diretamente em arquivos versionados no repositório (`openspec/changes/*/tasks.md` e `kanban/src/config/members.json`), garantindo versionamento com Git, funcionamento offline rápido e zero dependências de bancos externos.
 
 ### P: O que acontece quando clico em "Salvar Alterações"?
 **R:** O Kanban faz um `git add` dos arquivos de tarefas modificados e cria um commit limpo no Git com a mensagem que você digitar. Suas alterações ficam salvas com segurança no histórico do projeto.

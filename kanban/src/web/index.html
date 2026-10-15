@@ -179,8 +179,11 @@
 
           <!-- Quick Action Buttons for Ideas (From PDF) -->
           <div class="actions-grid">
-            <button class="btn btn-primary" id="btn-action-new-feature" title="Criar proposal.md e tasks.md">
-              📁 Nova Feature Completa
+            <button class="btn btn-primary" id="btn-action-generate-ai" style="background: linear-gradient(135deg, #8b5cf6, #6366f1); border-color: #8b5cf6; font-weight: 600;" title="IA Local: Gera a proposta completa e o checklist de tarefas em 3 fases">
+              🪄 Gerar Tarefas com IA
+            </button>
+            <button class="btn btn-secondary" id="btn-action-new-feature" title="Criar proposal.md e tasks.md em branco">
+              📁 Nova Feature
             </button>
             <button class="btn btn-warning" id="btn-action-validate-idea" title="Validar ideia">
               🔍 Validar Ideia
@@ -252,9 +255,34 @@
     <!-- Right Column: Visual Kanban Board -->
     <section class="kanban-view">
       <div class="kanban-header">
-        <div>
-          <h2 style="font-size: 18px; font-weight: 700;">Quadro Kanban Interativo</h2>
-          <p style="font-size: 12px; color: var(--text-muted);">Sincronizado diretamente com a pasta <code style="color: var(--primary);">openspec/changes/</code></p>
+        <div class="kanban-header-left">
+          <!-- Alternador de Quadro: Tarefas da Sprint vs Funil de Ideias -->
+          <div class="board-view-switch" role="tablist">
+            <button type="button" class="board-view-btn active" id="btn-view-tasks" title="Quadro de Execução: Tarefas e desenvolvimento da Sprint">
+              <span class="view-icon">🎯</span>
+              <span class="view-text">Tarefas da Sprint</span>
+              <span class="view-badge" id="badge-total-tasks-view">0</span>
+            </button>
+            <button type="button" class="board-view-btn" id="btn-view-ideas" title="Funil de Ideias: Validação e aprovação de propostas de Game Design">
+              <span class="view-icon">💡</span>
+              <span class="view-text">Funil de Ideias</span>
+              <span class="view-badge" id="badge-total-ideas-view">0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtro Rápido por Integrante -->
+        <div class="member-filter-bar">
+          <span class="filter-label">👤 Integrante:</span>
+          <div class="member-search-box">
+            <input type="text" id="input-search-members" class="member-search-input" placeholder="🔍 Buscar..." title="Buscar integrante por nome ou função">
+          </div>
+          <div class="member-pills" id="member-filter-pills">
+            <button type="button" class="member-pill active" data-assignee="all">👥 Todos</button>
+          </div>
+          <button type="button" class="btn-manage-members-pill" id="btn-quick-manage-members" title="Cadastrar ou gerenciar integrantes da equipe">
+            ⚙️ Gerenciar
+          </button>
         </div>
       </div>
 
@@ -269,10 +297,10 @@
 
       <div class="kanban-columns">
 
-        <!-- Column 1: Backlog -->
-        <div class="column" id="col-backlog">
+        <!-- Column 1 -->
+        <div class="column" id="col-backlog" data-col-id="1">
           <div class="column-header">
-            <span class="column-name col-backlog">📝 Backlog</span>
+            <span class="column-name col-backlog" id="col-title-1">📋 A Fazer</span>
             <span class="card-count" id="count-backlog">0</span>
           </div>
           <div class="column-cards" id="cards-backlog">
@@ -280,10 +308,10 @@
           </div>
         </div>
 
-        <!-- Column 2: Em Progresso -->
-        <div class="column" id="col-progress">
+        <!-- Column 2 -->
+        <div class="column" id="col-progress" data-col-id="2">
           <div class="column-header">
-            <span class="column-name col-progress">🔄 Em Progresso</span>
+            <span class="column-name col-progress" id="col-title-2">⚡ Em Progresso</span>
             <span class="card-count" id="count-progress">0</span>
           </div>
           <div class="column-cards" id="cards-progress">
@@ -291,10 +319,10 @@
           </div>
         </div>
 
-        <!-- Column 3: Review / Testando -->
-        <div class="column" id="col-review">
+        <!-- Column 3 -->
+        <div class="column" id="col-review" data-col-id="3">
           <div class="column-header">
-            <span class="column-name col-review">🔍 Review / QA</span>
+            <span class="column-name col-review" id="col-title-3">👀 Em Revisão</span>
             <span class="card-count" id="count-review">0</span>
           </div>
           <div class="column-cards" id="cards-review">
@@ -302,10 +330,10 @@
           </div>
         </div>
 
-        <!-- Column 4: Concluído -->
-        <div class="column" id="col-done">
+        <!-- Column 4 -->
+        <div class="column" id="col-done" data-col-id="4">
           <div class="column-header">
-            <span class="column-name col-done">✅ Concluído</span>
+            <span class="column-name col-done" id="col-title-4">✅ Concluído</span>
             <span class="card-count" id="count-done">0</span>
           </div>
           <div class="column-cards" id="cards-done">
@@ -331,8 +359,8 @@
         <button type="button" class="modal-tab-btn active" id="modal-tab-gh" data-target="modal-view-gh">
           🐙 GitHub & Projetos (Modo Oficial)
         </button>
-        <button type="button" class="modal-tab-btn" id="modal-tab-db" data-target="modal-view-db">
-          🐘 PostgreSQL (Opcional)
+        <button type="button" class="modal-tab-btn" id="modal-tab-members" data-target="modal-view-members">
+          👥 Integrantes da Equipe
         </button>
       </div>
 
@@ -381,7 +409,7 @@
             </div>
             <div class="form-group">
               <label for="input-config-assignee">Responsável Padrão:</label>
-              <input type="text" class="form-input" id="input-config-assignee" value="Samuel Menon Ramos">
+              <input type="text" class="form-input" id="input-config-assignee" value="Marcos">
             </div>
           </div>
 
@@ -390,63 +418,79 @@
           </div>
         </div>
 
-        <!-- TAB 2: POSTGRESQL DATABASE CONFIG -->
-        <div id="modal-view-db" class="modal-view-section" style="display: none;">
-          <!-- Status Banner -->
-          <div class="db-status-banner disconnected" id="db-status-banner">
-            <div class="db-status-info">
-              <span class="db-status-title">
-                <span class="status-indicator" id="modal-db-status-dot" style="background: var(--accent-gold); box-shadow: 0 0 8px var(--accent-gold);"></span>
-                <span id="db-status-title-text">PostgreSQL: Desconectado</span>
-              </span>
-              <span class="db-status-desc" id="db-status-desc-text">
-                Operando em modo híbrido com fallback para <code>openspec/changes/</code>.
-              </span>
-            </div>
-            <span class="db-status-pill offline" id="db-status-pill">Offline</span>
-          </div>
-
-          <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-top: 10px; margin-bottom: 12px;">
-            Ambiente configurado pelo <code>install.sh</code> / Docker Compose. Banco dedicado para o Kanban sem perder sincronia com os arquivos Markdown do OpenSpec.
+        <!-- TAB 3: CADASTRO DE INTEGRANTES DA EQUIPE -->
+        <div id="modal-view-members" class="modal-view-section" style="display: none;">
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 14px;">
+            Cadastre e gerencie os integrantes da equipe (desenvolvedores, designers, QA e agentes). Eles aparecerão automaticamente nos filtros do Kanban e campos de atribuição de tarefas.
           </p>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="input-db-host">Host:</label>
-              <input type="text" class="form-input" id="input-db-host" value="localhost">
+          <!-- Formulário de Cadastro e Alteração -->
+          <div style="background: rgba(15, 23, 42, 0.6); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 16px;">
+            <input type="hidden" id="input-member-edit-id" value="">
+            <h4 id="member-form-title" style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--primary);">➕ Novo Integrante</h4>
+            
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label for="input-member-name">Nome do Integrante:</label>
+                <input type="text" class="form-input" id="input-member-name" placeholder="ex: Marcos, Samuel, Gabriel">
+              </div>
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label for="input-member-role">Função / Papel:</label>
+                <input type="text" class="form-input" id="input-member-role" placeholder="ex: Unity / C#, Game Design, QA, Arte">
+              </div>
             </div>
-            <div class="form-group">
-              <label for="input-db-port">Porta:</label>
-              <input type="text" class="form-input" id="input-db-port" value="5432">
+
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label for="input-member-avatar">Emoji / Avatar:</label>
+                <select class="form-select" id="input-member-avatar">
+                  <option value="👤">👤 Desenvolvedor / Membro</option>
+                  <option value="👑">👑 Líder / Game Designer</option>
+                  <option value="💻">💻 Líder Técnico / Dev Core</option>
+                  <option value="🕹️">🕹️ Unity / Gameplay Core</option>
+                  <option value="🎮">🎮 Unity / Gameplay</option>
+                  <option value="🛡️">🛡️ DevSecOps / QA</option>
+                  <option value="🌐">🌐 Dev Web / Frontend</option>
+                  <option value="🧪">🧪 QA Funcional / UX</option>
+                  <option value="📈">📈 Marketing / Pitch</option>
+                  <option value="🎨">🎨 Arte 2D / 3D & VFX</option>
+                  <option value="🎵">🎵 Áudio & Sound Design</option>
+                  <option value="🦀">🦀 Solana / Smart Contracts</option>
+                  <option value="🤖">🤖 Agente Autônomo / IA</option>
+                  <option value="👥">👥 Equipe Geral</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label for="input-member-color">Cor da Tag:</label>
+                <select class="form-select" id="input-member-color">
+                  <option value="#38bdf8">Azul Céu (#38bdf8)</option>
+                  <option value="#10b981">Verde Esmeralda (#10b981)</option>
+                  <option value="#f59e0b">Dourado / Âmbar (#f59e0b)</option>
+                  <option value="#a855f7">Roxo / Violeta (#a855f7)</option>
+                  <option value="#6366f1">Índigo (#6366f1)</option>
+                  <option value="#ec4899">Rosa Neon (#ec4899)</option>
+                  <option value="#14b8a6">Teal (#14b8a6)</option>
+                  <option value="#eab308">Amarelo (#eab308)</option>
+                  <option value="#94a3b8">Cinza Ardósia (#94a3b8)</option>
+                  <option value="#f43f5e">Vermelho Coral (#f43f5e)</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-top: 10px; display: flex; justify-content: flex-end; align-items: center; gap: 8px;">
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-cancel-edit-member" style="display: none;">
+                ❌ Cancelar Edição
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" id="btn-save-member">
+                💾 Cadastrar Integrante
+              </button>
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="input-db-user">Usuário:</label>
-              <input type="text" class="form-input" id="input-db-user" value="fowlgen">
-            </div>
-            <div class="form-group">
-              <label for="input-db-database">Database:</label>
-              <input type="text" class="form-input" id="input-db-database" value="fowlgen_kanban">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="input-db-password">Senha do Banco:</label>
-            <div class="input-password-wrapper">
-              <input type="password" class="form-input" id="input-db-password" placeholder="fowlgen_password">
-              <button type="button" class="btn-toggle-eye" id="btn-toggle-dbpass-eye" title="Mostrar/Ocultar">👁️</button>
-            </div>
-            <span style="font-size: 11px; color: var(--text-dim); display: block; margin-top: 4px;">
-              Padrão definido no <code>install.sh</code>: <code>fowlgen_password</code>
-            </span>
-          </div>
-
-          <div class="db-actions-row">
-            <button class="btn btn-secondary btn-sm" id="btn-test-db">🧪 Testar Conexão</button>
-            <button class="btn btn-primary btn-sm" id="btn-init-db" title="Cria database fowlgen_kanban e tabelas">⚡ Criar Schema</button>
-            <button class="btn btn-success btn-sm" id="btn-sync-db" title="Importa todas as features do OpenSpec para o PostgreSQL">🔄 Sync OpenSpec</button>
+          <!-- Lista de Integrantes Atuais -->
+          <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-main);">👥 Integrantes Ativos (<span id="member-count-badge">0</span>)</h4>
+          <div id="members-list-cards" style="display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto;">
+            <!-- Dynamic member cards -->
           </div>
         </div>
 
