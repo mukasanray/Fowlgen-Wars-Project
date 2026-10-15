@@ -2,7 +2,7 @@
   "name": "openspec-kanban-integration",
   "version": "1.0.0",
   "description": "OpenSpec to GitHub Kanban integration for Fowlgen Wars",
-  "main": "src/scripts/main-orchestrator.ts",
+  "main": "src/electron/main.cjs",
   "scripts": {
     "start": "tsx src/scripts/main-orchestrator.ts",
     "sync": "tsx src/scripts/main-orchestrator.ts",
@@ -11,7 +11,11 @@
     "status": "tsx src/scripts/VIEW_STATUS.ts",
     "dashboard": "tsx src/scripts/generate-dashboard.ts",
     "app": "tsx src/server/server.ts",
-    "dev": "tsx src/server/server.ts"
+    "dev": "tsx src/server/server.ts",
+    "build:server": "esbuild src/server/server.ts --bundle --platform=node --format=esm --outfile=dist/server.js",
+    "app:desktop": "npm run build:server && electron src/electron/main.cjs",
+    "dist": "npm run build:server && electron-builder --win",
+    "dist:portable": "npm run build:server && electron-builder --win portable"
   },
   "keywords": [
     "openspec",
@@ -28,8 +32,43 @@
   },
   "devDependencies": {
     "@types/node": "^20.17.0",
+    "electron": "^44.7.2",
+    "electron-builder": "^26.15.3",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
+  },
+  "build": {
+    "appId": "com.fowlgenwars.kanban",
+    "productName": "Kanban Studio",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "src/electron/**/*",
+      "src/web/**/*",
+      "src/config/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Kanban Studio"
+    }
   },
   "private": true
 }

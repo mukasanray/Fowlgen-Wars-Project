@@ -7,29 +7,68 @@ import { execSync } from 'child_process';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
-const REPO_ROOT = path.resolve(__dirname, '../../../');
-const OPEN_SPEC_DIR = path.resolve(__dirname, '../../../openspec/changes');
-const WEB_DIR = path.resolve(__dirname, '../web');
-const KANBAN_ROOT = path.resolve(__dirname, '../../');
+function findRepoRoot(startDir: string): string {
+  if (process.env.REPO_ROOT && fs.existsSync(process.env.REPO_ROOT)) {
+    return path.resolve(process.env.REPO_ROOT);
+  }
+  let current = startDir;
+  for (let i = 0; i < 6; i++) {
+    if (fs.existsSync(path.join(current, 'openspec')) || fs.existsSync(path.join(current, '.git'))) {
+      return current;
+    }
+    const parent = path.dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
+  return path.resolve(startDir, '../../../');
+}
+
+const REPO_ROOT = findRepoRoot(__dirname);
+const KANBAN_ROOT = process.env.KANBAN_ROOT 
+  ? path.resolve(process.env.KANBAN_ROOT)
+  : (fs.existsSync(path.join(REPO_ROOT, 'kanban')) 
+      ? path.join(REPO_ROOT, 'kanban') 
+      : path.resolve(__dirname, '../../'));
+
+const OPEN_SPEC_DIR = process.env.OPEN_SPEC_DIR 
+  ? path.resolve(process.env.OPEN_SPEC_DIR)
+  : path.join(REPO_ROOT, 'openspec/changes');
+
+const WEB_DIR = fs.existsSync(path.join(KANBAN_ROOT, 'src/web'))
+  ? path.join(KANBAN_ROOT, 'src/web')
+  : (fs.existsSync(path.resolve(__dirname, '../web'))
+      ? path.resolve(__dirname, '../web')
+      : path.resolve(__dirname, 'web'));
+
 const ENV_PATH = path.join(KANBAN_ROOT, '.env');
 const CONFIG_PATH = path.join(KANBAN_ROOT, 'src/config/kanban-config.json');
 const MEMBERS_PATH = path.join(KANBAN_ROOT, 'src/config/members.json');
 
-function getMembers(): Array<{ id: string; name: string; role: string; avatar: string; color: string }> {
+export interface Member {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+  color: string;
+  github?: string;
+  email?: string;
+}
+
+function getMembers(): Member[] {
   if (fs.existsSync(MEMBERS_PATH)) {
     try {
       return JSON.parse(fs.readFileSync(MEMBERS_PATH, 'utf8'));
     } catch {}
   }
   return [
-    { id: 'marcos', name: 'Marcos', role: 'Unity / C# Developer', avatar: '👤', color: '#38bdf8' },
-    { id: 'samuel', name: 'Samuel', role: 'Game Designer & Lead', avatar: '👑', color: '#f59e0b' },
-    { id: 'dev-team', name: 'Dev Team', role: 'Equipe Geral', avatar: '👥', color: '#10b981' },
-    { id: 'ia', name: 'Agente IA', role: 'Automação & Copilot', avatar: '🤖', color: '#a855f7' }
+    { id: 'marcos', name: 'Marcos', role: 'Unity / C# Developer', github: 'mukasanray', avatar: '👤', color: '#38bdf8' },
+    { id: 'samuel', name: 'Samuel', role: 'Game Designer & Lead', github: 'samuelmenon', avatar: '👑', color: '#f59e0b' },
+    { id: 'dev-team', name: 'Dev Team', role: 'Equipe Geral', github: 'dev-team', avatar: '👥', color: '#10b981' },
+    { id: 'ia', name: 'Agente IA', role: 'Automação & Copilot', github: 'antigravity-ai', avatar: '🤖', color: '#a855f7' }
   ];
 }
 
-function saveMembers(members: any[]) {
+function saveMembers(members: Member[]) {
   fs.writeFileSync(MEMBERS_PATH, JSON.stringify(members, null, 2), 'utf8');
 }
 
@@ -879,7 +918,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       try {
-        const ghRes = await fetch('https://api.github.com/user', {
+        const ghRes: any = await fetch('https://api.github.com/user', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'User-Agent': 'Fowlgen-Wars-Kanban-Studio',
@@ -888,7 +927,7 @@ const server = http.createServer(async (req, res) => {
         });
 
         if (ghRes.ok) {
-          const user = await ghRes.json();
+          const user: any = await ghRes.json();
           sendJSON(res, 200, {
             success: true,
             user: {

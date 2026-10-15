@@ -5,7 +5,8 @@
     "lib": ["ES2020"],
     "allowJs": true,
     "strict": true,
-    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
     "noEmit": true
   },
   "include": ["src/**/*"],

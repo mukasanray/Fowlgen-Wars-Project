@@ -1,4 +1,14 @@
 // TypeScript interfaces for OpenSpec ↔ GitHub Kanban Integration
+ 
+export interface Member {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+  color: string;
+  github?: string;
+  email?: string;
+}
 
 export interface GitHubProject {
   id: string;
