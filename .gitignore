@@ -160,3 +160,13 @@ $RECYCLE.BIN/
 
 # Linux
 *~
+
+# Kanban Dashboard
+kanban/docs/kanban-dashboard.*
+kanban/docs/kanban-dashboard.html
+
+# Environment and Secrets
+.env
+.env.*
+kanban/.env
+

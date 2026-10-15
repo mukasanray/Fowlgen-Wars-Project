@@ -1,0 +1,53 @@
+# Gitignore para OpenSpec Kanban Integration
+
+# Dashboard outputs
+docs/kanban-dashboard.*
+docs/kanban-dashboard.html
+
+# Logs
+logs/
+sync-log.json
+install-log.json
+
+# Backups
+backups/
+
+# Environment configs (never commit)
+src/config/*.json.example
+
+# Node.js
+dist/
+node_modules/
+
+# TypeScript compilation outputs
+*.js.map
+*.d.ts
+!src/web/*.js
+
+# IDE/Editor
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS/System Files
+.DS_Store
+Thumbs.db
+
+# Temporary Files
+*.tmp
+*.temp
+
+# Git
+.git-credentials
+.git-credentials-store
+
+# Environment Files
+.env
+.env.local
+.env.*.local
+
+# Package Manager
+.npm
+.yarn
+ pnpm-store/

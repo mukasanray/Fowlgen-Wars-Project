@@ -1,0 +1,41 @@
+{
+  "name": "openspec-kanban-integration",
+  "version": "1.0.0",
+  "description": "OpenSpec to GitHub Kanban integration for Fowlgen Wars",
+  "main": "src/scripts/main-orchestrator.ts",
+  "scripts": {
+    "start": "tsx src/scripts/main-orchestrator.ts",
+    "sync": "tsx src/scripts/main-orchestrator.ts",
+    "setup": "tsx src/scripts/INSTALL.ts",
+    "verify": "tsx src/scripts/VERIFY_SETUP.ts",
+    "status": "tsx src/scripts/VIEW_STATUS.ts",
+    "dashboard": "tsx src/scripts/generate-dashboard.ts",
+    "app": "tsx src/server/server.ts",
+    "dev": "tsx src/server/server.ts",
+    "db:init": "tsx src/database/init-db.ts",
+    "db:sync": "tsx src/database/sync-cli.ts"
+  },
+  "keywords": [
+    "openspec",
+    "kanban",
+    "github",
+    "projects",
+    "fowlgowwars"
+  ],
+  "author": "Fowlgen Wars Team",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "@types/pg": "^8.11.10",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "private": true
+}
