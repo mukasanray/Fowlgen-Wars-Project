@@ -86,11 +86,11 @@ export class InstallSetup {
     console.log('\n' + '='.repeat(50));
     console.log('✅ INSTALAÇÃO CONCLUÍDA!');
     console.log('\n📋 Comandos úteis:');
-    console.log('   • npm.cmd run app       - Iniciar Servidor Web em http://localhost:3000');
-    console.log('   • npm.cmd run dashboard - Atualizar dashboard Markdown/HTML');
-    console.log('   • npm.cmd run status    - Ver status atual no terminal');
-    console.log('   • npm.cmd run verify    - Verificar integridade do ambiente');
-    console.log('   • npm.cmd run sync      - Sincronizar com GitHub Projects');
+    console.log('   • npm run app       - Iniciar Servidor Web em http://localhost:3000');
+    console.log('   • npm run dashboard - Atualizar dashboard Markdown/HTML');
+    console.log('   • npm run status    - Ver status atual no terminal');
+    console.log('   • npm run verify    - Verificar integridade do ambiente');
+    console.log('   • npm run sync      - Sincronizar com GitHub Projects');
     console.log('='.repeat(50));
 
     // Open dashboard in default browser (Prefer new Web Studio)

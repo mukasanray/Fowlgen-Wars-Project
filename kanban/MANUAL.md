@@ -15,18 +15,54 @@ O **Kanban Studio** é uma central de controle visual para o gerenciamento de ta
 
 ---
 
-## 2. Como Iniciar o Kanban Studio
+## 2. Instalação e Inicialização do Kanban Studio
 
 ### Pré-requisitos
-* Node.js v18 ou superior instalado.
-* Terminal na pasta `kanban/`.
+* **Node.js**: v18 ou superior instalado (`node -v`).
+* **npm**: instalado junto com o Node.js (`npm -v`).
+* Terminal apontado para a pasta `kanban/`.
 
-### Inicialização
-Abra o terminal e execute:
+---
+
+### Passo 1: Instalar Dependências (Primeira Vez ou Após Clonar/Trocar de Branch)
+Ao usar o Kanban Studio pela primeira vez, após clonar o repositório ou após trocar de branch, instale os pacotes necessários:
+
 ```bash
 cd kanban
+npm install
+```
+
+> [!IMPORTANT]
+> **Por que este passo é obrigatório?**
+> Os scripts e o servidor do Kanban Studio rodam diretamente sobre TypeScript utilizando o executor de alta performance `tsx`. Se você tentar executar `npm run app` antes de rodar `npm install`, o terminal retornará o erro:
+> `sh: 1: tsx: not found`
+
+---
+
+### Passo 2: Configuração Inicial e Verificação (Recomendado)
+Para criar automaticamente as pastas de trabalho (`docs`, `logs`, `backups`) e gerar o dashboard inicial:
+
+```bash
+npm run setup
+```
+
+Para checar se todos os caminhos do OpenSpec, scripts e configurações estão íntegros:
+
+```bash
+npm run verify
+```
+
+Se tudo estiver correto, você verá: `✅ TODAS AS VERIFICAÇÕES PASSARAM!`.
+
+---
+
+### Passo 3: Iniciar o Kanban Studio
+Com as dependências instaladas, inicie o servidor:
+
+```bash
 npm run app
 ```
+*(ou `npm run dev`)*
 
 O servidor iniciará automaticamente em:
 👉 **http://localhost:3000**
@@ -190,14 +226,25 @@ kanban/
 
 | Comando | Descrição |
 |---|---|
-| `npm run app` ou `npm run dev` | Inicia o servidor Web visual no navegador (`localhost:3000`). |
-| `npm run sync` | Roda o orquestrador para sincronizar o OpenSpec local com o GitHub Projects. |
+| `npm install` | Instala as dependências necessárias (`tsx`, `typescript`, `@types/node`). |
+| `npm run setup` | Cria pastas (`docs`, `logs`, `backups`), configura `.gitignore` e gera o dashboard. |
+| `npm run verify` | Valida integridade do OpenSpec, scripts e estrutura de pastas. |
+| `npm run app` ou `npm run dev` | Inicia o servidor Web visual no navegador (`http://localhost:3000`). |
+| `npm run dashboard` | Regenera manualmente os relatórios em Markdown e HTML. |
 | `npm run status` | Exibe no terminal o resumo das tarefas de todas as features ativas. |
-| `npm run verify` | Valida se todos os caminhos do OpenSpec e ferramentas estão funcionando. |
+| `npm run sync` | Roda o orquestrador para sincronizar o OpenSpec local com o GitHub Projects. |
 
 ---
 
 ## 7. Perguntas Frequentes (FAQ)
+
+### P: Ao executar `npm run app`, recebi o erro `sh: 1: tsx: not found`. Como resolver?
+**R:** Esse erro ocorre quando as dependências do Node.js ainda não foram instaladas na pasta `kanban/`. Para corrigir, basta entrar na pasta e rodar o instalador de pacotes:
+```bash
+cd kanban
+npm install
+```
+Depois disso, execute `npm run app` novamente.
 
 ### P: Preciso de banco de dados para usar o Kanban?
 **R:** **Não!** O sistema é **100% Git-Native**. Todas as tarefas, ideias e integrantes ficam salvos diretamente em arquivos versionados no repositório (`openspec/changes/*/tasks.md` e `kanban/src/config/members.json`), garantindo versionamento com Git, funcionamento offline rápido e zero dependências de bancos externos.
