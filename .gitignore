@@ -170,3 +170,7 @@ kanban/docs/kanban-dashboard.html
 .env.*
 kanban/.env
 
+# Local developer identity (Privacy-first, not committed)
+kanban/src/config/identity.local.json
+
+

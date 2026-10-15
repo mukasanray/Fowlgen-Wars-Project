@@ -132,12 +132,64 @@ function getGitInfo() {
       lastCommit = execSync('git log -1 --format="%h - %s (%cr)"', { encoding: 'utf8', cwd: REPO_ROOT }).trim();
     } catch {}
 
+    let gitUser = { name: '', email: '' };
+    try {
+      gitUser.name = execSync('git config user.name', { encoding: 'utf8', cwd: REPO_ROOT }).trim();
+    } catch {}
+    try {
+      gitUser.email = execSync('git config user.email', { encoding: 'utf8', cwd: REPO_ROOT }).trim();
+    } catch {}
+
+    const members = getMembers();
+    let detectedMember: any = null;
+
+    // 1. Prioridade 1: Arquivo local de identidade (.gitignore - 100% privado, só nesta máquina)
+    const localIdentityPath = path.join(__dirname, '../config/identity.local.json');
+    if (fs.existsSync(localIdentityPath)) {
+      try {
+        const localData = JSON.parse(fs.readFileSync(localIdentityPath, 'utf8'));
+        if (localData && localData.memberId) {
+          detectedMember = members.find(m => m.id === localData.memberId) || null;
+        }
+      } catch {}
+    }
+
+    // 2. Prioridade 2: GitHub Username (público e sem expor e-mails pessoais)
+    if (!detectedMember && gitUser.name) {
+      detectedMember = members.find(m => m.github && (
+        m.github.toLowerCase() === gitUser.name.toLowerCase() ||
+        (gitUser.email && gitUser.email.toLowerCase().includes(m.github.toLowerCase()))
+      )) || null;
+    }
+
+    // 3. Prioridade 3: Nome do Git (git config user.name)
+    if (!detectedMember && gitUser.name) {
+      detectedMember = members.find(m =>
+        m.name.toLowerCase() === gitUser.name.toLowerCase() ||
+        gitUser.name.toLowerCase().includes(m.name.toLowerCase()) ||
+        m.name.toLowerCase().includes(gitUser.name.toLowerCase())
+      ) || null;
+    }
+
+    // 4. Prioridade 4: Branch ativa do Git (ex: fowlgenwars-unity-marcos -> marcos)
+    if (!detectedMember && currentBranch) {
+      detectedMember = members.find(m =>
+        currentBranch.toLowerCase().includes(m.id.toLowerCase()) ||
+        currentBranch.toLowerCase().includes(m.name.toLowerCase())
+      ) || null;
+    }
+
+    const isGitConfigured = Boolean(detectedMember || gitUser.name);
+
     return {
       currentBranch,
       branches,
       uncommittedChanges: modifiedFiles.length > 0,
       modifiedFiles,
-      lastCommit
+      lastCommit,
+      gitUser,
+      detectedMember,
+      isGitConfigured
     };
   } catch (err: any) {
     return {
@@ -252,6 +304,7 @@ function getFeaturesFromGitBranch(branch: string) {
         }
 
         features.push({
+          id: featureName,
           name: featureName,
           title,
           summary,
@@ -395,6 +448,7 @@ function getFeaturesData() {
     }
 
     return {
+      id: name,
       name,
       title,
       summary,
@@ -533,16 +587,23 @@ const server = http.createServer(async (req, res) => {
   }
 
   try {
-    // API: Get members list
+    // API: Get members list & local git user
     if (req.method === 'GET' && pathname === '/api/members') {
       const members = getMembers();
-      sendJSON(res, 200, { success: true, members });
+      const gitInfo = getGitInfo();
+      sendJSON(res, 200, {
+        success: true,
+        members,
+        gitUser: gitInfo.gitUser,
+        detectedMember: gitInfo.detectedMember,
+        isGitConfigured: gitInfo.isGitConfigured
+      });
       return;
     }
 
     // API: Add new member
     if (req.method === 'POST' && pathname === '/api/members') {
-      const { name, role, avatar, color } = await parseJSONBody(req);
+      const { name, role, email, github, avatar, color } = await parseJSONBody(req);
       if (!name || !name.trim()) {
         sendJSON(res, 400, { success: false, error: 'O nome do integrante é obrigatório.' });
         return;
@@ -562,6 +623,8 @@ const server = http.createServer(async (req, res) => {
         id: cleanId,
         name: cleanName,
         role: role && role.trim() ? role.trim() : 'Membro da Equipe',
+        email: email && email.trim() ? email.trim().toLowerCase() : '',
+        github: github && github.trim() ? github.trim().replace(/^@/, '') : '',
         avatar: avatar && avatar.trim() ? avatar.trim() : '👤',
         color: color && color.trim() ? color.trim() : '#38bdf8'
       };
@@ -605,6 +668,8 @@ const server = http.createServer(async (req, res) => {
       const current = members[memberIndex];
       const newName = body.name !== undefined ? String(body.name).trim() : current.name;
       const newRole = body.role !== undefined ? String(body.role).trim() : current.role;
+      const newEmail = body.email !== undefined ? String(body.email).trim().toLowerCase() : (current.email || '');
+      const newGithub = body.github !== undefined ? String(body.github).trim().replace(/^@/, '') : (current.github || '');
       const newAvatar = body.avatar !== undefined ? String(body.avatar).trim() : current.avatar;
       const newColor = body.color !== undefined ? String(body.color).trim() : current.color;
 
@@ -624,6 +689,8 @@ const server = http.createServer(async (req, res) => {
         ...current,
         name: newName,
         role: newRole,
+        email: newEmail,
+        github: newGithub,
         avatar: newAvatar,
         color: newColor
       };
@@ -635,6 +702,64 @@ const server = http.createServer(async (req, res) => {
         message: `Integrante ${newName} atualizado com sucesso!`,
         member: members[memberIndex],
         members
+      });
+      return;
+    }
+
+    // API: Configure local git user
+    if (req.method === 'POST' && pathname === '/api/git/config-user') {
+      const { name, email } = await parseJSONBody(req);
+      if (!name || !email) {
+        sendJSON(res, 400, { success: false, error: 'Nome e E-mail são obrigatórios para configurar o Git.' });
+        return;
+      }
+
+      try {
+        const cleanName = name.trim().replace(/"/g, '\\"');
+        const cleanEmail = email ? email.trim().replace(/"/g, '\\"') : '';
+        execSync(`git config user.name "${cleanName}"`, { cwd: REPO_ROOT });
+        if (cleanEmail) {
+          execSync(`git config user.email "${cleanEmail}"`, { cwd: REPO_ROOT });
+        }
+        const gitInfo = getGitInfo();
+        sendJSON(res, 200, {
+          success: true,
+          message: `Git local configurado com sucesso para "${cleanName}"!`,
+          gitInfo
+        });
+      } catch (err: any) {
+        sendJSON(res, 500, { success: false, error: err.message || 'Erro ao configurar Git local.' });
+      }
+      return;
+    }
+
+    // API: Set local developer identity (Privacy-first: saved locally in identity.local.json, ignored by git)
+    if (req.method === 'POST' && pathname === '/api/git/set-local-identity') {
+      const { memberId } = await parseJSONBody(req);
+      if (!memberId) {
+        sendJSON(res, 400, { success: false, error: 'O ID do integrante é obrigatório.' });
+        return;
+      }
+
+      const members = getMembers();
+      const targetMember = members.find(m => m.id === memberId || m.name.toLowerCase() === String(memberId).toLowerCase());
+      if (!targetMember) {
+        sendJSON(res, 404, { success: false, error: 'Integrante não encontrado na lista da equipe.' });
+        return;
+      }
+
+      const localIdentityPath = path.join(__dirname, '../config/identity.local.json');
+      fs.writeFileSync(localIdentityPath, JSON.stringify({ memberId: targetMember.id }, null, 2), 'utf8');
+
+      try {
+        execSync(`git config user.name "${targetMember.name}"`, { cwd: REPO_ROOT });
+      } catch {}
+
+      const gitInfo = getGitInfo();
+      sendJSON(res, 200, {
+        success: true,
+        message: `Identidade local definida como "${targetMember.name}"! Salvo apenas na sua máquina com privacidade total.`,
+        gitInfo
       });
       return;
     }

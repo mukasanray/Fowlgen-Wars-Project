@@ -273,7 +273,18 @@
 
         <!-- Filtro Rápido por Integrante -->
         <div class="member-filter-bar">
-          <span class="filter-label">👤 Integrante:</span>
+          <div class="dev-profile-chip" id="developer-profile-chip" style="display: none;" title="Desenvolvedor identificado via Git local">
+            <span class="dev-chip-avatar" id="dev-chip-avatar">💻</span>
+            <div class="dev-chip-details">
+              <span class="dev-chip-role-label">Você:</span>
+              <span class="dev-chip-name" id="dev-chip-name">Carregando...</span>
+            </div>
+            <button type="button" class="btn-my-space" id="btn-my-space" title="Filtrar imediatamente as minhas tarefas">
+              🎯 Minhas Tarefas
+            </button>
+          </div>
+
+          <span class="filter-label">👤 Equipe:</span>
           <div class="member-search-box">
             <input type="text" id="input-search-members" class="member-search-input" placeholder="🔍 Buscar..." title="Buscar integrante por nome ou função">
           </div>
@@ -283,6 +294,38 @@
           <button type="button" class="btn-manage-members-pill" id="btn-quick-manage-members" title="Cadastrar ou gerenciar integrantes da equipe">
             ⚙️ Gerenciar
           </button>
+        </div>
+      </div>
+
+      <!-- Git Config Warning / Guidance Banner (100% Privado) -->
+      <div id="git-user-notice-banner" class="git-user-alert-banner" style="display: none;">
+        <div class="git-user-alert-main">
+          <div class="git-user-alert-icon">🔒</div>
+          <div class="git-user-alert-info">
+            <div class="git-user-alert-title">Identificação do Desenvolvedor (Privacidade Total)</div>
+            <div class="git-user-alert-desc" id="git-user-notice-desc">
+              Identifique quem é você na equipe para filtrar suas tarefas neste computador. A identificação fica salva apenas na sua máquina e <strong>nenhum e-mail pessoal é enviado para o Git</strong>.
+            </div>
+          </div>
+          <button type="button" class="btn-close-banner" id="btn-dismiss-git-notice" title="Fechar aviso temporariamente">✖</button>
+        </div>
+
+        <div class="git-user-alert-actions">
+          <div class="git-user-quick-link-row">
+            <span class="git-user-cmd-label">⚡ Identificar-me com 1 clique:</span>
+            <select id="select-quick-git-member" class="form-select-sm">
+              <option value="">Selecione quem é você na equipe...</option>
+            </select>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-quick-link-git" style="padding: 4px 12px; font-size: 11px;">
+              💾 Salvar Localmente
+            </button>
+          </div>
+
+          <div class="git-user-cmd-row">
+            <span class="git-user-cmd-label">💻 Ou no terminal:</span>
+            <code class="git-cmd-code" id="git-user-cmd-copy">git config user.name "Seu Nome"</code>
+            <button type="button" class="btn-copy-code" id="btn-copy-git-cmd" title="Copiar comando Git">📋 Copiar</button>
+          </div>
         </div>
       </div>
 
@@ -420,6 +463,40 @@
 
         <!-- TAB 3: CADASTRO DE INTEGRANTES DA EQUIPE -->
         <div id="modal-view-members" class="modal-view-section" style="display: none;">
+          <!-- Card de Diagnóstico do Git Local (100% Privado) -->
+          <div class="git-identity-card" id="git-identity-card">
+            <div class="git-identity-header">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">🔒</span>
+                <div>
+                  <h4 style="font-size: 13px; font-weight: 700; color: #fff;">Identificação Local (100% Privada)</h4>
+                  <p style="font-size: 11px; color: var(--text-muted);">Salva exclusivamente no seu computador (ignorado pelo Git). Nenhum e-mail pessoal é versionado.</p>
+                </div>
+              </div>
+              <span class="git-identity-badge" id="git-identity-status-badge">Detectando...</span>
+            </div>
+            <div class="git-identity-body">
+              <div class="form-row" style="margin-bottom: 8px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label for="select-modal-git-member" style="font-size: 11px;">Identificar esta máquina como:</label>
+                  <select id="select-modal-git-member" class="form-select" style="padding: 6px 10px; font-size: 12px;">
+                    <option value="">Carregando integrantes...</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label for="input-git-user-name" style="font-size: 11px;">git config user.name:</label>
+                  <input type="text" class="form-input" id="input-git-user-name" placeholder="ex: Marcos Pascoski" style="padding: 6px 10px; font-size: 12px;">
+                </div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                <span id="git-config-feedback" style="font-size: 11px; color: var(--text-muted);">Seu perfil ficará vinculado localmente com total privacidade.</span>
+                <button type="button" class="btn btn-primary btn-sm" id="btn-apply-git-config" style="padding: 4px 12px; font-size: 11px;">
+                  💾 Salvar Identidade Local
+                </button>
+              </div>
+            </div>
+          </div>
+
           <p style="font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 14px;">
             Cadastre e gerencie os integrantes da equipe (desenvolvedores, designers, QA e agentes). Eles aparecerão automaticamente nos filtros do Kanban e campos de atribuição de tarefas.
           </p>
@@ -438,6 +515,11 @@
                 <label for="input-member-role">Função / Papel:</label>
                 <input type="text" class="form-input" id="input-member-role" placeholder="ex: Unity / C#, Game Design, QA, Arte">
               </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 8px;">
+              <label for="input-member-github">GitHub Username (público, sem @):</label>
+              <input type="text" class="form-input" id="input-member-github" placeholder="ex: mukasanray">
             </div>
 
             <div class="form-row">

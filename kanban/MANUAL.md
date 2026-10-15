@@ -100,16 +100,33 @@ Permite isolar as tarefas e ideias de um integrante específico com 1 clique ou 
 * **`👥 Dev Team`**: Equipe Técnica Geral.
 * **`🤖 Agente IA`**: Automação & Copilot de Código.
 
-> **Gerenciamento e Edição de Integrantes**: Clique no botão **`⚙️ Gerenciar`** na barra de integrantes (ou acesse `⚙️ Configurações` > `👥 Integrantes da Equipe`) para:
-> * **Adicionar novo integrante**: preencha nome, papel, avatar e cor da tag.
-> * **Alterar dados do integrante**: clique no botão **`✏️ Editar`** em qualquer integrante para carregar os dados no formulário, ajustar qualquer informação e salvar com `💾 Salvar Alterações`.
-> * **Excluir integrante**: clique em `🗑️ Excluir` para remover da lista.
-> * **API REST Disponível**:
->   * `GET /api/members`: Lista todos os integrantes.
->   * `POST /api/members`: Cadastra novo integrante.
->   * `PUT /api/members/:id` ou `POST /api/members/update`: Altera nome, papel, avatar ou cor.
->   * `DELETE /api/members/:id` ou `POST /api/members/delete`: Remove integrante.
->   * Todos os dados ficam salvos de forma 100% Git-Native em `kanban/src/config/members.json`.
+* **`🤖 Agente IA`**: Automação & Copilot de Código.
+
+---
+
+### 3.4. Identificação do Desenvolvedor (Arquitetura Privacy-First & 100% Git-Native)
+
+Para garantir **privacidade total e segurança**, nenhum e-mail pessoal é armazenado nos arquivos versionados pelo Git:
+
+1. **Privacidade por Padrão (Sem e-mails no repositório)**:
+   * O arquivo `kanban/src/config/members.json` contém apenas dados públicos da equipe: `nome`, `função`, `avatar`, `cor` e `github username` (ex.: `@mukasanray`).
+   * E-mails pessoais não são solicitados nem salvos no repositório público.
+
+2. **Como Funciona a Identificação em 4 Camadas de Privacidade**:
+   * **Camada 1 (Arquivo Local Ignorado pelo Git)**: Quando você se identifica, o Kanban grava sua preferência em `kanban/src/config/identity.local.json`. Esse arquivo está protegido pelo `.gitignore` e **nunca sobe para o Git**.
+   * **Camada 2 (GitHub Username)**: O Kanban compara seu `@username` público do GitHub.
+   * **Camada 3 (Nome do Git)**: Verifica se o `git config user.name` (ex.: `Marcos`) corresponde a algum integrante.
+   * **Camada 4 (Branch Ativa)**: Se você estiver em uma branch pessoal como `fowlgenwars-unity-marcos`, o Kanban reconhece o Marcos automaticamente!
+
+3. **Banner de Identificação Rápida**:
+   * Se você abrir o Kanban em uma nova máquina ou perfil sem vínculo, o banner permite escolher seu nome em 1 clique e salvar localmente com privacidade total.
+   * Botão **`🎯 Minhas Tarefas`**: Filtra instantaneamente as tarefas atribuídas a você!
+   * **API REST Disponível**:
+     * `GET /api/members`: Lista todos os integrantes e retorna o `gitUser` e `detectedMember`.
+     * `POST /api/members`: Cadastra novo integrante com e-mail e github.
+     * `PUT /api/members/update`: Altera nome, papel, email, github, avatar ou cor.
+     * `POST /api/git/config-user`: Aplica `git config user.name` e `git config user.email` no repositório local.
+     * `DELETE /api/members/delete`: Remove integrante.
 
 ### 3.4. Interações nos Cards de Tarefas e Ideias
 

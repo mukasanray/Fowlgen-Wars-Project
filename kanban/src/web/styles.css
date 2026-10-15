@@ -1213,6 +1213,225 @@ body {
   color: #a7f3d0;
 }
 
+/* Developer Profile Chip (Git Identified Developer) */
+.dev-profile-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(139, 92, 246, 0.15));
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+  padding: 4px 10px 4px 6px;
+  border-radius: var(--radius-full);
+  animation: pulseProfile 3s infinite ease-in-out;
+}
+
+@keyframes pulseProfile {
+  0%, 100% { border-color: rgba(56, 189, 248, 0.4); }
+  50% { border-color: rgba(139, 92, 246, 0.7); box-shadow: 0 0 16px rgba(139, 92, 246, 0.35); }
+}
+
+.dev-chip-avatar {
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.4);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dev-chip-details {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dev-chip-role-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.dev-chip-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.btn-my-space {
+  background: linear-gradient(135deg, #0ea5e9, #6366f1);
+  color: #fff;
+  border: none;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+}
+
+.btn-my-space:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(14, 165, 233, 0.5);
+  filter: brightness(1.1);
+}
+
+/* Git User Alert Guidance Banner */
+.git-user-alert-banner {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(15, 23, 42, 0.85));
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.git-user-alert-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+}
+
+.git-user-alert-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.git-user-alert-info {
+  flex: 1;
+}
+
+.git-user-alert-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fbbf24;
+  margin-bottom: 2px;
+}
+
+.git-user-alert-desc {
+  font-size: 12px;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+.btn-close-banner {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.btn-close-banner:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.git-user-alert-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+.git-user-cmd-row, .git-user-quick-link-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.git-user-cmd-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.git-cmd-code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: #06090e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: #38bdf8;
+}
+
+.btn-copy-code {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-copy-code:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.form-select-sm {
+  background: #0f172a;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  outline: none;
+}
+
+/* Git Identity Card in Modal */
+.git-identity-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.git-identity-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.git-identity-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.git-identity-badge.ok {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.git-identity-badge.warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
   .app-container {

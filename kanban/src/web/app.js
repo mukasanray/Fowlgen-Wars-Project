@@ -168,6 +168,7 @@ async function fetchGitInfo() {
       gitInfoState = data;
       updateBranchSelector(data);
       updateGitStatusPill(data);
+      updateDeveloperIdentity(data);
     }
   } catch (err) {
     console.warn('Erro ao carregar informações do Git:', err);
@@ -1184,25 +1185,121 @@ btnSaveSettings.addEventListener('click', async () => {
 });
 
 // -------------------------------------------------------------
-// Team Members Management (Cadastro e Filtro Dinâmico)
+// Team Members & Developer Identity Management (100% Git-Native & Privacy-First)
 // -------------------------------------------------------------
 let teamMembers = [];
 let memberSearchQuery = '';
+let detectedDevMember = null;
+let gitUserLocal = { name: '', email: '' };
+let isGitNoticeDismissed = false;
 
 const memberFilterPillsContainer = document.getElementById('member-filter-pills');
 const inputSearchMembers = document.getElementById('input-search-members');
 const btnQuickManageMembers = document.getElementById('btn-quick-manage-members');
 
+// Developer Profile Chip Elements
+const developerProfileChip = document.getElementById('developer-profile-chip');
+const devChipAvatar = document.getElementById('dev-chip-avatar');
+const devChipName = document.getElementById('dev-chip-name');
+const btnMySpace = document.getElementById('btn-my-space');
+
+// Git Notice Banner Elements (Privacidade Total)
+const gitUserNoticeBanner = document.getElementById('git-user-notice-banner');
+const gitUserNoticeDesc = document.getElementById('git-user-notice-desc');
+const gitUserCmdCopy = document.getElementById('git-user-cmd-copy');
+const btnCopyGitCmd = document.getElementById('btn-copy-git-cmd');
+const selectQuickGitMember = document.getElementById('select-quick-git-member');
+const btnQuickLinkGit = document.getElementById('btn-quick-link-git');
+const btnDismissGitNotice = document.getElementById('btn-dismiss-git-notice');
+
+// Git Modal Diagnostic Elements
+const gitIdentityStatusBadge = document.getElementById('git-identity-status-badge');
+const selectModalGitMember = document.getElementById('select-modal-git-member');
+const inputGitUserName = document.getElementById('input-git-user-name');
+const btnApplyGitConfig = document.getElementById('btn-apply-git-config');
+const gitConfigFeedback = document.getElementById('git-config-feedback');
+
+// Member Form Inputs (Sem e-mail pessoal - 100% Privado)
 const inputMemberEditId = document.getElementById('input-member-edit-id');
 const memberFormTitle = document.getElementById('member-form-title');
 const btnCancelEditMember = document.getElementById('btn-cancel-edit-member');
 const inputMemberName = document.getElementById('input-member-name');
 const inputMemberRole = document.getElementById('input-member-role');
+const inputMemberGithub = document.getElementById('input-member-github');
 const inputMemberAvatar = document.getElementById('input-member-avatar');
 const inputMemberColor = document.getElementById('input-member-color');
 const btnSaveMember = document.getElementById('btn-save-member');
 const membersListCards = document.getElementById('members-list-cards');
 const memberCountBadge = document.getElementById('member-count-badge');
+
+function updateDeveloperIdentity(data) {
+  if (!data) return;
+  if (data.gitUser) gitUserLocal = data.gitUser;
+  if (data.detectedMember !== undefined) detectedDevMember = data.detectedMember;
+
+  // 1. Atualiza Card de Diagnóstico do Modal
+  if (inputGitUserName && (gitUserLocal.name || detectedDevMember?.name)) {
+    inputGitUserName.value = gitUserLocal.name || detectedDevMember?.name;
+  }
+  if (selectModalGitMember && detectedDevMember) {
+    selectModalGitMember.value = detectedDevMember.id;
+  }
+
+  if (detectedDevMember) {
+    // Desenvolvedor Reconhecido via Arquivo Local ou Git
+    if (developerProfileChip) {
+      developerProfileChip.style.display = 'inline-flex';
+      if (devChipAvatar) devChipAvatar.textContent = detectedDevMember.avatar || '💻';
+      if (devChipName) devChipName.textContent = detectedDevMember.name;
+      developerProfileChip.title = `Você está conectado como ${detectedDevMember.name} (Privacidade ativa: salvo apenas localmente)`;
+    }
+
+    if (gitUserNoticeBanner) {
+      gitUserNoticeBanner.style.display = 'none';
+    }
+
+    if (gitIdentityStatusBadge) {
+      gitIdentityStatusBadge.textContent = `🔒 Identificado (${detectedDevMember.name})`;
+      gitIdentityStatusBadge.className = 'git-identity-badge ok';
+    }
+
+    if (gitConfigFeedback) {
+      gitConfigFeedback.textContent = `Vinculado a "${detectedDevMember.name}" com privacidade total (identity.local.json).`;
+      gitConfigFeedback.style.color = 'var(--accent-emerald)';
+    }
+
+    // Pré-preenche o campo de responsável no formulário se estiver vazio
+    if (inputTaskAssignee && (!inputTaskAssignee.value || inputTaskAssignee.value === 'Equipe')) {
+      inputTaskAssignee.value = detectedDevMember.name;
+    }
+  } else {
+    // Desenvolvedor Não Reconhecido
+    if (developerProfileChip) {
+      developerProfileChip.style.display = 'none';
+    }
+
+    if (gitUserNoticeBanner && !isGitNoticeDismissed) {
+      gitUserNoticeBanner.style.display = 'flex';
+      gitUserNoticeDesc.innerHTML = 'Identifique quem é você na equipe para filtrar suas tarefas neste computador. A identificação fica salva apenas na sua máquina e <strong>nenhum e-mail pessoal é enviado para o Git</strong>.';
+    }
+
+    if (gitIdentityStatusBadge) {
+      gitIdentityStatusBadge.textContent = '🔒 Não Identificado';
+      gitIdentityStatusBadge.className = 'git-identity-badge warning';
+    }
+
+    if (gitConfigFeedback) {
+      gitConfigFeedback.textContent = 'Escolha quem é você na equipe e salve para vincular com privacidade.';
+      gitConfigFeedback.style.color = 'var(--accent-gold)';
+    }
+  }
+
+  // Atualiza texto do comando sugerido para copiar
+  if (gitUserCmdCopy) {
+    const defaultName = detectedDevMember?.name || gitUserLocal.name || 'Seu Nome';
+    gitUserCmdCopy.textContent = `git config user.name "${defaultName}"`;
+  }
+}
 
 async function fetchMembers() {
   try {
@@ -1213,10 +1310,31 @@ async function fetchMembers() {
       teamMembers = data.members;
       renderMemberFilterPills();
       renderModalMembersList();
+      populateQuickGitSelect();
+      if (data.gitUser || data.detectedMember !== undefined) {
+        updateDeveloperIdentity(data);
+      }
     }
   } catch (err) {
     console.warn('Erro ao carregar integrantes:', err);
   }
+}
+
+function populateQuickGitSelect() {
+  const selects = [selectQuickGitMember, selectModalGitMember];
+  selects.forEach(sel => {
+    if (!sel) return;
+    const currentVal = sel.value;
+    sel.innerHTML = '<option value="">Selecione quem é você na equipe...</option>';
+    teamMembers.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m.id;
+      opt.textContent = `${m.avatar || '👤'} ${m.name} (${m.role || 'Membro'})`;
+      sel.appendChild(opt);
+    });
+    if (currentVal) sel.value = currentVal;
+    else if (detectedDevMember) sel.value = detectedDevMember.id;
+  });
 }
 
 function renderMemberFilterPills() {
@@ -1268,7 +1386,10 @@ function renderModalMembersList() {
           ${m.avatar || '👤'}
         </div>
         <div>
-          <div class="member-details-name">${m.name}</div>
+          <div class="member-details-name">
+            ${m.name}
+            ${m.github ? `<span style="font-size: 11px; color: #a78bfa; background: rgba(139, 92, 246, 0.1); padding: 1px 6px; border-radius: 4px; font-weight: normal; margin-left: 6px;">🐙 @${m.github}</span>` : ''}
+          </div>
           <div class="member-details-role">${m.role || 'Membro da Equipe'}</div>
         </div>
       </div>
@@ -1303,6 +1424,7 @@ function startEditMember(m) {
   if (inputMemberEditId) inputMemberEditId.value = m.id;
   if (inputMemberName) inputMemberName.value = m.name;
   if (inputMemberRole) inputMemberRole.value = m.role || '';
+  if (inputMemberGithub) inputMemberGithub.value = m.github || '';
   if (inputMemberAvatar) inputMemberAvatar.value = m.avatar || '👤';
   if (inputMemberColor) inputMemberColor.value = m.color || '#38bdf8';
 
@@ -1317,6 +1439,7 @@ function cancelEditMember() {
   if (inputMemberEditId) inputMemberEditId.value = '';
   if (inputMemberName) inputMemberName.value = '';
   if (inputMemberRole) inputMemberRole.value = '';
+  if (inputMemberGithub) inputMemberGithub.value = '';
   if (inputMemberAvatar) inputMemberAvatar.value = '👤';
   if (inputMemberColor) inputMemberColor.value = '#38bdf8';
 
@@ -1329,6 +1452,7 @@ async function saveOrUpdateMember() {
   const editId = inputMemberEditId?.value.trim();
   const name = inputMemberName?.value.trim();
   const role = inputMemberRole?.value.trim() || 'Membro da Equipe';
+  const github = inputMemberGithub?.value.trim().replace(/^@/, '') || '';
   const avatar = inputMemberAvatar?.value || '👤';
   const color = inputMemberColor?.value || '#38bdf8';
 
@@ -1341,7 +1465,7 @@ async function saveOrUpdateMember() {
   const isEditing = Boolean(editId);
   const endpoint = isEditing ? '/api/members/update' : '/api/members';
   const method = isEditing ? 'PUT' : 'POST';
-  const payload = isEditing ? { id: editId, name, role, avatar, color } : { name, role, avatar, color };
+  const payload = isEditing ? { id: editId, name, role, github, avatar, color } : { name, role, github, avatar, color };
 
   try {
     const res = await fetch(endpoint, {
@@ -1384,6 +1508,84 @@ async function deleteMember(id) {
   }
 }
 
+async function setLocalDeveloperIdentity(memberId, optionalName) {
+  if (!memberId) {
+    showToast('Selecione um integrante na lista', 'warning');
+    return;
+  }
+  try {
+    const res = await fetch('/api/git/set-local-identity', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ memberId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      appendLog(data.message);
+      if (optionalName && optionalName.trim()) {
+        try {
+          await fetch('/api/git/config-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: optionalName.trim() })
+          });
+        } catch {}
+      }
+      fetchGitInfo();
+      fetchMembers();
+    } else {
+      showToast(data.error || 'Erro ao salvar identidade local', 'error');
+    }
+  } catch (err) {
+    showToast('Erro de conexão ao definir identidade local', 'error');
+  }
+}
+
+// Event Listeners for Developer Identity & Git Actions
+btnMySpace?.addEventListener('click', () => {
+  if (detectedDevMember) {
+    setMemberFilter(detectedDevMember.name);
+    showToast(`🎯 Visualizando tarefas de ${detectedDevMember.name}`, 'info');
+  }
+});
+
+btnDismissGitNotice?.addEventListener('click', () => {
+  isGitNoticeDismissed = true;
+  if (gitUserNoticeBanner) gitUserNoticeBanner.style.display = 'none';
+});
+
+btnCopyGitCmd?.addEventListener('click', async () => {
+  const cmd = gitUserCmdCopy ? gitUserCmdCopy.textContent : 'git config user.name "Seu Nome"';
+  try {
+    await navigator.clipboard.writeText(cmd);
+    showToast('Comando Git copiado para o clipboard!', 'success');
+  } catch {
+    showToast('Comando pronto no terminal!', 'info');
+  }
+});
+
+// 1-Clique na barra de aviso
+btnQuickLinkGit?.addEventListener('click', async () => {
+  const memberId = selectQuickGitMember?.value;
+  if (!memberId) {
+    showToast('Selecione um integrante na lista para vincular à sua máquina', 'warning');
+    return;
+  }
+  await setLocalDeveloperIdentity(memberId);
+});
+
+// Salvar identidade local a partir do modal
+btnApplyGitConfig?.addEventListener('click', async () => {
+  const memberId = selectModalGitMember?.value;
+  const name = inputGitUserName?.value.trim();
+  if (!memberId) {
+    showToast('Selecione um integrante para vincular a esta máquina', 'warning');
+    return;
+  }
+  await setLocalDeveloperIdentity(memberId, name);
+});
+
 // Quick Search
 inputSearchMembers?.addEventListener('input', (e) => {
   memberSearchQuery = e.target.value.trim().toLowerCase();
@@ -1408,5 +1610,7 @@ window.addEventListener('DOMContentLoaded', () => {
   loadConfig();
   updateCommandPreview();
 });
+
+
 
 
