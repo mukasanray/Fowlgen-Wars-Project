@@ -1,0 +1,38 @@
+{
+  "columns": [
+    {
+      "name": "Backlog",
+      "status": "backlog",
+      "color": "gray",
+      "order": 1,
+      "taskCount": 0,
+      "description": "Features awaiting implementation"
+    },
+    {
+      "name": "In Progress",
+      "status": "in_progress",
+      "color": "blue",
+      "order": 2,
+      "taskCount": 0,
+      "description": "Features currently being developed"
+    },
+    {
+      "name": "Review",
+      "status": "review",
+      "color": "yellow",
+      "order": 3,
+      "taskCount": 0,
+      "description": "Features under review or testing"
+    },
+    {
+      "name": "Done",
+      "status": "done",
+      "color": "green",
+      "order": 4,
+      "taskCount": 0,
+      "description": "Completed features"
+    }
+  ],
+  "totalTasks": 0,
+  "lastUpdated": "{{timestamp}}"
+}

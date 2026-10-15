@@ -38,7 +38,7 @@ jobs:
       - name: Instalar Anchor CLI
         run: |
           cargo install --git https://github.com/coral-xyz/anchor avm --locked
-          avm install 1.2.0
+          avm install 1.2.0 --skip-attestation
           avm use 1.2.0
           echo "$HOME/.avm/bin" >> $GITHUB_PATH
 

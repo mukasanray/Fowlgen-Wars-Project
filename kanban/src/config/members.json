@@ -1,0 +1,66 @@
+[
+  {
+    "id": "samuel",
+    "name": "Samuel",
+    "role": "Product Owner • Game Design • Kanban",
+    "github": "samuelmenon",
+    "avatar": "👑",
+    "color": "#f59e0b"
+  },
+  {
+    "id": "marcos",
+    "name": "Marcos",
+    "role": "Líder Técnico • Dev Core Unity & Web3",
+    "github": "mukasanray",
+    "avatar": "💻",
+    "color": "#38bdf8"
+  },
+  {
+    "id": "jorge",
+    "name": "Jorge Espindola",
+    "role": "DevSecOps & Web3 • Áudio & Docs",
+    "github": "jorgeespindola",
+    "avatar": "🛡️",
+    "color": "#6366f1"
+  },
+  {
+    "id": "junior",
+    "name": "Junior",
+    "role": "Dev Web (React/Node) • Docs & Prompts",
+    "github": "junior",
+    "avatar": "🌐",
+    "color": "#ec4899"
+  },
+  {
+    "id": "maria-clara",
+    "name": "Maria Clara",
+    "role": "QA Funcional • UX Testing & Lore",
+    "github": "mariaclara",
+    "avatar": "🧪",
+    "color": "#14b8a6"
+  },
+  {
+    "id": "ramiro",
+    "name": "Ramiro",
+    "role": "Marketing Estratégico & Pitch Deck",
+    "github": "ramiro",
+    "avatar": "📈",
+    "color": "#eab308"
+  },
+  {
+    "id": "dev-team",
+    "name": "Dev Team",
+    "role": "Equipe Técnica Geral",
+    "github": "dev-team",
+    "avatar": "👥",
+    "color": "#94a3b8"
+  },
+  {
+    "id": "ia",
+    "name": "Agente IA",
+    "role": "Automação & Copilot",
+    "github": "antigravity-ai",
+    "avatar": "🤖",
+    "color": "#a855f7"
+  }
+]

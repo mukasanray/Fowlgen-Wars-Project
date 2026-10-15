@@ -34,8 +34,8 @@ namespace FowlgenWars.Gameplay
             currentHealth = maxHealth;
             if (healthBar != null)
             {
+                healthBar.SetTeamColor(team);
                 healthBar.UpdateHealth(currentHealth, maxHealth);
-                healthBar.SetColor(team == Team.Player ? Color.green : Color.red);
             }
         }
 
@@ -48,8 +48,8 @@ namespace FowlgenWars.Gameplay
             SyncWithRuntimeState();
             if (healthBar != null)
             {
+                healthBar.SetTeamColor(team);
                 healthBar.UpdateHealth(currentHealth, maxHealth);
-                healthBar.SetColor(team == Team.Player ? Color.green : Color.red);
             }
         }
 
@@ -57,7 +57,7 @@ namespace FowlgenWars.Gameplay
         {
             if (!IsAlive) return;
 
-            currentHealth -= Mathf.Max(0, damage);
+            currentHealth = Mathf.Clamp(currentHealth - Mathf.Max(0, damage), 0, maxHealth);
             if (healthBar != null)
             {
                 healthBar.UpdateHealth(currentHealth, maxHealth);
@@ -72,6 +72,7 @@ namespace FowlgenWars.Gameplay
             if (currentHealth <= 0)
             {
                 currentHealth = 0;
+                if (healthBar != null) healthBar.UpdateHealth(0, maxHealth);
                 MobaCameraController.Instance?.Shake(0.5f, 0.6f);
                 CombatVFXManager.Instance?.SpawnExplosion(transform.position);
                 AudioManager.Instance?.PlayCombatSound(CombatSoundType.Explosion);

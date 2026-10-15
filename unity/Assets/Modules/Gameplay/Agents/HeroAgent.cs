@@ -23,6 +23,9 @@ namespace FowlgenWars.Gameplay
         [SerializeField] private float attackInterval = 0.9f;
         [SerializeField] private float respawnTime = 6.0f;
 
+        [Header("Balance Fase 1 — ficha §8.1 (se atribuído, sobrepõe acima)")]
+        [SerializeField] private FowlgenBalanceConfigSO balanceConfig;
+
         [Header("Feedback Visual & Animação")]
         [SerializeField] private WorldHealthBarView healthBar;
         [SerializeField] private Animator animator;
@@ -48,18 +51,33 @@ namespace FowlgenWars.Gameplay
 
         private void Awake()
         {
+            ApplyBalanceConfig();
             characterController = GetComponent<CharacterController>();
             if (animator == null) animator = GetComponentInChildren<Animator>();
             spawnPosition = transform.position;
             currentHealth = maxHealth;
         }
 
+        private void ApplyBalanceConfig()
+        {
+            if (balanceConfig == null) return;
+            var b = heroName.Contains("Axel") || team == Team.Enemy ? balanceConfig.Axel : balanceConfig.Milo;
+            // só sobrepõe se ficha válida (HP>0)
+            if (b.maxHealth > 0) maxHealth = b.maxHealth;
+            if (b.attackDamage > 0) attackDamage = b.attackDamage;
+            if (b.attackRange > 0) attackRange = b.attackRange;
+            if (b.attackInterval > 0) attackInterval = b.attackInterval;
+            if (b.respawnTime > 0) respawnTime = b.respawnTime;
+            var mover = GetComponent<MobilePlayerController>();
+            if (mover != null && b.moveSpeed > 0) mover.MoveSpeed = b.moveSpeed;
+        }
+
         private void Start()
         {
             if (healthBar != null)
             {
+                healthBar.SetTeamColor(team);
                 healthBar.UpdateHealth(currentHealth, maxHealth);
-                healthBar.SetColor(team == Team.Player ? new Color(0.2f, 0.8f, 1f) : new Color(1f, 0.2f, 0.2f));
             }
         }
 
@@ -79,8 +97,8 @@ namespace FowlgenWars.Gameplay
 
             if (healthBar != null)
             {
+                healthBar.SetTeamColor(team);
                 healthBar.UpdateHealth(currentHealth, maxHealth);
-                healthBar.SetColor(team == Team.Player ? new Color(0.2f, 0.8f, 1f) : new Color(1f, 0.2f, 0.2f));
             }
         }
 
@@ -102,41 +120,39 @@ namespace FowlgenWars.Gameplay
             }
         }
 
+        public float AttackInterval => attackInterval;
+        public float NextAttackTime => nextAttackTime;
+
         /// <summary>
         /// Acionado pelo botão de Ataque do HUD (estilo Mobile Legends / LoL) ou tecla de atalho.
+        /// Sempre consome cooldown e toca feedback (acerto ou whiff) para botão nunca parecer travado.
         /// </summary>
         public bool ExecuteBasicAttack()
         {
             if (isDead || Time.time < nextAttackTime) return false;
 
             IDamageable target = FindNearestEnemy(attackRange);
+            nextAttackTime = Time.time + attackInterval;
+
             if (target != null)
             {
-                // Rotacionar em direção ao alvo
                 Vector3 dir = (target.TargetTransform.position - transform.position).normalized;
                 dir.y = 0;
                 if (dir.sqrMagnitude > 0.001f)
-                {
                     transform.rotation = Quaternion.LookRotation(dir);
-                }
 
-                nextAttackTime = Time.time + attackInterval;
                 target.TakeDamage(attackDamage);
                 AudioManager.Instance?.PlayCombatSound(CombatSoundType.Punch);
-
-                if (animator != null)
-                {
-                    animator.SetTrigger("Attack");
-                }
-
-                if (isAI)
-                {
-                    Debug.Log($"[Combate IA] {gameObject.name} atacou {target.TargetTransform.name} causando {attackDamage} de dano!");
-                }
+                if (animator != null) animator.SetTrigger("Attack");
+                if (isAI) Debug.Log($"[Combate IA] {gameObject.name} atacou {target.TargetTransform.name} causando {attackDamage} de dano!");
                 return true;
             }
 
-            return false;
+            // Whiff: sem alvo no alcance — feedback para botão não parecer morto
+            if (animator != null) animator.SetTrigger("Attack");
+            AudioManager.Instance?.PlayCombatSound(CombatSoundType.Whoosh);
+            CombatVFXManager.Instance?.SpawnHitImpact(transform.position + transform.forward * 1.2f + Vector3.up * 1f);
+            return true;
         }
 
         private IDamageable FindNearestEnemy(float searchRadius = 18.0f)
@@ -167,8 +183,9 @@ namespace FowlgenWars.Gameplay
 
         private void UpdateAIBehavior()
         {
+            if (characterController == null || !characterController.enabled || !characterController.gameObject.activeInHierarchy) return;
             // 1. Gravidade básica para manter no chão
-            if (characterController != null && !characterController.isGrounded)
+            if (!characterController.isGrounded)
             {
                 characterController.Move(Vector3.down * 9.8f * Time.deltaTime);
             }
@@ -182,7 +199,7 @@ namespace FowlgenWars.Gameplay
                 {
                     ExecuteBasicAttack();
                 }
-                else if (characterController != null)
+                else if (characterController != null && characterController.enabled && characterController.gameObject.activeInHierarchy)
                 {
                     Vector3 moveDir = (target.TargetTransform.position - transform.position).normalized;
                     moveDir.y = 0;
@@ -193,7 +210,7 @@ namespace FowlgenWars.Gameplay
                     }
                 }
             }
-            else if (characterController != null)
+            else if (characterController != null && characterController.enabled && characterController.gameObject.activeInHierarchy)
             {
                 // 3. Sem inimigos no alcance imediato: avançar ofensivamente em direção à base/linha do jogador
                 Vector3 objectiveTarget = new Vector3(0f, transform.position.y, 8.0f);
@@ -223,13 +240,12 @@ namespace FowlgenWars.Gameplay
         public void TakeDamage(int damage)
         {
             if (isDead) return;
-
-            currentHealth -= Mathf.Max(0, damage);
-            if (healthBar != null)
-            {
-                healthBar.UpdateHealth(currentHealth, maxHealth);
-            }
+            damage = Mathf.Max(0, damage);
+            if (damage == 0) return;
+            currentHealth = Mathf.Clamp(currentHealth - damage, 0, maxHealth);
+            if (healthBar != null) healthBar.UpdateHealth(currentHealth, maxHealth);
             Feedback.FloatingCombatTextManager.SpawnDamage(transform.position, damage);
+            if (animator != null && currentHealth > 0) animator.SetTrigger("Hit");
 
             // Feedback visual de impacto de penas e som
             Color featherCol = team == Team.Player ? new Color(1f, 0.95f, 0.8f) : new Color(0.45f, 0.25f, 0.6f);
@@ -240,6 +256,7 @@ namespace FowlgenWars.Gameplay
             if (currentHealth <= 0)
             {
                 currentHealth = 0;
+                if (healthBar != null) healthBar.UpdateHealth(0, maxHealth);
                 Die();
             }
         }
@@ -258,7 +275,7 @@ namespace FowlgenWars.Gameplay
             }
 
             if (characterController != null) characterController.enabled = false;
-            if (healthBar != null) healthBar.gameObject.SetActive(false);
+            if (healthBar != null) healthBar.UpdateHealth(0, maxHealth);
 
             // Desativar renderers temporariamente
             var renderers = GetComponentsInChildren<Renderer>();
@@ -286,6 +303,7 @@ namespace FowlgenWars.Gameplay
             if (healthBar != null)
             {
                 healthBar.gameObject.SetActive(true);
+                healthBar.SetTeamColor(team);
                 healthBar.UpdateHealth(currentHealth, maxHealth);
             }
 

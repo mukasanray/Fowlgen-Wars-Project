@@ -47,6 +47,15 @@ namespace FowlgenWars.Gameplay
         private float rTimer = 0f;
         private float attackTimer = 0f;
 
+        // Auto-attack toggle (Toggle UI nativo, vertical ao lado do ATAQUE)
+        [Header("Auto-Ataque (Toggle vertical ao lado do ATAQUE)")]
+        [SerializeField] private bool autoAttackEnabled;
+        [SerializeField] private Toggle autoAttackToggle;
+        [SerializeField] private Image autoAttackToggleBg;
+        [SerializeField] private Text autoAttackToggleLabel;
+        [SerializeField] private RectTransform autoAttackHandleRect;
+        private float autoAttackCheckTimer;
+
         // Estado do Dash
         private bool isDashing = false;
         private Vector3 dashDirection;
@@ -108,6 +117,49 @@ namespace FowlgenWars.Gameplay
             rCooldownText = txtR;
 
             RegisterListeners();
+            EnsureAttackButtonRaycastFix();
+            RefreshAutoToggleVisual();
+        }
+
+        public void BindAutoToggle(Toggle toggle, Image bg, Text label, RectTransform handleRect)
+        {
+            autoAttackToggle = toggle;
+            autoAttackToggleBg = bg;
+            autoAttackToggleLabel = label;
+            autoAttackHandleRect = handleRect;
+            if (autoAttackToggle != null)
+            {
+                autoAttackToggle.onValueChanged.RemoveListener(OnAutoToggleValueChanged);
+                autoAttackToggle.onValueChanged.AddListener(OnAutoToggleValueChanged);
+                autoAttackToggle.isOn = autoAttackEnabled;
+            }
+            RefreshAutoToggleVisual();
+        }
+        // Compat: Button antigo chama Toggle
+        public void BindAutoToggle(Button toggleBtn, Text label, Image bg)
+        {
+            if (toggleBtn != null)
+            {
+                toggleBtn.onClick.RemoveListener(ToggleAutoAttack);
+                toggleBtn.onClick.AddListener(ToggleAutoAttack);
+            }
+            autoAttackToggleLabel = label;
+            autoAttackToggleBg = bg;
+            RefreshAutoToggleVisual();
+        }
+
+        private void EnsureAttackButtonRaycastFix()
+        {
+            if (attackButton == null) return;
+            // Label e Ring filhos devem ignorar raycast para não bloquear clique do botão (bug do print)
+            foreach (var img in attackButton.GetComponentsInChildren<Image>(true))
+                if (img.gameObject != attackButton.gameObject) img.raycastTarget = false;
+            foreach (var txt in attackButton.GetComponentsInChildren<Text>(true))
+                txt.raycastTarget = false;
+            // Reativa apenas a imagem do botão base
+            var baseImg = attackButton.GetComponent<Image>();
+            if (baseImg != null) baseImg.raycastTarget = true;
+            attackButton.interactable = true;
         }
 
         private void RegisterListeners()
@@ -119,8 +171,46 @@ namespace FowlgenWars.Gameplay
             if (skillWButton != null) skillWButton.onClick.AddListener(CastSkillG);
             if (skillEButton != null) skillEButton.onClick.AddListener(CastSkillY);
             if (skillRButton != null) skillRButton.onClick.AddListener(CastSkillH);
+            if (autoAttackToggle != null) autoAttackToggle.onValueChanged.AddListener(OnAutoToggleValueChanged);
 
             listenersRegistered = true;
+        }
+
+        public bool AutoAttackEnabled => autoAttackEnabled;
+        public void SetAutoAttack(bool enabled)
+        {
+            autoAttackEnabled = enabled;
+            if (autoAttackToggle != null && autoAttackToggle.isOn != enabled)
+                autoAttackToggle.SetIsOnWithoutNotify(enabled);
+            RefreshAutoToggleVisual();
+        }
+        public void ToggleAutoAttack()
+        {
+            autoAttackEnabled = !autoAttackEnabled;
+            if (autoAttackToggle != null) autoAttackToggle.SetIsOnWithoutNotify(autoAttackEnabled);
+            AudioManager.Instance?.PlayCombatSound(CombatSoundType.UIClick);
+            RefreshAutoToggleVisual();
+        }
+        private void OnAutoToggleValueChanged(bool isOn)
+        {
+            autoAttackEnabled = isOn;
+            AudioManager.Instance?.PlayCombatSound(CombatSoundType.UIClick);
+            RefreshAutoToggleVisual();
+        }
+        private void RefreshAutoToggleVisual()
+        {
+            if (autoAttackToggleLabel != null)
+                autoAttackToggleLabel.text = autoAttackEnabled ? "AUTO" : "AUTO";
+            if (autoAttackToggleBg != null)
+                autoAttackToggleBg.color = autoAttackEnabled ? new Color(0.18f, 0.65f, 0.30f, 0.98f) : new Color(0.26f, 0.26f, 0.30f, 0.95f);
+            if (autoAttackHandleRect != null)
+            {
+                // Toggle vertical: handle desliza vertical conforme estado
+                float y = autoAttackEnabled ? 14f : -14f;
+                autoAttackHandleRect.anchoredPosition = new Vector2(0f, y);
+            }
+            if (autoAttackToggleLabel != null)
+                autoAttackToggleLabel.color = autoAttackEnabled ? Color.white : new Color(0.75f, 0.78f, 0.82f, 1f);
         }
 
         private void Update()
@@ -128,7 +218,19 @@ namespace FowlgenWars.Gameplay
             UpdateTimers();
             HandleDash();
             HandleKeyboardInput();
+            HandleAutoAttack();
             UpdateUI();
+        }
+
+        private void HandleAutoAttack()
+        {
+            if (!autoAttackEnabled || heroAgent == null || !heroAgent.IsAlive) return;
+            if (Time.time < heroAgent.NextAttackTime) return;
+            // throttle checagem levemente para não spammar OverlapSphere todo frame se sem alvo
+            autoAttackCheckTimer -= Time.deltaTime;
+            if (autoAttackCheckTimer > 0) return;
+            autoAttackCheckTimer = 0.12f;
+            heroAgent.ExecuteBasicAttack();
         }
 
         private void UpdateTimers()
@@ -146,7 +248,7 @@ namespace FowlgenWars.Gameplay
 
             if (Time.time < dashEndTime)
             {
-                if (characterController != null && characterController.enabled)
+                if (characterController != null && characterController.enabled && characterController.gameObject.activeInHierarchy)
                 {
                     characterController.Move(dashDirection * (skillQDashSpeed * Time.deltaTime));
                 }

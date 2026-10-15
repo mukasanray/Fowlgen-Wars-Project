@@ -2,6 +2,7 @@ using UnityEngine;
 using FowlgenWars.Architecture.Presenters;
 using FowlgenWars.Architecture.Views;
 using FowlgenWars.Auth;
+using FowlgenWars.Gameplay.Audio;
 using FishNet.Object;
 using FishNet.Managing;
 using FishNet.Transporting.Tugboat;
@@ -33,6 +34,22 @@ namespace FowlgenWars.UI
                 gameObject.AddComponent<AuthView>();
             if (GetComponent<AuthPresenter>() == null)
                 gameObject.AddComponent<AuthPresenter>();
+
+            // 5. BGM persistente (Login/Play/Arena_Clean = mesma musica sem restart)
+            EnsureFowlgenBgm();
+        }
+
+        private void Start() => AudioManager.Instance?.EnsureBgmPlaying();
+
+        private static void EnsureFowlgenBgm()
+        {
+            var am = AudioManager.Instance ?? FindAnyObjectByType<AudioManager>();
+            if (am == null)
+            {
+                var go = new GameObject("AudioManager");
+                am = go.AddComponent<AudioManager>();
+            }
+            am.EnsureBgmPlaying();
         }
 
         private void EnsureFishNetNetworkManager()

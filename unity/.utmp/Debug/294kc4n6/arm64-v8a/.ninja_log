@@ -1,0 +1,10 @@
+# ninja log v5
+84	4524	8137352216982219	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	328d36b4304cac6c
+18	4707	8137352218706988	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	c02b4ba2d04a5820
+98	4814	8137352220392294	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	b99f0f2272fab36b
+54	4910	8137352220578625	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	9bfd78561d5743f1
+36	5137	8137352223694687	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	5623785ca0458eb2
+69	5325	8137352225620726	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	396b33e56fb28c5b
+114	5712	8137352229622817	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	e8b5031508609e01
+1	5731	8137352229806982	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	e1f8432a5de14446
+5737	6155	8137352234111832	D:/Dev/Fowlgen-Wars-Project/unity/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/Debug/294kc4n6/obj/arm64-v8a/libgame.so	32ec41cd988b693c

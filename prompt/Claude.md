@@ -127,19 +127,20 @@ Considere os seguintes arquivos como fontes de design, planejamento, processo ou
 - Inventário da Fase 1, Telas e Testes NÃO Reprovados (Validados e Funcionais):
   - **Inicialização Unity:** ✅ Aprovado no QA da Sprint 01 (inicialização do motor, ciclo de vida e GameBootstrap operando).
   - **Telas e UI Funcionais da Fase 1:**
-    - [`MainMenu.unity`](../unity/Assets/Scenes/Game/MainMenu.unity) e [`MainMenuController.cs`](../unity/Assets/Scripts/Controller/MainMenuController.cs): tela inicial responsiva, navegação de cenas e seletor das POCs.
-    - [`POCScreenUI.cs`](../unity/Assets/Scripts/Controller/POCScreenUI.cs) e [`POCSceneRoot.cs`](../unity/Assets/Scripts/Controller/POCSceneRoot.cs): sistema de telas de teste com tabela de status, botões de ação e feedback visual via toasts (verde, amarelo e vermelho).
+    - [`Play.unity`](../unity/Assets/Scenes/Game/Play.unity) e [`MainMenuController.cs`](../unity/Assets/Modules/Presentation/Controllers/MainMenuController.cs): tela inicial responsiva, navegação de cenas e seletor das POCs.
+    - [`POCScreenUI.cs`](../unity/Assets/Modules/POC/POCScreenUI.cs) e [`POCSceneRoot.cs`](../unity/Assets/Modules/POC/POCSceneRoot.cs): sistema de telas de teste com tabela de status, botões de ação e feedback visual via toasts (verde, amarelo e vermelho).
   - **POCs da Fase 01 Validadas (Cenas e Scripts C#):**
-    - `POC 01` ([`POC_01_ProjectFoundation.unity`](../unity/Assets/Scenes/POC/POC_01_ProjectFoundation.unity)): Fundação Unity, checagem de plataforma e Canvas.
-    - `POC 02` ([`POC_02_SolanaDevnet.unity`](../unity/Assets/Scenes/POC/POC_02_SolanaDevnet.unity)): Conexão via Solana Unity SDK (`SolanaManager`, `SolanaConnection`) com a Solana Devnet (`https://api.devnet.solana.com`).
-    - `POC 03` ([`POC_03_AnchorWorkspace.unity`](../unity/Assets/Scenes/POC/POC_03_AnchorWorkspace.unity)): Workspace Anchor estruturado e contrato Rust compilado.
-    - `POC 04` ([`POC_04_UnityAnchor.unity`](../unity/Assets/Scenes/POC/POC_04_UnityAnchor.unity)): Leitura e parsing de IDL (`fowlgen_wars_contract.json`) e preparação das instruções.
-    - `POC 05` ([`POC_05_WalletTransaction.unity`](../unity/Assets/Scenes/POC/POC_05_WalletTransaction.unity)): Conexão de carteira (Phantom via Mobile Wallet Adapter, importação da área de transferência ou keypair Devnet), consulta de saldo em SOL e envio de transações reais confirmadas no contrato ativo da Devnet (`81MprTi78xQvtVg9aaK4s4Cw9K62CU6PtcPYsChLNyxE`).
+    - `POC 01` ([`Modules/POC/POC01Controller.cs`](../unity/Assets/Scenes/POC/Modules/POC/POC01Controller.cs)): Fundação Unity, checagem de plataforma e Canvas.
+    - `POC 02` ([`Modules/POC/POC02Controller.cs`](../unity/Assets/Scenes/POC/Modules/POC/POC02Controller.cs)): Conexão via Solana Unity SDK (`SolanaManager`, `SolanaConnection`) com a Solana Devnet (`https://api.devnet.solana.com`).
+    - `POC 03` ([`Modules/POC/POC03Controller.cs`](../unity/Assets/Scenes/POC/Modules/POC/POC03Controller.cs)): Workspace Anchor estruturado e contrato Rust compilado.
+    - `POC 04` ([`Modules/POC/POC04Controller.cs`](../unity/Assets/Scenes/POC/Modules/POC/POC04Controller.cs)): Leitura e parsing de IDL (`fowlgen_wars_contract.json`) e preparação das instruções.
+    - `POC 05` ([`Modules/POC/POC05Controller.cs`](../unity/Assets/Scenes/POC/Modules/POC/POC05Controller.cs)): Conexão de carteira (Phantom via Mobile Wallet Adapter, importação da área de transferência ou keypair Devnet), consulta de saldo em SOL e envio de transações reais confirmadas no contrato ativo da Devnet (`81MprTi78xQvtVg9aaK4s4Cw9K62CU6PtcPYsChLNyxE`).
   - **Smart Contract Anchor On-Chain:**
     - Teste de integração [`test_initialize.rs`](../program/programs/fowlgen_wars_contract/tests/test_initialize.rs) ✅ Aprovado com 100% de sucesso via LiteSVM (`cargo test` executado e passando em 0.29s).
     - Contrato implantado e executável na Solana Devnet sob o Program ID `81MprTi78xQvtVg9aaK4s4Cw9K62CU6PtcPYsChLNyxE`.
 - Status dos Testes Reprovados da Sprint 01 (Foco Exclusivo de Correção na Trilha Unity):
-  - 4 reprovações fundamentais de gameplay (movimentação, colisão, interatividade de botões de UI e áudio). Isoladas nas POCs `POC-UNI-01` a `POC-UNI-04` do roadmap MVP do Hackathon para resolução rápida pelo time de gameplay sem bloquear a frente de Solana.
+  - Validados em PlayMode batch em 2026-10-13 (`unity/Assets/Tests/Gameplay/CombatAndBaseDestructionTests.cs` 4/4 PASS — `TmpTestBatch.Run`, ver `fw_run8.log`): colisão por overlap + detecção, dano parametrizado (`MinionDataSO`), HP da base e evento único `OnStructureDestroyed` (POC-UNI-02 / itens 27 + 30). FacingMinions comprova frente-a-frente parada + troca de dano até derrota em runtime em 1.5m + destruição da base por minion aliado. Pendência residual: bloqueio físico por `transform.position` (sem física) ainda não valida barreira/terreno; desempate do timer (`GameMatchManager` `playerHp >= enemyHp`) pendente PO.
+  - Multiplayer FishNet (`unity/Assets/Modules/POC/FishNetMultiplayer.cs` + `FishNetPOCLauncher.cs`) integrado para teste local na `Arena_Clean` (`NetworkManager` + `NetworkObject`/`FishNetPOC` na cena, 10810af); `CmdTakeDamage` → `TakeDamage` validado via SyncVars, Docker headless ainda Backlog.
 
 ## Decisões técnicas e limites
 

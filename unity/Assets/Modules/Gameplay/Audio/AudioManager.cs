@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 namespace FowlgenWars.Gameplay.Audio
 {
@@ -27,6 +29,14 @@ namespace FowlgenWars.Gameplay.Audio
     {
         public static AudioManager Instance { get; private set; }
 
+        [Header("Audio Mixer (EAP Item 68 - opcional, criado via Window > Audio > Audio Mixer)")]
+        [SerializeField] private AudioMixer audioMixer;
+        [SerializeField] private string masterVolParam = "MasterVolume";
+        [SerializeField] private string bgmVolParam = "BgmVolume";
+        [SerializeField] private string sfxVolParam = "SfxVolume";
+        [SerializeField] private float duckVolumeDb = -12f;
+        [SerializeField] private float duckDuration = 0.35f;
+
         [Header("Audio Sources")]
         [SerializeField] private AudioSource bgmSource;
         [SerializeField] private AudioSource uiSource;
@@ -36,6 +46,10 @@ namespace FowlgenWars.Gameplay.Audio
         [Range(0f, 1f)] [SerializeField] private float masterVolume = 1f;
         [Range(0f, 1f)] [SerializeField] private float sfxVolume = 0.9f;
         [Range(0f, 1f)] [SerializeField] private float bgmVolume = 0.65f;
+
+        [Header("BGM Persistente (Login/Play/Arena_Clean)")]
+        [SerializeField] private AudioClip defaultBgm;
+        [SerializeField] private string defaultBgmResourcePath = "Audio/music-fowlGenwars_001";
 
         [Header("Audio Clips Opcionais (Asset Store / Custom)")]
         [SerializeField] private AudioClip clipPunch;
@@ -73,6 +87,50 @@ namespace FowlgenWars.Gameplay.Audio
 
             LoadVolumePreferences();
             InitializeAudioSources();
+            ResolveDefaultBgm();
+        }
+
+        private void ResolveDefaultBgm()
+        {
+            if (defaultBgm != null) return;
+            if (string.IsNullOrWhiteSpace(defaultBgmResourcePath)) return;
+
+            // Fallback via Resources (copia em Resources/Audio + original em Assets/Audio)
+            var loaded = Resources.Load<AudioClip>(defaultBgmResourcePath);
+            if (loaded != null) defaultBgm = loaded;
+        }
+
+        private void Start()
+        {
+            // Auto-play BGM persistente se ainda nao estiver tocando
+            if (bgmSource != null && !bgmSource.isPlaying && defaultBgm != null)
+            {
+                PlayBGM(defaultBgm);
+            }
+        }
+
+        /// <summary>Garante BGM persistente tocando. Usado por Auth/Play/Arena ao entrarem.</summary>
+        public void EnsureBgmPlaying(AudioClip clip = null, float volume = 1f)
+        {
+            AudioClip target = clip != null ? clip : defaultBgm;
+            if (target == null)
+            {
+                ResolveDefaultBgm();
+                target = defaultBgm;
+            }
+            if (target == null) return;
+
+            if (bgmSource != null && bgmSource.isPlaying && bgmSource.clip == target)
+                return;
+
+            PlayBGM(target, volume);
+        }
+
+        public bool IsBgmPlaying(AudioClip clip = null)
+        {
+            if (bgmSource == null || !bgmSource.isPlaying || bgmSource.clip == null) return false;
+            if (clip == null) return true;
+            return bgmSource.clip == clip;
         }
 
         private void LoadVolumePreferences()
@@ -108,14 +166,41 @@ namespace FowlgenWars.Gameplay.Audio
 
         private void ApplyVolumes()
         {
-            if (bgmSource != null)
+            // Mixer path (quando mixer atribuído, usa dB). Fallback: volume direto nos sources.
+            if (audioMixer != null)
             {
-                bgmSource.volume = bgmVolume * masterVolume;
+                float masterDb = masterVolume <= 0.0001f ? -80f : Mathf.Log10(masterVolume) * 20f;
+                float bgmDb = bgmVolume <= 0.0001f ? -80f : Mathf.Log10(bgmVolume) * 20f;
+                float sfxDb = sfxVolume <= 0.0001f ? -80f : Mathf.Log10(sfxVolume) * 20f;
+                audioMixer.SetFloat(masterVolParam, masterDb);
+                audioMixer.SetFloat(bgmVolParam, bgmDb);
+                audioMixer.SetFloat(sfxVolParam, sfxDb);
             }
-            if (uiSource != null)
+            if (bgmSource != null) bgmSource.volume = audioMixer == null ? bgmVolume * masterVolume : 1f;
+            if (uiSource != null) uiSource.volume = audioMixer == null ? sfxVolume * masterVolume : 1f;
+        }
+
+        /// <summary>EAP Item 68: ducking BGM durante SFX marcante.</summary>
+        public void DuckBgm(bool duck)
+        {
+            if (audioMixer == null || string.IsNullOrEmpty(bgmVolParam)) return;
+            StopCoroutine(nameof(DuckRoutine));
+            StartCoroutine(DuckRoutine(duck));
+        }
+
+        private IEnumerator DuckRoutine(bool duck)
+        {
+            float target = duck ? duckVolumeDb : (bgmVolume <= 0.0001f ? -80f : Mathf.Log10(bgmVolume) * 20f);
+            audioMixer.GetFloat(bgmVolParam, out float cur);
+            float t = 0f;
+            while (t < duckDuration)
             {
-                uiSource.volume = sfxVolume * masterVolume;
+                t += Time.unscaledDeltaTime;
+                float v = Mathf.Lerp(cur, target, t / duckDuration);
+                audioMixer.SetFloat(bgmVolParam, v);
+                yield return null;
             }
+            audioMixer.SetFloat(bgmVolParam, target);
         }
 
         private void InitializeAudioSources()

@@ -22,14 +22,17 @@ namespace FowlgenWars.Gameplay
         [Header("Custos e Cooldown")]
         [SerializeField] private float spawnCooldown = 3.0f;
 
+        [Header("Balance Fase 1 — ficha §8.1 (se ConfigResolver retornar, sobrepõe)")]
+        [SerializeField] private FowlgenBalanceConfigSO balanceOverride;
+
         public string UnitName => unitName;
         public GameObject Prefab => prefab;
-        public int MaxHealth => maxHealth;
-        public int AttackDamage => attackDamage;
-        public float AttackRange => attackRange;
-        public float AttackInterval => attackInterval;
-        public float MoveSpeed => moveSpeed;
-        public float RotationSpeed => rotationSpeed;
-        public float SpawnCooldown => spawnCooldown;
+        public int MaxHealth => balanceOverride != null ? balanceOverride.Minion.maxHealth : maxHealth;
+        public int AttackDamage => balanceOverride != null ? balanceOverride.Minion.attackDamage : attackDamage;
+        public float AttackRange => balanceOverride != null ? balanceOverride.Minion.attackRange : attackRange;
+        public float AttackInterval => balanceOverride != null ? balanceOverride.Minion.attackInterval : attackInterval;
+        public float MoveSpeed => balanceOverride != null ? balanceOverride.Minion.moveSpeed : moveSpeed;
+        public float RotationSpeed => balanceOverride != null ? balanceOverride.Minion.rotationSpeed : rotationSpeed;
+        public float SpawnCooldown => balanceOverride != null ? balanceOverride.Minion.spawnCooldown : spawnCooldown;
     }
 }

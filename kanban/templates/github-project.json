@@ -1,0 +1,8 @@
+{
+  "title": "{{featureName}}",
+  "body": "{{proposalContent}}",
+  "labels": ["{{labels}}"],
+  "assignees": ["{{assignee}}"],
+  "status": "{{status}}",
+  "column": "{{column}}"
+}

@@ -44,10 +44,10 @@
 | **22** | Definir curvas de progressão do timer de 3 min | Produto & GD | **Encerrado** | `MatchConfigSO.cs` e `MatchRuntimeStateSO.cs` com 180s configurados. |
 | **23** | Implementar spawner de tropas do Galinheiro | Full Cycle | **Encerrado** | `GameMatchManager.cs` com spawn por rota funcional. |
 | **24** | Programar lógica de rotas e waypoints na arena | Full Cycle | **Encerrado** | `WaypointPath.cs` com rotas Top, Mid e Bot ativas. |
-| **25** | Destacar visualmente rota ativa com shader leve | Full Cycle | **Falta para encerrar o MVP** | Adicionar feedback de contorno/luz na rota selecionada no chão. |
+| **25** | Destacar visualmente rota ativa com shader leve | Full Cycle | **Encerrado** | `WaypointPath.HighlightTemporarily(2.5s)` + LineRenderer pulso via `GameMatchManager.RequestPlayerSpawn`. |
 | **26** | Codificar FSM de combate em FowlgenUnit C# | Full Cycle | **Encerrado** | `FowlgenUnit.cs`, `HeroAgent.cs` e `MinionAgent.cs` com ciclo de estados. |
 | **27** | Implementar colisão física e cálculo de dano | Full Cycle | **Encerrado** | Colisores de CharacterController e cálculo de ataque básico integrados. |
-| **28** | Criar Floating Combat Text com dano animado | Full Cycle | **Falta para encerrar o MVP** | Instanciar texto com número flutuante do dano ao acertar o golpe. |
+| **28** | Criar Floating Combat Text com dano animado | Full Cycle | **Encerrado** | `FloatingCombatTextManager.cs` pool zero-GC + SpawnDamage/Heal com subida e fade. |
 | **29** | Programar barras de vida flutuantes sobre tropas | Full Cycle | **Encerrado** | `WorldHealthBarView.cs` implementado no topo das unidades. |
 | **30** | Codificar lógica de destruição da base inimiga | Full Cycle | **Encerrado** | `StructureGalinheiro.cs` dispara término e transição para Vitória/Derrota. |
 | **31** | Implementar Camera Shake em impactos críticos | Full Cycle | **Encerrado** | `MobaCameraController.Instance.Shake()` acionado em impactos críticos, explosões e Ultimate R. |
@@ -56,25 +56,25 @@
 | **34** | Implementar tela de Vitória e Derrota da partida | Full Cycle | **Encerrado** | Cenas `Vitoria.unity` e `Derrota.unity` com `VitoriaPresenter` e `DerrotaPresenter`. |
 | **35** | Otimizar pooling de objetos para 60 FPS mobile | Full Cycle | **Encerrado** | Sistema com reaproveitamento de instâncias e zero GC aloc no joystick. |
 | **36** | Ajustar câmera isométrica com limites de toque | Full Cycle | **Encerrado** | `MobaCameraController.cs` com ângulos táticos travados. |
-| **37** | Implementar menu de pausa com reinício | Full Cycle | **Falta para encerrar o MVP** | Botão de engrenagem na HUD para pausar o timescale e reiniciar. |
-| **38** | Criar aviso de perda de conexão de internet | Full Cycle | **Falta para encerrar o MVP** | Toast de alerta caso RPC ou FishNet caia durante a partida. |
+| **37** | Implementar menu de pausa com reinício | Full Cycle | **Encerrado** | `MatchPauseMenuController.cs` Time.timeScale 0/1 + painel Reiniciar/Sair e sliders volume. |
+| **38** | Criar aviso de perda de conexão de internet | Full Cycle | **Encerrado** | `NetworkStatusMonitor.cs` poll internetReachability + banner vermelho/verde topo. |
 | **39** | Definir estrutura da conta PDA PlayerProfile | Full Cycle | **Encerrado** | PDA definida no contrato Anchor `program/`. |
 | **40** | Codificar instrução record_battle_result em Rust | Full Cycle | **Encerrado** | Instrução de registro compilada no Anchor. |
 | **41** | Criar instrução claim_reward para recompensas | Full Cycle | **Em andamento** | Sincronizar o botão "Recompensa" da UI de Vitória/Derrota à chamada RPC. |
-| **42** | Otimizar limite de Compute Units da transação | Full Cycle | **Falta para encerrar o MVP** | Adicionar `SetComputeUnitLimit` na transação do Solana Unity SDK. |
+| **42** | Otimizar limite de Compute Units da transação | Full Cycle | **Encerrado** | `TransactionManager.cs` ComputeBudgetProgram.SetComputeUnitLimit(200_000) no builder. |
 | **43** | Escrever testes de integração LiteSVM do contrato | Full Cycle | **Encerrado** | Testes automatizados passando no Rust (`cargo test`). |
 | **44** | Criar script helper para airdrop SOL na Devnet | Full Cycle | **Encerrado** | Botão e método `RequestAirdrop()` implementados no SDK. |
 | **45** | Fazer deploy do contrato oficial na Devnet | Full Cycle | **Encerrado** | Contrato implantado no Program ID `81MprTi78xQvtVg9aaK4s4Cw9K62CU6PtcPYsChLNyxE`. |
 | **46** | Executar smoke test automatizado pós-deploy | Full Cycle | **Encerrado** | Instruções validadas contra o cluster Devnet. |
 | **47** | Integrar botão de liquidação pós-jogo no Unity | Full Cycle | **Em andamento** | Ligar botão "Recompensa" das telas de Vitória/Derrota com `TransactionManager`. |
-| **48** | Criar modal de loading para processar transação | Full Cycle | **Falta para encerrar o MVP** | Feedback "Processando na Solana..." enquanto aguarda confirmação de bloco. |
-| **49** | Exibir hash da transação com link Solana Explorer | Full Cycle | **Falta para encerrar o MVP** | Mostrar link clicável do explorer após receber a recompensa. |
+| **48** | Criar modal de loading para processar transação | Full Cycle | **Encerrado** | Vitoria/DerrotaPresenter SetStatus processando + bloqueio botao durante sendTransaction. |
+| **49** | Exibir hash da transação com link Solana Explorer | Full Cycle | **Encerrado** | Presenter formata hash + Application.OpenURL explorer.solana.com/tx/{sig}?cluster=devnet. |
 | **50** | Implementar tratamento de erro e timeout RPC | Full Cycle | **Encerrado** | Try/catch e fallback para chave local implementados no `AuthPresenter`. |
 | **51** | Modelar galos guerreiros low-poly no Blender | Multimídia | **Em andamento** | Modelos 3D iniciais (`Milo`, `BlueRooster`) importados em `Assets/Art/Characters`. |
 | **52** | Modelar galinhas e tropas de apoio low-poly | Multimídia | **Encerrado** | Tropas `Minion_Caipira_Player` e `Minion_Rodilan_Enemy` com texturas e materiais URP Lit dedicados. |
 | **53** | Criar rigs dos 5 arquétipos de personagens | Multimídia | **Em andamento** | Esqueleto básico dos personagens principais configurado. |
 | **54** | Criar ciclos de animação Idle, Run e Attack | Multimídia | **Em andamento** | Clipes básicos atribuídos no Animator. |
-| **55** | Criar animações de dano Hit e morte Death | Multimídia | **Falta para encerrar o MVP** | Adicionar clipes de animação de reação a golpe e queda. |
+| **55** | Criar animações de dano Hit e morte Death | Multimídia | **Encerrado** | Trigger `Hit` adicionado em Milo/Axel/Minion controllers + `SetTrigger(Hit)` em Hero/MinionAgent (Death já existia via IsDead). |
 | **56** | Configurar materiais e texturas leves URP | Multimídia | **Encerrado** | Materiais URP organizados na diretriz `Assets/Art/Materials/`. |
 | **57** | Exportar prefabs com Animator Controller | Multimídia | **Encerrado** | Prefabs de minions gerados e conectados. |
 | **58** | Criar partículas VFX de ataque e explosão | Multimídia | **Encerrado** | `CombatVFXManager.cs` implementado com penas procedurais (feather burst), faíscas, aura de cura, shockwave e explosão. |
@@ -87,13 +87,13 @@
 | **65** | Compor tema musical cômico para o Menu | Multimídia | **Falta para encerrar o MVP** | BGM de lobby suave para as telas Auth e Play. |
 | **66** | Produzir efeitos sonoros de cacarejos e passos | Multimídia | **Em andamento** | Efeitos sonoros coletados na biblioteca de SFX. |
 | **67** | Produzir SFX de golpes, projéteis e explosões | Multimídia | **Encerrado** | SFX procedurais e suporte a clips de soco, impacto, cocoricó, explosão e habilidades em `AudioManager.cs`. |
-| **68** | Configurar Audio Mixer Groups com Ducking | Multimídia | **Falta para encerrar o MVP** | Criar AudioMixer com canais Master, BGM e SFX no Unity. |
+| **68** | Configurar Audio Mixer Groups com Ducking | Multimídia | **Encerrado** | AudioMixer FowlgenWarsAudioMixer com grupos Master/BGM/SFX + ducking via AudioManager. |
 | **69** | Integrar AudioManager com pool de sons na Unity | Full Cycle | **Encerrado** | `AudioManager.cs` integrado com pool de áudio, conectado a Milo, Axel, Minions, Galinheiro e Countdown. |
-| **70** | Programar controle de volume com PlayerPrefs | Full Cycle | **Falta para encerrar o MVP** | Sliders de volume salvar configurações no PlayerPrefs. |
+| **70** | Programar controle de volume com PlayerPrefs | Full Cycle | **Encerrado** | AudioManager PlayerPrefs Master/Bgm/Sfx + sliders em MatchPauseMenuController. |
 | **71** | Integrar fluxo de login de carteira no MainMenu | Full Cycle | **Encerrado** | Fluxo de login e Phantom MWA concluído na tela `Auth`. |
-| **72** | Exibir saldo de SOL e chave pública na UI | Full Cycle | **Em andamento** | Chave pública exibida na tela Play; binding visual do saldo em SOL em finalização. |
-| **73** | Configurar pipeline de build APK Android Release | Full Cycle | **Em andamento** | PlayerSettings configurado para Android Landscape e ARM64. |
-| **74** | Aplicar striping IL2CPP e compressão ASTC | Full Cycle | **Falta para encerrar o MVP** | Configurar Scripting Backend como IL2CPP no build Android. |
+| **72** | Exibir saldo de SOL e chave pública na UI | Full Cycle | **Encerrado** | PlayView.UpdateWalletInfo saldo SOL consultado via RPC Devnet em tempo real. |
+| **73** | Configurar pipeline de build APK Android Release | Full Cycle | **Encerrado** | AndroidReleaseBuildPipeline menu Build + PlayerSettings ARM64/Landscape/IL2CPP. |
+| **74** | Aplicar striping IL2CPP e compressão ASTC | Full Cycle | **Encerrado** | AndroidReleaseBuildPipeline aplica IL2CPP + ARM64 + ASTC + stripping. |
 | **75** | Executar testes de compatibilidade em Android 10+ | Full Cycle | **Falta para encerrar o MVP** | Instalar APK no smartphone físico para teste de framerate e toque. |
 | **76** | Executar auditoria anti-leak antes da submissão | Full Cycle | **Falta para encerrar o MVP** | Rodar scanner de segredos no git antes do commit da APK. |
 | **77** | Gerar e validar build APK Release final | Full Cycle | **Falta para encerrar o MVP** | Gerar o arquivo `FowlgenWars_MVP_v1.0.apk`. |
@@ -111,6 +111,6 @@
 | **89** | Fazer upload do vídeo no YouTube/Loom e testar | Marketing | **Falta para encerrar o MVP** | Link público do vídeo de pitch. |
 | **90** | Criar link de backup do vídeo em nuvem (Drive) | Marketing | **Falta para encerrar o MVP** | Link alternativo de vídeo. |
 | **91** | Validar perfis de membros na Superteam Earn | Produto & GD | **Falta para encerrar o MVP** | Checar cadastros na plataforma Superteam Earn. |
-| **92** | Atualizar README.md com Program ID oficial | Produto & GD | **Falta para encerrar o MVP** | Adicionar Program ID `81Mpr...` no README principal. |
+| **92** | Atualizar README.md com Program ID oficial | Produto & GD | **Encerrado** | README.md linha 180 Program ID 81MprTi78xQvtVg9aaK4s4Cw9K62CU6PtcPYsChLNyxE + explorer link. |
 | **93** | Realizar submissão na plataforma Colosseum | Produto & GD | **Falta para encerrar o MVP** | Submeter APK, vídeo e repositório na Colosseum Arena. |
 | **94** | Realizar submissão na Trilha Superteam Brasil | Produto & GD | **Falta para encerrar o MVP** | Submeter formulário nacional do Superteam Brasil. |

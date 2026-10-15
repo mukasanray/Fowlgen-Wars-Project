@@ -12,17 +12,14 @@ EditorBuildSettings:
     path: Assets/Scenes/Game/Play.unity
     guid: 49bae5b8bacb65e4183221b43c1376c3
   - enabled: 1
-    path: Assets/Scenes/Game/Arena.unity
-    guid: 08b52aad40f127547b631dc587371808
+    path: Assets/Scenes/Game/Arena_Clean.unity
+    guid: ba9a10f411aa7664f97ebc7f679b8273
   - enabled: 1
     path: Assets/Scenes/Game/Vitoria.unity
     guid: 31c4e7a9b2d5486f90123456789abcde
   - enabled: 1
     path: Assets/Scenes/Game/Derrota.unity
     guid: 42d5f8b0c3e6597fa123456789abcdef
-  - enabled: 1
-    path: Assets/Scenes/Game/Arena_Clean.unity
-    guid: ba9a10f411aa7664f97ebc7f679b8273
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

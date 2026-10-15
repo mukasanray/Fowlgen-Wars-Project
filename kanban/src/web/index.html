@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fowlgen Wars — OpenSpec & Kanban Studio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-badge">🐔</div>
+      <div class="brand-title">
+        <h1>FOWLGEN WARS — OpenSpec & Kanban Studio</h1>
+        <p>
+          <span class="status-indicator" id="server-status-dot"></span>
+          <span id="server-status-text">Conectado ao OpenSpec Engine</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="header-stats">
+      <div class="stat-pill">
+        <span>Features:</span>
+        <span class="stat-value" id="stat-total-features">0</span>
+      </div>
+      <div class="stat-pill">
+        <span>Tarefas:</span>
+        <span class="stat-value" id="stat-total-tasks">0</span>
+      </div>
+      <div class="stat-pill">
+        <span>Concluídas:</span>
+        <span class="stat-value" id="stat-done-tasks" style="color: var(--accent-emerald);">0</span>
+      </div>
+    </div>
+
+    <!-- Seletor Visual de Modo: Local (Edição) vs Oficial (main) -->
+    <div class="workspace-mode-selector">
+      <div class="mode-toggle-pill" role="tablist">
+        <button type="button" class="mode-toggle-btn active" id="btn-mode-local" title="Modo Local: Visualiza e edita tarefas em tempo real no seu workspace">
+          <span class="mode-icon">💻</span>
+          <span class="mode-text">Modo Local (Em Edição)</span>
+          <span class="branch-tag" id="current-branch-tag">carregando...</span>
+        </button>
+        <button type="button" class="mode-toggle-btn" id="btn-mode-main" title="Modo Oficial: Visualiza o estado consolidado da branch main">
+          <span class="mode-icon">🌐</span>
+          <span class="mode-text">Modo Oficial (main)</span>
+        </button>
+      </div>
+
+      <!-- Status das Tarefas no Git -->
+      <div class="git-status-pill" id="git-status-pill" title="Status de sincronização">
+        <span class="status-indicator" id="git-status-dot"></span>
+        <span id="git-status-label">Tudo Salvo</span>
+      </div>
+
+      <!-- Outras Branches Opcionais -->
+      <div class="more-branches-wrapper">
+        <select id="select-git-branch" class="branch-select-subtle" title="Visualizar outra branch específica do Git...">
+          <option value="local">Outras branches...</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-save btn-sm" id="btn-commit-openspec" title="Salva todas as tarefas alteradas no histórico do Git">
+        💾 Salvar Alterações
+      </button>
+      <button class="btn btn-secondary btn-sm" id="btn-open-settings" title="Configurar GitHub Token e Repositório">
+        ⚙️ Configurações
+        <span class="status-indicator" id="token-status-dot" style="width: 7px; height: 7px; background: #64748b; box-shadow: none;" title="GitHub Token"></span>
+      </button>
+      <button class="btn btn-secondary btn-sm" id="btn-refresh" title="Recarregar dados">
+        🔄 Atualizar
+      </button>
+      <button class="btn btn-primary btn-sm" id="btn-sync-top" title="Sincronizar com GitHub">
+        🚀 Sincronizar GitHub
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-container">
+
+    <!-- Left Column: Comandos Essenciais do OpenSpec (PDF) -->
+    <section class="control-panel">
+
+      <!-- Interactive Command Panel -->
+      <div class="panel-card">
+        <div class="panel-title">
+          <h2>⚡ Comandos Essenciais do OpenSpec</h2>
+          <span class="badge-tag">PDF Interativo</span>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs-nav" role="tablist">
+          <button class="tab-btn active" id="tab-tasks" data-tab="tab-content-tasks">📋 Tarefas</button>
+          <button class="tab-btn" id="tab-ideas" data-tab="tab-content-ideas">💡 Ideias / Features</button>
+          <button class="tab-btn" id="tab-kanban" data-tab="tab-content-kanban">🚀 Automação</button>
+        </div>
+
+        <!-- TAB 1: GESTÃO DE TAREFAS -->
+        <div class="tab-content active" id="tab-content-tasks">
+          <div class="form-group">
+            <label for="select-feature-task">Feature / Módulo:</label>
+            <select class="form-select" id="select-feature-task">
+              <option value="">Carregando features...</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="input-task-id">ID da Tarefa (ex: 2.1):</label>
+              <input type="text" class="form-input" id="input-task-id" placeholder="ex: 2.1">
+            </div>
+            <div class="form-group">
+              <label for="select-task-status">Status da Tarefa:</label>
+              <select class="form-select" id="select-task-status">
+                <option value="Concluído">✅ Concluído</option>
+                <option value="Em Andamento">🔄 Em Andamento</option>
+                <option value="Testando">🔍 Testando / Review</option>
+                <option value="Backlog">📝 Backlog</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="input-task-assignee">Responsável / Equipe:</label>
+              <input type="text" class="form-input" id="input-task-assignee" placeholder="ex: Marcos, João, Backend" value="Marcos">
+            </div>
+            <div class="form-group">
+              <label for="input-task-text">Descrição da Tarefa:</label>
+              <input type="text" class="form-input" id="input-task-text" placeholder="ex: Implementar BackEnd">
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons for Tasks (From PDF) -->
+          <div class="actions-grid">
+            <button class="btn btn-primary" id="btn-action-create-task" title="Criar nova tarefa no tasks.md">
+              ➕ Criar Tarefa
+            </button>
+            <button class="btn btn-success" id="btn-action-update-task" title="Atualizar status e responsável">
+              🔄 Atualizar Status
+            </button>
+            <button class="btn btn-secondary" id="btn-action-assign-task" title="Atribuir tarefa a uma equipe">
+              👤 Atribuir Tarefa
+            </button>
+            <button class="btn btn-secondary" id="btn-action-list-tasks" title="Listar tarefas da feature">
+              📋 Listar Tarefas
+            </button>
+          </div>
+        </div>
+
+        <!-- TAB 2: GESTÃO DE IDEIAS & FEATURES -->
+        <div class="tab-content" id="tab-content-ideas" style="display: none;">
+          <div class="form-group">
+            <label for="input-idea-id">ID da Feature / Ideia:</label>
+            <input type="text" class="form-input" id="input-idea-id" placeholder="ex: sistema-ouro, mount-selection">
+          </div>
+
+          <div class="form-group">
+            <label for="input-idea-title">Título da Proposta:</label>
+            <input type="text" class="form-input" id="input-idea-title" placeholder="ex: Sistema de Montarias">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="input-idea-team">Equipe / Aprovador:</label>
+              <input type="text" class="form-input" id="input-idea-team" placeholder="ex: dev-team, Samuel" value="dev-team">
+            </div>
+            <div class="form-group">
+              <label for="input-idea-reason">Motivo (se rejeição):</label>
+              <input type="text" class="form-input" id="input-idea-reason" placeholder="ex: Sem valor de negócio">
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons for Ideas (From PDF) -->
+          <div class="actions-grid">
+            <button class="btn btn-primary" id="btn-action-generate-ai" style="background: linear-gradient(135deg, #8b5cf6, #6366f1); border-color: #8b5cf6; font-weight: 600;" title="IA Local: Gera a proposta completa e o checklist de tarefas em 3 fases">
+              🪄 Gerar Tarefas com IA
+            </button>
+            <button class="btn btn-secondary" id="btn-action-new-feature" title="Criar proposal.md e tasks.md em branco">
+              📁 Nova Feature
+            </button>
+            <button class="btn btn-warning" id="btn-action-validate-idea" title="Validar ideia">
+              🔍 Validar Ideia
+            </button>
+            <button class="btn btn-success" id="btn-action-approve-idea" title="Aprovar ideia">
+              ✅ Aprovar Ideia
+            </button>
+            <button class="btn btn-danger" id="btn-action-reject-idea" title="Rejeitar ideia">
+              ❌ Rejeitar Ideia
+            </button>
+          </div>
+        </div>
+
+        <!-- TAB 3: AUTOMAÇÃO KANBAN -->
+        <div class="tab-content" id="tab-content-kanban" style="display: none;">
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+            Dispare scripts do orquestrador ou sincronização de colunas com o GitHub Projects diretamente:
+          </p>
+
+          <div class="actions-grid">
+            <button class="btn btn-primary" id="btn-script-sync">
+              🚀 Sync GitHub Projects
+            </button>
+            <button class="btn btn-success" id="btn-script-dashboard">
+              📊 Gerar Dashboard
+            </button>
+            <button class="btn btn-secondary" id="btn-script-verify">
+              🔍 Verificar Setup
+            </button>
+            <button class="btn btn-secondary" id="btn-script-status">
+              📋 Ver Status & Logs
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Command Generator (Monospace Box with 1-Click Copy) -->
+      <div class="terminal-card">
+        <div class="terminal-header">
+          <span class="terminal-title">💻 Comando Formatado para o Agent</span>
+          <span style="font-size: 11px; color: var(--text-dim);">Padrão do PDF</span>
+        </div>
+
+        <div class="command-box" id="command-output">
+          agent atualizar "**2.1**" "Concluído" "Marcos"
+        </div>
+
+        <div class="command-actions">
+          <button class="btn btn-primary" id="btn-copy-command" style="flex: 2;">
+            📋 Copiar Comando para o Chat
+          </button>
+          <button class="btn btn-success" id="btn-execute-local" style="flex: 1;" title="Aplica diretamente no OpenSpec local">
+            ⚡ Executar Direto
+          </button>
+        </div>
+      </div>
+
+      <!-- Terminal Output / Logs Box -->
+      <div class="panel-card" style="padding: 16px;">
+        <div class="panel-title" style="margin-bottom: 8px;">
+          <h2 style="font-size: 13px;">📟 Log de Execução</h2>
+          <button class="btn btn-secondary btn-sm" id="btn-clear-log" style="padding: 2px 8px; font-size: 11px;">Limpar</button>
+        </div>
+        <div id="execution-log" style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); background: #06090e; padding: 10px; border-radius: 6px; max-height: 120px; overflow-y: auto; white-space: pre-wrap;">Pronto para executar comandos.</div>
+      </div>
+
+    </section>
+
+    <!-- Right Column: Visual Kanban Board -->
+    <section class="kanban-view">
+      <div class="kanban-header">
+        <div class="kanban-header-left">
+          <!-- Alternador de Quadro: Tarefas da Sprint vs Funil de Ideias -->
+          <div class="board-view-switch" role="tablist">
+            <button type="button" class="board-view-btn active" id="btn-view-tasks" title="Quadro de Execução: Tarefas e desenvolvimento da Sprint">
+              <span class="view-icon">🎯</span>
+              <span class="view-text">Tarefas da Sprint</span>
+              <span class="view-badge" id="badge-total-tasks-view">0</span>
+            </button>
+            <button type="button" class="board-view-btn" id="btn-view-ideas" title="Funil de Ideias: Validação e aprovação de propostas de Game Design">
+              <span class="view-icon">💡</span>
+              <span class="view-text">Funil de Ideias</span>
+              <span class="view-badge" id="badge-total-ideas-view">0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtro Rápido por Integrante -->
+        <div class="member-filter-bar">
+          <div class="dev-profile-chip" id="developer-profile-chip" style="display: none;" title="Desenvolvedor identificado via Git local">
+            <span class="dev-chip-avatar" id="dev-chip-avatar">💻</span>
+            <div class="dev-chip-details">
+              <span class="dev-chip-role-label">Você:</span>
+              <span class="dev-chip-name" id="dev-chip-name">Carregando...</span>
+            </div>
+            <button type="button" class="btn-my-space" id="btn-my-space" title="Filtrar imediatamente as minhas tarefas">
+              🎯 Minhas Tarefas
+            </button>
+          </div>
+
+          <span class="filter-label">👤 Equipe:</span>
+          <div class="member-search-box">
+            <input type="text" id="input-search-members" class="member-search-input" placeholder="🔍 Buscar..." title="Buscar integrante por nome ou função">
+          </div>
+          <div class="member-pills" id="member-filter-pills">
+            <button type="button" class="member-pill active" data-assignee="all">👥 Todos</button>
+          </div>
+          <button type="button" class="btn-manage-members-pill" id="btn-quick-manage-members" title="Cadastrar ou gerenciar integrantes da equipe">
+            ⚙️ Gerenciar
+          </button>
+        </div>
+      </div>
+
+      <!-- Git Config Warning / Guidance Banner (100% Privado) -->
+      <div id="git-user-notice-banner" class="git-user-alert-banner" style="display: none;">
+        <div class="git-user-alert-main">
+          <div class="git-user-alert-icon">🔒</div>
+          <div class="git-user-alert-info">
+            <div class="git-user-alert-title">Identificação do Desenvolvedor (Privacidade Total)</div>
+            <div class="git-user-alert-desc" id="git-user-notice-desc">
+              Identifique quem é você na equipe para filtrar suas tarefas neste computador. A identificação fica salva apenas na sua máquina e <strong>nenhum e-mail pessoal é enviado para o Git</strong>.
+            </div>
+          </div>
+          <button type="button" class="btn-close-banner" id="btn-dismiss-git-notice" title="Fechar aviso temporariamente">✖</button>
+        </div>
+
+        <div class="git-user-alert-actions">
+          <div class="git-user-quick-link-row">
+            <span class="git-user-cmd-label">⚡ Identificar-me com 1 clique:</span>
+            <select id="select-quick-git-member" class="form-select-sm">
+              <option value="">Selecione quem é você na equipe...</option>
+            </select>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-quick-link-git" style="padding: 4px 12px; font-size: 11px;">
+              💾 Salvar Localmente
+            </button>
+          </div>
+
+          <div class="git-user-cmd-row">
+            <span class="git-user-cmd-label">💻 Ou no terminal:</span>
+            <code class="git-cmd-code" id="git-user-cmd-copy">git config user.name "Seu Nome"</code>
+            <button type="button" class="btn-copy-code" id="btn-copy-git-cmd" title="Copiar comando Git">📋 Copiar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Git Branch Status Alert Banner -->
+      <div id="git-branch-banner" class="branch-alert-banner" style="display: none;">
+        <div class="branch-alert-content">
+          <span id="git-branch-banner-icon" style="font-size: 16px;">🌿</span>
+          <span id="git-branch-banner-text"></span>
+        </div>
+        <div id="git-branch-banner-actions"></div>
+      </div>
+
+      <div class="kanban-columns">
+
+        <!-- Column 1 -->
+        <div class="column" id="col-backlog" data-col-id="1">
+          <div class="column-header">
+            <span class="column-name col-backlog" id="col-title-1">📋 A Fazer</span>
+            <span class="card-count" id="count-backlog">0</span>
+          </div>
+          <div class="column-cards" id="cards-backlog">
+            <!-- Dynamic cards -->
+          </div>
+        </div>
+
+        <!-- Column 2 -->
+        <div class="column" id="col-progress" data-col-id="2">
+          <div class="column-header">
+            <span class="column-name col-progress" id="col-title-2">⚡ Em Progresso</span>
+            <span class="card-count" id="count-progress">0</span>
+          </div>
+          <div class="column-cards" id="cards-progress">
+            <!-- Dynamic cards -->
+          </div>
+        </div>
+
+        <!-- Column 3 -->
+        <div class="column" id="col-review" data-col-id="3">
+          <div class="column-header">
+            <span class="column-name col-review" id="col-title-3">👀 Em Revisão</span>
+            <span class="card-count" id="count-review">0</span>
+          </div>
+          <div class="column-cards" id="cards-review">
+            <!-- Dynamic cards -->
+          </div>
+        </div>
+
+        <!-- Column 4 -->
+        <div class="column" id="col-done" data-col-id="4">
+          <div class="column-header">
+            <span class="column-name col-done" id="col-title-4">✅ Concluído</span>
+            <span class="card-count" id="count-done">0</span>
+          </div>
+          <div class="column-cards" id="cards-done">
+            <!-- Dynamic cards -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal: Configurações do Sistema (GitHub & PostgreSQL) -->
+  <div class="modal-backdrop" id="modal-settings">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>⚙️ Configurações do Sistema</h3>
+        <button class="btn-close" id="btn-close-settings">&times;</button>
+      </div>
+
+      <!-- Modal Tabs Switcher -->
+      <div class="modal-tabs-nav">
+        <button type="button" class="modal-tab-btn active" id="modal-tab-gh" data-target="modal-view-gh">
+          🐙 GitHub & Projetos (Modo Oficial)
+        </button>
+        <button type="button" class="modal-tab-btn" id="modal-tab-members" data-target="modal-view-members">
+          👥 Integrantes da Equipe
+        </button>
+      </div>
+
+      <div class="modal-body" style="overflow-y: auto; max-height: calc(90vh - 140px);">
+        <!-- TAB 1: GITHUB CONFIG -->
+        <div id="modal-view-gh" class="modal-view-section">
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 14px;">
+            Insira seu <strong>Personal Access Token (PAT)</strong> do GitHub com permissões de <code>repo</code> e <code>project</code> para sincronização com o GitHub Projects.
+          </p>
+
+          <div class="form-group">
+            <label for="input-github-token">GitHub Personal Access Token (PAT):</label>
+            <div class="input-password-wrapper">
+              <input type="password" class="form-input" id="input-github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+              <button type="button" class="btn-toggle-eye" id="btn-toggle-token-eye" title="Mostrar/Ocultar">👁️</button>
+            </div>
+            <span style="font-size: 11px; color: var(--text-dim); display: block; margin-top: 4px;">
+              Obtenha em: <a href="https://github.com/settings/tokens" target="_blank" style="color: var(--primary);">github.com/settings/tokens</a>
+            </span>
+          </div>
+
+          <!-- Preview do Usuário GitHub após Teste -->
+          <div id="github-user-preview" class="github-user-card" style="display: none; margin-bottom: 14px;">
+            <img id="github-avatar-img" class="github-avatar" src="" alt="Avatar">
+            <div class="github-user-info">
+              <span class="github-user-name" id="github-user-name"></span>
+              <span class="github-user-login" id="github-user-login"></span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="input-config-repo">Repositório:</label>
+              <input type="text" class="form-input" id="input-config-repo" value="mukasanray/Fowlgen-Wars-Project">
+            </div>
+            <div class="form-group">
+              <label for="input-config-branch">Branch:</label>
+              <input type="text" class="form-input" id="input-config-branch" value="main">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="input-config-project-id">Project ID (GitHub Projects):</label>
+              <input type="text" class="form-input" id="input-config-project-id" placeholder="ex: PVT_kwDOBr-_0g">
+            </div>
+            <div class="form-group">
+              <label for="input-config-assignee">Responsável Padrão:</label>
+              <input type="text" class="form-input" id="input-config-assignee" value="Marcos">
+            </div>
+          </div>
+
+          <div style="margin-top: 8px;">
+            <button class="btn btn-secondary btn-sm" id="btn-test-token">🧪 Testar Conexão GitHub</button>
+          </div>
+        </div>
+
+        <!-- TAB 3: CADASTRO DE INTEGRANTES DA EQUIPE -->
+        <div id="modal-view-members" class="modal-view-section" style="display: none;">
+          <!-- Card de Diagnóstico do Git Local (100% Privado) -->
+          <div class="git-identity-card" id="git-identity-card">
+            <div class="git-identity-header">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">🔒</span>
+                <div>
+                  <h4 style="font-size: 13px; font-weight: 700; color: #fff;">Identificação Local (100% Privada)</h4>
+                  <p style="font-size: 11px; color: var(--text-muted);">Salva exclusivamente no seu computador (ignorado pelo Git). Nenhum e-mail pessoal é versionado.</p>
+                </div>
+              </div>
+              <span class="git-identity-badge" id="git-identity-status-badge">Detectando...</span>
+            </div>
+            <div class="git-identity-body">
+              <div class="form-row" style="margin-bottom: 8px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label for="select-modal-git-member" style="font-size: 11px;">Identificar esta máquina como:</label>
+                  <select id="select-modal-git-member" class="form-select" style="padding: 6px 10px; font-size: 12px;">
+                    <option value="">Carregando integrantes...</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label for="input-git-user-name" style="font-size: 11px;">git config user.name:</label>
+                  <input type="text" class="form-input" id="input-git-user-name" placeholder="ex: Marcos Pascoski" style="padding: 6px 10px; font-size: 12px;">
+                </div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                <span id="git-config-feedback" style="font-size: 11px; color: var(--text-muted);">Seu perfil ficará vinculado localmente com total privacidade.</span>
+                <button type="button" class="btn btn-primary btn-sm" id="btn-apply-git-config" style="padding: 4px 12px; font-size: 11px;">
+                  💾 Salvar Identidade Local
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 14px;">
+            Cadastre e gerencie os integrantes da equipe (desenvolvedores, designers, QA e agentes). Eles aparecerão automaticamente nos filtros do Kanban e campos de atribuição de tarefas.
+          </p>
+
+          <!-- Formulário de Cadastro e Alteração -->
+          <div style="background: rgba(15, 23, 42, 0.6); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 16px;">
+            <input type="hidden" id="input-member-edit-id" value="">
+            <h4 id="member-form-title" style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--primary);">➕ Novo Integrante</h4>
+            
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label for="input-member-name">Nome do Integrante:</label>
+                <input type="text" class="form-input" id="input-member-name" placeholder="ex: Marcos, Samuel, Gabriel">
+              </div>
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label for="input-member-role">Função / Papel:</label>
+                <input type="text" class="form-input" id="input-member-role" placeholder="ex: Unity / C#, Game Design, QA, Arte">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 8px;">
+              <label for="input-member-github">GitHub Username (público, sem @):</label>
+              <input type="text" class="form-input" id="input-member-github" placeholder="ex: mukasanray">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label for="input-member-avatar">Emoji / Avatar:</label>
+                <select class="form-select" id="input-member-avatar">
+                  <option value="👤">👤 Desenvolvedor / Membro</option>
+                  <option value="👑">👑 Líder / Game Designer</option>
+                  <option value="💻">💻 Líder Técnico / Dev Core</option>
+                  <option value="🕹️">🕹️ Unity / Gameplay Core</option>
+                  <option value="🎮">🎮 Unity / Gameplay</option>
+                  <option value="🛡️">🛡️ DevSecOps / QA</option>
+                  <option value="🌐">🌐 Dev Web / Frontend</option>
+                  <option value="🧪">🧪 QA Funcional / UX</option>
+                  <option value="📈">📈 Marketing / Pitch</option>
+                  <option value="🎨">🎨 Arte 2D / 3D & VFX</option>
+                  <option value="🎵">🎵 Áudio & Sound Design</option>
+                  <option value="🦀">🦀 Solana / Smart Contracts</option>
+                  <option value="🤖">🤖 Agente Autônomo / IA</option>
+                  <option value="👥">👥 Equipe Geral</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label for="input-member-color">Cor da Tag:</label>
+                <select class="form-select" id="input-member-color">
+                  <option value="#38bdf8">Azul Céu (#38bdf8)</option>
+                  <option value="#10b981">Verde Esmeralda (#10b981)</option>
+                  <option value="#f59e0b">Dourado / Âmbar (#f59e0b)</option>
+                  <option value="#a855f7">Roxo / Violeta (#a855f7)</option>
+                  <option value="#6366f1">Índigo (#6366f1)</option>
+                  <option value="#ec4899">Rosa Neon (#ec4899)</option>
+                  <option value="#14b8a6">Teal (#14b8a6)</option>
+                  <option value="#eab308">Amarelo (#eab308)</option>
+                  <option value="#94a3b8">Cinza Ardósia (#94a3b8)</option>
+                  <option value="#f43f5e">Vermelho Coral (#f43f5e)</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-top: 10px; display: flex; justify-content: flex-end; align-items: center; gap: 8px;">
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-cancel-edit-member" style="display: none;">
+                ❌ Cancelar Edição
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" id="btn-save-member">
+                💾 Cadastrar Integrante
+              </button>
+            </div>
+          </div>
+
+          <!-- Lista de Integrantes Atuais -->
+          <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-main);">👥 Integrantes Ativos (<span id="member-count-badge">0</span>)</h4>
+          <div id="members-list-cards" style="display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto;">
+            <!-- Dynamic member cards -->
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-modal-cancel">Cancelar</button>
+        <button class="btn btn-success" id="btn-save-settings">💾 Salvar Configurações</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

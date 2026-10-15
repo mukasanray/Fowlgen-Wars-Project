@@ -21,3 +21,4 @@ MonoBehaviour:
   moveSpeed: 3.5
   rotationSpeed: 10
   spawnCooldown: 3
+  balanceOverride: {fileID: 11400000, guid: fcf9253bd1ea91540978abd5ab98460c, type: 2}

@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          if grep -rnE --include="*.cs" "(privateKey|secretKey|seedPhrase|password)\s*=\s*\"[^\"]+\"" unity/Assets/Scripts/; then
+          if grep -rnE --include="*.cs" "(privateKey|secretKey|seedPhrase|password)\s*=\s*\"[^\"]+\"" unity/Assets/Modules/; then
             echo "❌ Detectado segredo hardcoded em C#!"
             exit 1
           fi

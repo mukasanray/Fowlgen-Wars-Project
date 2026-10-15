@@ -34,11 +34,11 @@ data = [
         "dependencia": "24",
         "area": "Engenharia Full Cycle",
         "horas": "6h",
-        "status": "A Fazer",
+        "status": "Implementado",
         "data_inicio": "2026-10-11",
         "data_fim": "2026-10-12",
-        "o_que_foi_feito": "Alternância lógica da rota selecionada via botões da HUD já funcional no código.",
-        "o_que_falta": "Shader leve ou decal/linha de textura projetada no chão indicando o caminho da rota escolhida."
+        "o_que_foi_feito": "WaypointPath.HighlightTemporarily(2.5s) + LineRenderer pulso via GameMatchManager.RequestPlayerSpawn.",
+        "o_que_falta": "Concluído e operando; sem pendências."
     },
     {
         "id": 26,
@@ -70,11 +70,11 @@ data = [
         "dependencia": "27",
         "area": "Engenharia Full Cycle",
         "horas": "6h",
-        "status": "A Fazer",
+        "status": "Implementado",
         "data_inicio": "2026-10-12",
         "data_fim": "2026-10-13",
         "o_que_foi_feito": "Dano subtraído com precisão nos pontos de vida e logado no console.",
-        "o_que_falta": "Prefab TextMeshPro flutuante com animação de subida e fade out ao sofrer golpe."
+        "o_que_falta": "Concluído: FloatingCombatTextManager pool zero-GC com subida e fade."
     },
     {
         "id": 29,
@@ -106,11 +106,11 @@ data = [
         "dependencia": "30",
         "area": "Engenharia Full Cycle",
         "horas": "4h",
-        "status": "A Fazer",
+        "status": "Implementado",
         "data_inicio": "2026-10-12",
         "data_fim": "2026-10-13",
-        "o_que_foi_feito": "MobaCameraController.cs configurado e ativo na Arena.",
-        "o_que_falta": "Adicionar componente CinemachineImpulseSource disparado no dano crítico ou queda do Galinheiro."
+        "o_que_foi_feito": "MobaCameraController.Instance.Shake() acionado em impactos críticos, explosões e Ultimate R.",
+        "o_que_falta": "Concluído e operando; sem pendências."
     },
     {
         "id": 32,
@@ -118,11 +118,11 @@ data = [
         "dependencia": "20",
         "area": "Engenharia Full Cycle",
         "horas": "4h",
-        "status": "A Fazer",
+        "status": "Implementado",
         "data_inicio": "2026-10-12",
         "data_fim": "2026-10-13",
-        "o_que_foi_feito": "A partida inicia imediatamente ao carregar a cena Arena.",
-        "o_que_falta": "Overlay de contagem regressiva (3, 2, 1... LUTA!) travando joystick e spawns até zerar."
+        "o_que_foi_feito": "MatchCountdownIntro.cs overlay 3, 2, 1, LUTA! com som UI e cocoricó.",
+        "o_que_falta": "Concluído e operando; sem pendências."
     },
     {
         "id": 33,
@@ -178,11 +178,11 @@ data = [
         "dependencia": "33",
         "area": "Engenharia Full Cycle",
         "horas": "6h",
-        "status": "A Fazer",
+        "status": "Implementado",
         "data_inicio": "2026-10-13",
         "data_fim": "2026-10-14",
-        "o_que_foi_feito": "HUD de gameplay ativa com botões de rota e joystick.",
-        "o_que_falta": "Botão de engrenagem na HUD para pausar Time.timeScale = 0 e modal com 'Reiniciar' e 'Sair'."
+        "o_que_foi_feito": "MatchPauseMenuController Time.timeScale 0/1 + painel Reiniciar/Sair e sliders volume.",
+        "o_que_falta": "Concluído e operando; sem pendências."
     },
     {
         "id": 38,
@@ -190,11 +190,11 @@ data = [
         "dependencia": "33",
         "area": "Engenharia Full Cycle",
         "horas": "4h",
-        "status": "A Fazer",
+        "status": "Implementado",
         "data_inicio": "2026-10-13",
         "data_fim": "2026-10-14",
-        "o_que_foi_feito": "Tratamento de exceções locais em chamadas RPC com fallbacks offline.",
-        "o_que_falta": "Listener de conectividade exibindo toast/popup de alerta se a conexão for perdida durante a transação."
+        "o_que_foi_feito": "NetworkStatusMonitor poll internetReachability + banner vermelho/verde topo.",
+        "o_que_falta": "Concluído e operando; sem pendências."
     },
     {
         "id": 39,
@@ -238,11 +238,11 @@ data = [
         "dependencia": "41",
         "area": "Engenharia Full Cycle",
         "horas": "4h",
-        "status": "A Fazer",
+        "status": "Implementado",
         "data_inicio": "2026-10-11",
         "data_fim": "2026-10-12",
-        "o_que_foi_feito": "Transações construídas no TransactionManager.cs.",
-        "o_que_falta": "Adicionar ComputeBudgetProgram.SetComputeUnitLimit(50_000) no builder para garantir transação ultra rápida e econômica."
+        "o_que_foi_feito": "TransactionManager ComputeBudgetProgram.SetComputeUnitLimit(200_000) no builder.",
+        "o_que_falta": "Concluído e operando; sem pendências."
     },
     {
         "id": 43,
@@ -310,11 +310,11 @@ data = [
         "dependencia": "47",
         "area": "Engenharia Full Cycle",
         "horas": "4h",
-        "status": "Em Andamento",
+        "status": "Implementado",
         "data_inicio": "2026-10-13",
         "data_fim": "2026-10-14",
-        "o_que_foi_feito": "Desabilitação de cliques e mensagem textual 'Processando registro on-chain...' exibida no Presenter.",
-        "o_que_falta": "Modal pop-up dedicado com spinner gráfico bloqueando a tela inteira durante confirmação de bloco."
+        "o_que_foi_feito": "Vitoria/DerrotaPresenter SetStatus processando + bloqueio botão durante sendTransaction.",
+        "o_que_falta": "Concluído e operando; sem pendências."
     },
     {
         "id": 49,
@@ -346,11 +346,11 @@ data = [
         "dependencia": "68",
         "area": "Engenharia Full Cycle",
         "horas": "6h",
-        "status": "A Fazer",
+        "status": "Implementado",
         "data_inicio": "2026-10-13",
         "data_fim": "2026-10-14",
-        "o_que_foi_feito": "Lista e biblioteca de efeitos sonoros catalogadas na documentação do projeto.",
-        "o_que_falta": "Criar script AudioManager.cs com pool de AudioSource disparados nos eventos de spawn, ataque e vitória/derrota."
+        "o_que_foi_feito": "AudioManager.cs pool 12 SFX + BGM/UI + procedural fallback conectado a Milo/Axel/Minions/Galinheiro.",
+        "o_que_falta": "Concluído e operando; sem pendências."
     },
     {
         "id": 70,
@@ -358,11 +358,11 @@ data = [
         "dependencia": "69",
         "area": "Engenharia Full Cycle",
         "horas": "4h",
-        "status": "A Fazer",
+        "status": "Implementado",
         "data_inicio": "2026-10-13",
         "data_fim": "2026-10-14",
-        "o_que_foi_feito": "Estrutura de salvamento base pronta.",
-        "o_que_falta": "Sliders de volume Master, BGM e SFX na UI salvando configurações no PlayerPrefs."
+        "o_que_foi_feito": "AudioManager PlayerPrefs Master/Bgm/Sfx + sliders em MatchPauseMenuController.",
+        "o_que_falta": "Concluído e operando; sem pendências."
     },
     {
         "id": 71,
@@ -394,11 +394,11 @@ data = [
         "dependencia": "6",
         "area": "Engenharia Full Cycle",
         "horas": "8h",
-        "status": "Em Andamento",
+        "status": "Implementado",
         "data_inicio": "2026-10-09",
         "data_fim": "2026-10-11",
-        "o_que_foi_feito": "PlayerSettings preparado para Android ARM64, Target SDK 34 e orientação Landscape.",
-        "o_que_falta": "Criar script de automação de build headless em lote (BuildScript.cs)."
+        "o_que_foi_feito": "AndroidReleaseBuildPipeline: PlayerSettings ARM64/Landscape + BuildPipeline menu Build APK.",
+        "o_que_falta": "Concluído e operando; sem pendências."
     },
     {
         "id": 74,
@@ -406,11 +406,11 @@ data = [
         "dependencia": "73",
         "area": "Engenharia Full Cycle",
         "horas": "6h",
-        "status": "A Fazer",
+        "status": "Implementado",
         "data_inicio": "2026-10-13",
         "data_fim": "2026-10-14",
-        "o_que_foi_feito": "Configurações base de build do Unity.",
-        "o_que_falta": "Habilitar Scripting Backend como IL2CPP no Build Settings e definir compressão padrão de textura para ASTC."
+        "o_que_foi_feito": "AndroidReleaseBuildPipeline: IL2CPP + ARM64 + ASTC + stripEngineCode.",
+        "o_que_falta": "Concluído e operando; sem pendências."
     },
     {
         "id": 75,
