@@ -73,6 +73,19 @@ function slugify(text) {
     .replace(/^-+|-+$/g, '');
 }
 
+// Resolve o ID da ideia priorizando o campo ID, depois gerando do Título, depois do seletor
+function resolveTargetIdeaId() {
+  let id = inputIdeaId ? inputIdeaId.value.trim() : '';
+  if (!id && inputIdeaTitle && inputIdeaTitle.value.trim()) {
+    id = slugify(inputIdeaTitle.value.trim());
+    if (inputIdeaId) inputIdeaId.value = id;
+  }
+  if (!id && selectFeatureTask && selectFeatureTask.value) {
+    id = selectFeatureTask.value.trim();
+  }
+  return id;
+}
+
 let userManuallyEditedId = false;
 
 if (inputIdeaId) {
@@ -176,27 +189,28 @@ function updateCommandPreview(customCmd = null) {
     return;
   }
 
-  const feature = selectFeatureTask.value || 'health-bar-black-bg';
-  const taskId = inputTaskId.value.trim() || '2.1';
-  const status = selectTaskStatus.value;
+  const taskId = inputTaskId ? (inputTaskId.value.trim() || '2.1') : '2.1';
+  const status = selectTaskStatus ? selectTaskStatus.value : 'Concluído';
   const assignee = (selectTaskAssignee?.value || inputTaskAssignee?.value || 'Marcos').trim();
-  const taskText = inputTaskText?.value.trim() || 'Implementar BackEnd';
 
-  const ideaId = inputIdeaId?.value.trim() || 'sistema-ouro';
-  const ideaTitle = inputIdeaTitle?.value.trim() || 'Sistema de Ouro';
-  const ideaTeam = (selectIdeaTeam?.value || inputIdeaTeam?.value || 'dev-team').trim();
-  const ideaPrompt = inputIdeaPrompt?.value.trim() || '';
-  const ideaReason = inputIdeaReason?.value.trim() || 'Sem valor';
+  // Resolve ID e Título da Ideia
+  let ideaId = inputIdeaId ? inputIdeaId.value.trim() : '';
+  const ideaTitle = inputIdeaTitle ? inputIdeaTitle.value.trim() : '';
+  if (!ideaId && ideaTitle) {
+    ideaId = slugify(ideaTitle);
+  }
 
   let cmd = '';
 
   if (activeTab === 'tasks') {
     cmd = `agent atualizar "**${taskId}**" "${status}" "${assignee}"`;
   } else if (activeTab === 'ideas') {
-    if (ideaTitle && ideaId) {
+    if (ideaId && ideaTitle) {
       cmd = `agent criar openspec/changes/${ideaId}/proposal.md "# Feature: ${ideaTitle}"`;
-    } else {
+    } else if (ideaId) {
       cmd = `agent validar ideia "${ideaId}"`;
+    } else {
+      cmd = `agent validar ideia "[informe-o-titulo-ou-id]"`;
     }
   } else if (activeTab === 'kanban') {
     cmd = `npm.cmd run sync`;
@@ -215,8 +229,14 @@ function updateCommandPreview(customCmd = null) {
   }
 });
 
-// Clipboard Copy
+// Clipboard Copy com validação para nunca copiar placeholders
 document.getElementById('btn-copy-command').addEventListener('click', async () => {
+  if (lastGeneratedCommand.includes('[informe-o-titulo-ou-id]') || lastGeneratedCommand.includes('<id>')) {
+    showToast('⚠️ Preencha o Título ou ID da ideia antes de copiar o comando!', 'warning');
+    if (inputIdeaTitle) inputIdeaTitle.focus();
+    return;
+  }
+
   try {
     await navigator.clipboard.writeText(lastGeneratedCommand);
     showToast('Comando copiado para o chat!', 'success');
@@ -622,7 +642,9 @@ function createIdeaCard(feature) {
     statusEmoji = '❌';
   }
 
-  const assigneeBadge = `<span class="badge-tag" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); font-size: 10px;">👤 ${feature.ideaAssignee || 'dev-team'}</span>`;
+  const rawAssignee = feature.ideaAssignee || 'Todos';
+  const displayAssignee = (rawAssignee === 'dev-team') ? 'Todos' : rawAssignee;
+  const assigneeBadge = `<span class="badge-tag" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); font-size: 10px;">👥 ${displayAssignee}</span>`;
 
   const modifiedBadge = feature.isModifiedLocally
     ? `<span class="badge-modified-git" title="Alterações locais pendentes de salvar">⚡ Modificado</span>`
@@ -688,7 +710,7 @@ function createIdeaCard(feature) {
       inputIdeaId.value = feature.name;
       inputIdeaTitle.value = feature.title || feature.name;
       selectFeatureTask.value = feature.name;
-      if (selectIdeaTeam) selectIdeaTeam.value = feature.ideaAssignee || 'dev-team';
+      if (selectIdeaTeam) selectIdeaTeam.value = (feature.ideaAssignee && feature.ideaAssignee !== 'dev-team') ? feature.ideaAssignee : 'Todos';
       updateCommandPreview();
       openFeatureDetailsModal(feature, 'proposal');
     }
@@ -702,7 +724,7 @@ function createIdeaCard(feature) {
 
   card.querySelector('.btn-app')?.addEventListener('click', async (e) => {
     e.stopPropagation();
-    const assignee = currentAssigneeFilter !== 'all' ? currentAssigneeFilter : (feature.ideaAssignee || 'dev-team');
+    const assignee = currentAssigneeFilter !== 'all' ? currentAssigneeFilter : ((feature.ideaAssignee && feature.ideaAssignee !== 'dev-team') ? feature.ideaAssignee : 'Todos');
     await triggerIdeaAction(feature.name, 'approve', assignee);
   });
 
@@ -766,8 +788,8 @@ function createFeatureCard(feature) {
     : '';
 
   const assigneesHtml = feature.assignees && feature.assignees.length > 0
-    ? feature.assignees.map(a => `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px;">👤 ${a}</span>`).join(' ')
-    : `<span class="badge-tag" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; font-size: 10px;">👥 dev-team</span>`;
+    ? feature.assignees.map(a => `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px;">👤 ${a === 'dev-team' ? 'Todos' : a}</span>`).join(' ')
+    : `<span class="badge-tag" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; font-size: 10px;">👥 Todos</span>`;
 
   // Task Items HTML
   const tasksHtml = feature.tasks.slice(0, 5).map(t => {
@@ -921,13 +943,13 @@ document.getElementById('btn-action-list-tasks').addEventListener('click', () =>
 
 // 4.5. Gerar Proposta e Tarefas com IA Local
 document.getElementById('btn-action-generate-ai')?.addEventListener('click', async () => {
-  const featureId = inputIdeaId.value.trim();
-  const title = inputIdeaTitle.value.trim() || featureId;
+  const featureId = resolveTargetIdeaId();
+  const title = (inputIdeaTitle ? inputIdeaTitle.value.trim() : '') || (featureId ? featureId.replace(/-/g, ' ') : '');
   const promptText = inputIdeaPrompt ? inputIdeaPrompt.value.trim() : '';
 
   if (!featureId) {
-    showToast('Informe o ID ou nome da feature para gerar com IA (ex: sistema-ranking)', 'warning');
-    inputIdeaId.focus();
+    showToast('⚠️ Informe o Título ou o ID da feature antes de gerar com IA!', 'warning');
+    if (inputIdeaTitle) inputIdeaTitle.focus();
     return;
   }
 
@@ -957,12 +979,13 @@ document.getElementById('btn-action-generate-ai')?.addEventListener('click', asy
 
 // 5. Nova Feature Completa: agent criar openspec/changes/<id>/proposal.md "# Feature: ..."
 document.getElementById('btn-action-new-feature').addEventListener('click', async () => {
-  const featureId = inputIdeaId.value.trim();
-  const title = inputIdeaTitle.value.trim() || featureId;
+  const featureId = resolveTargetIdeaId();
+  const title = (inputIdeaTitle ? inputIdeaTitle.value.trim() : '') || (featureId ? featureId.replace(/-/g, ' ') : '');
   const promptText = inputIdeaPrompt ? inputIdeaPrompt.value.trim() : '';
 
   if (!featureId) {
-    showToast('Por favor, informe o ID da nova feature', 'error');
+    showToast('⚠️ Informe o Título ou o ID da nova feature antes de criar!', 'warning');
+    if (inputIdeaTitle) inputIdeaTitle.focus();
     return;
   }
 
@@ -996,7 +1019,14 @@ document.getElementById('btn-action-new-feature').addEventListener('click', asyn
 
 // 6. Validar Ideia: agent validar ideia "sistema-ouro"
 document.getElementById('btn-action-validate-idea').addEventListener('click', async () => {
-  const ideaId = inputIdeaId.value.trim() || selectFeatureTask.value;
+  const ideaId = resolveTargetIdeaId();
+
+  if (!ideaId) {
+    showToast('⚠️ Informe o Título ou o ID da ideia que deseja validar!', 'warning');
+    if (inputIdeaTitle) inputIdeaTitle.focus();
+    return;
+  }
+
   const cmd = `agent validar ideia "${ideaId}"`;
   updateCommandPreview(cmd);
 
@@ -1011,16 +1041,25 @@ document.getElementById('btn-action-validate-idea').addEventListener('click', as
       showToast(data.message, 'success');
       appendLog(data.message);
       fetchFeatures();
+    } else {
+      showToast(data.error || 'Erro ao validar ideia', 'error');
     }
   } catch {
     showToast('Comando de validação gerado!', 'success');
   }
 });
 
-// 7. Aprovar Ideia: agent aprovar ideia "sistema-ouro" "dev-team"
+// 7. Aprovar Ideia: agent aprovar ideia "sistema-ouro" "Todos"
 document.getElementById('btn-action-approve-idea').addEventListener('click', async () => {
-  const ideaId = inputIdeaId.value.trim() || selectFeatureTask.value;
-  const team = (selectIdeaTeam ? selectIdeaTeam.value : (inputIdeaTeam?.value || 'dev-team')).trim() || 'dev-team';
+  const ideaId = resolveTargetIdeaId();
+
+  if (!ideaId) {
+    showToast('⚠️ Informe o Título ou o ID da ideia que deseja aprovar!', 'warning');
+    if (inputIdeaTitle) inputIdeaTitle.focus();
+    return;
+  }
+
+  const team = (selectIdeaTeam ? selectIdeaTeam.value : (inputIdeaTeam?.value || 'Todos')).trim() || 'Todos';
   const cmd = `agent aprovar ideia "${ideaId}" "${team}"`;
   updateCommandPreview(cmd);
 
@@ -1035,6 +1074,8 @@ document.getElementById('btn-action-approve-idea').addEventListener('click', asy
       showToast(data.message, 'success');
       appendLog(data.message);
       fetchFeatures();
+    } else {
+      showToast(data.error || 'Erro ao aprovar ideia', 'error');
     }
   } catch {
     showToast('Comando de aprovação gerado!', 'success');
@@ -1043,8 +1084,15 @@ document.getElementById('btn-action-approve-idea').addEventListener('click', asy
 
 // 8. Rejeitar Ideia: agent rejeitar ideia "sistema-ouro" "Sem valor"
 document.getElementById('btn-action-reject-idea').addEventListener('click', async () => {
-  const ideaId = inputIdeaId.value.trim() || selectFeatureTask.value;
-  const reason = inputIdeaReason.value.trim() || 'Sem valor';
+  const ideaId = resolveTargetIdeaId();
+
+  if (!ideaId) {
+    showToast('⚠️ Informe o Título ou o ID da ideia que deseja rejeitar!', 'warning');
+    if (inputIdeaTitle) inputIdeaTitle.focus();
+    return;
+  }
+
+  const reason = inputIdeaReason ? (inputIdeaReason.value.trim() || 'Sem valor') : 'Sem valor';
   const cmd = `agent rejeitar ideia "${ideaId}" "${reason}"`;
   updateCommandPreview(cmd);
 
@@ -1694,19 +1742,22 @@ btnQuickManageMembers?.addEventListener('click', () => {
   document.getElementById('modal-tab-members')?.click();
 });
 
-// Save or update member button in modal
 // Populate Team / Assignee Selects with registered members
 function populateTeamSelects() {
   if (selectIdeaTeam) {
     const curVal = selectIdeaTeam.value;
-    selectIdeaTeam.innerHTML = '<option value="dev-team">👥 dev-team (Equipe Geral)</option>';
+    selectIdeaTeam.innerHTML = '<option value="Todos">👥 Todos</option>';
     teamMembers.forEach(m => {
       const opt = document.createElement('option');
       opt.value = m.name;
       opt.textContent = `${m.avatar || '👤'} ${m.name} (${m.role || 'Membro'})`;
       selectIdeaTeam.appendChild(opt);
     });
-    if (curVal) selectIdeaTeam.value = curVal;
+    if (curVal && curVal !== 'dev-team') {
+      selectIdeaTeam.value = curVal;
+    } else {
+      selectIdeaTeam.value = 'Todos';
+    }
   }
 
   if (selectTaskAssignee) {
@@ -1718,11 +1769,15 @@ function populateTeamSelects() {
       opt.textContent = `${m.avatar || '👤'} ${m.name} (${m.role || 'Membro'})`;
       selectTaskAssignee.appendChild(opt);
     });
-    const devTeamOpt = document.createElement('option');
-    devTeamOpt.value = 'dev-team';
-    devTeamOpt.textContent = '👥 dev-team (Equipe Geral)';
-    selectTaskAssignee.appendChild(devTeamOpt);
-    if (curVal) selectTaskAssignee.value = curVal;
+    const todosOpt = document.createElement('option');
+    todosOpt.value = 'Todos';
+    todosOpt.textContent = '👥 Todos';
+    selectTaskAssignee.appendChild(todosOpt);
+    if (curVal && curVal !== 'dev-team') {
+      selectTaskAssignee.value = curVal;
+    } else {
+      selectTaskAssignee.value = 'Todos';
+    }
   }
 
   if (detailNewTaskAssignee) {
@@ -1734,11 +1789,15 @@ function populateTeamSelects() {
       opt.textContent = `${m.avatar || '👤'} ${m.name} (${m.role || 'Membro'})`;
       detailNewTaskAssignee.appendChild(opt);
     });
-    const devTeamOpt = document.createElement('option');
-    devTeamOpt.value = 'dev-team';
-    devTeamOpt.textContent = '👥 dev-team (Equipe Geral)';
-    detailNewTaskAssignee.appendChild(devTeamOpt);
-    if (curVal) detailNewTaskAssignee.value = curVal;
+    const todosOpt = document.createElement('option');
+    todosOpt.value = 'Todos';
+    todosOpt.textContent = '👥 Todos';
+    detailNewTaskAssignee.appendChild(todosOpt);
+    if (curVal && curVal !== 'dev-team') {
+      detailNewTaskAssignee.value = curVal;
+    } else {
+      detailNewTaskAssignee.value = 'Todos';
+    }
   }
 }
 
@@ -1811,8 +1870,9 @@ function openFeatureDetailsModal(feature, defaultTab = 'proposal') {
   }
 
   if (detailBadgeAssignee) {
-    const assignee = feature.ideaAssignee || (feature.assignees && feature.assignees[0]) || 'dev-team';
-    detailBadgeAssignee.textContent = `👤 ${assignee}`;
+    const rawAssignee = feature.ideaAssignee || (feature.assignees && feature.assignees[0]) || 'Todos';
+    const assignee = (rawAssignee === 'dev-team') ? 'Todos' : rawAssignee;
+    detailBadgeAssignee.textContent = `👥 ${assignee}`;
   }
 
   if (detailBadgeModified) {
@@ -1852,9 +1912,9 @@ function openFeatureDetailsModal(feature, defaultTab = 'proposal') {
   }
   if (detailNewTaskText) detailNewTaskText.value = '';
 
-  // Commands Tab
+  const aprAssignee = (feature.ideaAssignee === 'dev-team' || !feature.ideaAssignee) ? 'Todos' : feature.ideaAssignee;
   if (detailCmdValidate) detailCmdValidate.textContent = `agent validar ideia "${feature.name}"`;
-  if (detailCmdApprove) detailCmdApprove.textContent = `agent aprovar ideia "${feature.name}" "${feature.ideaAssignee || 'dev-team'}"`;
+  if (detailCmdApprove) detailCmdApprove.textContent = `agent aprovar ideia "${feature.name}" "${aprAssignee}"`;
   if (detailCmdReject) detailCmdReject.textContent = `agent rejeitar ideia "${feature.name}" "Fora do escopo"`;
   if (detailCmdList) detailCmdList.textContent = `agent listar openspec/changes/${feature.name}/tasks.md`;
 
@@ -1936,7 +1996,8 @@ function renderDetailFooterActions(feature) {
     btnApp.className = 'btn btn-success btn-sm';
     btnApp.innerHTML = '✅ Aprovar Ideia';
     btnApp.onclick = async () => {
-      const assignee = feature.ideaAssignee || (selectIdeaTeam ? selectIdeaTeam.value : 'dev-team');
+      const rawAssignee = feature.ideaAssignee || (selectIdeaTeam ? selectIdeaTeam.value : 'Todos');
+      const assignee = (rawAssignee === 'dev-team') ? 'Todos' : rawAssignee;
       await triggerIdeaAction(feature.name, 'approve', assignee);
       feature.ideaStatus = 'Aprovado';
       openFeatureDetailsModal(feature, 'proposal');
@@ -2045,7 +2106,7 @@ btnDetailAddTask?.addEventListener('click', async () => {
   if (!currentDetailFeature) return;
   const taskId = detailNewTaskId ? detailNewTaskId.value.trim() : '';
   const text = detailNewTaskText ? detailNewTaskText.value.trim() : '';
-  const assignee = detailNewTaskAssignee ? detailNewTaskAssignee.value : 'dev-team';
+  const assignee = detailNewTaskAssignee ? (detailNewTaskAssignee.value || 'Todos') : 'Todos';
 
   if (!text) {
     showToast('Informe a descrição da nova tarefa', 'warning');

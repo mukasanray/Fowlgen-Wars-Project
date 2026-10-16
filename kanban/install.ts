@@ -2,8 +2,9 @@ import { FileSystemUtils } from './src/utils/file-system';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
-import { execSync } from 'child_process';
+import { execSync, spawn } from 'child_process';
 import * as readline from 'readline';
+import * as http from 'http';
 import { GenerateDashboard } from './src/scripts/generate-dashboard';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -183,16 +184,14 @@ export class InstallSetup {
     console.log('✅ INSTALAÇÃO CONCLUÍDA COM SUCESSO!');
     console.log('='.repeat(50));
 
-    // 9. Open dashboard in default browser (Prefer new Web Studio)
-    const webStudioPath = path.join(__dirname, 'src/web/index.html');
-    const legacyPath = path.join(__dirname, 'docs/kanban-dashboard.html');
-    const htmlPath = FileSystemUtils.fileExists(webStudioPath) ? webStudioPath : legacyPath;
+    // 9. Start Kanban Studio server and open in default browser
+    console.log('\n🌐 Preparando inicialização do Servidor Web e painel do Kanban...');
+    await this.ensureServerRunning(3000);
 
-    if (FileSystemUtils.fileExists(htmlPath)) {
-      console.log('\n🌐 Abrindo OpenSpec & Kanban Studio no navegador padrão...');
-      this.openBrowser(htmlPath);
-      console.log('   ✅ Painel interativo aberto no navegador com sucesso!');
-    }
+    const targetUrl = 'http://localhost:3000';
+    console.log(`\n🌐 Abrindo OpenSpec & Kanban Studio no navegador padrão (${targetUrl})...`);
+    this.openBrowser(targetUrl);
+    console.log('   ✅ Painel interativo online e aberto no navegador com sucesso!');
 
     // 10. Write installation log
     const logEntry = {
@@ -216,6 +215,81 @@ export class InstallSetup {
     } catch (error: any) {
       console.log(`⚠️  Could not write install log: ${error?.message || error}`);
     }
+  }
+
+  async isServerRunning(port = 3000): Promise<boolean> {
+    return new Promise((resolve) => {
+      const req = http.get(`http://localhost:${port}/api/config`, (res) => {
+        resolve(res.statusCode === 200 || res.statusCode === 304);
+      });
+      req.on('error', () => resolve(false));
+      req.setTimeout(1200, () => {
+        req.destroy();
+        resolve(false);
+      });
+    });
+  }
+
+  async ensureServerRunning(port = 3000): Promise<void> {
+    const isUp = await this.isServerRunning(port);
+    if (isUp) {
+      console.log(`   📡 Servidor Kanban Studio já está online em http://localhost:${port}`);
+      return;
+    }
+
+    console.log(`   🚀 Iniciando Servidor Web do Kanban Studio na porta ${port}...`);
+
+    const tsxCli = path.join(__dirname, 'node_modules/tsx/dist/cli.mjs');
+    const serverScript = path.join(__dirname, 'src/server/server.ts');
+    const distScript = path.join(__dirname, 'dist/server.js');
+    const isCompiled = fs.existsSync(distScript);
+
+    const env = {
+      ...process.env,
+      PORT: port.toString(),
+      KANBAN_ROOT: __dirname
+    };
+
+    let child;
+    if (isCompiled) {
+      child = spawn(process.execPath, [distScript], {
+        cwd: __dirname,
+        env,
+        detached: true,
+        stdio: 'ignore'
+      });
+    } else if (fs.existsSync(tsxCli)) {
+      child = spawn(process.execPath, [tsxCli, serverScript], {
+        cwd: __dirname,
+        env,
+        detached: true,
+        stdio: 'ignore'
+      });
+    } else {
+      const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+      child = spawn(npmCmd, ['run', 'app'], {
+        cwd: __dirname,
+        env,
+        detached: true,
+        stdio: 'ignore',
+        shell: true
+      });
+    }
+
+    if (child && typeof child.unref === 'function') {
+      child.unref();
+    }
+
+    // Aguarda até o servidor responder
+    console.log('   ⏳ Aguardando servidor inicializar...');
+    for (let i = 0; i < 16; i++) {
+      await new Promise(r => setTimeout(r, 500));
+      if (await this.isServerRunning(port)) {
+        console.log(`   ✅ Servidor online com sucesso em http://localhost:${port}!`);
+        return;
+      }
+    }
+    console.log(`   💡 Servidor iniciado em segundo plano. Acesse: http://localhost:${port}`);
   }
 
   openBrowser(targetUrl: string): void {
@@ -253,10 +327,17 @@ export class InstallSetup {
 
       switch (choice) {
         case '1':
-          console.log('\n🌐 Iniciando Servidor Web do Kanban Studio...');
-          console.log('🌐 Abrindo navegador em http://localhost:3000...');
-          console.log('💡 Pressione Ctrl+C para encerrar o servidor e voltar ao menu.\n');
-          this.executeNpm('run app:open', { OPEN_BROWSER: 'true' });
+          console.log('\n🌐 Verificando Servidor Web do Kanban Studio...');
+          if (await this.isServerRunning(3000)) {
+            console.log('   📡 Servidor já está rodando em http://localhost:3000!');
+            console.log('   🌐 Abrindo navegador em http://localhost:3000...\n');
+            this.openBrowser('http://localhost:3000');
+          } else {
+            console.log('\n🌐 Iniciando Servidor Web do Kanban Studio...');
+            console.log('🌐 Abrindo navegador em http://localhost:3000...');
+            console.log('💡 Pressione Ctrl+C para encerrar o servidor e voltar ao menu.\n');
+            this.executeNpm('run app:open', { OPEN_BROWSER: 'true' });
+          }
           break;
         case '2':
           console.log('\n💻 Iniciando Aplicativo Desktop (Electron)...\n');

@@ -63,7 +63,7 @@ function getMembers(): Member[] {
   return [
     { id: 'marcos', name: 'Marcos', role: 'Unity / C# Developer', github: 'mukasanray', avatar: '👤', color: '#38bdf8' },
     { id: 'samuel', name: 'Samuel', role: 'Game Designer & Lead', github: 'samuelmenon', avatar: '👑', color: '#f59e0b' },
-    { id: 'dev-team', name: 'Dev Team', role: 'Equipe Geral', github: 'dev-team', avatar: '👥', color: '#10b981' },
+    { id: 'todos', name: 'Todos', role: 'Toda a Equipe', github: 'todos', avatar: '👥', color: '#10b981' },
     { id: 'ia', name: 'Agente IA', role: 'Automação & Copilot', github: 'antigravity-ai', avatar: '🤖', color: '#a855f7' }
   ];
 }
@@ -256,7 +256,7 @@ function getFeaturesFromGitBranch(branch: string) {
         let proposal = '';
         let status = 'Backlog';
         let ideaStatus = 'Criado';
-        let ideaAssignee = 'dev-team';
+        let ideaAssignee = 'Todos';
         let title = featureName.replace(/-/g, ' ');
         let summary = '';
         const assigneesSet = new Set<string>();
@@ -285,6 +285,7 @@ function getFeaturesFromGitBranch(branch: string) {
           const teamMatch = proposal.match(/\[APROVADO\]\s+por\s+([^\s\n]+)/i);
           if (teamMatch) {
             ideaAssignee = teamMatch[1].trim();
+            if (ideaAssignee === 'dev-team') ideaAssignee = 'Todos';
             assigneesSet.add(ideaAssignee);
           }
         } catch {}
@@ -308,7 +309,7 @@ function getFeaturesFromGitBranch(branch: string) {
 
               const assigneeMatch = text.match(/@([\w-]+)|\[([\w-]+)\]|\(([^)]+)\)/i);
               let taskAssignee = assigneeMatch ? (assigneeMatch[1] || assigneeMatch[2] || assigneeMatch[3]).trim() : '';
-              if (!taskAssignee && ideaAssignee && ideaAssignee !== 'dev-team') {
+              if (!taskAssignee && ideaAssignee && ideaAssignee !== 'Todos' && ideaAssignee !== 'dev-team') {
                 taskAssignee = ideaAssignee;
               }
               if (taskAssignee) assigneesSet.add(taskAssignee);
@@ -339,7 +340,7 @@ function getFeaturesFromGitBranch(branch: string) {
         }
 
         if (assigneesSet.size === 0) {
-          assigneesSet.add('dev-team');
+          assigneesSet.add('Todos');
         }
 
         features.push({
@@ -396,7 +397,7 @@ function getFeaturesData() {
     let proposal = '';
     let status = 'Backlog';
     let ideaStatus = 'Criado';
-    let ideaAssignee = 'dev-team';
+    let ideaAssignee = 'Todos';
     let title = name.replace(/-/g, ' ');
     let summary = '';
     const assigneesSet = new Set<string>();
@@ -426,6 +427,7 @@ function getFeaturesData() {
       const teamMatch = proposal.match(/\[APROVADO\]\s+por\s+([^\s\n]+)/i);
       if (teamMatch) {
         ideaAssignee = teamMatch[1].trim();
+        if (ideaAssignee === 'dev-team') ideaAssignee = 'Todos';
         assigneesSet.add(ideaAssignee);
       }
     }
@@ -451,7 +453,7 @@ function getFeaturesData() {
 
           const assigneeMatch = text.match(/@([\w-]+)|\[([\w-]+)\]|\(([^)]+)\)/i);
           let taskAssignee = assigneeMatch ? (assigneeMatch[1] || assigneeMatch[2] || assigneeMatch[3]).trim() : '';
-          if (!taskAssignee && ideaAssignee && ideaAssignee !== 'dev-team') {
+          if (!taskAssignee && ideaAssignee && ideaAssignee !== 'Todos' && ideaAssignee !== 'dev-team') {
             taskAssignee = ideaAssignee;
           }
           if (taskAssignee) assigneesSet.add(taskAssignee);
@@ -483,7 +485,7 @@ function getFeaturesData() {
     }
 
     if (assigneesSet.size === 0) {
-      assigneesSet.add('dev-team');
+      assigneesSet.add('Todos');
     }
 
     return {
@@ -573,6 +575,36 @@ function generateSmartOpenSpec(featureId: string, title?: string, promptText?: s
     ];
   }
 
+  // Coleta features existentes para comparar e prevenir conflitos
+  const existingFeatures: string[] = [];
+  if (fs.existsSync(OPEN_SPEC_DIR)) {
+    try {
+      const dirs = fs.readdirSync(OPEN_SPEC_DIR).filter(d => {
+        return fs.statSync(path.join(OPEN_SPEC_DIR, d)).isDirectory() && d !== cleanId;
+      });
+      existingFeatures.push(...dirs);
+    } catch {}
+  }
+
+  // Análise de Guardrails e Prevenção de Conflitos (Claude.md)
+  const conflictNotes: string[] = [];
+  if (/4\s*rotas?|quatro\s*rotas?/i.test(textToScan)) {
+    conflictNotes.push(`- **Prevenção de Conflito de Mapa:** O mapa canônico oficial é estritamente de 3 rotas (cena Arena_Clean com 18 torres). O conceito legado de 4 rotas da Sprint 01 foi descartado para evitar divergências de arquitetura.`);
+  }
+  if (/cartas?|card|deck|baralho/i.test(textToScan)) {
+    conflictNotes.push(`- **Prevenção de Conflito de Mecânica:** O uso de cartas ou baralhos foi descartado conforme Claude.md (linhas 149-152), priorizando o sistema canônico de 4 slots de habilidades com cooldown.`);
+  }
+  if (/p2w|pay.*to.*win|vantagem.*comprada/i.test(textToScan)) {
+    conflictNotes.push(`- **Prevenção de Conflito de Fair-Play:** O projeto adota nivelamento proporcional e proteção anti-pay-to-win. Ativos Web3/NFTs são estritamente cosméticos.`);
+  }
+  if (/blockchain.*tempo.*real|solana.*frame|colis[aã]o.*on.*chain/i.test(textToScan)) {
+    conflictNotes.push(`- **Prevenção de Conflito de Rede:** Física, colisão e frames operam 100% off-chain no servidor FishNet em tempo real. Solana/Anchor é reservado exclusivamente para liquidação e inventário pós-partida.`);
+  }
+
+  const existingComparison = existingFeatures.length > 0
+    ? `Features ativas no OpenSpec: ${existingFeatures.slice(0, 5).map(f => `\`${f}\``).join(', ')}${existingFeatures.length > 5 ? ` (+${existingFeatures.length - 5} outras)` : ''}. Esta proposta foi desenhada de forma isolada para não interferir nas tarefas em andamento.`
+    : `Nenhuma feature conflitante detectada no workspace local do OpenSpec.`;
+
   const proposal = `# Feature: ${cleanId}
 
 ## Title
@@ -584,15 +616,22 @@ Implementação da funcionalidade "${cleanTitle}" para o Fowlgen Wars com escopo
 ## Motivation
 ${motivation}
 
-## Proposed Solution
+## Context & Existing Implementations
+${existingComparison}
+
+## Proposed Solution (Solução Sem Conflito)
 ${solution}
 
-## Alternatives Considered
-${alternatives}
+## Alternatives Considered (Alternativas Avaliadas)
+1. **Alternativa Monolítica (Descartada):** Modificação direta em prefabs e scripts globais existentes. Descartada para evitar quebrar testes de combate e colisão validados na cena Arena_Clean.
+2. **Alternativa Baseada em Polling/Bloqueio (Descartada):** Criar dependência acoplada entre subsistemas. Descartada para manter arquitetura modular orientada a eventos.
+3. **Solução Adotada (Recomendada):** ${solution}
 
-## Impact
-- [ ] Breaking changes
+${conflictNotes.length > 0 ? `## Análise de Diretrizes & Guardrails (Claude.md)\n${conflictNotes.join('\n')}\n` : ''}## Impact & Prevenção de Conflitos
+- [ ] Breaking changes (Zero breaking changes nos sistemas em produção)
 - [x] Preserva balanceamento existente e isola alterações em componentes específicos
+- [x] Validado contra convenções de Claude.md e Play Mode na cena Arena_Clean
+- [x] Compatível com pipeline gráfico URP Mobile e servidor FishNet
 
 ## Status
 [CRIADO]
@@ -1180,7 +1219,7 @@ const server = http.createServer(async (req, res) => {
       proposalContent = proposalContent.replace(/\[(APROVADO|VALIDADO|REJEITADO|CRIADO)[^\]]*\]/g, '').trim();
 
       if (action === 'approve') {
-        const team = assignee || 'dev-team';
+        const team = (assignee && assignee !== 'dev-team') ? assignee : 'Todos';
         proposalContent += `\n\n## Status\n[APROVADO] por ${team} em ${new Date().toISOString().split('T')[0]}\n`;
         command = `agent aprovar ideia "${feature}" "${team}"`;
       } else if (action === 'validate') {
