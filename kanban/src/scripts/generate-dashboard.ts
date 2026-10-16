@@ -124,34 +124,88 @@ Generated on: ${dashboardData.lastUpdated}
 
   private generateHTMLDashboard(dashboardData: DashboardData): string {
     return `<!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <title>OpenSpec Kanban Dashboard</title>
+    <meta charset="UTF-8">
+    <title>OpenSpec Kanban Dashboard - Fowlgen Wars</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        .status-done { color: green; }
-        .status-in-progress { color: blue; }
-        .status-backlog { color: gray; }
+        :root {
+            --bg-dark: #090d16;
+            --card-bg: #111827;
+            --border: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-main);
+            padding: 24px;
+        }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+        .title { font-size: 22px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+        .metric-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+        .metric-val { font-size: 26px; font-weight: 700; margin-top: 4px; }
+        .metric-label { font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+        table { border-collapse: collapse; width: 100%; background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+        th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+        th { background: #1e293b; color: #cbd5e1; font-weight: 600; text-transform: uppercase; font-size: 11.5px; letter-spacing: 0.5px; }
+        tr:hover { background: rgba(255,255,255,0.02); }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+        .status-done { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status-in-progress { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .status-backlog { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
+        .progress-bar-bg { background: #1e293b; border-radius: 6px; height: 8px; width: 100px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(90deg, #38bdf8, #10b981); height: 100%; }
     </style>
 </head>
 <body>
-    <h1>OpenSpec Kanban Dashboard</h1>
-    <p>Generated: ${dashboardData.lastUpdated}</p>
+    <div class="header">
+        <div>
+            <h1 class="title">🐔 Fowlgen Wars — OpenSpec Kanban Dashboard</h1>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Relatório Executivo de Entregas e Sprints em Tempo Real</p>
+        </div>
+        <div style="font-size: 12px; color: var(--text-muted); text-align: right;">
+            Gerado em:<br><strong style="color: #cbd5e1;">${dashboardData.lastUpdated}</strong>
+        </div>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-label">Total de Features</div>
+            <div class="metric-val" style="color: var(--accent);">${dashboardData.metrics.totalFeatures}</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Em Desenvolvimento</div>
+            <div class="metric-val" style="color: #60a5fa;">${dashboardData.metrics.inProgress}</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Concluídas</div>
+            <div class="metric-val" style="color: var(--success);">${dashboardData.metrics.completed}</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">No Backlog</div>
+            <div class="metric-val" style="color: #94a3b8;">${dashboardData.metrics.backlog}</div>
+        </div>
+    </div>
+
     <table>
         <thead>
             <tr>
-                <th>Feature</th>
+                <th>Feature / Ideia</th>
                 <th>Status</th>
-                <th>Total Tasks</th>
-                <th>Done</th>
-                <th>In Progress</th>
+                <th>Total Tarefas</th>
+                <th>Concluídas</th>
+                <th>Progresso</th>
             </tr>
         </thead>
         <tbody>
+${dashboardData.features.length === 0 ? `            <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 32px;">Nenhuma feature criada ainda no diretório openspec/changes/.</td></tr>` : ''}
 ${dashboardData.features.map(feature => {
       let status = 'Backlog';
       const inProgressTask = feature.tasks.find(task => !task.includes('[x]'));
@@ -160,13 +214,19 @@ ${dashboardData.features.map(feature => {
       } else if (feature.completedTasks === feature.totalTasks && feature.totalTasks > 0) {
         status = 'Done';
       }
+      const pct = feature.totalTasks > 0 ? Math.round((feature.completedTasks / feature.totalTasks) * 100) : 0;
 
       return `            <tr>
-                <td>${feature.name}</td>
-                <td class="status-${status.toLowerCase().replace(' ', '-')}">${status}</td>
+                <td><strong>${feature.name}</strong></td>
+                <td><span class="badge status-${status.toLowerCase().replace(' ', '-')}">${status}</span></td>
                 <td>${feature.totalTasks}</td>
-                <td class="status-done">${feature.completedTasks}</td>
-                <td class="status-in-progress">${feature.totalTasks - feature.completedTasks}</td>
+                <td>${feature.completedTasks} / ${feature.totalTasks}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${pct}%;"></div></div>
+                        <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">${pct}%</span>
+                    </div>
+                </td>
             </tr>`;
     }).join('\n')}
         </tbody>

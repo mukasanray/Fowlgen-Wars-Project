@@ -235,8 +235,11 @@
             <button class="btn btn-primary" id="btn-script-sync">
               🚀 Sync GitHub Projects
             </button>
-            <button class="btn btn-success" id="btn-script-dashboard">
+            <button class="btn btn-success" id="btn-script-dashboard" title="Executar script de geração do Dashboard">
               📊 Gerar Dashboard
+            </button>
+            <button class="btn btn-secondary" id="btn-view-dashboard" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 600;" title="Visualizar Dashboard Executivo">
+              👁️ Ver Dashboard
             </button>
             <button class="btn btn-secondary" id="btn-script-verify">
               🔍 Verificar Setup
@@ -301,6 +304,11 @@
               <span class="view-icon">💡</span>
               <span class="view-text">Funil de Ideias</span>
               <span class="view-badge" id="badge-total-ideas-view">0</span>
+            </button>
+            <button type="button" class="board-view-btn" id="btn-view-analytics"
+              title="Dashboard Integrado: Métricas, gráficos e entregas da sprint">
+              <span class="view-icon">📊</span>
+              <span class="view-text">Analytics & Métricas</span>
             </button>
           </div>
         </div>
@@ -426,6 +434,11 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- Container Integrado da 3ª Aba: Analytics & Métricas -->
+      <div class="analytics-dashboard-container" id="analytics-dashboard-container" style="display: none;">
+        <!-- Preenchido dinamicamente via renderAnalyticsDashboard() -->
       </div>
     </section>
 

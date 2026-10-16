@@ -128,12 +128,15 @@ const gitBranchBannerText = document.getElementById('git-branch-banner-text');
 const gitBranchBannerActions = document.getElementById('git-branch-banner-actions');
 const btnCommitOpenspec = document.getElementById('btn-commit-openspec');
 
-// Board View State: 'tasks' (Tarefas da Sprint) vs 'ideas' (Funil de Ideias)
+// Board View State: 'tasks' (Tarefas da Sprint) vs 'ideas' (Funil de Ideias) vs 'analytics' (Analytics & Métricas)
 let currentBoardView = 'tasks';
 let currentAssigneeFilter = 'all';
 
 const btnViewTasks = document.getElementById('btn-view-tasks');
 const btnViewIdeas = document.getElementById('btn-view-ideas');
+const btnViewAnalytics = document.getElementById('btn-view-analytics');
+const kanbanColumnsContainer = document.querySelector('.kanban-columns');
+const analyticsDashboardContainer = document.getElementById('analytics-dashboard-container');
 const badgeTotalTasksView = document.getElementById('badge-total-tasks-view');
 const badgeTotalIdeasView = document.getElementById('badge-total-ideas-view');
 const colTitle1 = document.getElementById('col-title-1');
@@ -489,12 +492,27 @@ function updateStats(features) {
   statDoneTasks.textContent = doneTasks;
 }
 
-// Board View Switcher (Tarefas da Sprint vs Funil de Ideias)
+// Board View Switcher (Tarefas da Sprint vs Funil de Ideias vs Analytics)
 function setBoardView(view) {
   currentBoardView = view;
+  
+  if (view === 'analytics') {
+    btnViewAnalytics?.classList.add('active');
+    btnViewTasks?.classList.remove('active');
+    btnViewIdeas?.classList.remove('active');
+    if (kanbanColumnsContainer) kanbanColumnsContainer.style.display = 'none';
+    if (analyticsDashboardContainer) analyticsDashboardContainer.style.display = 'flex';
+    renderAnalyticsDashboard(currentFeatures);
+    return;
+  }
+
+  if (kanbanColumnsContainer) kanbanColumnsContainer.style.display = 'grid';
+  if (analyticsDashboardContainer) analyticsDashboardContainer.style.display = 'none';
+
   if (view === 'tasks') {
     btnViewTasks?.classList.add('active');
     btnViewIdeas?.classList.remove('active');
+    btnViewAnalytics?.classList.remove('active');
     if (colTitle1) colTitle1.innerHTML = '📋 A Fazer';
     if (colTitle2) colTitle2.innerHTML = '⚡ Em Progresso';
     if (colTitle3) colTitle3.innerHTML = '👀 Em Revisão';
@@ -502,6 +520,7 @@ function setBoardView(view) {
   } else {
     btnViewIdeas?.classList.add('active');
     btnViewTasks?.classList.remove('active');
+    btnViewAnalytics?.classList.remove('active');
     if (colTitle1) colTitle1.innerHTML = '💡 Novas Ideias';
     if (colTitle2) colTitle2.innerHTML = '🔍 Em Validação';
     if (colTitle3) colTitle3.innerHTML = '✅ Aprovadas';
@@ -512,6 +531,7 @@ function setBoardView(view) {
 
 btnViewTasks?.addEventListener('click', () => setBoardView('tasks'));
 btnViewIdeas?.addEventListener('click', () => setBoardView('ideas'));
+btnViewAnalytics?.addEventListener('click', () => setBoardView('analytics'));
 
 // Member Filter Handler
 function setMemberFilter(assignee) {
@@ -523,7 +543,11 @@ function setMemberFilter(assignee) {
       pill.classList.remove('active');
     }
   });
-  renderFeatures(currentFeatures);
+  if (currentBoardView === 'analytics') {
+    renderAnalyticsDashboard(currentFeatures);
+  } else {
+    renderFeatures(currentFeatures);
+  }
 }
 
 document.querySelectorAll('.member-pill').forEach(pill => {
@@ -532,8 +556,438 @@ document.querySelectorAll('.member-pill').forEach(pill => {
   });
 });
 
+// =============================================================
+// 3ª ABA: ANALYTICS & MÉTRICAS (Dashboard Integrado)
+// =============================================================
+function renderAnalyticsDashboard(features) {
+  if (!analyticsDashboardContainer) return;
+
+  const totalFeatures = features.length;
+  let totalTasks = 0;
+  let doneTasks = 0;
+  let inProgressTasks = 0;
+  let reviewTasks = 0;
+  let backlogTasks = 0;
+
+  let doneFeatures = 0;
+  let inProgressFeatures = 0;
+  let readyFeatures = 0;
+  let backlogFeatures = 0;
+
+  // Mapa de carga de trabalho por membro
+  const memberWorkload = new Map();
+  teamMembers.forEach(m => {
+    memberWorkload.set(m.id.toLowerCase(), {
+      id: m.id,
+      name: m.name,
+      role: m.role || 'Desenvolvedor',
+      avatar: m.avatar || '👤',
+      totalTasks: 0,
+      doneTasks: 0
+    });
+  });
+
+  features.forEach(f => {
+    const fTotal = f.totalTasks || 0;
+    const fDone = f.doneTasks || 0;
+    totalTasks += fTotal;
+    doneTasks += fDone;
+
+    if (f.kanbanColumn === 'Done') doneFeatures++;
+    else if (f.kanbanColumn === 'In Progress') inProgressFeatures++;
+    else if (f.kanbanColumn === 'Ready') readyFeatures++;
+    else backlogFeatures++;
+
+    if (f.tasks && f.tasks.length > 0) {
+      f.tasks.forEach(t => {
+        if (!t.done) {
+          if (f.kanbanColumn === 'In Progress') inProgressTasks++;
+          else if (f.kanbanColumn === 'Ready') reviewTasks++;
+          else backlogTasks++;
+        }
+
+        const rawAssignee = t.assignee || f.ideaAssignee || '';
+        if (rawAssignee) {
+          const key = rawAssignee.toLowerCase();
+          let foundMember = memberWorkload.get(key);
+          if (!foundMember) {
+            for (const [mId, mObj] of memberWorkload.entries()) {
+              if (mObj.name.toLowerCase() === key || key.includes(mObj.name.toLowerCase()) || mId.includes(key)) {
+                foundMember = mObj;
+                break;
+              }
+            }
+          }
+          if (foundMember) {
+            foundMember.totalTasks++;
+            if (t.done) foundMember.doneTasks++;
+          }
+        }
+      });
+    } else {
+      const pending = fTotal - fDone;
+      if (f.kanbanColumn === 'In Progress') inProgressTasks += pending;
+      else if (f.kanbanColumn === 'Ready') reviewTasks += pending;
+      else backlogTasks += pending;
+    }
+  });
+
+  const nonDone = totalTasks - doneTasks;
+  if (inProgressTasks + reviewTasks + backlogTasks !== nonDone && nonDone > 0) {
+    backlogTasks = Math.max(0, nonDone - inProgressTasks - reviewTasks);
+  }
+
+  const overallProgress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+  const readyOrDone = doneFeatures + readyFeatures;
+  const deliveryVelocity = totalFeatures > 0 ? Math.round((readyOrDone / totalFeatures) * 100) : 0;
+  const activeMembersList = Array.from(memberWorkload.values());
+  const activeCount = activeMembersList.filter(m => m.totalTasks > 0).length || teamMembers.length;
+
+  // Donut SVG Calculations
+  const r = 70;
+  const circumference = 2 * Math.PI * r; // ~439.82
+  const donePct = totalTasks > 0 ? (doneTasks / totalTasks) : 0;
+  const inProgPct = totalTasks > 0 ? (inProgressTasks / totalTasks) : 0;
+  const revPct = totalTasks > 0 ? (reviewTasks / totalTasks) : 0;
+  const backPct = totalTasks > 0 ? (backlogTasks / totalTasks) : 0;
+
+  const lenDone = donePct * circumference;
+  const lenInProg = inProgPct * circumference;
+  const lenRev = revPct * circumference;
+  const lenBack = backPct * circumference;
+
+  let offset = 0;
+  const offDone = offset; offset -= lenDone;
+  const offInProg = offset; offset -= lenInProg;
+  const offRev = offset; offset -= lenRev;
+  const offBack = offset;
+
+  // Build SVG Paths
+  let donutSvgContent = '';
+  if (totalTasks === 0) {
+    donutSvgContent = `
+      <circle cx="100" cy="100" r="${r}" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="20" />
+      <text x="100" y="105" text-anchor="middle" font-size="14" fill="#94a3b8" font-family="system-ui, sans-serif">Sem tarefas</text>
+    `;
+  } else {
+    donutSvgContent = `
+      <circle cx="100" cy="100" r="${r}" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="20" />
+      <circle cx="100" cy="100" r="${r}" fill="none" stroke="#10b981" stroke-width="20"
+        stroke-dasharray="${lenDone.toFixed(2)} ${circumference.toFixed(2)}"
+        stroke-dashoffset="${offDone.toFixed(2)}" transform="rotate(-90 100 100)" stroke-linecap="round" />
+      <circle cx="100" cy="100" r="${r}" fill="none" stroke="#38bdf8" stroke-width="20"
+        stroke-dasharray="${lenInProg.toFixed(2)} ${circumference.toFixed(2)}"
+        stroke-dashoffset="${offInProg.toFixed(2)}" transform="rotate(-90 100 100)" stroke-linecap="round" />
+      <circle cx="100" cy="100" r="${r}" fill="none" stroke="#f59e0b" stroke-width="20"
+        stroke-dasharray="${lenRev.toFixed(2)} ${circumference.toFixed(2)}"
+        stroke-dashoffset="${offRev.toFixed(2)}" transform="rotate(-90 100 100)" stroke-linecap="round" />
+      <circle cx="100" cy="100" r="${r}" fill="none" stroke="#64748b" stroke-width="20"
+        stroke-dasharray="${lenBack.toFixed(2)} ${circumference.toFixed(2)}"
+        stroke-dashoffset="${offBack.toFixed(2)}" transform="rotate(-90 100 100)" stroke-linecap="round" />
+      <text x="100" y="94" text-anchor="middle" font-size="28" font-weight="800" fill="#ffffff" font-family="system-ui, sans-serif">${overallProgress}%</text>
+      <text x="100" y="112" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8" font-family="system-ui, sans-serif" letter-spacing="0.5">CONCLUÍDO</text>
+    `;
+  }
+
+  // Build Team Workload Cards HTML
+  let teamCardsHtml = '';
+  if (activeMembersList.length === 0) {
+    teamCardsHtml = `<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-dim);">Nenhum integrante cadastrado.</div>`;
+  } else {
+    teamCardsHtml = activeMembersList.map(m => {
+      const mPct = m.totalTasks > 0 ? Math.round((m.doneTasks / m.totalTasks) * 100) : 0;
+      return `
+        <div class="team-workload-card" data-member-id="${m.id}" title="Clique para filtrar as tarefas de ${m.name}">
+          <div class="team-workload-top">
+            <div class="team-workload-avatar">${m.avatar}</div>
+            <div class="team-workload-info">
+              <div class="team-workload-name">${m.name}</div>
+              <div class="team-workload-role">${m.role}</div>
+            </div>
+            <span style="font-size: 11px; font-weight: 700; color: ${mPct === 100 && m.totalTasks > 0 ? '#10b981' : '#38bdf8'}; font-family: monospace;">${mPct}%</span>
+          </div>
+          <div class="team-workload-stats">
+            <span>${m.doneTasks} de ${m.totalTasks} tarefas</span>
+            <span style="color: var(--text-dim); font-size: 11px;">🔍 Filtrar</span>
+          </div>
+          <div class="progress-bar-container" style="height: 5px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; margin: 0;">
+            <div class="progress-fill" style="width: ${mPct}%; height: 100%; background: linear-gradient(90deg, #38bdf8, #10b981); border-radius: 999px;"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Build Features Table Rows HTML
+  let featuresRowsHtml = '';
+  if (features.length === 0) {
+    featuresRowsHtml = `<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--text-dim);">Nenhuma feature cadastrada no OpenSpec.</td></tr>`;
+  } else {
+    featuresRowsHtml = features.map(f => {
+      let statusBadge = '<span class="badge-tag" style="background: rgba(100, 116, 139, 0.15); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3);">📋 A Fazer</span>';
+      if (f.kanbanColumn === 'Done') {
+        statusBadge = '<span class="badge-tag" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">✅ Concluído</span>';
+      } else if (f.kanbanColumn === 'In Progress') {
+        statusBadge = '<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">⚡ Em Progresso</span>';
+      } else if (f.kanbanColumn === 'Ready') {
+        statusBadge = '<span class="badge-tag" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);">👀 Em Revisão</span>';
+      }
+
+      const rawAssignee = f.ideaAssignee || (f.assignees && f.assignees[0]) || 'Todos';
+      const displayAssignee = (rawAssignee === 'dev-team') ? 'Todos' : rawAssignee;
+      const progressVal = f.progress || 0;
+
+      return `
+        <tr data-feature-name="${f.name}">
+          <td>
+            <div style="font-weight: 700; color: #fff; font-size: 13px;">${f.title || f.name}</div>
+            <code style="font-size: 10.5px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 1px 5px; border-radius: 4px;">${f.name}</code>
+          </td>
+          <td>${statusBadge}</td>
+          <td>
+            <span style="font-size: 12px; color: #cbd5e1; display: inline-flex; align-items: center; gap: 4px;">
+              <span>👤</span> ${displayAssignee}
+            </span>
+          </td>
+          <td>
+            <span style="font-family: monospace; font-size: 12px; font-weight: 700; color: #fff;">${f.doneTasks || 0} / ${f.totalTasks || 0}</span>
+          </td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar-container" style="flex: 1; min-width: 80px; height: 6px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; margin: 0;">
+                <div class="progress-fill" style="width: ${progressVal}%; height: 100%; background: linear-gradient(90deg, #38bdf8, #10b981); border-radius: 999px;"></div>
+              </div>
+              <span style="font-size: 11px; font-weight: 700; font-family: monospace; color: #fff; width: 34px; text-align: right;">${progressVal}%</span>
+            </div>
+          </td>
+          <td style="text-align: right;">
+            <button type="button" class="btn btn-secondary btn-sm btn-analytics-view-feature" data-feature-name="${f.name}" style="padding: 4px 10px; font-size: 11.5px; border-radius: var(--radius-sm);">
+              🔍 Detalhes
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // Full Container HTML
+  analyticsDashboardContainer.innerHTML = `
+    <!-- Barra de Ações Rápidas -->
+    <div class="analytics-quick-actions-bar">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 24px;">📊</span>
+        <div>
+          <div style="font-size: 16px; font-weight: 800; color: #fff; letter-spacing: -0.2px;">Painel de Analytics & Métricas da Sprint</div>
+          <div style="font-size: 12px; color: var(--text-dim);">Acompanhamento em tempo real de tarefas OpenSpec, distribuição e equipe</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-analytics-refresh" title="Atualizar dados do servidor">
+          🔄 Atualizar
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-analytics-copy-md" title="Copiar relatório resumido em Markdown">
+          📋 Copiar Resumo MD
+        </button>
+        <button type="button" class="btn btn-primary btn-sm" id="btn-analytics-goto-tasks" title="Ir para o quadro visual de tarefas da Sprint">
+          🎯 Ver Tarefas
+        </button>
+      </div>
+    </div>
+
+    <!-- Grade de KPIs -->
+    <div class="analytics-kpis-grid">
+      <div class="analytics-kpi-card" style="--kpi-accent: #10b981;">
+        <div class="analytics-kpi-header">
+          <span class="analytics-kpi-title">Conclusão da Sprint</span>
+          <span class="analytics-kpi-icon">🎯</span>
+        </div>
+        <div class="analytics-kpi-value" style="color: #34d399;">${overallProgress}%</div>
+        <div class="analytics-kpi-subtitle">${doneTasks} de ${totalTasks} tarefas finalizadas</div>
+      </div>
+
+      <div class="analytics-kpi-card" style="--kpi-accent: #38bdf8;">
+        <div class="analytics-kpi-header">
+          <span class="analytics-kpi-title">Features OpenSpec</span>
+          <span class="analytics-kpi-icon">📦</span>
+        </div>
+        <div class="analytics-kpi-value">${totalFeatures}</div>
+        <div class="analytics-kpi-subtitle">${inProgressFeatures} ativas | ${doneFeatures} prontas</div>
+      </div>
+
+      <div class="analytics-kpi-card" style="--kpi-accent: #a855f7;">
+        <div class="analytics-kpi-header">
+          <span class="analytics-kpi-title">Equipe do Projeto</span>
+          <span class="analytics-kpi-icon">👥</span>
+        </div>
+        <div class="analytics-kpi-value">${teamMembers.length}</div>
+        <div class="analytics-kpi-subtitle">${activeCount} com tarefas atribuídas</div>
+      </div>
+
+      <div class="analytics-kpi-card" style="--kpi-accent: #f59e0b;">
+        <div class="analytics-kpi-header">
+          <span class="analytics-kpi-title">Taxa de Entrega</span>
+          <span class="analytics-kpi-icon">⚡</span>
+        </div>
+        <div class="analytics-kpi-value" style="color: #fbbf24;">${deliveryVelocity}%</div>
+        <div class="analytics-kpi-subtitle">${readyOrDone} features prontas ou em revisão</div>
+      </div>
+    </div>
+
+    <!-- Gráficos e Distribuição -->
+    <div class="analytics-charts-grid">
+      <!-- Donut Chart -->
+      <div class="analytics-card">
+        <div class="analytics-card-header">
+          <div class="analytics-card-title">
+            <span>📈</span> Status das Tarefas
+          </div>
+          <span class="analytics-card-badge">${totalTasks} Tarefas</span>
+        </div>
+        <div class="donut-chart-container">
+          <svg width="200" height="200" viewBox="0 0 200 200" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));">
+            ${donutSvgContent}
+          </svg>
+          <div class="donut-legend">
+            <div class="donut-legend-item">
+              <span class="donut-legend-dot" style="background: #10b981;"></span>
+              <span>Concluídas</span>
+              <span class="donut-legend-count">${doneTasks}</span>
+            </div>
+            <div class="donut-legend-item">
+              <span class="donut-legend-dot" style="background: #38bdf8;"></span>
+              <span>Em Progresso</span>
+              <span class="donut-legend-count">${inProgressTasks}</span>
+            </div>
+            <div class="donut-legend-item">
+              <span class="donut-legend-dot" style="background: #f59e0b;"></span>
+              <span>Em Revisão</span>
+              <span class="donut-legend-count">${reviewTasks}</span>
+            </div>
+            <div class="donut-legend-item">
+              <span class="donut-legend-dot" style="background: #64748b;"></span>
+              <span>A Fazer</span>
+              <span class="donut-legend-count">${backlogTasks}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team Workload -->
+      <div class="analytics-card">
+        <div class="analytics-card-header">
+          <div class="analytics-card-title">
+            <span>👥</span> Carga de Trabalho por Integrante
+          </div>
+          <span class="analytics-card-badge">${teamMembers.length} Membros</span>
+        </div>
+        <div class="team-workload-grid">
+          ${teamCardsHtml}
+        </div>
+      </div>
+    </div>
+
+    <!-- Features Delivery Matrix -->
+    <div class="analytics-card">
+      <div class="analytics-card-header">
+        <div class="analytics-card-title">
+          <span>📋</span> Matriz de Entrega das Features (OpenSpec)
+        </div>
+        <span class="analytics-card-badge">${features.length} Features Registradas</span>
+      </div>
+      <div style="overflow-x: auto;">
+        <table class="analytics-table">
+          <thead>
+            <tr>
+              <th>Feature / ID</th>
+              <th>Status Kanban</th>
+              <th>Responsável</th>
+              <th>Tarefas</th>
+              <th style="min-width: 140px;">Progresso</th>
+              <th style="text-align: right;">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${featuresRowsHtml}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  // Attach Listeners to dynamic elements in Analytics
+  document.getElementById('btn-analytics-refresh')?.addEventListener('click', async () => {
+    await fetchFeatures();
+    showToast('Métricas da Sprint atualizadas!', 'success');
+  });
+
+  document.getElementById('btn-analytics-goto-tasks')?.addEventListener('click', () => {
+    setBoardView('tasks');
+  });
+
+  document.getElementById('btn-analytics-copy-md')?.addEventListener('click', async () => {
+    const mdSummary = [
+      `# 📊 Fowlgen Wars - Métricas da Sprint`,
+      `**Data:** ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}`,
+      `**Conclusão Geral:** ${overallProgress}% (${doneTasks}/${totalTasks} tarefas)`,
+      `**Features OpenSpec:** ${totalFeatures} (${doneFeatures} concluídas, ${inProgressFeatures} em progresso, ${readyFeatures} em revisão, ${backlogFeatures} a fazer)`,
+      `**Membros Cadastrados:** ${teamMembers.length}`,
+      ``,
+      `### Distribuição de Tarefas:`,
+      `- ✅ Concluídas: ${doneTasks} (${Math.round(donePct * 100)}%)`,
+      `- ⚡ Em Progresso: ${inProgressTasks} (${Math.round(inProgPct * 100)}%)`,
+      `- 👀 Em Revisão: ${reviewTasks} (${Math.round(revPct * 100)}%)`,
+      `- 📋 A Fazer: ${backlogTasks} (${Math.round(backPct * 100)}%)`,
+      ``,
+      `### Matriz de Features:`,
+      ...features.map(f => `- **${f.title || f.name}** (\`${f.name}\`): ${f.progress || 0}% (${f.doneTasks || 0}/${f.totalTasks || 0} tarefas) - [${f.kanbanColumn || 'Backlog'}]`)
+    ].join('\n');
+
+    try {
+      await navigator.clipboard.writeText(mdSummary);
+      showToast('Relatório Markdown copiado para a área de transferência!', 'success');
+    } catch {
+      showToast('Não foi possível copiar o relatório', 'warning');
+    }
+  });
+
+  // Clicking a team member workload card filters and switches to Sprint view
+  analyticsDashboardContainer.querySelectorAll('.team-workload-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const memberId = card.getAttribute('data-member-id');
+      if (memberId) {
+        setMemberFilter(memberId);
+        setBoardView('tasks');
+        const mObj = teamMembers.find(x => x.id === memberId);
+        showToast(`Filtrando tarefas de ${mObj ? mObj.name : memberId} na Sprint!`, 'info');
+      }
+    });
+  });
+
+  // Clicking "🔍 Detalhes" button in features table opens the rich feature details modal
+  analyticsDashboardContainer.querySelectorAll('.btn-analytics-view-feature').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const featName = btn.getAttribute('data-feature-name');
+      const feat = features.find(f => f.name === featName);
+      if (feat) {
+        openFeatureDetailsModal(feat, 'proposal');
+      }
+    });
+  });
+}
+
 // Render Kanban Cards (Sprint Tasks or Ideas Funnel)
 function renderFeatures(features) {
+  // Atualiza os badges de contagem do alternador de visão
+  const totalTasksCount = features.reduce((acc, f) => acc + (f.totalTasks || 0), 0);
+  if (badgeTotalTasksView) badgeTotalTasksView.textContent = totalTasksCount;
+  if (badgeTotalIdeasView) badgeTotalIdeasView.textContent = features.length;
+
+  if (currentBoardView === 'analytics') {
+    renderAnalyticsDashboard(features);
+    return;
+  }
+
   const colBacklog = document.getElementById('cards-backlog');
   const colProgress = document.getElementById('cards-progress');
   const colReview = document.getElementById('cards-review');
@@ -545,11 +999,6 @@ function renderFeatures(features) {
   colDone.innerHTML = '';
 
   let countBacklog = 0, countProgress = 0, countReview = 0, countDone = 0;
-
-  // Atualiza os badges de contagem do alternador de visão
-  const totalTasksCount = features.reduce((acc, f) => acc + (f.totalTasks || 0), 0);
-  if (badgeTotalTasksView) badgeTotalTasksView.textContent = totalTasksCount;
-  if (badgeTotalIdeasView) badgeTotalIdeasView.textContent = features.length;
 
   // Filtragem por integrante
   const filtered = features.filter(feature => {
@@ -1133,10 +1582,112 @@ async function runScriptAPI(scriptName) {
   }
 }
 
+// -------------------------------------------------------------
+// Dashboard Integration & Management
+// -------------------------------------------------------------
+const modalDashboardView = document.getElementById('modal-dashboard-view');
+const btnViewDashboard = document.getElementById('btn-view-dashboard');
+const btnCloseDashboard = document.getElementById('btn-close-dashboard');
+const btnCloseDashboardFooter = document.getElementById('btn-close-dashboard-footer');
+const btnDashboardOpenNewTab = document.getElementById('btn-dashboard-open-new-tab');
+const btnDashboardRefresh = document.getElementById('btn-dashboard-refresh');
+const iframeDashboard = document.getElementById('iframe-dashboard');
+const textareaDashboardMd = document.getElementById('textarea-dashboard-md');
+const btnCopyDashboardMd = document.getElementById('btn-copy-dashboard-md');
+const dashboardLastUpdatedLabel = document.getElementById('dashboard-last-updated-label');
+
+async function refreshDashboardData() {
+  if (iframeDashboard) {
+    iframeDashboard.src = `/dashboard?t=${Date.now()}`;
+  }
+  try {
+    const res = await fetch('/api/dashboard');
+    const data = await res.json();
+    if (data.success) {
+      if (textareaDashboardMd) textareaDashboardMd.value = data.markdown || '';
+      if (dashboardLastUpdatedLabel) {
+        dashboardLastUpdatedLabel.textContent = `Relatório gerado em: ${new Date().toLocaleTimeString()}`;
+      }
+    }
+  } catch (err) {
+    console.error('Erro ao buscar dados do dashboard:', err);
+  }
+}
+
+async function openDashboardModal() {
+  setBoardView('analytics');
+}
+
+function closeDashboardModal() {
+  if (modalDashboardView) {
+    modalDashboardView.classList.remove('open');
+  }
+}
+
+btnViewDashboard?.addEventListener('click', () => {
+  setBoardView('analytics');
+  showToast('Exibindo Analytics & Métricas da Sprint!', 'info');
+});
+
+btnCloseDashboard?.addEventListener('click', closeDashboardModal);
+btnCloseDashboardFooter?.addEventListener('click', closeDashboardModal);
+modalDashboardView?.addEventListener('click', (e) => {
+  if (e.target === modalDashboardView) closeDashboardModal();
+});
+
+btnDashboardOpenNewTab?.addEventListener('click', () => {
+  window.open('/dashboard', '_blank');
+});
+
+btnDashboardRefresh?.addEventListener('click', async () => {
+  showToast('Regerando dashboard...', 'info');
+  await runScriptAPI('dashboard');
+  await fetchFeatures();
+  if (currentBoardView === 'analytics') {
+    renderAnalyticsDashboard(currentFeatures);
+  }
+  showToast('Dashboard e métricas atualizadas com sucesso!', 'success');
+});
+
+btnCopyDashboardMd?.addEventListener('click', async () => {
+  if (textareaDashboardMd && textareaDashboardMd.value) {
+    try {
+      await navigator.clipboard.writeText(textareaDashboardMd.value);
+      showToast('Relatório Markdown copiado para o chat!', 'success');
+    } catch {
+      showToast('Não foi possível copiar o markdown', 'warning');
+    }
+  }
+});
+
+// Dashboard internal tabs (HTML vs Markdown)
+document.getElementById('tab-btn-dash-html')?.addEventListener('click', () => {
+  document.getElementById('tab-btn-dash-html')?.classList.add('active');
+  document.getElementById('tab-btn-dash-md')?.classList.remove('active');
+  const viewHtml = document.getElementById('dash-view-html');
+  const viewMd = document.getElementById('dash-view-md');
+  if (viewHtml) viewHtml.style.display = 'block';
+  if (viewMd) viewMd.style.display = 'none';
+});
+
+document.getElementById('tab-btn-dash-md')?.addEventListener('click', () => {
+  document.getElementById('tab-btn-dash-md')?.classList.add('active');
+  document.getElementById('tab-btn-dash-html')?.classList.remove('active');
+  const viewHtml = document.getElementById('dash-view-html');
+  const viewMd = document.getElementById('dash-view-md');
+  if (viewHtml) viewHtml.style.display = 'none';
+  if (viewMd) viewMd.style.display = 'flex';
+});
+
 // Kanban automation script buttons
 document.getElementById('btn-script-sync').addEventListener('click', () => runScriptAPI('sync'));
 document.getElementById('btn-sync-top').addEventListener('click', () => runScriptAPI('sync'));
-document.getElementById('btn-script-dashboard').addEventListener('click', () => runScriptAPI('dashboard'));
+document.getElementById('btn-script-dashboard').addEventListener('click', async () => {
+  await runScriptAPI('dashboard');
+  await fetchFeatures();
+  setBoardView('analytics');
+  showToast('Dashboard gerado e exibido na aba Analytics!', 'success');
+});
 document.getElementById('btn-script-verify').addEventListener('click', () => runScriptAPI('verify'));
 document.getElementById('btn-script-status').addEventListener('click', () => runScriptAPI('status'));
 document.getElementById('btn-refresh').addEventListener('click', () => {
@@ -2160,8 +2711,13 @@ modalItemDetails?.addEventListener('click', (e) => {
   if (e.target === modalItemDetails) closeFeatureDetailsModal();
 });
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && modalItemDetails && modalItemDetails.classList.contains('open')) {
-    closeFeatureDetailsModal();
+  if (e.key === 'Escape') {
+    if (modalItemDetails && modalItemDetails.classList.contains('open')) {
+      closeFeatureDetailsModal();
+    }
+    if (modalDashboardView && modalDashboardView.classList.contains('open')) {
+      closeDashboardModal();
+    }
   }
 });
 

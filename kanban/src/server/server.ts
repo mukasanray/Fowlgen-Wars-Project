@@ -1267,6 +1267,40 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // API: Get dashboard data and html/markdown
+    if (req.method === 'GET' && (pathname === '/api/dashboard' || pathname === '/api/dashboard/data')) {
+      const htmlPath = path.join(KANBAN_ROOT, 'docs/kanban-dashboard.html');
+      const mdPath = path.join(KANBAN_ROOT, 'docs/kanban-dashboard.md');
+
+      if (!fs.existsSync(htmlPath)) {
+        try {
+          execSync('npm.cmd run dashboard', { cwd: KANBAN_ROOT, stdio: 'ignore' });
+        } catch {}
+      }
+
+      const htmlContent = fs.existsSync(htmlPath) ? fs.readFileSync(htmlPath, 'utf8') : '';
+      const mdContent = fs.existsSync(mdPath) ? fs.readFileSync(mdPath, 'utf8') : '';
+
+      sendJSON(res, 200, {
+        success: true,
+        htmlUrl: '/dashboard',
+        html: htmlContent,
+        markdown: mdContent,
+        hasDashboard: Boolean(htmlContent)
+      });
+      return;
+    }
+
+    // Serve Standalone Dashboard HTML
+    if (req.method === 'GET' && (pathname === '/dashboard' || pathname === '/kanban-dashboard.html')) {
+      const htmlPath = path.join(KANBAN_ROOT, 'docs/kanban-dashboard.html');
+      if (fs.existsSync(htmlPath)) {
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(fs.readFileSync(htmlPath));
+        return;
+      }
+    }
+
     // Serve Static Files from kanban/src/web
     let filePath = path.join(WEB_DIR, pathname === '/' ? 'index.html' : pathname);
     if (!fs.existsSync(filePath)) {
