@@ -149,19 +149,19 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    
+
     document.querySelectorAll('.tab-content').forEach(content => {
       content.style.display = 'none';
       content.classList.remove('active');
     });
-    
+
     const targetId = btn.getAttribute('data-tab');
     const targetContent = document.getElementById(targetId);
     if (targetContent) {
       targetContent.style.display = 'block';
       targetContent.classList.add('active');
     }
-    
+
     activeTab = targetId.replace('tab-content-', '');
     updateCommandPreview();
   });
@@ -225,12 +225,12 @@ function updateCommandPreview(customCmd = null) {
 
 // Input change listeners
 [selectFeatureTask, inputTaskId, selectTaskStatus, selectTaskAssignee, inputTaskAssignee, inputTaskText,
- inputIdeaId, inputIdeaTitle, inputIdeaPrompt, selectIdeaTeam, inputIdeaTeam, inputIdeaReason].forEach(input => {
-  if (input) {
-    input.addEventListener('input', () => updateCommandPreview());
-    input.addEventListener('change', () => updateCommandPreview());
-  }
-});
+  inputIdeaId, inputIdeaTitle, inputIdeaPrompt, selectIdeaTeam, inputIdeaTeam, inputIdeaReason].forEach(input => {
+    if (input) {
+      input.addEventListener('input', () => updateCommandPreview());
+      input.addEventListener('change', () => updateCommandPreview());
+    }
+  });
 
 // Clipboard Copy com validação para nunca copiar placeholders
 document.getElementById('btn-copy-command').addEventListener('click', async () => {
@@ -495,7 +495,7 @@ function updateStats(features) {
 // Board View Switcher (Tarefas da Sprint vs Funil de Ideias vs Analytics)
 function setBoardView(view) {
   currentBoardView = view;
-  
+
   if (view === 'analytics') {
     btnViewAnalytics?.classList.add('active');
     btnViewTasks?.classList.remove('active');
@@ -1014,10 +1014,10 @@ function renderFeatures(features) {
   const filtered = features.filter(feature => {
     if (currentAssigneeFilter === 'all') return true;
     const filterLower = currentAssigneeFilter.toLowerCase().replace(/^@/, '').trim();
-    
+
     // Encontra o membro selecionado em teamMembers
-    const selectedMem = teamMembers.find(m => 
-      m.id.toLowerCase() === filterLower || 
+    const selectedMem = teamMembers.find(m =>
+      m.id.toLowerCase() === filterLower ||
       m.name.toLowerCase() === filterLower ||
       m.name.toLowerCase().includes(filterLower) ||
       filterLower.includes(m.name.toLowerCase()) ||
@@ -1041,13 +1041,13 @@ function renderFeatures(features) {
       }
       return false;
     };
-    
+
     // Verifica em ideaAssignee
     if (matchesToken(feature.ideaAssignee)) return true;
-    
+
     // Verifica na lista de assignees da feature
     if (feature.assignees && feature.assignees.some(a => matchesToken(a))) return true;
-    
+
     // Verifica nas tarefas individuais
     if (feature.tasks && feature.tasks.some(t => {
       return matchesToken(t.assignee) || matchesToken(t.text) || matchesToken(t.raw);
@@ -1260,7 +1260,7 @@ function createFeatureCard(feature) {
   card.className = 'feature-card';
 
   const tagClass = feature.kanbanColumn === 'Done' ? 'tag-done' :
-                   feature.kanbanColumn === 'In Progress' ? 'tag-progress' : 'tag-backlog';
+    feature.kanbanColumn === 'In Progress' ? 'tag-progress' : 'tag-backlog';
 
   const modifiedBadge = feature.isModifiedLocally
     ? `<span class="badge-modified-git" title="Alterações locais pendentes de commit">⚡ Modificado Local</span>`
@@ -1270,18 +1270,8 @@ function createFeatureCard(feature) {
     ? `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px;">🌿 ${feature.branch}</span>`
     : '';
 
-  const rawAssigneesList = feature.assignees && feature.assignees.length > 0 ? feature.assignees : ['Todos'];
-  const uniqueAssignees = Array.from(new Set(rawAssigneesList.map(a => {
-    if (!a) return '';
-    const clean = a.replace(/^@/, '').trim().toLowerCase();
-    if (clean === 'jorge' || clean === 'jorge espindola' || clean === 'jorge-espindola' || clean === 'jpespindola') return 'Jorge Espindola';
-    if (clean === 'manuel' || clean === 'emanuel') return 'Emanuel';
-    if (clean === 'dev-team') return 'Todos';
-    return a.replace(/^@/, '').trim();
-  }))).filter(Boolean);
-
-  const assigneesHtml = uniqueAssignees.length > 0
-    ? uniqueAssignees.map(a => `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px;">👤 ${a}</span>`).join(' ')
+  const assigneesHtml = feature.assignees && feature.assignees.length > 0
+    ? feature.assignees.map(a => `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px;">👤 ${a === 'dev-team' ? 'Todos' : a}</span>`).join(' ')
     : `<span class="badge-tag" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; font-size: 10px;">👥 Todos</span>`;
 
   // Task Items HTML
@@ -1290,8 +1280,8 @@ function createFeatureCard(feature) {
     return `
     <label class="task-item ${t.done ? 'done' : ''}">
       <input type="checkbox" ${t.done ? 'checked' : ''} ${feature.isFromGitBranch ? 'disabled title="Modo Histórico da branch (somente leitura)"' : ''} data-feature="${feature.name}" data-task-id="${t.id}" class="task-checkbox">
-      <span class="task-text"><strong>${t.id ? '**' + t.id + '**' : ''}</strong> ${escapeHtml(cleanText || t.text)}</span>
-      ${t.assignee ? `<span class="task-assignee-badge">👤 ${escapeHtml(t.assignee)}</span>` : ''}
+      <span><strong>${t.id ? '**' + t.id + '**' : ''}</strong> ${cleanText || t.text}</span>
+      ${t.assignee ? `<span style="font-size: 10px; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); padding: 1px 6px; border-radius: 10px; margin-left: 6px; white-space: nowrap;">👤 ${t.assignee}</span>` : ''}
     </label>
     `;
   }).join('');
@@ -2096,14 +2086,14 @@ function renderMemberFilterPills() {
   const filtered = teamMembers.filter(m => {
     if (!memberSearchQuery) return true;
     return m.name.toLowerCase().includes(memberSearchQuery) ||
-           (m.role && m.role.toLowerCase().includes(memberSearchQuery));
+      (m.role && m.role.toLowerCase().includes(memberSearchQuery));
   });
 
   filtered.forEach(m => {
     const btn = document.createElement('button');
     btn.type = 'button';
     const isAct = currentAssigneeFilter.toLowerCase() === m.id.toLowerCase() ||
-                  currentAssigneeFilter.toLowerCase() === m.name.toLowerCase();
+      currentAssigneeFilter.toLowerCase() === m.name.toLowerCase();
     btn.className = `member-pill ${isAct ? 'active' : ''}`;
     btn.setAttribute('data-assignee', m.name);
     btn.style.borderLeft = `3px solid ${m.color || '#38bdf8'}`;
@@ -2286,7 +2276,7 @@ async function setLocalDeveloperIdentity(memberId, optionalName) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: optionalName.trim() })
           });
-        } catch {}
+        } catch { }
       }
       fetchGitInfo();
       fetchMembers();
@@ -2431,7 +2421,7 @@ function populateTeamSelects() {
 // Markdown Parser for Details Screen
 function renderMarkdownToHtml(markdown) {
   if (!markdown) return '<p style="color: var(--text-dim); font-style: italic;">Nenhum conteúdo na proposta.</p>';
-  
+
   let html = markdown
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
