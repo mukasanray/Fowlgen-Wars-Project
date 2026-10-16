@@ -282,9 +282,9 @@ function getFeaturesFromGitBranch(branch: string) {
             ideaStatus = 'Criado';
           }
 
-          const teamMatch = proposal.match(/\[APROVADO\]\s+por\s+([^\s\n]+)/i);
+          const teamMatch = proposal.match(/\[(APROVADO|CRIADO|VALIDADO|REJEITADO)\]\s+por\s+([^\s\n]+)/i);
           if (teamMatch) {
-            ideaAssignee = teamMatch[1].trim();
+            ideaAssignee = teamMatch[2].trim();
             if (ideaAssignee === 'dev-team') ideaAssignee = 'Todos';
             assigneesSet.add(ideaAssignee);
           }
@@ -307,8 +307,8 @@ function getFeaturesFromGitBranch(branch: string) {
               const taskId = taskMatch[3] ? taskMatch[3].trim() : '';
               const text = taskMatch[4] ? taskMatch[4].trim() : '';
 
-              const assigneeMatch = text.match(/@([\w-]+)|\[([\w-]+)\]|\(([^)]+)\)/i);
-              let taskAssignee = assigneeMatch ? (assigneeMatch[1] || assigneeMatch[2] || assigneeMatch[3]).trim() : '';
+              const assigneeMatch = text.match(/@([\w-]+)/i) || text.match(/\(([^)]+)\)\s*$/i) || text.match(/\[([\w-]+)\]\s*$/i);
+              let taskAssignee = assigneeMatch ? assigneeMatch[1].trim() : '';
               if (!taskAssignee && ideaAssignee && ideaAssignee !== 'Todos' && ideaAssignee !== 'dev-team') {
                 taskAssignee = ideaAssignee;
               }
@@ -424,9 +424,9 @@ function getFeaturesData() {
         ideaStatus = 'Criado';
       }
 
-      const teamMatch = proposal.match(/\[APROVADO\]\s+por\s+([^\s\n]+)/i);
+      const teamMatch = proposal.match(/\[(APROVADO|CRIADO|VALIDADO|REJEITADO)\]\s+por\s+([^\s\n]+)/i);
       if (teamMatch) {
-        ideaAssignee = teamMatch[1].trim();
+        ideaAssignee = teamMatch[2].trim();
         if (ideaAssignee === 'dev-team') ideaAssignee = 'Todos';
         assigneesSet.add(ideaAssignee);
       }
@@ -451,8 +451,8 @@ function getFeaturesData() {
           const taskId = taskMatch[3] ? taskMatch[3].trim() : '';
           const text = taskMatch[4] ? taskMatch[4].trim() : '';
 
-          const assigneeMatch = text.match(/@([\w-]+)|\[([\w-]+)\]|\(([^)]+)\)/i);
-          let taskAssignee = assigneeMatch ? (assigneeMatch[1] || assigneeMatch[2] || assigneeMatch[3]).trim() : '';
+          const assigneeMatch = text.match(/@([\w-]+)/i) || text.match(/\(([^)]+)\)\s*$/i) || text.match(/\[([\w-]+)\]\s*$/i);
+          let taskAssignee = assigneeMatch ? assigneeMatch[1].trim() : '';
           if (!taskAssignee && ideaAssignee && ideaAssignee !== 'Todos' && ideaAssignee !== 'dev-team') {
             taskAssignee = ideaAssignee;
           }

@@ -54,7 +54,7 @@ export class GenerateDashboard {
 
         const proposalFile = path.join(featureDir, 'proposal.md');
         const proposal = FileSystemUtils.fileExists(proposalFile) ? 
-          FileSystemUtils.readFile(proposalFile).substring(0, 500) : '';
+          FileSystemUtils.readFile(proposalFile) : '';
 
         openSpecFeatures.push({
           name: feature,
@@ -76,9 +76,10 @@ export class GenerateDashboard {
 
     const metrics = {
       totalFeatures: openSpecFeatures.length,
-      inProgress: openSpecFeatures.filter(f => f.completedTasks < f.totalTasks && f.totalTasks > 0).length,
       completed: openSpecFeatures.filter(f => f.completedTasks === f.totalTasks && f.totalTasks > 0).length,
-      backlog: openSpecFeatures.filter(f => f.totalTasks === 0).length
+      inProgress: openSpecFeatures.filter(f => f.completedTasks > 0 && f.completedTasks < f.totalTasks).length,
+      review: openSpecFeatures.filter(f => f.completedTasks === 0 && (f.proposal.includes('[APROVADO]') || f.proposal.includes('[VALIDADO]'))).length,
+      backlog: openSpecFeatures.filter(f => f.completedTasks === 0 && !f.proposal.includes('[APROVADO]') && !f.proposal.includes('[VALIDADO]')).length
     };
 
     return {
@@ -96,21 +97,24 @@ Generated on: ${dashboardData.lastUpdated}
 
 ## Summary
 
-| Feature | Status | Tasks | Done | In Progress | Done |
-|---------|--------|-------|------|-------------|------|
+| Feature | Status | Tasks | Done | Pending | Progress |
+|---------|--------|-------|------|---------|----------|
 
 `;
 
     for (const feature of dashboardData.features) {
-      let status = 'Backlog';
-      const inProgressTask = feature.tasks.find(task => !task.includes('[x]'));
-      if (inProgressTask) {
-        status = '🔄 In Progress';
-      } else if (feature.completedTasks === feature.totalTasks && feature.totalTasks > 0) {
-        status = '✅ Done';
+      let status = '📋 A Fazer';
+      if (feature.completedTasks === feature.totalTasks && feature.totalTasks > 0) {
+        status = '✅ Concluído';
+      } else if (feature.completedTasks > 0) {
+        status = '⚡ Em Progresso';
+      } else if (feature.proposal.includes('[APROVADO]') || feature.proposal.includes('[VALIDADO]')) {
+        status = '👀 Em Revisão';
       }
 
-      markdown += `| ${feature.name} | ${status} | ${feature.totalTasks} | ${feature.completedTasks} | ${feature.totalTasks - feature.completedTasks} | ${feature.completedTasks} |\n`;
+      const pending = feature.totalTasks - feature.completedTasks;
+      const pct = feature.totalTasks > 0 ? Math.round((feature.completedTasks / feature.totalTasks) * 100) : 0;
+      markdown += `| ${feature.name} | ${status} | ${feature.totalTasks} | ${feature.completedTasks} | ${pending} | ${pct}% |\n`;
     }
 
     markdown += `
@@ -207,18 +211,19 @@ Generated on: ${dashboardData.lastUpdated}
         <tbody>
 ${dashboardData.features.length === 0 ? `            <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 32px;">Nenhuma feature criada ainda no diretório openspec/changes/.</td></tr>` : ''}
 ${dashboardData.features.map(feature => {
-      let status = 'Backlog';
-      const inProgressTask = feature.tasks.find(task => !task.includes('[x]'));
-      if (inProgressTask) {
-        status = 'In Progress';
-      } else if (feature.completedTasks === feature.totalTasks && feature.totalTasks > 0) {
-        status = 'Done';
+      let status = 'A Fazer';
+      if (feature.completedTasks === feature.totalTasks && feature.totalTasks > 0) {
+        status = 'Concluído';
+      } else if (feature.completedTasks > 0) {
+        status = 'Em Progresso';
+      } else if (feature.proposal.includes('[APROVADO]') || feature.proposal.includes('[VALIDADO]')) {
+        status = 'Em Revisão';
       }
       const pct = feature.totalTasks > 0 ? Math.round((feature.completedTasks / feature.totalTasks) * 100) : 0;
 
       return `            <tr>
                 <td><strong>${feature.name}</strong></td>
-                <td><span class="badge status-${status.toLowerCase().replace(' ', '-')}">${status}</span></td>
+                <td><span class="badge status-${status.toLowerCase().replace(/\s+/g, '-')}">${status}</span></td>
                 <td>${feature.totalTasks}</td>
                 <td>${feature.completedTasks} / ${feature.totalTasks}</td>
                 <td>
@@ -237,11 +242,12 @@ ${dashboardData.features.map(feature => {
 
   private printDashboardSummary(dashboardData: DashboardData): void {
     console.log('');
-    console.log('📈 Métricas de Progresso:');
-    console.log(`- Features no Backlog: ${dashboardData.metrics.backlog}`);
-    console.log(`- Em Desenvolvimento: ${dashboardData.metrics.inProgress}`);
-    console.log(`- Concluídas: ${dashboardData.metrics.completed}`);
-    console.log(`- Total de Features: ${dashboardData.metrics.totalFeatures}`);
+    console.log('📈 Métricas do MVP no Kanban:');
+    console.log(`- 📋 A Fazer: ${dashboardData.metrics.backlog}`);
+    console.log(`- ⚡ Em Progresso: ${dashboardData.metrics.inProgress}`);
+    console.log(`- 👀 Em Revisão: ${(dashboardData.metrics as any).review || 0}`);
+    console.log(`- ✅ Concluídas: ${dashboardData.metrics.completed}`);
+    console.log(`- 🎯 Total de Features: ${dashboardData.metrics.totalFeatures}`);
 
     console.log('');
     console.log(`📅 Relatório Gerado: ${new Date().toLocaleString()}`);
