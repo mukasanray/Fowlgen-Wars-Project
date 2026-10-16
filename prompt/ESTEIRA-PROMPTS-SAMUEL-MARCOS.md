@@ -115,7 +115,7 @@ Ao acessar o **Kanban Studio** no navegador (`http://localhost:3000` via `npm ru
 ### 🎯 3.1. Aba "Tarefas da Sprint" (Execução Técnica do MVP)
 - Mostra o status operacional do código e builds na branch `main`:
   - **📋 A Fazer:** Tarefas pendentes de início (ex: geração de APK físico com Maria Clara, regra de desempate do timer pelo PO Samuel, submissão final).
-  - **⚡ Em Progresso:** Módulos em desenvolvimento ativo (Multiplayer FishNet 1v1 com Marcos, Rigs e Animações com Manuel/Vaguinhow, Portal Web com Junior).
+  - **⚡ Em Progresso:** Módulos em desenvolvimento ativo (Multiplayer FishNet 1v1 com Marcos, Rigs e Animações com Emanuel/Vaguinhow, Portal Web com Junior).
   - **👀 Em Revisão:** Módulos prontos aguardando homologação em aparelho físico (Transação de vitória com Jorge, Vídeo Pitch com Samuel/Ramiro, Pipeline CI/CD).
   - **✅ Concluído:** Entregas 100% validadas e testadas (Fundação Unity, Smart Contracts Devnet, Arena_Clean consolidada, Combate físico e Áudio/VFX).
 
@@ -135,7 +135,7 @@ Ao acessar o **Kanban Studio** no navegador (`http://localhost:3000` via `npm ru
 - Na barra superior do Kanban Studio, clique na foto/emoji de qualquer integrante para filtrar instantaneamente suas tarefas:
   - 👑 **Samuel:** Ideias de game design, decisões de PO, roteiro do pitch e gestão do kanban.
   - 💻 **Marcos:** Arquitetura off-chain (FishNet), integração Unity, smart contracts e coordenação técnica.
-  - 🕹️ **Manuel:** Cena `Arena_Clean.unity`, física de colisões, movimentação e rigs.
+  - 🕹️ **Emanuel:** Cena `Arena_Clean.unity`, física de colisões, movimentação e rigs.
   - 🛡️ **Jorge:** Smart contracts Anchor em Rust, SFX/BGM, mixers e DevSecOps.
   - 🌐 **Junior:** Desenvolvimento web em `app/` e esteira de documentação.
   - 🧪 **Maria Clara:** Testes de gameplay, UX mobile em aparelho físico e coerência do lore.

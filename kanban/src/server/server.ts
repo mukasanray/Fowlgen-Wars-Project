@@ -291,6 +291,10 @@ function getFeaturesFromGitBranch(branch: string) {
               assigneesSet.add('Jorge');
               assigneesSet.add('Jorge Espindola');
             }
+            if (ideaAssignee.toLowerCase() === 'emanuel' || ideaAssignee.toLowerCase() === 'manuel') {
+              assigneesSet.add('Emanuel');
+              assigneesSet.add('Manuel');
+            }
           }
         } catch {}
 
@@ -322,6 +326,10 @@ function getFeaturesFromGitBranch(branch: string) {
                 if (tLower === 'jorge' || tLower === 'jorge espindola') {
                   assigneesSet.add('Jorge');
                   assigneesSet.add('Jorge Espindola');
+                }
+                if (tLower === 'emanuel' || tLower === 'manuel') {
+                  assigneesSet.add('Emanuel');
+                  assigneesSet.add('Manuel');
                 }
               }
 
@@ -444,6 +452,10 @@ function getFeaturesData() {
           assigneesSet.add('Jorge');
           assigneesSet.add('Jorge Espindola');
         }
+        if (ideaAssignee.toLowerCase() === 'emanuel' || ideaAssignee.toLowerCase() === 'manuel') {
+          assigneesSet.add('Emanuel');
+          assigneesSet.add('Manuel');
+        }
       }
     }
 
@@ -477,6 +489,10 @@ function getFeaturesData() {
             if (tLower === 'jorge' || tLower === 'jorge espindola') {
               assigneesSet.add('Jorge');
               assigneesSet.add('Jorge Espindola');
+            }
+            if (tLower === 'emanuel' || tLower === 'manuel') {
+              assigneesSet.add('Emanuel');
+              assigneesSet.add('Manuel');
             }
           }
 
