@@ -4,54 +4,46 @@
 
 ---
 
-## ⚡ 1. O que você precisa ter instalado
+## 🚀 Como Executar o Instalador
 
-Apenas **duas ferramentas** básicas:
+Abra o terminal na pasta `kanban` e execute:
 
-1. **Node.js** (versão 18 ou superior) — [Baixar Node.js](https://nodejs.org/)
-2. **Git** — [Baixar Git](https://git-scm.com/)
-
-*(Opcional: **GitHub CLI `gh`**, necessário apenas caso queira sincronizar diretamente com o GitHub Projects na nuvem).*
-
-> 💡 **Privacidade e Sem Dependências Externas:** Tudo funciona localmente e fica versionado nos próprios arquivos do repositório (`openspec/changes/` e `kanban/src/config/`).
-
----
-
-## 🚀 2. Como Instalar e Rodar
-
-Abra o terminal na raiz do repositório e execute:
-
-### Passo 1: Entrar na pasta do Kanban
 ```bash
 cd kanban
+npm run setup
 ```
 
-### Passo 2: Instalar dependências (apenas na 1ª vez)
-```bash
-npm install
-```
-
-### Passo 3: Iniciar o Kanban Studio
-
-Você pode rodar no **Navegador** ou como **Aplicativo Desktop**:
-
-#### Opção A: No Navegador (Padrão)
-```bash
-npm run app
-```
-Acesse no seu navegador: 👉 **http://localhost:3000**
-
-#### Opção B: Aplicativo Desktop Nativo (Janela Electron)
-```bash
-npm run app:desktop
-```
-Abre o Kanban Studio diretamente como uma aplicação desktop nativa.
+> 💡 **Automação Completa:** Se o ambiente ainda não tiver as ferramentas ou dependências, o `npm run setup` chama automaticamente os arquivos da pasta `setup/` para instalar tudo e, ao final da instalação, exibe o menu interativo.
 
 ---
 
-## 🎮 3. Como Usar no Dia a Dia
+## 🎮 Menu Interativo do Instalador
 
-### 👤 3.1. Identidade do Desenvolvedor e Privacidade
+Ao executar o instalador, a **Central de Comandos** do Kanban Studio é exibida diretamente no seu terminal:
+
+```text
+======================================================
+   🐔 FOWLGEN WARS — KANBAN STUDIO MENU
+======================================================
+   [1] 🌐 Iniciar Servidor Web (http://localhost:3000)
+   [2] 💻 Iniciar Aplicativo Desktop (Electron)
+   [3] 📊 Gerar / Atualizar Dashboard (Markdown e HTML)
+   [4] 📋 Visualizar Status no Terminal
+   [5] 🔍 Diagnóstico e Integridade do Ambiente
+   [6] 🔄 Sincronizar com GitHub Projects
+   [7] 🔧 Reexecutar Instalação / Verificação Completa
+   [0] 🚪 Sair
+======================================================
+👉 Digite o número da opção desejada:
+```
+
+> 💡 **Como usar:** Digite o número da opção desejada e tecle `Enter`. Para encerrar qualquer serviço (como o servidor web na opção `[1]`) e retornar ao menu, pressione `Ctrl+C`.
+
+---
+
+## 🎮 2. Como Usar no Dia a Dia
+
+### 👤 2.1. Identidade do Desenvolvedor e Privacidade
 O Kanban Studio possui um sistema de detecção automática para saber quem está operando o quadro:
 * **Detecção Automática Inteligente**: O sistema identifica você através de:
   1. Arquivo local de identidade (`kanban/src/config/identity.local.json` — 100% privado e ignorado pelo Git).
@@ -63,14 +55,14 @@ O Kanban Studio possui um sistema de detecção automática para saber quem est�
 
 ---
 
-### 💻 3.2. Modo Local vs 🌐 Modo Oficial
+### 💻 2.2. Modo Local vs 🌐 Modo Oficial
 No cabeçalho do quadro, alterne entre:
 * **`💻 Modo Local`** *(Recomendado para o dia a dia)*: Trabalha diretamente na sua branch atual. Permite marcar checkboxes `[x]`, mover cards entre colunas, criar tarefas e salvar alterações.
 * **`🌐 Modo Oficial (main)`**: Modo de visualização somente-leitura para acompanhar o progresso consolidado e aprovado no branch principal.
 
 ---
 
-### 🎯 3.3. Visões do Quadro
+### 🎯 2.3. Visões do Quadro
 
 Você pode alternar entre duas abas no topo:
 
@@ -82,7 +74,7 @@ Você pode alternar entre duas abas no topo:
 
 ---
 
-### 👥 3.4. Gestão de Integrantes e Filtros Rápidos
+### 👥 2.4. Gestão de Integrantes e Filtros Rápidos
 * **Filtro por Integrante**: Clique na foto/nome de qualquer membro na barra superior para filtrar apenas as tarefas atribuídas a ele (ou "Todos" para limpar o filtro).
 * **Gerenciar Equipe**: Clique no botão de gestão de membros para:
   * Adicionar novos integrantes com nome, cargo, usuário do GitHub, avatar emoji e cor personalizada.
@@ -90,46 +82,58 @@ Você pode alternar entre duas abas no topo:
 
 ---
 
-### 💾 3.5. Como Salvar Alterações no Git
+### 💾 2.5. Como Salvar Alterações no Git
 1. Sempre que você alterar checkboxes, adicionar tarefas ou mover cards, o botão **`💾 Salvar Alterações`** no topo ficará destacado em verde.
 2. Clique nele, insira uma mensagem resumindo o que foi feito (ex: *"conclui sistema de torres da arena"*) e confirme.
 3. O Kanban Studio executa o commit no Git automaticamente, registrando suas modificações com precisão.
 
 ---
 
-## ⌨️ 4. Tabela de Comandos Úteis
+## ⌨️ 3. Tabela de Comandos Úteis
 
 | Comando | O que faz |
 |---|---|
+| `npm run setup` | Abre o **Menu Interativo** (`install.ts`) ou executa a instalação inicial automática. |
 | `npm run app` | Inicia o servidor e abre o Kanban no navegador (`localhost:3000`). |
 | `npm run dev` | Inicia em modo desenvolvimento com auto-reload via `tsx`. |
+| `npm run dashboard` | Atualiza os relatórios do dashboard Markdown e HTML com base no OpenSpec. |
 | `npm run app:desktop` | Compila o backend e abre o aplicativo em janela Desktop (Electron). |
 | `npm run build:server` | Compila o bundle do servidor de produção em `dist/server.js` via `esbuild`. |
-| `npm run dist` | Cria o instalador oficial para Windows (`.exe`) na pasta `release/`. |
-| `npm run dist:portable` | Cria o executável portátil para Windows na pasta `release/`. |
+| `npm run dist` | Cria o instalador oficial para Windows (`.exe` NSIS) na pasta `release/`. |
+| `npm run dist:portable` | Cria o executável portátil para Windows (`.exe`) na pasta `release/`. |
+| `npm run dist:msi` | Cria o instalador corporativo para Windows (`.msi`) na pasta `release/`. |
 | `npm run status` | Exibe o status e resumo das tarefas diretamente no terminal. |
 | `npm run verify` | Executa diagnóstico de integridade das pastas, OpenSpec e dependências. |
 | `npm run sync` | Sincroniza tarefas com o GitHub Projects na nuvem (se configurado). |
 
 ---
 
-## 📦 5. Gerando o Executável Desktop (.exe)
+## 📦 4. Gerando Executáveis Desktop (.exe / .msi)
 
-Se você preferir distribuir ou utilizar o Kanban Studio como um executável para Windows sem precisar abrir o terminal toda vez:
+Se você preferir distribuir ou utilizar o Kanban Studio como um aplicativo para Windows sem precisar abrir o terminal toda vez:
 
-1. Gere o executável portátil:
-   ```bash
-   npm run dist:portable
-   ```
-2. Ou gere o instalador completo (NSIS):
-   ```bash
-   npm run dist
-   ```
-3. O executável será gerado dentro da pasta `kanban/release/`. Basta dar dois cliques no `Kanban Studio.exe` para usar.
+### Opção 1: Executável Portátil (`.exe`) *(Recomendado para abrir direto sem instalar)*
+```bash
+npm run dist:portable
+```
+
+### Opção 2: Instalador Padrão (`.exe` NSIS)
+Instalador clássico com atalhos na Área de Trabalho e Menu Iniciar:
+```bash
+npm run dist
+```
+
+### Opção 3: Instalador Corporativo (`.msi`)
+Instalador padrão Windows Installer para distribuição em máquinas:
+```bash
+npm run dist:msi
+```
+
+> 📂 Os arquivos gerados ficam dentro da pasta `kanban/release/` (ex: `Kanban Studio 1.0.0.exe`). Basta dar dois cliques para abrir!
 
 ---
 
-## ❓ 6. Dúvidas Comuns e Boas Práticas
+## ❓ 5. Dúvidas Comuns e Boas Práticas
 
 * **Onde ficam salvas as tarefas?**  
   Dentro de cada proposta na pasta `openspec/changes/<id_da_feature>/tasks.md`.

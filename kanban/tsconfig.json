@@ -9,6 +9,6 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "install.ts"],
   "exclude": ["node_modules", "dist", "src/web"]
 }

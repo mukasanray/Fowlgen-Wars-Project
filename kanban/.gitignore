@@ -17,7 +17,9 @@ src/config/*.json.example
 
 # Node.js
 dist/
+release/
 node_modules/
+src/config/identity.local.json
 
 # TypeScript compilation outputs
 *.js.map

@@ -16,8 +16,7 @@ src/
 │   ├── update-columns.ts        # Atualiza colunas GitHub
 │   ├── generate-dashboard.ts    # Gera dashboard HTML/JSON
 │   ├── VIEW_STATUS.ts            # Mostra status atual
-│   ├── VERIFY_SETUP.ts          # Verifica configuração
-│   └── INSTALL.ts               # Configuração inicial
+│   └── VERIFY_SETUP.ts          # Verifica configuração
 │
 ├── types/                 # Interfaces TypeScript
 │   ├── interfaces.ts           # Interfaces principais do sistema
@@ -50,8 +49,9 @@ cd D:\Dev\Fowlgen-Wars-Project
 # Instale dependências TypeScript
 npm install
 
-# Execute configuração inicial
-npx ts-node src/scripts/INSTALL.ts
+# Execute configuração inicial / Menu Interativo
+npm run setup
+# ou: npx tsx install.ts
 ```
 
 ### 2. Verificação de Configuração
