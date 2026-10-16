@@ -11,6 +11,7 @@
     "status": "tsx src/scripts/VIEW_STATUS.ts",
     "dashboard": "tsx src/scripts/generate-dashboard.ts",
     "app": "tsx src/server/server.ts",
+    "app:open": "tsx src/server/server.ts --open",
     "dev": "tsx src/server/server.ts",
     "build:server": "esbuild src/server/server.ts --bundle --platform=node --format=esm --outfile=dist/server.js",
     "app:desktop": "npm run build:server && electron src/electron/main.cjs",

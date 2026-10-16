@@ -190,18 +190,8 @@ export class InstallSetup {
 
     if (FileSystemUtils.fileExists(htmlPath)) {
       console.log('\n🌐 Abrindo OpenSpec & Kanban Studio no navegador padrão...');
-      try {
-        if (process.platform === 'win32') {
-          execSync(`start "" "${htmlPath}"`, { stdio: 'ignore', shell: 'cmd.exe' });
-        } else if (process.platform === 'darwin') {
-          execSync(`open "${htmlPath}"`, { stdio: 'ignore' });
-        } else {
-          execSync(`xdg-open "${htmlPath}"`, { stdio: 'ignore' });
-        }
-        console.log('   ✅ Painel interativo aberto no navegador com sucesso!');
-      } catch {
-        console.log(`   💡 Para abrir manualmente: ${htmlPath}`);
-      }
+      this.openBrowser(htmlPath);
+      console.log('   ✅ Painel interativo aberto no navegador com sucesso!');
     }
 
     // 10. Write installation log
@@ -228,6 +218,20 @@ export class InstallSetup {
     }
   }
 
+  openBrowser(targetUrl: string): void {
+    try {
+      if (process.platform === 'win32') {
+        execSync(`start "" "${targetUrl}"`, { stdio: 'ignore', shell: 'cmd.exe' });
+      } else if (process.platform === 'darwin') {
+        execSync(`open "${targetUrl}"`, { stdio: 'ignore' });
+      } else {
+        execSync(`xdg-open "${targetUrl}"`, { stdio: 'ignore' });
+      }
+    } catch {
+      console.log(`   💡 Para abrir manualmente: ${targetUrl}`);
+    }
+  }
+
   async showMenu(): Promise<void> {
     let running = true;
 
@@ -250,8 +254,9 @@ export class InstallSetup {
       switch (choice) {
         case '1':
           console.log('\n🌐 Iniciando Servidor Web do Kanban Studio...');
+          console.log('🌐 Abrindo navegador em http://localhost:3000...');
           console.log('💡 Pressione Ctrl+C para encerrar o servidor e voltar ao menu.\n');
-          this.executeNpm('run app');
+          this.executeNpm('run app:open', { OPEN_BROWSER: 'true' });
           break;
         case '2':
           console.log('\n💻 Iniciando Aplicativo Desktop (Electron)...\n');
@@ -287,10 +292,14 @@ export class InstallSetup {
     }
   }
 
-  private executeNpm(scriptArgs: string): void {
+  private executeNpm(scriptArgs: string, extraEnv: NodeJS.ProcessEnv = {}): void {
     try {
       const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-      execSync(`${npmCmd} ${scriptArgs}`, { stdio: 'inherit', cwd: __dirname });
+      execSync(`${npmCmd} ${scriptArgs}`, {
+        stdio: 'inherit',
+        cwd: __dirname,
+        env: { ...process.env, ...extraEnv }
+      });
     } catch {
       console.log('\n↩️  Comando finalizado. Retornando ao menu...');
     }

@@ -1228,11 +1228,45 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+function openBrowser(targetUrl: string): void {
+  try {
+    if (process.platform === 'win32') {
+      execSync(`start "" "${targetUrl}"`, { stdio: 'ignore', shell: 'cmd.exe' });
+    } else if (process.platform === 'darwin') {
+      execSync(`open "${targetUrl}"`, { stdio: 'ignore' });
+    } else {
+      execSync(`xdg-open "${targetUrl}"`, { stdio: 'ignore' });
+    }
+  } catch {
+    console.log(`💡 Para abrir manualmente no navegador: ${targetUrl}`);
+  }
+}
+
+server.on('error', (err: any) => {
+  if (err.code === 'EADDRINUSE') {
+    const url = `http://localhost:${PORT}`;
+    console.log(`\n⚠️  A porta ${PORT} já está em uso.`);
+    console.log(`📡 O servidor Kanban já pode estar rodando em: ${url}`);
+    if (process.env.OPEN_BROWSER === 'true' || process.argv.includes('--open')) {
+      console.log(`🌐 Abrindo navegador em: ${url}\n`);
+      openBrowser(url);
+    }
+    console.log(`💡 Pressione Ctrl+C para voltar ao menu ou encerrar.`);
+  } else {
+    console.error('Erro no servidor:', err);
+  }
+});
+
 server.listen(PORT, () => {
   const url = `http://localhost:${PORT}`;
   console.log(`\n🎮 Fowlgen Wars - OpenSpec Control Center & Kanban Studio`);
   console.log(`📡 Servidor rodando em: ${url}`);
   console.log(`💡 Pressione Ctrl+C para encerrar.`);
+
+  if (process.env.OPEN_BROWSER === 'true' || process.argv.includes('--open')) {
+    console.log(`🌐 Abrindo navegador em: ${url}\n`);
+    openBrowser(url);
+  }
 });
 
 export { server };
