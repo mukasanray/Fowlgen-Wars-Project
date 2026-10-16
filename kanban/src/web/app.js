@@ -193,7 +193,7 @@ function updateCommandPreview(customCmd = null) {
   }
 
   const taskId = inputTaskId ? (inputTaskId.value.trim() || '2.1') : '2.1';
-  const status = selectTaskStatus ? selectTaskStatus.value : 'Concluído';
+  const status = selectTaskStatus ? selectTaskStatus.value : 'Backlog';
   const assignee = (selectTaskAssignee?.value || inputTaskAssignee?.value || 'Marcos').trim();
 
   // Resolve ID e Título da Ideia
