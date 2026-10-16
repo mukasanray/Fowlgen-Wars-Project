@@ -1290,8 +1290,8 @@ function createFeatureCard(feature) {
     return `
     <label class="task-item ${t.done ? 'done' : ''}">
       <input type="checkbox" ${t.done ? 'checked' : ''} ${feature.isFromGitBranch ? 'disabled title="Modo Histórico da branch (somente leitura)"' : ''} data-feature="${feature.name}" data-task-id="${t.id}" class="task-checkbox">
-      <span><strong>${t.id ? '**' + t.id + '**' : ''}</strong> ${cleanText || t.text}</span>
-      ${t.assignee ? `<span style="font-size: 10px; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); padding: 1px 6px; border-radius: 10px; margin-left: 6px; white-space: nowrap;">👤 ${t.assignee}</span>` : ''}
+      <span class="task-text"><strong>${t.id ? '**' + t.id + '**' : ''}</strong> ${escapeHtml(cleanText || t.text)}</span>
+      ${t.assignee ? `<span class="task-assignee-badge">👤 ${escapeHtml(t.assignee)}</span>` : ''}
     </label>
     `;
   }).join('');
@@ -2812,8 +2812,63 @@ document.querySelectorAll('.btn-copy-detail-cmd').forEach(btn => {
   });
 });
 
+// Sidebar Collapse / Expand Logic
+function toggleSidebar(forceState) {
+  const container = document.querySelector('.app-container');
+  if (!container) return;
+  const isCollapsed = forceState !== undefined 
+    ? forceState 
+    : !container.classList.contains('sidebar-collapsed');
+  
+  container.classList.toggle('sidebar-collapsed', isCollapsed);
+  try {
+    localStorage.setItem('kanban_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+  } catch {}
+  updateSidebarToggleButtons(isCollapsed);
+}
+
+function updateSidebarToggleButtons(isCollapsed) {
+  const btnTop = document.getElementById('btn-toggle-sidebar-top');
+  if (btnTop) {
+    btnTop.innerHTML = isCollapsed ? '⚡ Mostrar Painel' : '⚡ Ocultar Painel';
+    btnTop.classList.toggle('active', !isCollapsed);
+  }
+  const btnKanban = document.getElementById('btn-toggle-sidebar-kanban');
+  if (btnKanban) {
+    btnKanban.innerHTML = isCollapsed 
+      ? '<span class="toggle-icon">▶</span> <span class="toggle-label">Abrir Painel OpenSpec</span>' 
+      : '<span class="toggle-icon">◀</span> <span class="toggle-label">Recolher Painel</span>';
+    btnKanban.classList.toggle('collapsed', isCollapsed);
+  }
+}
+
+const btnToggleTop = document.getElementById('btn-toggle-sidebar-top');
+const btnToggleKanban = document.getElementById('btn-toggle-sidebar-kanban');
+const btnCollapseSidebar = document.getElementById('btn-collapse-sidebar');
+
+btnToggleTop?.addEventListener('click', () => toggleSidebar());
+btnToggleKanban?.addEventListener('click', () => toggleSidebar());
+btnCollapseSidebar?.addEventListener('click', () => toggleSidebar(true));
+
+// Keyboard shortcut Ctrl+B or Cmd+B to toggle sidebar
+window.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+    e.preventDefault();
+    toggleSidebar();
+  }
+});
+
 // Initialize on Load
 window.addEventListener('DOMContentLoaded', () => {
+  try {
+    const savedSidebarState = localStorage.getItem('kanban_sidebar_collapsed');
+    if (savedSidebarState === 'true') {
+      toggleSidebar(true);
+    } else {
+      updateSidebarToggleButtons(false);
+    }
+  } catch {}
   fetchGitInfo();
   fetchMembers();
   fetchFeatures();

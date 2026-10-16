@@ -70,6 +70,9 @@
     </div>
 
     <div class="header-actions">
+      <button class="btn btn-secondary btn-sm" id="btn-toggle-sidebar-top" title="Ocultar/Exibir Painel OpenSpec (Ctrl+B)">
+        ⚡ Painel
+      </button>
       <button class="btn btn-save btn-sm" id="btn-commit-openspec"
         title="Salva todas as tarefas alteradas no histórico do Git">
         💾 Salvar Alterações
@@ -98,7 +101,10 @@
       <div class="panel-card">
         <div class="panel-title">
           <h2>⚡ Comandos Essenciais do OpenSpec</h2>
-          <span class="badge-tag">PDF Interativo</span>
+          <div class="panel-title-actions">
+            <span class="badge-tag">PDF Interativo</span>
+            <button type="button" class="btn-icon-subtle" id="btn-collapse-sidebar" title="Recolher painel lateral (Ctrl+B)">◀</button>
+          </div>
         </div>
 
         <!-- Navigation Tabs -->
@@ -291,6 +297,11 @@
     <section class="kanban-view">
       <div class="kanban-header">
         <div class="kanban-header-left">
+          <button type="button" class="btn-toggle-sidebar" id="btn-toggle-sidebar-kanban"
+            title="Recolher ou expandir o painel lateral de Comandos OpenSpec (Atalho: Ctrl+B)">
+            <span class="toggle-icon">◀</span>
+            <span class="toggle-label">Recolher Painel</span>
+          </button>
           <!-- Alternador de Quadro: Tarefas da Sprint vs Funil de Ideias -->
           <div class="board-view-switch" role="tablist">
             <button type="button" class="board-view-btn active" id="btn-view-tasks"

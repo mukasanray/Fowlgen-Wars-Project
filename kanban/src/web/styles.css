@@ -61,13 +61,15 @@ body {
   background: rgba(10, 13, 20, 0.85);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-subtle);
-  padding: 16px 32px;
+  padding: 14px 24px;
   position: sticky;
   top: 0;
   z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .brand-section {
@@ -391,20 +393,32 @@ body {
 /* Layout */
 .app-container {
   display: grid;
-  grid-template-columns: 460px 1fr;
-  gap: 24px;
-  padding: 24px 32px;
+  grid-template-columns: 350px 1fr;
+  gap: 20px;
+  padding: 18px 24px;
   flex: 1;
-  max-width: 1720px;
-  margin: 0 auto;
   width: 100%;
+  max-width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+  transition: grid-template-columns 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Collapsed Sidebar State - Takes 100% full screen for Kanban */
+.app-container.sidebar-collapsed {
+  grid-template-columns: 1fr;
+}
+
+.app-container.sidebar-collapsed .control-panel {
+  display: none !important;
 }
 
 /* Control Panel (PDF Commands) */
 .control-panel {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
+  min-width: 0;
 }
 
 .panel-card {
@@ -412,7 +426,7 @@ body {
   backdrop-filter: blur(16px);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 18px 20px;
   box-shadow: var(--shadow-sm);
   transition: border-color 0.2s ease;
 }
@@ -425,16 +439,77 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .panel-title h2 {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   color: #ffffff;
+}
+
+.panel-title-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-icon-subtle {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-icon-subtle:hover {
+  background: rgba(139, 92, 246, 0.25);
+  border-color: rgba(139, 92, 246, 0.5);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+/* Sidebar Toggle in Kanban Header */
+.btn-toggle-sidebar {
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  color: #c4b5fd;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.btn-toggle-sidebar:hover {
+  background: rgba(139, 92, 246, 0.25);
+  border-color: rgba(139, 92, 246, 0.6);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.btn-toggle-sidebar.collapsed {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(59, 130, 246, 0.25));
+  border-color: #8b5cf6;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.35);
 }
 
 .badge-tag {
@@ -848,20 +923,21 @@ body {
 
 .kanban-columns {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
+  grid-template-columns: repeat(4, minmax(280px, 1fr));
+  gap: 16px;
   align-items: start;
+  width: 100%;
 }
 
 .column {
   background: rgba(15, 22, 36, 0.5);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 14px;
   min-height: 520px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .column-header {
@@ -1007,15 +1083,20 @@ body {
 
 .task-item {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
   color: #e2e8f0;
   cursor: pointer;
-  line-height: 1.35;
+  line-height: 1.4;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+  width: 100%;
 }
 
 .task-item:hover {
+  background: rgba(255, 255, 255, 0.04);
   color: #fff;
 }
 
@@ -1027,9 +1108,30 @@ body {
 .task-item input[type="checkbox"] {
   accent-color: var(--primary);
   cursor: pointer;
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
+  margin-top: 2px;
   flex-shrink: 0;
+}
+
+.task-text {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.task-assignee-badge {
+  font-size: 10px;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 1px;
 }
 
 /* Toast Notifications */
@@ -1656,7 +1758,15 @@ body {
 }
 
 /* Responsive */
-@media (max-width: 1200px) {
+@media (max-width: 1280px) {
+  .app-container {
+    grid-template-columns: 320px 1fr;
+    gap: 16px;
+    padding: 14px 16px;
+  }
+}
+
+@media (max-width: 1024px) {
   .app-container {
     grid-template-columns: 1fr;
   }
@@ -1669,13 +1779,13 @@ body {
   .app-header {
     flex-direction: column;
     gap: 12px;
-    padding: 16px;
+    padding: 14px 16px;
   }
   .kanban-columns {
     grid-template-columns: 1fr;
   }
   .app-container {
-    padding: 16px;
+    padding: 12px;
   }
 }
 
