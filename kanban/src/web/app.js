@@ -608,11 +608,21 @@ function renderAnalyticsDashboard(features) {
 
         const rawAssignee = t.assignee || f.ideaAssignee || '';
         if (rawAssignee) {
-          const key = rawAssignee.toLowerCase();
+          const key = rawAssignee.toLowerCase().replace(/^@/, '').trim();
           let foundMember = memberWorkload.get(key);
           if (!foundMember) {
             for (const [mId, mObj] of memberWorkload.entries()) {
-              if (mObj.name.toLowerCase() === key || key.includes(mObj.name.toLowerCase()) || mId.includes(key)) {
+              const nameLower = mObj.name.toLowerCase();
+              const firstWord = nameLower.split(' ')[0];
+              if (
+                nameLower === key ||
+                nameLower.includes(key) ||
+                key.includes(nameLower) ||
+                mId === key ||
+                mId.includes(key) ||
+                key.includes(mId) ||
+                firstWord === key
+              ) {
                 foundMember = mObj;
                 break;
               }
@@ -1003,20 +1013,44 @@ function renderFeatures(features) {
   // Filtragem por integrante
   const filtered = features.filter(feature => {
     if (currentAssigneeFilter === 'all') return true;
-    const filterLower = currentAssigneeFilter.toLowerCase();
+    const filterLower = currentAssigneeFilter.toLowerCase().replace(/^@/, '').trim();
+    
+    // Encontra o membro selecionado em teamMembers
+    const selectedMem = teamMembers.find(m => 
+      m.id.toLowerCase() === filterLower || 
+      m.name.toLowerCase() === filterLower ||
+      m.name.toLowerCase().includes(filterLower) ||
+      filterLower.includes(m.name.toLowerCase()) ||
+      m.name.toLowerCase().split(' ')[0] === filterLower
+    );
+
+    // Conjunto de tokens para validação cruzada
+    const searchTokens = new Set([filterLower]);
+    if (selectedMem) {
+      searchTokens.add(selectedMem.id.toLowerCase());
+      searchTokens.add(selectedMem.name.toLowerCase());
+      searchTokens.add(selectedMem.name.toLowerCase().split(' ')[0]);
+      if (selectedMem.github) searchTokens.add(selectedMem.github.toLowerCase());
+    }
+
+    const matchesToken = (val) => {
+      if (!val) return false;
+      const v = String(val).toLowerCase().replace(/^@/, '').trim();
+      for (const token of searchTokens) {
+        if (v === token || v.includes(token) || token.includes(v)) return true;
+      }
+      return false;
+    };
     
     // Verifica em ideaAssignee
-    if (feature.ideaAssignee && feature.ideaAssignee.toLowerCase().includes(filterLower)) return true;
+    if (matchesToken(feature.ideaAssignee)) return true;
     
     // Verifica na lista de assignees da feature
-    if (feature.assignees && feature.assignees.some(a => a.toLowerCase().includes(filterLower))) return true;
+    if (feature.assignees && feature.assignees.some(a => matchesToken(a))) return true;
     
     // Verifica nas tarefas individuais
     if (feature.tasks && feature.tasks.some(t => {
-      const text = (t.text || '').toLowerCase();
-      const raw = (t.raw || '').toLowerCase();
-      const assignee = (t.assignee || '').toLowerCase();
-      return text.includes(filterLower) || raw.includes(filterLower) || assignee.includes(filterLower);
+      return matchesToken(t.assignee) || matchesToken(t.text) || matchesToken(t.raw);
     })) return true;
 
     return false;

@@ -287,6 +287,10 @@ function getFeaturesFromGitBranch(branch: string) {
             ideaAssignee = teamMatch[2].trim();
             if (ideaAssignee === 'dev-team') ideaAssignee = 'Todos';
             assigneesSet.add(ideaAssignee);
+            if (ideaAssignee.toLowerCase() === 'jorge' || ideaAssignee.toLowerCase() === 'jorge espindola') {
+              assigneesSet.add('Jorge');
+              assigneesSet.add('Jorge Espindola');
+            }
           }
         } catch {}
 
@@ -312,7 +316,14 @@ function getFeaturesFromGitBranch(branch: string) {
               if (!taskAssignee && ideaAssignee && ideaAssignee !== 'Todos' && ideaAssignee !== 'dev-team') {
                 taskAssignee = ideaAssignee;
               }
-              if (taskAssignee) assigneesSet.add(taskAssignee);
+              if (taskAssignee) {
+                assigneesSet.add(taskAssignee);
+                const tLower = taskAssignee.toLowerCase().replace(/^@/, '');
+                if (tLower === 'jorge' || tLower === 'jorge espindola') {
+                  assigneesSet.add('Jorge');
+                  assigneesSet.add('Jorge Espindola');
+                }
+              }
 
               tasks.push({
                 id: taskId,
@@ -429,6 +440,10 @@ function getFeaturesData() {
         ideaAssignee = teamMatch[2].trim();
         if (ideaAssignee === 'dev-team') ideaAssignee = 'Todos';
         assigneesSet.add(ideaAssignee);
+        if (ideaAssignee.toLowerCase() === 'jorge' || ideaAssignee.toLowerCase() === 'jorge espindola') {
+          assigneesSet.add('Jorge');
+          assigneesSet.add('Jorge Espindola');
+        }
       }
     }
 
@@ -456,7 +471,14 @@ function getFeaturesData() {
           if (!taskAssignee && ideaAssignee && ideaAssignee !== 'Todos' && ideaAssignee !== 'dev-team') {
             taskAssignee = ideaAssignee;
           }
-          if (taskAssignee) assigneesSet.add(taskAssignee);
+          if (taskAssignee) {
+            assigneesSet.add(taskAssignee);
+            const tLower = taskAssignee.toLowerCase().replace(/^@/, '');
+            if (tLower === 'jorge' || tLower === 'jorge espindola') {
+              assigneesSet.add('Jorge');
+              assigneesSet.add('Jorge Espindola');
+            }
+          }
 
           tasks.push({
             id: taskId,
