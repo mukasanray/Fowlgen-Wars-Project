@@ -3,64 +3,63 @@
     "id": "samuel",
     "name": "Samuel",
     "role": "Product Owner • Game Design • Kanban",
-    "github": "samuelmenon",
+    "github": "mukasanray",
     "avatar": "👑",
-    "color": "#f59e0b"
+    "color": "#f59e0b",
+    "email": ""
   },
   {
     "id": "marcos",
     "name": "Marcos",
     "role": "Líder Técnico • Dev Core Unity & Web3",
-    "github": "mukasanray",
+    "github": "marcospascoski",
     "avatar": "💻",
-    "color": "#38bdf8"
+    "color": "#38bdf8",
+    "email": ""
   },
   {
     "id": "jorge",
     "name": "Jorge Espindola",
     "role": "DevSecOps & Web3 • Áudio & Docs",
-    "github": "jorgeespindola",
+    "github": "",
     "avatar": "🛡️",
-    "color": "#6366f1"
+    "color": "#6366f1",
+    "email": ""
   },
   {
     "id": "junior",
     "name": "Junior",
     "role": "Dev Web (React/Node) • Docs & Prompts",
-    "github": "junior",
+    "github": "",
     "avatar": "🌐",
-    "color": "#ec4899"
+    "color": "#ec4899",
+    "email": ""
   },
   {
     "id": "maria-clara",
     "name": "Maria Clara",
     "role": "QA Funcional • UX Testing & Lore",
-    "github": "mariaclara",
+    "github": "",
     "avatar": "🧪",
-    "color": "#14b8a6"
+    "color": "#14b8a6",
+    "email": ""
   },
   {
     "id": "ramiro",
     "name": "Ramiro",
     "role": "Marketing Estratégico & Pitch Deck",
-    "github": "ramiro",
+    "github": "",
     "avatar": "📈",
-    "color": "#eab308"
+    "color": "#eab308",
+    "email": ""
   },
   {
-    "id": "dev-team",
-    "name": "Dev Team",
-    "role": "Equipe Técnica Geral",
-    "github": "dev-team",
-    "avatar": "👥",
-    "color": "#94a3b8"
-  },
-  {
-    "id": "ia",
-    "name": "Agente IA",
-    "role": "Automação & Copilot",
-    "github": "antigravity-ai",
-    "avatar": "🤖",
-    "color": "#a855f7"
+    "id": "sthefany",
+    "name": "Sthefany",
+    "role": "Midia Social",
+    "email": "",
+    "github": "mukasanray",
+    "avatar": "📈",
+    "color": "#f59e0b"
   }
 ]
