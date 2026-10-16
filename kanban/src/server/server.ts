@@ -24,21 +24,21 @@ function findRepoRoot(startDir: string): string {
 }
 
 const REPO_ROOT = findRepoRoot(__dirname);
-const KANBAN_ROOT = process.env.KANBAN_ROOT 
+const KANBAN_ROOT = process.env.KANBAN_ROOT
   ? path.resolve(process.env.KANBAN_ROOT)
-  : (fs.existsSync(path.join(REPO_ROOT, 'kanban')) 
-      ? path.join(REPO_ROOT, 'kanban') 
-      : path.resolve(__dirname, '../../'));
+  : (fs.existsSync(path.join(REPO_ROOT, 'kanban'))
+    ? path.join(REPO_ROOT, 'kanban')
+    : path.resolve(__dirname, '../../'));
 
-const OPEN_SPEC_DIR = process.env.OPEN_SPEC_DIR 
+const OPEN_SPEC_DIR = process.env.OPEN_SPEC_DIR
   ? path.resolve(process.env.OPEN_SPEC_DIR)
   : path.join(REPO_ROOT, 'openspec/changes');
 
 const WEB_DIR = fs.existsSync(path.join(KANBAN_ROOT, 'src/web'))
   ? path.join(KANBAN_ROOT, 'src/web')
   : (fs.existsSync(path.resolve(__dirname, '../web'))
-      ? path.resolve(__dirname, '../web')
-      : path.resolve(__dirname, 'web'));
+    ? path.resolve(__dirname, '../web')
+    : path.resolve(__dirname, 'web'));
 
 const ENV_PATH = path.join(KANBAN_ROOT, '.env');
 const CONFIG_PATH = path.join(KANBAN_ROOT, 'src/config/kanban-config.json');
@@ -58,7 +58,7 @@ function getMembers(): Member[] {
   if (fs.existsSync(MEMBERS_PATH)) {
     try {
       return JSON.parse(fs.readFileSync(MEMBERS_PATH, 'utf8'));
-    } catch {}
+    } catch { }
   }
   return [
     { id: 'marcos', name: 'Marcos', role: 'Unity / C# Developer', github: 'mukasanray', avatar: '👤', color: '#38bdf8' },
@@ -70,6 +70,42 @@ function getMembers(): Member[] {
 
 function saveMembers(members: Member[]) {
   fs.writeFileSync(MEMBERS_PATH, JSON.stringify(members, null, 2), 'utf8');
+}
+
+export function normalizeAssignee(raw?: string): string {
+  if (!raw) return '';
+  const clean = raw.replace(/^@/, '').trim().toLowerCase();
+  if (clean === 'jorge' || clean === 'jorge-espindola' || clean === 'jorge espindola' || clean === 'jpespindola') {
+    return 'Jorge Espindola';
+  }
+  if (clean === 'manuel' || clean === 'emanuel') {
+    return 'Emanuel';
+  }
+  if (clean === 'marcos' || clean === 'marcospascoski') {
+    return 'Marcos';
+  }
+  if (clean === 'samuel' || clean === 'mukasanray') {
+    return 'Samuel';
+  }
+  if (clean === 'junior' || clean === 'nobregaxaviieer') {
+    return 'Junior';
+  }
+  if (clean === 'maria-clara' || clean === 'maria clara' || clean === 'maria') {
+    return 'Maria Clara';
+  }
+  if (clean === 'ramiro') {
+    return 'Ramiro';
+  }
+  if (clean === 'sthefany') {
+    return 'Sthefany';
+  }
+  if (clean === 'vaguinhow') {
+    return 'Vaguinhow';
+  }
+  if (clean === 'dev-team') {
+    return 'Todos';
+  }
+  return raw.replace(/^@/, '').trim();
 }
 
 function updateOpenSpecTask(featureId: string, taskNumber: string, isCompleted: boolean, status?: string, assignee?: string, text?: string): void {
@@ -145,7 +181,7 @@ function getGitInfo() {
     let currentBranch = 'main';
     try {
       currentBranch = execSync('git branch --show-current', { encoding: 'utf8', cwd: REPO_ROOT }).trim();
-    } catch {}
+    } catch { }
 
     let branches: string[] = [];
     try {
@@ -156,7 +192,7 @@ function getGitInfo() {
           .map(b => b.replace(/^\*?\s+/, '').replace(/^remotes\//, '').trim())
           .filter(b => b && !b.includes('->'))
       ));
-    } catch {}
+    } catch { }
 
     let modifiedFiles: string[] = [];
     try {
@@ -164,20 +200,20 @@ function getGitInfo() {
       if (statusOut) {
         modifiedFiles = statusOut.split('\n').map(l => l.trim());
       }
-    } catch {}
+    } catch { }
 
     let lastCommit = '';
     try {
       lastCommit = execSync('git log -1 --format="%h - %s (%cr)"', { encoding: 'utf8', cwd: REPO_ROOT }).trim();
-    } catch {}
+    } catch { }
 
     let gitUser = { name: '', email: '' };
     try {
       gitUser.name = execSync('git config user.name', { encoding: 'utf8', cwd: REPO_ROOT }).trim();
-    } catch {}
+    } catch { }
     try {
       gitUser.email = execSync('git config user.email', { encoding: 'utf8', cwd: REPO_ROOT }).trim();
-    } catch {}
+    } catch { }
 
     const members = getMembers();
     let detectedMember: any = null;
@@ -190,7 +226,7 @@ function getGitInfo() {
         if (localData && localData.memberId) {
           detectedMember = members.find(m => m.id === localData.memberId) || null;
         }
-      } catch {}
+      } catch { }
     }
 
     // 2. Prioridade 2: GitHub Username (público e sem expor e-mails pessoais)
@@ -282,21 +318,12 @@ function getFeaturesFromGitBranch(branch: string) {
             ideaStatus = 'Criado';
           }
 
-          const teamMatch = proposal.match(/\[(APROVADO|CRIADO|VALIDADO|REJEITADO)\]\s+por\s+([^\s\n]+)/i);
+          const teamMatch = proposal.match(/\[(APROVADO|CRIADO|VALIDADO|REJEITADO)\]\s+por\s+([^,\n\r]+?)(?:\s+em\s+|\s*$)/i) || proposal.match(/\[(APROVADO|CRIADO|VALIDADO|REJEITADO)\]\s+por\s+([^\s\n]+)/i);
           if (teamMatch) {
-            ideaAssignee = teamMatch[2].trim();
-            if (ideaAssignee === 'dev-team') ideaAssignee = 'Todos';
+            ideaAssignee = normalizeAssignee(teamMatch[2].trim());
             assigneesSet.add(ideaAssignee);
-            if (ideaAssignee.toLowerCase() === 'jorge' || ideaAssignee.toLowerCase() === 'jorge espindola') {
-              assigneesSet.add('Jorge');
-              assigneesSet.add('Jorge Espindola');
-            }
-            if (ideaAssignee.toLowerCase() === 'emanuel' || ideaAssignee.toLowerCase() === 'manuel') {
-              assigneesSet.add('Emanuel');
-              assigneesSet.add('Manuel');
-            }
           }
-        } catch {}
+        } catch { }
 
         let tasks: Array<{ id: string; text: string; done: boolean; assignee?: string; raw: string; section: string }> = [];
         try {
@@ -316,21 +343,12 @@ function getFeaturesFromGitBranch(branch: string) {
               const text = taskMatch[4] ? taskMatch[4].trim() : '';
 
               const assigneeMatch = text.match(/@([\w-]+)/i) || text.match(/\(([^)]+)\)\s*$/i) || text.match(/\[([\w-]+)\]\s*$/i);
-              let taskAssignee = assigneeMatch ? assigneeMatch[1].trim() : '';
-              if (!taskAssignee && ideaAssignee && ideaAssignee !== 'Todos' && ideaAssignee !== 'dev-team') {
+              let taskAssignee = assigneeMatch ? normalizeAssignee(assigneeMatch[1].trim()) : '';
+              if (!taskAssignee && ideaAssignee && ideaAssignee !== 'Todos') {
                 taskAssignee = ideaAssignee;
               }
               if (taskAssignee) {
                 assigneesSet.add(taskAssignee);
-                const tLower = taskAssignee.toLowerCase().replace(/^@/, '');
-                if (tLower === 'jorge' || tLower === 'jorge espindola') {
-                  assigneesSet.add('Jorge');
-                  assigneesSet.add('Jorge Espindola');
-                }
-                if (tLower === 'emanuel' || tLower === 'manuel') {
-                  assigneesSet.add('Emanuel');
-                  assigneesSet.add('Manuel');
-                }
               }
 
               tasks.push({
@@ -343,7 +361,7 @@ function getFeaturesFromGitBranch(branch: string) {
               });
             }
           }
-        } catch {}
+        } catch { }
 
         const totalTasks = tasks.length;
         const doneTasks = tasks.filter(t => t.done).length;
@@ -403,7 +421,7 @@ function getFeaturesData() {
         if (m) modifiedFeatures.add(m[1].trim());
       }
     }
-  } catch {}
+  } catch { }
 
   const entries = fs.readdirSync(OPEN_SPEC_DIR, { withFileTypes: true });
   const featureDirs = entries.filter(e => e.isDirectory()).map(e => e.name);
@@ -443,19 +461,10 @@ function getFeaturesData() {
         ideaStatus = 'Criado';
       }
 
-      const teamMatch = proposal.match(/\[(APROVADO|CRIADO|VALIDADO|REJEITADO)\]\s+por\s+([^\s\n]+)/i);
+      const teamMatch = proposal.match(/\[(APROVADO|CRIADO|VALIDADO|REJEITADO)\]\s+por\s+([^,\n\r]+?)(?:\s+em\s+|\s*$)/i) || proposal.match(/\[(APROVADO|CRIADO|VALIDADO|REJEITADO)\]\s+por\s+([^\s\n]+)/i);
       if (teamMatch) {
-        ideaAssignee = teamMatch[2].trim();
-        if (ideaAssignee === 'dev-team') ideaAssignee = 'Todos';
+        ideaAssignee = normalizeAssignee(teamMatch[2].trim());
         assigneesSet.add(ideaAssignee);
-        if (ideaAssignee.toLowerCase() === 'jorge' || ideaAssignee.toLowerCase() === 'jorge espindola') {
-          assigneesSet.add('Jorge');
-          assigneesSet.add('Jorge Espindola');
-        }
-        if (ideaAssignee.toLowerCase() === 'emanuel' || ideaAssignee.toLowerCase() === 'manuel') {
-          assigneesSet.add('Emanuel');
-          assigneesSet.add('Manuel');
-        }
       }
     }
 
@@ -479,21 +488,12 @@ function getFeaturesData() {
           const text = taskMatch[4] ? taskMatch[4].trim() : '';
 
           const assigneeMatch = text.match(/@([\w-]+)/i) || text.match(/\(([^)]+)\)\s*$/i) || text.match(/\[([\w-]+)\]\s*$/i);
-          let taskAssignee = assigneeMatch ? assigneeMatch[1].trim() : '';
-          if (!taskAssignee && ideaAssignee && ideaAssignee !== 'Todos' && ideaAssignee !== 'dev-team') {
+          let taskAssignee = assigneeMatch ? normalizeAssignee(assigneeMatch[1].trim()) : '';
+          if (!taskAssignee && ideaAssignee && ideaAssignee !== 'Todos') {
             taskAssignee = ideaAssignee;
           }
           if (taskAssignee) {
             assigneesSet.add(taskAssignee);
-            const tLower = taskAssignee.toLowerCase().replace(/^@/, '');
-            if (tLower === 'jorge' || tLower === 'jorge espindola') {
-              assigneesSet.add('Jorge');
-              assigneesSet.add('Jorge Espindola');
-            }
-            if (tLower === 'emanuel' || tLower === 'manuel') {
-              assigneesSet.add('Emanuel');
-              assigneesSet.add('Manuel');
-            }
           }
 
           tasks.push({
@@ -621,7 +621,7 @@ function generateSmartOpenSpec(featureId: string, title?: string, promptText?: s
         return fs.statSync(path.join(OPEN_SPEC_DIR, d)).isDirectory() && d !== cleanId;
       });
       existingFeatures.push(...dirs);
-    } catch {}
+    } catch { }
   }
 
   // Análise de Guardrails e Prevenção de Conflitos (Claude.md)
@@ -773,7 +773,7 @@ const server = http.createServer(async (req, res) => {
 
     // API: Update member (PUT /api/members, PUT /api/members/:id ou POST /api/members/update)
     const isMemberUpdate = (req.method === 'PUT' && (pathname === '/api/members' || pathname.startsWith('/api/members/'))) ||
-                           ((req.method === 'POST' || req.method === 'PUT') && pathname === '/api/members/update');
+      ((req.method === 'POST' || req.method === 'PUT') && pathname === '/api/members/update');
 
     if (isMemberUpdate) {
       const body = await parseJSONBody(req);
@@ -883,7 +883,7 @@ const server = http.createServer(async (req, res) => {
 
       try {
         execSync(`git config user.name "${targetMember.name}"`, { cwd: REPO_ROOT });
-      } catch {}
+      } catch { }
 
       const gitInfo = getGitInfo();
       sendJSON(res, 200, {
@@ -896,7 +896,7 @@ const server = http.createServer(async (req, res) => {
 
     // API: Delete member (DELETE /api/members/:id, DELETE /api/members ou POST /api/members/delete)
     const isMemberDelete = (req.method === 'POST' && pathname === '/api/members/delete') ||
-                           (req.method === 'DELETE' && (pathname === '/api/members' || pathname.startsWith('/api/members/')));
+      (req.method === 'DELETE' && (pathname === '/api/members' || pathname.startsWith('/api/members/')));
 
     if (isMemberDelete) {
       let targetId = '';
@@ -936,7 +936,7 @@ const server = http.createServer(async (req, res) => {
       if (fs.existsSync(CONFIG_PATH)) {
         try {
           configData = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-        } catch {}
+        } catch { }
       }
 
       const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '';
@@ -1327,7 +1327,7 @@ const server = http.createServer(async (req, res) => {
       if (!fs.existsSync(htmlPath)) {
         try {
           execSync('npm.cmd run dashboard', { cwd: KANBAN_ROOT, stdio: 'ignore' });
-        } catch {}
+        } catch { }
       }
 
       const htmlContent = fs.existsSync(htmlPath) ? fs.readFileSync(htmlPath, 'utf8') : '';

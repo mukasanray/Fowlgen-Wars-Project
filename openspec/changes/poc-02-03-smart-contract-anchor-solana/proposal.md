@@ -16,4 +16,4 @@ Contrato program/programs/fowlgen_wars_contract/src/lib.rs e teste de integraç�
 Instruções initialize e increment implementadas, IDL exportado e verificado no Solana Explorer.
 
 ## Status
-[APROVADO] por Jorge em 2026-10-13
+[APROVADO] por Jorge Espindola em 2026-10-13

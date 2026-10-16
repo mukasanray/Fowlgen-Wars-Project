@@ -16,4 +16,4 @@ AudioManager.cs, CombatVFXManager.cs, materiais URP Lit dos minions Caipira e Ro
 Pool de 12 canais de áudio, áudio procedural matemático em tempo real, partículas Shuriken leves e AutoRotation horizontal.
 
 ## Status
-[APROVADO] por Jorge em 2026-10-13
+[APROVADO] por Jorge Espindola em 2026-10-13

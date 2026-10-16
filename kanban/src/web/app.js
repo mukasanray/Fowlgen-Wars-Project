@@ -1270,8 +1270,18 @@ function createFeatureCard(feature) {
     ? `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px;">🌿 ${feature.branch}</span>`
     : '';
 
-  const assigneesHtml = feature.assignees && feature.assignees.length > 0
-    ? feature.assignees.map(a => `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px;">👤 ${a === 'dev-team' ? 'Todos' : a}</span>`).join(' ')
+  const rawAssigneesList = feature.assignees && feature.assignees.length > 0 ? feature.assignees : ['Todos'];
+  const uniqueAssignees = Array.from(new Set(rawAssigneesList.map(a => {
+    if (!a) return '';
+    const clean = a.replace(/^@/, '').trim().toLowerCase();
+    if (clean === 'jorge' || clean === 'jorge espindola' || clean === 'jorge-espindola' || clean === 'jpespindola') return 'Jorge Espindola';
+    if (clean === 'manuel' || clean === 'emanuel') return 'Emanuel';
+    if (clean === 'dev-team') return 'Todos';
+    return a.replace(/^@/, '').trim();
+  }))).filter(Boolean);
+
+  const assigneesHtml = uniqueAssignees.length > 0
+    ? uniqueAssignees.map(a => `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px;">👤 ${a}</span>`).join(' ')
     : `<span class="badge-tag" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; font-size: 10px;">👥 Todos</span>`;
 
   // Task Items HTML

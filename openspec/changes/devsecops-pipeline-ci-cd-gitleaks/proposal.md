@@ -16,4 +16,4 @@ Workflow .github/workflows/ e arquivo .gitleaksignore configurados no repositór
 Execução automática de cargo check, clippy, test e auditoria contínua de segredos em cada PR.
 
 ## Status
-[APROVADO] por Jorge em 2026-10-15
+[APROVADO] por Jorge Espindola em 2026-10-15

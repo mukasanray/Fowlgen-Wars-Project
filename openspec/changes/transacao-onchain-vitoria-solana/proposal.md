@@ -16,4 +16,4 @@ TransactionManager.cs, IDL fowlgen_wars_contract.json e botão no VictoryDefeatP
 Montagem de transação assinada pela carteira conectada, broadcast RPC para a Devnet e toast com link do Explorer.
 
 ## Status
-[APROVADO] por Jorge em 2026-10-15
+[APROVADO] por Jorge Espindola em 2026-10-15
