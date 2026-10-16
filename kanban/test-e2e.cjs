@@ -81,11 +81,54 @@ async function runAllTests() {
 
     // 2. Test Configuration & Members API
     console.log('\n--- 2. API de Membros & Git ---');
+    assert(resAppJs.data.includes('btnSaveMember?.addEventListener(\'click\', saveOrUpdateMember)'), 'app.js vincula evento de clique ao botão salvar/cadastrar integrante');
+    assert(resAppJs.data.includes('btnCancelEditMember?.addEventListener(\'click\', cancelEditMember)'), 'app.js vincula evento de clique ao botão cancelar edição');
+
     const resMembers = await request({ path: '/api/members' });
     assert(resMembers.status === 200 && resMembers.json && resMembers.json.success, 'GET /api/members retorna 200 com lista');
     assert(Array.isArray(resMembers.json.members) && resMembers.json.members.length > 0, 'Lista de integrantes não está vazia');
     const hasCoreMembers = resMembers.json.members.some(m => m.id === 'marcos' || m.id === 'samuel');
     assert(hasCoreMembers, 'Membros core (Marcos / Samuel) estão presentes na lista de integrantes');
+
+    // Teste Cadastro de Integrante (POST /api/members)
+    const testMemberName = 'Dev Teste Automatizado';
+    const resCreateMember = await request({
+      path: '/api/members',
+      method: 'POST'
+    }, {
+      name: testMemberName,
+      role: 'QA & Automação',
+      github: 'devteste',
+      avatar: '🧪',
+      color: '#10b981'
+    });
+    assert(resCreateMember.status === 200 && resCreateMember.json && resCreateMember.json.success, 'POST /api/members cadastra novo integrante com sucesso');
+    const createdMemberId = resCreateMember.json.member.id;
+
+    // Teste Alteração de Integrante (PUT /api/members/update)
+    const resUpdateMember = await request({
+      path: '/api/members/update',
+      method: 'PUT'
+    }, {
+      id: createdMemberId,
+      name: testMemberName,
+      role: 'Líder de Automação & Testes',
+      github: 'devteste-updated',
+      avatar: '🛡️',
+      color: '#6366f1'
+    });
+    assert(resUpdateMember.status === 200 && resUpdateMember.json && resUpdateMember.json.success, 'PUT /api/members/update altera integrante com sucesso');
+    assert(resUpdateMember.json.member.github === 'devteste-updated', 'GitHub do integrante atualizado corretamente');
+    assert(resUpdateMember.json.member.role === 'Líder de Automação & Testes', 'Papel do integrante atualizado corretamente');
+
+    // Teste Exclusão de Integrante (POST /api/members/delete)
+    const resDeleteMember = await request({
+      path: '/api/members/delete',
+      method: 'POST'
+    }, {
+      id: createdMemberId
+    });
+    assert(resDeleteMember.status === 200 && resDeleteMember.json && resDeleteMember.json.success, 'POST /api/members/delete remove integrante temporário com sucesso');
 
     const resGit = await request({ path: '/api/git/info' });
     assert(resGit.status === 200 && resGit.json && resGit.json.success, 'GET /api/git/info retorna dados de branch e commit');

@@ -690,7 +690,12 @@ const server = http.createServer(async (req, res) => {
       }
 
       const cleanName = name.trim();
-      const cleanId = cleanName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      let cleanId = cleanName
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '') || `membro-${Date.now()}`;
       const members = getMembers();
 
       const existing = members.find(m => m.id === cleanId || m.name.toLowerCase() === cleanName.toLowerCase());
@@ -698,6 +703,13 @@ const server = http.createServer(async (req, res) => {
         sendJSON(res, 400, { success: false, error: `Já existe um integrante cadastrado com o nome "${cleanName}".` });
         return;
       }
+
+      let uniqueId = cleanId;
+      let counter = 1;
+      while (members.some(m => m.id === uniqueId)) {
+        uniqueId = `${cleanId}-${counter++}`;
+      }
+      cleanId = uniqueId;
 
       const newMember = {
         id: cleanId,

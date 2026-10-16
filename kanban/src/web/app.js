@@ -1752,6 +1752,9 @@ btnOpenSettings.addEventListener('click', () => {
 
 function closeModal() {
   modalSettings.classList.remove('open');
+  if (typeof cancelEditMember === 'function') {
+    cancelEditMember();
+  }
 }
 
 btnCloseSettings.addEventListener('click', closeModal);
@@ -2162,6 +2165,11 @@ async function saveOrUpdateMember() {
   const method = isEditing ? 'PUT' : 'POST';
   const payload = isEditing ? { id: editId, name, role, github, avatar, color } : { name, role, github, avatar, color };
 
+  if (btnSaveMember) {
+    btnSaveMember.disabled = true;
+    btnSaveMember.innerHTML = '⏳ Salvando...';
+  }
+
   try {
     const res = await fetch(endpoint, {
       method,
@@ -2173,13 +2181,22 @@ async function saveOrUpdateMember() {
       showToast(data.message, 'success');
       appendLog(data.message);
       cancelEditMember();
-      fetchMembers();
-      fetchFeatures();
+      await fetchMembers();
+      await fetchFeatures();
     } else {
       showToast(data.error || 'Erro ao salvar integrante', 'error');
     }
   } catch (err) {
     showToast('Erro de conexão ao salvar integrante', 'error');
+  } finally {
+    if (btnSaveMember) {
+      btnSaveMember.disabled = false;
+      if (inputMemberEditId && inputMemberEditId.value) {
+        btnSaveMember.innerHTML = '💾 Salvar Alterações';
+      } else {
+        btnSaveMember.innerHTML = '💾 Cadastrar Integrante';
+      }
+    }
   }
 }
 
@@ -2291,6 +2308,21 @@ inputSearchMembers?.addEventListener('input', (e) => {
 btnQuickManageMembers?.addEventListener('click', () => {
   modalSettings?.classList.add('open');
   document.getElementById('modal-tab-members')?.click();
+});
+
+// Member Form: Cadastrar / Alterar Integrante e Cancelar Edição
+btnSaveMember?.addEventListener('click', saveOrUpdateMember);
+btnCancelEditMember?.addEventListener('click', cancelEditMember);
+
+[inputMemberName, inputMemberRole, inputMemberGithub].forEach(input => {
+  input?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveOrUpdateMember();
+    } else if (e.key === 'Escape') {
+      cancelEditMember();
+    }
+  });
 });
 
 // Populate Team / Assignee Selects with registered members

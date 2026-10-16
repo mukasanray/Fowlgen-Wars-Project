@@ -20,8 +20,8 @@
   {
     "id": "jorge",
     "name": "Jorge Espindola",
-    "role": "DevSecOps & Web3 • Áudio & Docs",
-    "github": "",
+    "role": "DevSecOps & Web3 - Áudio & Docs",
+    "github": "jpespindola",
     "avatar": "🛡️",
     "color": "#6366f1",
     "email": ""
@@ -30,7 +30,7 @@
     "id": "junior",
     "name": "Junior",
     "role": "Dev Web (React/Node) • Docs & Prompts",
-    "github": "",
+    "github": "nobregaxaviieer",
     "avatar": "🌐",
     "color": "#ec4899",
     "email": ""
@@ -58,8 +58,17 @@
     "name": "Sthefany",
     "role": "Midia Social",
     "email": "",
-    "github": "mukasanray",
+    "github": "",
     "avatar": "📈",
+    "color": "#f59e0b"
+  },
+  {
+    "id": "vaguinhow",
+    "name": "Vaguinhow",
+    "role": "Animador 3D",
+    "email": "",
+    "github": "",
+    "avatar": "🎨",
     "color": "#f59e0b"
   }
 ]
