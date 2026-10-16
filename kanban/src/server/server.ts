@@ -507,16 +507,18 @@ function getFeaturesData() {
   });
 }
 
-function generateSmartOpenSpec(featureId: string, title?: string) {
+function generateSmartOpenSpec(featureId: string, title?: string, promptText?: string) {
   const cleanId = featureId.trim().toLowerCase().replace(/\s+/g, '-');
   const cleanTitle = title && title.trim() ? title.trim() : cleanId.replace(/-/g, ' ');
 
-  const textToScan = `${cleanId} ${cleanTitle}`.toLowerCase();
-  const isCombat = /combat|dano|health|vida|tiro|skill|poder|ataque|hero|minion|torre|bala|arma/i.test(textToScan);
+  const textToScan = `${cleanId} ${cleanTitle} ${promptText || ''}`.toLowerCase();
+  const isCombat = /combat|dano|health|vida|tiro|skill|poder|ataque|hero|minion|torre|bala|arma|montaria/i.test(textToScan);
   const isUI = /ui|hud|menu|tela|painel|botao|joystick|ranking|placar|indicador/i.test(textToScan);
   const isEconomy = /ouro|gold|moeda|loja|recompensa|nft|token|solana|metaplex|inventario/i.test(textToScan);
 
-  let motivation = `Atender à evolução contínua do Fowlgen Wars com especificação clara, modular e alinhada ao Mini-MOBA MVP.`;
+  let motivation = promptText && promptText.trim()
+    ? `${promptText.trim()}\n\nAlinhado à evolução contínua do Fowlgen Wars com especificação clara, modular e alinhada ao Mini-MOBA MVP.`
+    : `Atender à evolução contínua do Fowlgen Wars com especificação clara, modular e alinhada ao Mini-MOBA MVP.`;
   let solution = `Implementar componentes modulares respeitando as convenções de Claude.md e validando em Play mode na cena Arena_Clean.`;
   let alternatives = `Tentativas monolíticas sem isolamento de componentes foram descartadas para evitar conflitos na árvore de prefabs.`;
 
@@ -1057,7 +1059,7 @@ const server = http.createServer(async (req, res) => {
 
     // API: Create new feature
     if (req.method === 'POST' && pathname === '/api/features/create') {
-      const { featureId, title, summary, tasks } = await parseJSONBody(req);
+      const { featureId, title, summary, tasks, prompt: promptText } = await parseJSONBody(req);
       if (!featureId) {
         sendJSON(res, 400, { success: false, error: 'ID da feature é obrigatório.' });
         return;
@@ -1073,7 +1075,8 @@ const server = http.createServer(async (req, res) => {
 
       fs.mkdirSync(featureDir, { recursive: true });
 
-      const proposalContent = `# Feature: ${cleanId}\n\n## Title\n${title || cleanId}\n\n## Summary\n${summary || 'Proposta de feature para Fowlgen Wars.'}\n\n## Status\n[CRIADO]\n`;
+      const finalSummary = summary || promptText || 'Proposta de feature para Fowlgen Wars.';
+      const proposalContent = `# Feature: ${cleanId}\n\n## Title\n${title || cleanId}\n\n## Summary\n${finalSummary}\n\n## Motivation\n${promptText || 'Atender à evolução contínua do Fowlgen Wars.'}\n\n## Status\n[CRIADO]\n`;
       fs.writeFileSync(path.join(featureDir, 'proposal.md'), proposalContent, 'utf8');
 
       const initialTasks = Array.isArray(tasks) && tasks.length > 0 ? tasks : ['Definir planejamento', 'Implementar requisitos'];
@@ -1093,13 +1096,13 @@ const server = http.createServer(async (req, res) => {
 
     // API: AI Generate feature (Proposta estruturada e tarefas 100% locais)
     if (req.method === 'POST' && pathname === '/api/features/ai-generate') {
-      const { featureId, title } = await parseJSONBody(req);
+      const { featureId, title, prompt: promptText } = await parseJSONBody(req);
       if (!featureId) {
         sendJSON(res, 400, { success: false, error: 'ID ou tema da feature é obrigatório.' });
         return;
       }
 
-      const generated = generateSmartOpenSpec(featureId, title);
+      const generated = generateSmartOpenSpec(featureId, title, promptText);
       const featureDir = path.join(OPEN_SPEC_DIR, generated.cleanId);
 
       if (fs.existsSync(featureDir)) {
@@ -1118,6 +1121,31 @@ const server = http.createServer(async (req, res) => {
         totalTasks: generated.totalTasks,
         message: `IA Local: Proposta e ${generated.totalTasks} tarefas geradas para "${generated.cleanTitle}"!`,
         command: `agent criar openspec/changes/${generated.cleanId}/proposal.md "# Feature: ${generated.cleanTitle}"`
+      });
+      return;
+    }
+
+    // API: Update proposal content directly from details modal
+    if (req.method === 'POST' && pathname === '/api/features/update-proposal') {
+      const { feature, content } = await parseJSONBody(req);
+      if (!feature || content === undefined) {
+        sendJSON(res, 400, { success: false, error: 'Feature e conteúdo da proposta são obrigatórios.' });
+        return;
+      }
+
+      const featureDir = path.join(OPEN_SPEC_DIR, feature);
+      if (!fs.existsSync(featureDir)) {
+        sendJSON(res, 404, { success: false, error: `Feature "${feature}" não encontrada.` });
+        return;
+      }
+
+      const proposalPath = path.join(featureDir, 'proposal.md');
+      fs.writeFileSync(proposalPath, content, 'utf8');
+
+      sendJSON(res, 200, {
+        success: true,
+        message: `Proposta de "${feature}" atualizada com sucesso no OpenSpec!`,
+        command: `agent atualizar openspec/changes/${feature}/proposal.md`
       });
       return;
     }

@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fowlgen Wars — OpenSpec & Kanban Studio</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
   <!-- Header -->
@@ -39,12 +41,14 @@
     <!-- Seletor Visual de Modo: Local (Edição) vs Oficial (main) -->
     <div class="workspace-mode-selector">
       <div class="mode-toggle-pill" role="tablist">
-        <button type="button" class="mode-toggle-btn active" id="btn-mode-local" title="Modo Local: Visualiza e edita tarefas em tempo real no seu workspace">
+        <button type="button" class="mode-toggle-btn active" id="btn-mode-local"
+          title="Modo Local: Visualiza e edita tarefas em tempo real no seu workspace">
           <span class="mode-icon">💻</span>
           <span class="mode-text">Modo Local (Em Edição)</span>
           <span class="branch-tag" id="current-branch-tag">carregando...</span>
         </button>
-        <button type="button" class="mode-toggle-btn" id="btn-mode-main" title="Modo Oficial: Visualiza o estado consolidado da branch main">
+        <button type="button" class="mode-toggle-btn" id="btn-mode-main"
+          title="Modo Oficial: Visualiza o estado consolidado da branch main">
           <span class="mode-icon">🌐</span>
           <span class="mode-text">Modo Oficial (main)</span>
         </button>
@@ -58,19 +62,22 @@
 
       <!-- Outras Branches Opcionais -->
       <div class="more-branches-wrapper">
-        <select id="select-git-branch" class="branch-select-subtle" title="Visualizar outra branch específica do Git...">
+        <select id="select-git-branch" class="branch-select-subtle"
+          title="Visualizar outra branch específica do Git...">
           <option value="local">Outras branches...</option>
         </select>
       </div>
     </div>
 
     <div class="header-actions">
-      <button class="btn btn-save btn-sm" id="btn-commit-openspec" title="Salva todas as tarefas alteradas no histórico do Git">
+      <button class="btn btn-save btn-sm" id="btn-commit-openspec"
+        title="Salva todas as tarefas alteradas no histórico do Git">
         💾 Salvar Alterações
       </button>
       <button class="btn btn-secondary btn-sm" id="btn-open-settings" title="Configurar GitHub Token e Repositório">
         ⚙️ Configurações
-        <span class="status-indicator" id="token-status-dot" style="width: 7px; height: 7px; background: #64748b; box-shadow: none;" title="GitHub Token"></span>
+        <span class="status-indicator" id="token-status-dot"
+          style="width: 7px; height: 7px; background: #64748b; box-shadow: none;" title="GitHub Token"></span>
       </button>
       <button class="btn btn-secondary btn-sm" id="btn-refresh" title="Recarregar dados">
         🔄 Atualizar
@@ -128,8 +135,10 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="input-task-assignee">Responsável / Equipe:</label>
-              <input type="text" class="form-input" id="input-task-assignee" placeholder="ex: Marcos, João, Backend" value="Marcos">
+              <label for="select-task-assignee">Responsável / Equipe:</label>
+              <select class="form-select" id="select-task-assignee">
+                <option value="Marcos">Marcos</option>
+              </select>
             </div>
             <div class="form-group">
               <label for="input-task-text">Descrição da Tarefa:</label>
@@ -157,19 +166,35 @@
         <!-- TAB 2: GESTÃO DE IDEIAS & FEATURES -->
         <div class="tab-content" id="tab-content-ideas" style="display: none;">
           <div class="form-group">
-            <label for="input-idea-id">ID da Feature / Ideia:</label>
-            <input type="text" class="form-input" id="input-idea-id" placeholder="ex: sistema-ouro, mount-selection">
+            <label for="input-idea-title">Título da Proposta:</label>
+            <input type="text" class="form-input" id="input-idea-title"
+              placeholder="ex: Sistema de Montarias e Dano Crítico">
           </div>
 
           <div class="form-group">
-            <label for="input-idea-title">Título da Proposta:</label>
-            <input type="text" class="form-input" id="input-idea-title" placeholder="ex: Sistema de Montarias">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label for="input-idea-id" style="margin-bottom: 0;">ID da Feature / Ideia (kebab-case):</label>
+              <button type="button" class="btn-subtle-sync" id="btn-slugify-title"
+                title="Sincronizar ID a partir do Título"
+                style="background: none; border: none; color: var(--accent-sky); font-size: 11px; cursor: pointer; text-decoration: underline; font-weight: 600;">
+                ⚡ Gerar ID do Título
+              </button>
+            </div>
+            <input type="text" class="form-input" id="input-idea-id" placeholder="ex: sistema-montarias-dano-critico">
+          </div>
+
+          <div class="form-group">
+            <label for="input-idea-prompt">Prompt / Briefing da Feature (para IA e Equipe):</label>
+            <textarea class="form-textarea" id="input-idea-prompt" rows="2"
+              placeholder="ex: Montaria com boost de velocidade e rastro de partículas para testar na Arena_Clean..."></textarea>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="input-idea-team">Equipe / Aprovador:</label>
-              <input type="text" class="form-input" id="input-idea-team" placeholder="ex: dev-team, Samuel" value="dev-team">
+              <label for="select-idea-team">Equipe / Aprovador:</label>
+              <select class="form-select" id="select-idea-team">
+                <option value="dev-team">👥 dev-team (Equipe Geral)</option>
+              </select>
             </div>
             <div class="form-group">
               <label for="input-idea-reason">Motivo (se rejeição):</label>
@@ -179,10 +204,13 @@
 
           <!-- Quick Action Buttons for Ideas (From PDF) -->
           <div class="actions-grid">
-            <button class="btn btn-primary" id="btn-action-generate-ai" style="background: linear-gradient(135deg, #8b5cf6, #6366f1); border-color: #8b5cf6; font-weight: 600;" title="IA Local: Gera a proposta completa e o checklist de tarefas em 3 fases">
+            <button class="btn btn-primary" id="btn-action-generate-ai"
+              style="background: linear-gradient(135deg, #8b5cf6, #6366f1); border-color: #8b5cf6; font-weight: 600;"
+              title="IA Local: Gera a proposta completa e o checklist de tarefas em 3 fases">
               🪄 Gerar Tarefas com IA
             </button>
-            <button class="btn btn-secondary" id="btn-action-new-feature" title="Criar proposal.md e tasks.md em branco">
+            <button class="btn btn-secondary" id="btn-action-new-feature"
+              title="Criar proposal.md e tasks.md em branco">
               📁 Nova Feature
             </button>
             <button class="btn btn-warning" id="btn-action-validate-idea" title="Validar ideia">
@@ -235,7 +263,8 @@
           <button class="btn btn-primary" id="btn-copy-command" style="flex: 2;">
             📋 Copiar Comando para o Chat
           </button>
-          <button class="btn btn-success" id="btn-execute-local" style="flex: 1;" title="Aplica diretamente no OpenSpec local">
+          <button class="btn btn-success" id="btn-execute-local" style="flex: 1;"
+            title="Aplica diretamente no OpenSpec local">
             ⚡ Executar Direto
           </button>
         </div>
@@ -245,9 +274,12 @@
       <div class="panel-card" style="padding: 16px;">
         <div class="panel-title" style="margin-bottom: 8px;">
           <h2 style="font-size: 13px;">📟 Log de Execução</h2>
-          <button class="btn btn-secondary btn-sm" id="btn-clear-log" style="padding: 2px 8px; font-size: 11px;">Limpar</button>
+          <button class="btn btn-secondary btn-sm" id="btn-clear-log"
+            style="padding: 2px 8px; font-size: 11px;">Limpar</button>
         </div>
-        <div id="execution-log" style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); background: #06090e; padding: 10px; border-radius: 6px; max-height: 120px; overflow-y: auto; white-space: pre-wrap;">Pronto para executar comandos.</div>
+        <div id="execution-log"
+          style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); background: #06090e; padding: 10px; border-radius: 6px; max-height: 120px; overflow-y: auto; white-space: pre-wrap;">
+          Pronto para executar comandos.</div>
       </div>
 
     </section>
@@ -258,12 +290,14 @@
         <div class="kanban-header-left">
           <!-- Alternador de Quadro: Tarefas da Sprint vs Funil de Ideias -->
           <div class="board-view-switch" role="tablist">
-            <button type="button" class="board-view-btn active" id="btn-view-tasks" title="Quadro de Execução: Tarefas e desenvolvimento da Sprint">
+            <button type="button" class="board-view-btn active" id="btn-view-tasks"
+              title="Quadro de Execução: Tarefas e desenvolvimento da Sprint">
               <span class="view-icon">🎯</span>
               <span class="view-text">Tarefas da Sprint</span>
               <span class="view-badge" id="badge-total-tasks-view">0</span>
             </button>
-            <button type="button" class="board-view-btn" id="btn-view-ideas" title="Funil de Ideias: Validação e aprovação de propostas de Game Design">
+            <button type="button" class="board-view-btn" id="btn-view-ideas"
+              title="Funil de Ideias: Validação e aprovação de propostas de Game Design">
               <span class="view-icon">💡</span>
               <span class="view-text">Funil de Ideias</span>
               <span class="view-badge" id="badge-total-ideas-view">0</span>
@@ -273,25 +307,29 @@
 
         <!-- Filtro Rápido por Integrante -->
         <div class="member-filter-bar">
-          <div class="dev-profile-chip" id="developer-profile-chip" style="display: none;" title="Desenvolvedor identificado via Git local">
+          <div class="dev-profile-chip" id="developer-profile-chip" style="display: none;"
+            title="Desenvolvedor identificado via Git local">
             <span class="dev-chip-avatar" id="dev-chip-avatar">💻</span>
             <div class="dev-chip-details">
               <span class="dev-chip-role-label">Você:</span>
               <span class="dev-chip-name" id="dev-chip-name">Carregando...</span>
             </div>
-            <button type="button" class="btn-my-space" id="btn-my-space" title="Filtrar imediatamente as minhas tarefas">
+            <button type="button" class="btn-my-space" id="btn-my-space"
+              title="Filtrar imediatamente as minhas tarefas">
               🎯 Minhas Tarefas
             </button>
           </div>
 
           <span class="filter-label">👤 Equipe:</span>
           <div class="member-search-box">
-            <input type="text" id="input-search-members" class="member-search-input" placeholder="🔍 Buscar..." title="Buscar integrante por nome ou função">
+            <input type="text" id="input-search-members" class="member-search-input" placeholder="🔍 Buscar..."
+              title="Buscar integrante por nome ou função">
           </div>
           <div class="member-pills" id="member-filter-pills">
             <button type="button" class="member-pill active" data-assignee="all">👥 Todos</button>
           </div>
-          <button type="button" class="btn-manage-members-pill" id="btn-quick-manage-members" title="Cadastrar ou gerenciar integrantes da equipe">
+          <button type="button" class="btn-manage-members-pill" id="btn-quick-manage-members"
+            title="Cadastrar ou gerenciar integrantes da equipe">
             ⚙️ Gerenciar
           </button>
         </div>
@@ -304,10 +342,12 @@
           <div class="git-user-alert-info">
             <div class="git-user-alert-title">Identificação do Desenvolvedor (Privacidade Total)</div>
             <div class="git-user-alert-desc" id="git-user-notice-desc">
-              Identifique quem é você na equipe para filtrar suas tarefas neste computador. A identificação fica salva apenas na sua máquina e <strong>nenhum e-mail pessoal é enviado para o Git</strong>.
+              Identifique quem é você na equipe para filtrar suas tarefas neste computador. A identificação fica salva
+              apenas na sua máquina e <strong>nenhum e-mail pessoal é enviado para o Git</strong>.
             </div>
           </div>
-          <button type="button" class="btn-close-banner" id="btn-dismiss-git-notice" title="Fechar aviso temporariamente">✖</button>
+          <button type="button" class="btn-close-banner" id="btn-dismiss-git-notice"
+            title="Fechar aviso temporariamente">✖</button>
         </div>
 
         <div class="git-user-alert-actions">
@@ -316,7 +356,8 @@
             <select id="select-quick-git-member" class="form-select-sm">
               <option value="">Selecione quem é você na equipe...</option>
             </select>
-            <button type="button" class="btn btn-primary btn-sm" id="btn-quick-link-git" style="padding: 4px 12px; font-size: 11px;">
+            <button type="button" class="btn btn-primary btn-sm" id="btn-quick-link-git"
+              style="padding: 4px 12px; font-size: 11px;">
               💾 Salvar Localmente
             </button>
           </div>
@@ -324,7 +365,8 @@
           <div class="git-user-cmd-row">
             <span class="git-user-cmd-label">💻 Ou no terminal:</span>
             <code class="git-cmd-code" id="git-user-cmd-copy">git config user.name "Seu Nome"</code>
-            <button type="button" class="btn-copy-code" id="btn-copy-git-cmd" title="Copiar comando Git">📋 Copiar</button>
+            <button type="button" class="btn-copy-code" id="btn-copy-git-cmd" title="Copiar comando Git">📋
+              Copiar</button>
           </div>
         </div>
       </div>
@@ -411,17 +453,20 @@
         <!-- TAB 1: GITHUB CONFIG -->
         <div id="modal-view-gh" class="modal-view-section">
           <p style="font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 14px;">
-            Insira seu <strong>Personal Access Token (PAT)</strong> do GitHub com permissões de <code>repo</code> e <code>project</code> para sincronização com o GitHub Projects.
+            Insira seu <strong>Personal Access Token (PAT)</strong> do GitHub com permissões de <code>repo</code> e
+            <code>project</code> para sincronização com o GitHub Projects.
           </p>
 
           <div class="form-group">
             <label for="input-github-token">GitHub Personal Access Token (PAT):</label>
             <div class="input-password-wrapper">
               <input type="password" class="form-input" id="input-github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-              <button type="button" class="btn-toggle-eye" id="btn-toggle-token-eye" title="Mostrar/Ocultar">👁️</button>
+              <button type="button" class="btn-toggle-eye" id="btn-toggle-token-eye"
+                title="Mostrar/Ocultar">👁️</button>
             </div>
             <span style="font-size: 11px; color: var(--text-dim); display: block; margin-top: 4px;">
-              Obtenha em: <a href="https://github.com/settings/tokens" target="_blank" style="color: var(--primary);">github.com/settings/tokens</a>
+              Obtenha em: <a href="https://github.com/settings/tokens" target="_blank"
+                style="color: var(--primary);">github.com/settings/tokens</a>
             </span>
           </div>
 
@@ -470,7 +515,8 @@
                 <span style="font-size: 20px;">🔒</span>
                 <div>
                   <h4 style="font-size: 13px; font-weight: 700; color: #fff;">Identificação Local (100% Privada)</h4>
-                  <p style="font-size: 11px; color: var(--text-muted);">Salva exclusivamente no seu computador (ignorado pelo Git). Nenhum e-mail pessoal é versionado.</p>
+                  <p style="font-size: 11px; color: var(--text-muted);">Salva exclusivamente no seu computador (ignorado
+                    pelo Git). Nenhum e-mail pessoal é versionado.</p>
                 </div>
               </div>
               <span class="git-identity-badge" id="git-identity-status-badge">Detectando...</span>
@@ -485,12 +531,15 @@
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label for="input-git-user-name" style="font-size: 11px;">git config user.name:</label>
-                  <input type="text" class="form-input" id="input-git-user-name" placeholder="ex: Marcos Pascoski" style="padding: 6px 10px; font-size: 12px;">
+                  <input type="text" class="form-input" id="input-git-user-name" placeholder="ex: Marcos Pascoski"
+                    style="padding: 6px 10px; font-size: 12px;">
                 </div>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
-                <span id="git-config-feedback" style="font-size: 11px; color: var(--text-muted);">Seu perfil ficará vinculado localmente com total privacidade.</span>
-                <button type="button" class="btn btn-primary btn-sm" id="btn-apply-git-config" style="padding: 4px 12px; font-size: 11px;">
+                <span id="git-config-feedback" style="font-size: 11px; color: var(--text-muted);">Seu perfil ficará
+                  vinculado localmente com total privacidade.</span>
+                <button type="button" class="btn btn-primary btn-sm" id="btn-apply-git-config"
+                  style="padding: 4px 12px; font-size: 11px;">
                   💾 Salvar Identidade Local
                 </button>
               </div>
@@ -498,14 +547,18 @@
           </div>
 
           <p style="font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 14px;">
-            Cadastre e gerencie os integrantes da equipe (desenvolvedores, designers, QA e agentes). Eles aparecerão automaticamente nos filtros do Kanban e campos de atribuição de tarefas.
+            Cadastre e gerencie os integrantes da equipe (desenvolvedores, designers, QA e agentes). Eles aparecerão
+            automaticamente nos filtros do Kanban e campos de atribuição de tarefas.
           </p>
 
           <!-- Formulário de Cadastro e Alteração -->
-          <div style="background: rgba(15, 23, 42, 0.6); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 16px;">
+          <div
+            style="background: rgba(15, 23, 42, 0.6); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 16px;">
             <input type="hidden" id="input-member-edit-id" value="">
-            <h4 id="member-form-title" style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--primary);">➕ Novo Integrante</h4>
-            
+            <h4 id="member-form-title"
+              style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--primary);">➕ Novo Integrante
+            </h4>
+
             <div class="form-row">
               <div class="form-group" style="margin-bottom: 8px;">
                 <label for="input-member-name">Nome do Integrante:</label>
@@ -513,7 +566,8 @@
               </div>
               <div class="form-group" style="margin-bottom: 8px;">
                 <label for="input-member-role">Função / Papel:</label>
-                <input type="text" class="form-input" id="input-member-role" placeholder="ex: Unity / C#, Game Design, QA, Arte">
+                <input type="text" class="form-input" id="input-member-role"
+                  placeholder="ex: Unity / C#, Game Design, QA, Arte">
               </div>
             </div>
 
@@ -570,8 +624,10 @@
           </div>
 
           <!-- Lista de Integrantes Atuais -->
-          <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-main);">👥 Integrantes Ativos (<span id="member-count-badge">0</span>)</h4>
-          <div id="members-list-cards" style="display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto;">
+          <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-main);">👥 Integrantes
+            Ativos (<span id="member-count-badge">0</span>)</h4>
+          <div id="members-list-cards"
+            style="display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto;">
             <!-- Dynamic member cards -->
           </div>
         </div>
@@ -585,9 +641,167 @@
     </div>
   </div>
 
+  <!-- Modal: Visualizador Completo de Detalhes da Ideia / Tarefa ("Outra Tela") -->
+  <div class="modal-backdrop" id="modal-item-details">
+    <div class="modal-card modal-card-large">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+          <span id="detail-header-icon" style="font-size: 26px;">💡</span>
+          <div style="min-width: 0;">
+            <h3 id="detail-header-title"
+              style="font-size: 18px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff;">
+              Título da Ideia / Tarefa</h3>
+            <p id="detail-header-subtitle"
+              style="font-size: 12px; color: var(--text-dim); margin-top: 2px; font-family: var(--font-mono);">
+              openspec/changes/...</p>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button class="btn-close" id="btn-close-details" title="Fechar (Esc)">&times;</button>
+        </div>
+      </div>
+
+      <!-- Header Status & Metrics Bar -->
+      <div class="detail-metrics-bar">
+        <div class="detail-metric-badges">
+          <span class="card-tag tag-created" id="detail-badge-status">CRIADO</span>
+          <span class="badge-tag" id="detail-badge-assignee">👤 dev-team</span>
+          <span class="badge-modified-git" id="detail-badge-modified" style="display: none;">⚡ Modificado Local</span>
+          <span class="badge-tag" id="detail-badge-branch"
+            style="display: none; background: rgba(56, 189, 248, 0.15); color: #38bdf8;">🌿 branch</span>
+        </div>
+        <div class="detail-metric-progress">
+          <span id="detail-progress-label"
+            style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Progresso: 0/0 (0%)</span>
+          <div class="progress-bar-bg" style="width: 140px; height: 8px;">
+            <div class="progress-bar-fill" id="detail-progress-bar" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs inside Details -->
+      <div class="modal-tabs-nav">
+        <button type="button" class="modal-tab-btn active" id="detail-tab-proposal" data-target="detail-view-proposal">
+          📄 Proposta da Feature (proposal.md)
+        </button>
+        <button type="button" class="modal-tab-btn" id="detail-tab-tasks" data-target="detail-view-tasks">
+          📋 Checklist de Tarefas (<span id="detail-tasks-count">0</span>)
+        </button>
+        <button type="button" class="modal-tab-btn" id="detail-tab-commands" data-target="detail-view-commands">
+          💻 Comandos & Agent OpenSpec
+        </button>
+      </div>
+
+      <div class="modal-body" style="overflow-y: auto; max-height: calc(90vh - 200px); padding: 20px;">
+        <!-- TAB 1: PROPOSAL VIEW & EDIT -->
+        <div id="detail-view-proposal" class="modal-view-section">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn btn-secondary btn-sm active" id="btn-proposal-mode-view">👁️ Visualizar
+                Formatado</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-proposal-mode-edit">✏️ Editar
+                Markdown</button>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-save-proposal-content" style="display: none;">
+              💾 Salvar no proposal.md
+            </button>
+          </div>
+
+          <!-- Formatted Markdown Container -->
+          <div id="detail-proposal-formatted" class="formatted-markdown-view"></div>
+
+          <!-- Raw Editable Textarea -->
+          <textarea id="detail-proposal-raw" class="form-textarea"
+            style="display: none; height: 350px; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6;"></textarea>
+        </div>
+
+        <!-- TAB 2: TASKS LIST & ADD TASK -->
+        <div id="detail-view-tasks" class="modal-view-section" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <h4 style="font-size: 14px; font-weight: 700; color: #fff;">Checklist Operacional da Feature</h4>
+            <span style="font-size: 12px; color: var(--text-dim);">Clique no checkbox para alterar status em tempo
+              real</span>
+          </div>
+
+          <!-- Tasks Checklist Container -->
+          <div id="detail-tasks-list" class="detail-tasks-container"></div>
+
+          <!-- Quick Add Task inside modal -->
+          <div class="detail-add-task-box">
+            <h5 style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--primary);">➕ Adicionar Nova
+              Tarefa a esta Feature</h5>
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom: 8px; flex: 1;">
+                <label for="detail-new-task-id" style="font-size: 12px;">ID da Tarefa:</label>
+                <input type="text" class="form-input" id="detail-new-task-id" placeholder="ex: 1.3">
+              </div>
+              <div class="form-group" style="margin-bottom: 8px; flex: 1;">
+                <label for="detail-new-task-assignee" style="font-size: 12px;">Responsável:</label>
+                <select class="form-select" id="detail-new-task-assignee"></select>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 8px;">
+              <label for="detail-new-task-text" style="font-size: 12px;">Descrição da Tarefa:</label>
+              <input type="text" class="form-input" id="detail-new-task-text"
+                placeholder="ex: Criar script de movimentação e colisão da montaria">
+            </div>
+            <div style="display: flex; justify-content: flex-end;">
+              <button type="button" class="btn btn-primary btn-sm" id="btn-detail-add-task">
+                ➕ Adicionar Tarefa ao tasks.md
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: AGENT COMMANDS & ACTIONS -->
+        <div id="detail-view-commands" class="modal-view-section" style="display: none;">
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
+            Comandos rápidos prontos para executar no terminal do OpenSpec ou colar no chat do Agent:
+          </p>
+
+          <div class="detail-cmd-card">
+            <span class="detail-cmd-label">🔍 Validar Ideia:</span>
+            <code class="detail-cmd-code" id="detail-cmd-validate">agent validar ideia "feature"</code>
+            <button type="button" class="btn-copy-code btn-copy-detail-cmd" data-target="detail-cmd-validate">📋
+              Copiar</button>
+          </div>
+
+          <div class="detail-cmd-card">
+            <span class="detail-cmd-label">✅ Aprovar Ideia:</span>
+            <code class="detail-cmd-code" id="detail-cmd-approve">agent aprovar ideia "feature" "dev-team"</code>
+            <button type="button" class="btn-copy-code btn-copy-detail-cmd" data-target="detail-cmd-approve">📋
+              Copiar</button>
+          </div>
+
+          <div class="detail-cmd-card">
+            <span class="detail-cmd-label">❌ Rejeitar Ideia:</span>
+            <code class="detail-cmd-code" id="detail-cmd-reject">agent rejeitar ideia "feature" "Sem valor"</code>
+            <button type="button" class="btn-copy-code btn-copy-detail-cmd" data-target="detail-cmd-reject">📋
+              Copiar</button>
+          </div>
+
+          <div class="detail-cmd-card">
+            <span class="detail-cmd-label">📋 Listar Tarefas:</span>
+            <code class="detail-cmd-code" id="detail-cmd-list">agent listar openspec/changes/feature/tasks.md</code>
+            <button type="button" class="btn-copy-code btn-copy-detail-cmd" data-target="detail-cmd-list">📋
+              Copiar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <div id="detail-footer-actions" style="display: flex; gap: 8px;">
+          <!-- Quick action buttons in modal (Validar, Aprovar, Rejeitar, etc.) -->
+        </div>
+        <button class="btn btn-secondary" id="btn-close-details-footer">Fechar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notifications -->
   <div class="toast-container" id="toast-container"></div>
 
   <script src="app.js"></script>
 </body>
+
 </html>
