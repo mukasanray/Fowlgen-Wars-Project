@@ -1076,16 +1076,18 @@ const server = http.createServer(async (req, res) => {
 
     // API: Update task status
     if (req.method === 'POST' && pathname === '/api/tasks/update') {
-      const { feature, taskId, done, status, assignee } = await parseJSONBody(req);
+      const { feature, taskId, done, isCompleted, status, assignee } = await parseJSONBody(req);
       if (!feature || !taskId) {
         sendJSON(res, 400, { success: false, error: 'Feature e taskId são obrigatórios.' });
         return;
       }
 
-      // Sincroniza diretamente no OpenSpec Markdown
-      updateOpenSpecTask(feature, taskId, Boolean(done), status, assignee);
+      const markDone = done !== undefined ? Boolean(done) : Boolean(isCompleted);
 
-      const displayStatus = done ? 'Concluído' : (status || 'Em Andamento');
+      // Sincroniza diretamente no OpenSpec Markdown
+      updateOpenSpecTask(feature, taskId, markDone, status, assignee);
+
+      const displayStatus = markDone ? 'Concluído' : (status || 'Em Andamento');
       const displayAssignee = assignee || 'Marcos';
 
       sendJSON(res, 200, {
