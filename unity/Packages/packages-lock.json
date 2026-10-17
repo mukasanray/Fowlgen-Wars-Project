@@ -40,6 +40,18 @@
       },
       "hash": "4c8056fc698853d48b125546fe09189b8213fbaa"
     },
+    "com.link1345.gua": {
+      "version": "file:D:/Dev/mcps/com.link1345.gua-1.1.1.tgz",
+      "depth": 0,
+      "source": "local-tarball",
+      "dependencies": {
+        "com.unity.ugui": "2.0.0",
+        "com.unity.modules.uielements": "1.0.0",
+        "com.unity.modules.screencapture": "1.0.0",
+        "com.unity.modules.imageconversion": "1.0.0",
+        "com.unity.inputsystem": "1.20.0"
+      }
+    },
     "com.mixamo.mcp": {
       "version": "https://github.com/HaD0Yun/unity-mcp-mixamo.git?path=unity-helper",
       "depth": 0,
