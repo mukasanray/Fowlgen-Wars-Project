@@ -102,6 +102,9 @@ export function normalizeAssignee(raw?: string): string {
   if (clean === 'vaguinhow') {
     return 'Vaguinhow';
   }
+  if (clean === 'vyctor' || clean === 'vyctor rodrigues' || clean === 'vyctor-rodrigues' || clean === 'vyctorrodrigues' || clean === 'victor' || clean === 'victor rodrigues') {
+    return 'Vyctor Rodrigues';
+  }
   if (clean === 'dev-team') {
     return 'Todos';
   }
@@ -342,7 +345,7 @@ function getFeaturesFromGitBranch(branch: string) {
               const taskId = taskMatch[3] ? taskMatch[3].trim() : '';
               const text = taskMatch[4] ? taskMatch[4].trim() : '';
 
-              const assigneeMatch = text.match(/@([\w-]+)/i) || text.match(/\(([^)]+)\)\s*$/i) || text.match(/\[([\w-]+)\]\s*$/i);
+              const assigneeMatch = text.match(/\(([^)]+)\)\s*$/i) || text.match(/\[([^\]]+)\]\s*$/i) || text.match(/@([\w-]+)/i);
               let taskAssignee = assigneeMatch ? normalizeAssignee(assigneeMatch[1].trim()) : '';
               if (!taskAssignee && ideaAssignee && ideaAssignee !== 'Todos') {
                 taskAssignee = ideaAssignee;
@@ -487,7 +490,7 @@ function getFeaturesData() {
           const taskId = taskMatch[3] ? taskMatch[3].trim() : '';
           const text = taskMatch[4] ? taskMatch[4].trim() : '';
 
-          const assigneeMatch = text.match(/@([\w-]+)/i) || text.match(/\(([^)]+)\)\s*$/i) || text.match(/\[([\w-]+)\]\s*$/i);
+          const assigneeMatch = text.match(/\(([^)]+)\)\s*$/i) || text.match(/\[([^\]]+)\]\s*$/i) || text.match(/@([\w-]+)/i);
           let taskAssignee = assigneeMatch ? normalizeAssignee(assigneeMatch[1].trim()) : '';
           if (!taskAssignee && ideaAssignee && ideaAssignee !== 'Todos') {
             taskAssignee = ideaAssignee;

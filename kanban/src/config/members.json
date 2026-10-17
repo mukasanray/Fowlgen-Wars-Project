@@ -79,5 +79,14 @@
     "github": "",
     "avatar": "🎨",
     "color": "#f59e0b"
+  },
+  {
+    "id": "vyctor",
+    "name": "Vyctor Rodrigues",
+    "role": "Dev Web Front-end • Criação do Site Oficial (app/)",
+    "github": "vyctorrodrigues",
+    "avatar": "🌐",
+    "color": "#0ea5e9",
+    "email": ""
   }
 ]
