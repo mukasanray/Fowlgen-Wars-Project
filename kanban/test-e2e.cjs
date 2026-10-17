@@ -123,17 +123,30 @@ async function runAllTests() {
 
     // Teste de Inativação de Integrante e Transferência de Tarefas (POST /api/members/deactivate)
     console.log('\n--- Teste de Inativação e Sucessão de Tarefas ---');
+
+    // 1. Tentar inativar passando a si próprio ou membro inexistente/inativo
+    const resFailInactive = await request({
+      path: '/api/members/deactivate',
+      method: 'POST'
+    }, {
+      memberId: createdMemberId,
+      reassignTo: createdMemberId // não pode repassar para o próprio membro sendo inativado
+    });
+    assert(resFailInactive.status === 400, 'POST /api/members/deactivate rejeita sucessor inválido ou inativo');
+
+    // 2. Inativação bem-sucedida com Membro Ativo e escopo de tarefas não terminadas (pending)
     const resDeactivate = await request({
       path: '/api/members/deactivate',
       method: 'POST'
     }, {
       memberId: createdMemberId,
       reassignTo: 'marcos',
-      transferScope: 'all'
+      transferScope: 'pending'
     });
     assert(resDeactivate.status === 200 && resDeactivate.json && resDeactivate.json.success, 'POST /api/members/deactivate inativa integrante com sucesso');
     assert(resDeactivate.json.member.status === 'inactive', 'Status do integrante alterado para inactive');
     assert(resDeactivate.json.member.active === false, 'Campo active alterado para false');
+    assert(resDeactivate.json.scope === 'pending', 'Escopo de repasse configurado para pending (tarefas não terminadas)');
 
     // Teste de Reativação de Integrante (POST /api/members/activate)
     const resActivate = await request({

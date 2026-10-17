@@ -1,8 +1,20 @@
 // Fowlgen Wars - OpenSpec & Kanban Studio Client
 
 let currentFeatures = [];
+let teamMembers = [];
 let activeTab = 'tasks';
 let lastGeneratedCommand = '';
+
+function isMemberActive(name) {
+  if (!name || name === 'Todos' || name === 'dev-team') return true;
+  const clean = String(name).replace(/^@/, '').trim().toLowerCase();
+  const found = teamMembers.find(m =>
+    m.name.toLowerCase() === clean ||
+    m.id.toLowerCase() === clean
+  );
+  if (!found) return true;
+  return found.active !== false && found.status !== 'inactive';
+}
 
 // DOM Elements
 const selectFeatureTask = document.getElementById('select-feature-task');
@@ -744,8 +756,10 @@ function renderAnalyticsDashboard(features) {
         statusBadge = '<span class="badge-tag" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);">👀 Em Revisão</span>';
       }
 
-      const rawAssignee = f.ideaAssignee || (f.assignees && f.assignees[0]) || 'Todos';
-      const displayAssignee = (rawAssignee === 'dev-team') ? 'Todos' : rawAssignee;
+      const rawAssignee = (f.ideaAssignee && isMemberActive(f.ideaAssignee))
+        ? f.ideaAssignee
+        : ((f.assignees && f.assignees.find(a => isMemberActive(a))) || 'Todos');
+      const displayAssignee = (rawAssignee === 'dev-team' || !isMemberActive(rawAssignee)) ? 'Todos' : rawAssignee;
       const progressVal = f.progress || 0;
 
       return `
@@ -1126,8 +1140,8 @@ function createIdeaCard(feature) {
     statusEmoji = '❌';
   }
 
-  const rawAssignee = feature.ideaAssignee || 'Todos';
-  const displayAssignee = (rawAssignee === 'dev-team') ? 'Todos' : rawAssignee;
+  const rawAssignee = (feature.ideaAssignee && isMemberActive(feature.ideaAssignee)) ? feature.ideaAssignee : 'Todos';
+  const displayAssignee = (rawAssignee === 'dev-team' || !isMemberActive(rawAssignee)) ? 'Todos' : rawAssignee;
   const assigneeBadge = `<span class="badge-tag" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); font-size: 10px;">👥 ${displayAssignee}</span>`;
 
   const modifiedBadge = feature.isModifiedLocally
@@ -1270,16 +1284,6 @@ function createFeatureCard(feature) {
   const branchBadge = feature.isFromGitBranch
     ? `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px;">🌿 ${feature.branch}</span>`
     : '';
-
-  const isMemberActive = (name) => {
-    if (!name || name === 'Todos' || name === 'dev-team') return true;
-    const clean = name.replace(/^@/, '').trim().toLowerCase();
-    const found = teamMembers.find(m =>
-      m.name.toLowerCase() === clean ||
-      m.id.toLowerCase() === clean
-    );
-    return !found || (found.active !== false && found.status !== 'inactive');
-  };
 
   const activeAssignees = (feature.assignees || []).filter(a => isMemberActive(a));
 
@@ -1932,7 +1936,6 @@ btnSaveSettings.addEventListener('click', async () => {
 // -------------------------------------------------------------
 // Team Members & Developer Identity Management (100% Git-Native & Privacy-First)
 // -------------------------------------------------------------
-let teamMembers = [];
 let memberSearchQuery = '';
 let detectedDevMember = null;
 let gitUserLocal = { name: '', email: '' };
@@ -2450,7 +2453,7 @@ function openDeactivateModal(m) {
       activeOthers.forEach(other => {
         const opt = document.createElement('option');
         opt.value = other.id;
-        opt.textContent = `${other.avatar || '👤'} ${other.name} (${other.role || 'Membro'})`;
+        opt.textContent = `${other.avatar || '👤'} ${other.name} • 🟢 Membro Ativo (${other.role || 'Membro'})`;
         selectDeactivateSuccessor.appendChild(opt);
       });
     }
@@ -2469,20 +2472,20 @@ async function confirmDeactivateMember() {
   const memberId = inputDeactivateMemberId?.value.trim();
   const successorId = selectDeactivateSuccessor?.value.trim();
   const scopeEl = document.querySelector('input[name="deactivate-scope"]:checked');
-  const transferScope = scopeEl ? scopeEl.value : 'all';
+  const transferScope = scopeEl ? scopeEl.value : 'pending';
 
   if (!memberId) {
     showToast('Identificador do integrante inválido', 'error');
     return;
   }
   if (!successorId) {
-    showToast('Selecione quem assume as tarefas deste integrante', 'warning');
+    showToast('Selecione um Membro Ativo para assumir as tarefas', 'warning');
     return;
   }
 
   if (btnConfirmDeactivate) {
     btnConfirmDeactivate.disabled = true;
-    btnConfirmDeactivate.innerHTML = '⏳ Transferindo...';
+    btnConfirmDeactivate.innerHTML = '⏳ Repassando tarefas...';
   }
 
   try {
@@ -2510,7 +2513,7 @@ async function confirmDeactivateMember() {
   } finally {
     if (btnConfirmDeactivate) {
       btnConfirmDeactivate.disabled = false;
-      btnConfirmDeactivate.innerHTML = 'Confirmar e Transferir Tarefas';
+      btnConfirmDeactivate.innerHTML = 'Confirmar e Repassar Tarefas';
     }
   }
 }
@@ -2676,8 +2679,10 @@ function openFeatureDetailsModal(feature, defaultTab = 'proposal') {
   }
 
   if (detailBadgeAssignee) {
-    const rawAssignee = feature.ideaAssignee || (feature.assignees && feature.assignees[0]) || 'Todos';
-    const assignee = (rawAssignee === 'dev-team') ? 'Todos' : rawAssignee;
+    const rawAssignee = (feature.ideaAssignee && isMemberActive(feature.ideaAssignee))
+      ? feature.ideaAssignee
+      : ((feature.assignees && feature.assignees.find(a => isMemberActive(a))) || 'Todos');
+    const assignee = (!rawAssignee || !isMemberActive(rawAssignee) || rawAssignee === 'dev-team') ? 'Todos' : rawAssignee;
     detailBadgeAssignee.textContent = `👥 ${assignee}`;
   }
 
@@ -2753,8 +2758,9 @@ function renderDetailTasksList(feature) {
     card.className = `detail-task-card ${t.done ? 'done' : ''}`;
 
     const cleanText = t.text.replace(/\(([^)]+)\)|@([\w-]+)|\[([\w-]+)\]/g, '').trim();
-    const assigneeHtml = t.assignee
-      ? `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 11px;">👤 ${t.assignee}</span>`
+    const activeTaskAssignee = (t.assignee && isMemberActive(t.assignee)) ? t.assignee : '';
+    const assigneeHtml = activeTaskAssignee
+      ? `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 11px;">👤 ${activeTaskAssignee}</span>`
       : '';
 
     card.innerHTML = `

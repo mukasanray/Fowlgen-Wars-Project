@@ -676,7 +676,7 @@
     <div class="modal-card" style="max-width: 500px;">
       <div class="modal-header">
         <h3 id="deactivate-modal-title" style="display: flex; align-items: center; gap: 8px; color: #f59e0b; margin: 0; font-size: 16px;">
-          <span>⏸️</span> Inativar Integrante
+          <span>⏸️</span> Inativar Integrante e Repassar Tarefas
         </h3>
         <button class="btn-close" id="btn-close-deactivate-modal">&times;</button>
       </div>
@@ -684,13 +684,13 @@
         <input type="hidden" id="input-deactivate-member-id" value="">
         <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 16px;">
           <p style="font-size: 13px; color: #fde68a; margin: 0; line-height: 1.5;">
-            Ao inativar <strong id="deactivate-member-name-label">este integrante</strong>, ele não aparecerá mais no Kanban, filtros de integrantes e seletores de tarefas.
+            Ao inativar <strong id="deactivate-member-name-label">este integrante</strong>, as tarefas <strong>não terminadas</strong> serão repassadas automaticamente ao Membro Ativo selecionado. O integrante inativado não aparecerá no Kanban, filtros ou seletores de tarefas.
           </p>
         </div>
 
         <div class="form-group" style="margin-bottom: 14px;">
           <label for="select-deactivate-successor" style="font-weight: 600; font-size: 13px; color: var(--text-main); margin-bottom: 6px; display: block;">
-            Quem assume as tarefas deste integrante? <span style="color: #ef4444;">*</span>
+            Selecione o Membro Ativo que assumirá as tarefas não terminadas: <span style="color: #ef4444;">*</span>
           </label>
           <select class="form-select" id="select-deactivate-successor" style="width: 100%; padding: 8px 12px; font-size: 13.5px;">
             <!-- Populated dynamically with other active members -->
@@ -699,16 +699,16 @@
 
         <div class="form-group" style="margin-bottom: 10px;">
           <label style="font-weight: 600; font-size: 13px; color: var(--text-main); margin-bottom: 8px; display: block;">
-            Escopo da transferência de tarefas:
+            Escopo do repasse de tarefas:
           </label>
           <div style="display: flex; flex-direction: column; gap: 8px;">
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); cursor: pointer;">
-              <input type="radio" name="deactivate-scope" value="all" checked>
-              <span>Todas as tarefas (recomendado - remove totalmente o nome do Kanban)</span>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-main); cursor: pointer;">
+              <input type="radio" name="deactivate-scope" value="pending" checked>
+              <span><strong>Repassar tarefas não terminadas</strong> (pendentes / em andamento - padrão)</span>
             </label>
             <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); cursor: pointer;">
-              <input type="radio" name="deactivate-scope" value="pending">
-              <span>Apenas tarefas pendentes / em andamento</span>
+              <input type="radio" name="deactivate-scope" value="all">
+              <span>Repassar todas as tarefas (incluindo histórico concluído)</span>
             </label>
           </div>
         </div>
@@ -716,7 +716,7 @@
       <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px;">
         <button type="button" class="btn btn-secondary" id="btn-cancel-deactivate">Cancelar</button>
         <button type="button" class="btn btn-warning" id="btn-confirm-deactivate" style="font-weight: 700;">
-          Confirmar e Transferir Tarefas
+          Confirmar e Repassar Tarefas
         </button>
       </div>
     </div>

@@ -176,7 +176,7 @@ function reassignMemberTasks(oldMember: Member, newMember: Member, scope: 'all' 
       }
 
       const rest = taskMatch[3];
-      const assigneeMatch = rest.match(/\((@?[^)]+)\)\s*$/i) || rest.match(/\[(@?[^\]]+)\]\s*$/i) || rest.match(/@([\w-]+)/i);
+      const assigneeMatch = rest.match(/\((@[^)]+)\)/i) || rest.match(/\[(@[^\]]+)\]/i) || rest.match(/\((@?[^)]+)\)\s*$/i) || rest.match(/\[(@?[^\]]+)\]\s*$/i) || rest.match(/@([\w-]+)/i);
       if (!assigneeMatch) return line;
 
       const matchedRaw = assigneeMatch[1] || assigneeMatch[0];
@@ -194,12 +194,7 @@ function reassignMemberTasks(oldMember: Member, newMember: Member, scope: 'all' 
         count++;
         fileModified = true;
         const successorTag = `(@${newMember.name})`;
-        if (assigneeMatch[0].startsWith('(') || assigneeMatch[0].startsWith('[')) {
-          const idx = line.lastIndexOf(assigneeMatch[0]);
-          return line.substring(0, idx) + successorTag;
-        } else {
-          return line.replace(assigneeMatch[0], successorTag);
-        }
+        return line.replace(assigneeMatch[0], successorTag);
       }
 
       return line;
@@ -1023,16 +1018,18 @@ const server = http.createServer(async (req, res) => {
       targetMember.deactivatedAt = new Date().toISOString();
       targetMember.transferredTo = successor.name;
 
-      const transferResult = reassignMemberTasks(targetMember, successor, transferScope === 'pending' ? 'pending' : 'all');
+      const scope = (transferScope === 'all') ? 'all' : 'pending';
+      const transferResult = reassignMemberTasks(targetMember, successor, scope);
 
       saveMembers(members);
 
       sendJSON(res, 200, {
         success: true,
-        message: `Integrante "${targetMember.name}" inativado com sucesso. ${transferResult.count} tarefas transferidas para "${successor.name}".`,
+        message: `Integrante "${targetMember.name}" inativado com sucesso. ${transferResult.count} tarefas ${scope === 'pending' ? 'não terminadas' : ''} repassadas para o membro ativo "${successor.name}".`,
         member: targetMember,
         successor: successor.name,
         transferredTasks: transferResult.count,
+        scope,
         modifiedFiles: transferResult.modifiedFiles,
         members
       });
