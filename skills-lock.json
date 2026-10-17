@@ -1,17 +1,197 @@
 {
   "version": 1,
   "skills": {
+    "ad-creative": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "skillPath": "skills/ad-creative/SKILL.md",
+      "computedHash": "08f4edb3ee24abc3e9a67083bd4676e522855be904d33aa81ff29de63d15e2f0"
+    },
+    "ad-platform-selection": {
+      "source": "mbfinotti/advertising-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ad-platform-selection/SKILL.md",
+      "computedHash": "6ded5251ff4ac0335d8125ec5e3c0fe15e3006bb1065a7d9ff28e6cbc7d695c9"
+    },
+    "advertising-radar": {
+      "source": "mbfinotti/advertising-skills",
+      "sourceType": "github",
+      "skillPath": "skills/advertising-radar/SKILL.md",
+      "computedHash": "c289ad8220ef41b10def1719a6340d9863377f5c3e95458fa01600ee0130125c"
+    },
+    "ai-video-generation": {
+      "source": "101-skills/superpowers",
+      "sourceType": "github",
+      "skillPath": "tools/video/ai-video-generation/SKILL.md",
+      "computedHash": "a2d7f92bb0fc3670a531576ce6e4ae0b7ed842cdeebec354a5bebe4c97821e39"
+    },
+    "audio-setup-mixers": {
+      "source": "Unity-Technologies/skills",
+      "sourceType": "github",
+      "skillPath": "skills/audio-setup-mixers/SKILL.md",
+      "computedHash": "ecf80e1d95f47bbdd12fba6cea86824cac1abe26819f252387ee5b3ce3700b12"
+    },
+    "blender-product-polish": {
+      "source": "kevinbadi/blender-skills",
+      "sourceType": "github",
+      "skillPath": "product-polish/SKILL.md",
+      "computedHash": "5d6c994a0a434e52b98749a23ff96efcc6b6095bed8a4876f9705300e1d147b8"
+    },
+    "blender-toolkit": {
+      "source": "kevinbadi/blender-skills",
+      "sourceType": "github",
+      "skillPath": "blender-toolkit/SKILL.md",
+      "computedHash": "ed02f571f1feeefa51b4d13d7dd2c384f8fa22b31030b4feeb62a00374b3aa31"
+    },
+    "copy-editing": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "skillPath": "skills/copy-editing/SKILL.md",
+      "computedHash": "43a0ead845fa5dde5cb6dc0a8e8578f503a2b917035e2267fd32da1123101fcb"
+    },
+    "copywriting": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "skillPath": "skills/copywriting/SKILL.md",
+      "computedHash": "b7ad458352da7e0f962bb285fdfb15daabbd2b354fc903548bf68ca7d973a8f3"
+    },
+    "design-qa-checklist": {
+      "source": "owl-listener/designer-skills",
+      "sourceType": "github",
+      "skillPath": "design-ops/skills/design-qa-checklist/SKILL.md",
+      "computedHash": "b6bd1721807786d845eda2f1da0d9a00780195018c5bf081ceb06ea1f7d3879b"
+    },
     "docker-patterns": {
       "source": "affaan-m/ecc",
       "sourceType": "github",
       "skillPath": "skills/docker-patterns/SKILL.md",
       "computedHash": "2518afd6ae1e1b91d7f8d2f8d9b7145fb08ec640b9624e3dffc0a21289417245"
     },
+    "handoff-spec": {
+      "source": "owl-listener/designer-skills",
+      "sourceType": "github",
+      "skillPath": "design-ops/skills/handoff-spec/SKILL.md",
+      "computedHash": "ca7c8cfdab6b9a5f1c42268b795ac79183f9ef5efdf8edae9a4bbf56dae22f9c"
+    },
+    "image": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "skillPath": "skills/image/SKILL.md",
+      "computedHash": "3addd35378f2d3652ace5a6204c1e00eed0db1fe5adcf42ef41eb914de3282cf"
+    },
+    "image-to-3d": {
+      "source": "kevinbadi/blender-skills",
+      "sourceType": "github",
+      "skillPath": "image-to-3d/SKILL.md",
+      "computedHash": "c69f5b438c74a586a1eee49b1facf7ce29de825cdb60ae7ff484b48bb526b4f9"
+    },
+    "initialize-ai-navigation": {
+      "source": "Unity-Technologies/skills",
+      "sourceType": "github",
+      "skillPath": "skills/initialize-ai-navigation/SKILL.md",
+      "computedHash": "cd73b5d1090a5ed5be024a172f7bec6f45a9a0b1dfb39607272dfd9b88974503"
+    },
     "kubernetes-specialist": {
       "source": "jeffallan/claude-skills",
       "sourceType": "github",
       "skillPath": "skills/kubernetes-specialist/SKILL.md",
       "computedHash": "093f7dc0db832daad4449f36d31cb102a8499009375f4e2eb2e20bc34eef2e9d"
+    },
+    "multi-image-to-3d": {
+      "source": "kevinbadi/blender-skills",
+      "sourceType": "github",
+      "skillPath": "multi-image-to-3d/SKILL.md",
+      "computedHash": "a6f3612cdb6f59d4e6238674d6be91c4e4501941f3cd646e10c59e310d57ef3d"
+    },
+    "physics-3d-collision": {
+      "source": "Unity-Technologies/skills",
+      "sourceType": "github",
+      "skillPath": "skills/physics-3d-collision/SKILL.md",
+      "computedHash": "4f95829b4f27a34fcb05c9a4a6da3968fa4ca194b6db5dc4ac9b94fc53640906"
+    },
+    "polyhaven-texture-apply": {
+      "source": "kevinbadi/blender-skills",
+      "sourceType": "github",
+      "skillPath": "polyhaven-texture-apply/SKILL.md",
+      "computedHash": "55cdca83dd64836c2b942f3acd5e9df6d5b517ab0fa09e4e4858dd4a3443c498"
+    },
+    "product-photography": {
+      "source": "101-skills/superpowers",
+      "sourceType": "github",
+      "skillPath": "guides/photo/product-photography/SKILL.md",
+      "computedHash": "b00a2f054b0c66169dbe4fa20d7aba04014039cfa156f7869d0c0fcca1594622"
+    },
+    "public-relations": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "skillPath": "skills/public-relations/SKILL.md",
+      "computedHash": "670ceb7d4bb6ea0df08b321bcf5546520d02898565687722454d61ad22a3def3"
+    },
+    "scenario-3d": {
+      "source": "scenario-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/scenario-3d/SKILL.md",
+      "computedHash": "d620fb32b43a63cc7982deb411c6c373845a8688c38e4907fcaca40c062fd6ab"
+    },
+    "scenario-blender": {
+      "source": "scenario-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/scenario-blender/SKILL.md",
+      "computedHash": "69f5287023b32af72a03be2b701d24b76447e993905379413d416d2eb680069e"
+    },
+    "scenario-textures": {
+      "source": "scenario-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/scenario-textures/SKILL.md",
+      "computedHash": "e4fce2e0e4dd49bc1bfc8fc67397858bf02f03c6941d7d488fdb425924279c4d"
+    },
+    "scenario-unity-animation": {
+      "source": "scenario-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/game-engines/unity/scenario-unity-animation/SKILL.md",
+      "computedHash": "e86e4e5ea948fa69e268cb3711003ea9386b90a6badf83abc9667b3342efe4b6"
+    },
+    "scenario-unity-rendering-lighting": {
+      "source": "scenario-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/game-engines/unity/scenario-unity-rendering-lighting/SKILL.md",
+      "computedHash": "5329400b7c9d8a2b7662deb37f9d1b68de835e465aeb4ad51f5c97aec4a822ca"
+    },
+    "scenario-unity-shaders": {
+      "source": "scenario-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/game-engines/unity/scenario-unity-shaders/SKILL.md",
+      "computedHash": "0d67746a48e81c6a10279db2b68e95378a2367d028f1a52ac92bb70829da1348"
+    },
+    "scenario-unity-vfx": {
+      "source": "scenario-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/game-engines/unity/scenario-unity-vfx/SKILL.md",
+      "computedHash": "ca3d4b6ef7aac6aecfbbe0ba227cb62e787bc0e5897702f6e118d401314b4bf7"
+    },
+    "scenario-unity-world-building": {
+      "source": "scenario-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/game-engines/unity/scenario-unity-world-building/SKILL.md",
+      "computedHash": "fcb0275aef5788341cfa9fe9c809ca043110a9b9274ad3c3a63c837d9ea05b75"
+    },
+    "shader-graph-create-custom-node": {
+      "source": "Unity-Technologies/skills",
+      "sourceType": "github",
+      "skillPath": "skills/shader-graph-create-custom-node/SKILL.md",
+      "computedHash": "f12f1c46bebfe0dff9c5b42fe01537ac8da285e71180c37486922f96410f366b"
+    },
+    "social": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "skillPath": "skills/social/SKILL.md",
+      "computedHash": "8fbfde477a34d243500855a5f4f47a9848dedba21713d53467dc603cd15001ef"
+    },
+    "social-media-image-sizes": {
+      "source": "branding5/social-media-image-sizes",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "050e31ecfb916ea065fd5c9a3269184901b4335db0d6bc41aec7c7063b799131"
     },
     "solana-dev": {
       "source": "solana-foundation/solana-dev-skill",
@@ -31,6 +211,12 @@
       "skillPath": "plugins/building-secure-contracts/skills/solana-vulnerability-scanner/SKILL.md",
       "computedHash": "be8d3d568bacb17b30df6e9e2fc66f352b05915efa7d2f9f8c018f3909d05471"
     },
+    "sprite-editor": {
+      "source": "Unity-Technologies/skills",
+      "sourceType": "github",
+      "skillPath": "skills/sprite-editor/SKILL.md",
+      "computedHash": "66cee7231a4d3c857dbd6d42aec8131f3b3bde4c8f0416a1d56fcff9a662e743"
+    },
     "systematic-debugging": {
       "source": "obra/superpowers",
       "sourceType": "github",
@@ -42,6 +228,12 @@
       "sourceType": "github",
       "skillPath": "skills/ui-uitk/SKILL.md",
       "computedHash": "b1df693958fe56020afb89850371ec15bf5d9fb7ae242e0a323e7234a1d00240"
+    },
+    "unity-pipeline": {
+      "source": "Unity-Technologies/skills",
+      "sourceType": "github",
+      "skillPath": "skills/unity-pipeline/SKILL.md",
+      "computedHash": "27a6b81775c1fcb9bd4fa83af6094454f266444399c529e14645f293bba56483"
     },
     "unity-scriptableobjects": {
       "source": "gamedev-skills/awesome-gamedev-agent-skills",
@@ -55,11 +247,23 @@
       "skillPath": "skills/urp-postprocessing/SKILL.md",
       "computedHash": "e4c1ee3fd67746b9f1e1c24f47dc1f11c69001717feed10970e186d3ec0d1c68"
     },
+    "validate-urp-render-graph-renderer-feature": {
+      "source": "Unity-Technologies/skills",
+      "sourceType": "github",
+      "skillPath": "skills/validate-urp-render-graph-renderer-feature/SKILL.md",
+      "computedHash": "6d40991d17b1be49c8b01114d6f20de0ee2122b09dbdb9a0b6ed0bce558663b9"
+    },
     "verification-before-completion": {
       "source": "obra/superpowers",
       "sourceType": "github",
       "skillPath": "skills/verification-before-completion/SKILL.md",
       "computedHash": "b529822bdac4b197b180fe12225cff86b930b65910435103c10622df7f041651"
+    },
+    "x-scraper": {
+      "source": "apidojo-io/social-media-skills",
+      "sourceType": "github",
+      "skillPath": "skills/x-scraper/SKILL.md",
+      "computedHash": "b1bffdd5cf2cfa090e28543d710356b1007039a1c39e3fbc4862a966cfc2750f"
     }
   }
 }

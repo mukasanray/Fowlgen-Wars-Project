@@ -1,0 +1,22 @@
+{
+  "name": "@branding5/social-media-image-sizes",
+  "version": "1.0.0",
+  "description": "Check and resize images for social media platforms. CLI tools for AI agents.",
+  "license": "MIT",
+  "author": "Branding5 (https://www.branding5.com)",
+  "homepage": "https://github.com/Branding5/social-media-image-sizes",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Branding5/social-media-image-sizes"
+  },
+  "scripts": {
+    "check":  "node scripts/check.js",
+    "resize": "node scripts/resize.js"
+  },
+  "dependencies": {
+    "sharp": "^0.33.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
