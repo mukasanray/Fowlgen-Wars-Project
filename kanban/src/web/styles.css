@@ -393,7 +393,7 @@ body {
 /* Layout */
 .app-container {
   display: grid;
-  grid-template-columns: 350px 1fr;
+  grid-template-columns: 375px 1fr;
   gap: 20px;
   padding: 18px 24px;
   flex: 1;
@@ -570,16 +570,16 @@ body {
   background: rgba(10, 13, 20, 0.7);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  padding: 11px 15px;
+  padding: 10px 13px;
   color: var(--text-main);
   font-family: var(--font-sans);
-  font-size: 14.5px;
+  font-size: 13.5px;
   line-height: 1.45;
   transition: all 0.2s ease;
 }
 
 .form-input::placeholder, .form-textarea::placeholder {
-  font-size: 13.5px;
+  font-size: 13px;
   color: #94a3b8;
   opacity: 0.85;
 }
@@ -638,12 +638,13 @@ body {
   background: rgba(19, 26, 42, 0.6);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  padding: 15px;
+  padding: 14px;
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
   color: #38bdf8;
-  word-break: break-all;
+  word-break: normal;
+  overflow-wrap: break-word;
   min-height: 52px;
   display: flex;
   align-items: center;
