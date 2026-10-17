@@ -12,3 +12,4 @@
 - [ ] **2.2** Preparação do container de apresentação para embutir o jogo (@Junior)
 - [x] **2.3** Validação cruzada dos textos e prompts do site contra Claude.md (@Junior)
 - [ ] **2.4** Atualização dos links da comunidade e redes sociais no rodapé (@Junior)
+- [x] **2.5** Organização do acervo de referências conceituais e READMEs históricos em prompt/files/referencias/ (@Junior)
