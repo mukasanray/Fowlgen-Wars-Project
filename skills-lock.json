@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "skills": {
+    "docker-patterns": {
+      "source": "affaan-m/ecc",
+      "sourceType": "github",
+      "skillPath": "skills/docker-patterns/SKILL.md",
+      "computedHash": "2518afd6ae1e1b91d7f8d2f8d9b7145fb08ec640b9624e3dffc0a21289417245"
+    },
+    "kubernetes-specialist": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kubernetes-specialist/SKILL.md",
+      "computedHash": "093f7dc0db832daad4449f36d31cb102a8499009375f4e2eb2e20bc34eef2e9d"
+    },
+    "solana-dev": {
+      "source": "solana-foundation/solana-dev-skill",
+      "sourceType": "github",
+      "skillPath": "skills/solana-dev/SKILL.md",
+      "computedHash": "975442b4f794e3db355f00b099fd0e274a3c016dcf1a7758a86b8c3e4cd44316"
+    },
+    "solana-mobile-wallet": {
+      "source": "solana-mobile/solana-mobile-skills",
+      "sourceType": "github",
+      "skillPath": "skills/solana-mobile-wallet/SKILL.md",
+      "computedHash": "cda0d353331bf6f1d4746ac6445235c6dc61d6ac09688e24a8566e667d5c15de"
+    },
+    "solana-vulnerability-scanner": {
+      "source": "trailofbits/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/building-secure-contracts/skills/solana-vulnerability-scanner/SKILL.md",
+      "computedHash": "be8d3d568bacb17b30df6e9e2fc66f352b05915efa7d2f9f8c018f3909d05471"
+    },
+    "systematic-debugging": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/systematic-debugging/SKILL.md",
+      "computedHash": "276fb0aadb002ab930cc2a56de89e16995a2e3e70b33587652bf0a5fb123148d"
+    },
+    "ui-uitk": {
+      "source": "unity-technologies/skills",
+      "sourceType": "github",
+      "skillPath": "skills/ui-uitk/SKILL.md",
+      "computedHash": "b1df693958fe56020afb89850371ec15bf5d9fb7ae242e0a323e7234a1d00240"
+    },
+    "unity-scriptableobjects": {
+      "source": "gamedev-skills/awesome-gamedev-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/unity/unity-scriptableobjects/SKILL.md",
+      "computedHash": "5e30fd4e71f4ee7abd8c56ff4ad01dea47f1b6c645be97d84e7465adb09b93ca"
+    },
+    "urp-postprocessing": {
+      "source": "unity-technologies/skills",
+      "sourceType": "github",
+      "skillPath": "skills/urp-postprocessing/SKILL.md",
+      "computedHash": "e4c1ee3fd67746b9f1e1c24f47dc1f11c69001717feed10970e186d3ec0d1c68"
+    },
+    "verification-before-completion": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/verification-before-completion/SKILL.md",
+      "computedHash": "b529822bdac4b197b180fe12225cff86b930b65910435103c10622df7f041651"
+    }
+  }
+}
