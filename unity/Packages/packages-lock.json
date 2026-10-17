@@ -13,6 +13,23 @@
       },
       "hash": "7e778180c5fe0e284eee505e7275b2d91d9a1566"
     },
+    "com.coplaydev.unity-mcp": {
+      "version": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.modules.animation": "1.0.0",
+        "com.unity.modules.imageconversion": "1.0.0",
+        "com.unity.modules.physics": "1.0.0",
+        "com.unity.modules.physics2d": "1.0.0",
+        "com.unity.modules.uielements": "1.0.0",
+        "com.unity.modules.screencapture": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0",
+        "com.unity.nuget.newtonsoft-json": "3.0.2",
+        "com.unity.test-framework": "1.1.31"
+      },
+      "hash": "aa5fc638d623f56178d50329d9ad8c541a57fe66"
+    },
     "com.firstgeargames.fishnet": {
       "version": "https://github.com/FirstGearGames/FishNet.git?path=Assets/FishNet",
       "depth": 0,
@@ -30,15 +47,15 @@
       "hash": "7c4a6448d48ed65b154ebd5615c86fb9001da1cf"
     },
     "com.ivanmurzak.unity.mcp": {
-      "version": "https://github.com/IvanMurzak/Unity-MCP.git?path=Unity-MCP-Plugin/Packages/com.ivanmurzak.unity.mcp",
+      "version": "1.1.0",
       "depth": 0,
-      "source": "git",
+      "source": "registry",
       "dependencies": {
         "com.unity.test-framework": "1.1.33",
         "com.unity.modules.uielements": "1.0.0",
         "extensions.unity.playerprefsex": "2.1.5"
       },
-      "hash": "4c8056fc698853d48b125546fe09189b8213fbaa"
+      "url": "https://package.openupm.com"
     },
     "com.link1345.gua": {
       "version": "file:D:/Dev/mcps/com.link1345.gua-1.1.1.tgz",

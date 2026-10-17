@@ -36,6 +36,7 @@ MonoBehaviour:
     m_Name: OpenUPM
     m_Url: https://package.openupm.com
     m_Scopes:
+    - com.ivanmurzak
     - extensions.unity
     m_IsDefault: 0
     m_IsUnityRegistry: 0
@@ -50,7 +51,7 @@ MonoBehaviour:
     m_Modified: 0
     m_ErrorMessage: 
     m_UserModificationsEntityId:
-      m_rawData: 1099511639675
+      m_rawData: 1099511639437
     m_OriginalEntityId:
-      m_rawData: 1099511639676
+      m_rawData: 1099511639439
   m_LoadAssets: 0

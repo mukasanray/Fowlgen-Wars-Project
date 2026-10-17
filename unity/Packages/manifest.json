@@ -4,14 +4,16 @@
       "name": "OpenUPM",
       "url": "https://package.openupm.com",
       "scopes": [
+        "com.ivanmurzak",
         "extensions.unity"
       ]
     }
   ],
   "dependencies": {
     "com.atteneder.gltfast": "https://github.com/atteneder/glTFast.git",
+    "com.coplaydev.unity-mcp": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main",
     "com.firstgeargames.fishnet": "https://github.com/FirstGearGames/FishNet.git?path=Assets/FishNet",
-    "com.ivanmurzak.unity.mcp": "https://github.com/IvanMurzak/Unity-MCP.git?path=Unity-MCP-Plugin/Packages/com.ivanmurzak.unity.mcp",
+    "com.ivanmurzak.unity.mcp": "1.1.0",
     "com.link1345.gua": "file:D:/Dev/mcps/com.link1345.gua-1.1.1.tgz",
     "com.mixamo.mcp": "https://github.com/HaD0Yun/unity-mcp-mixamo.git?path=unity-helper",
     "com.solana.unity_sdk": "file:com.solana.unity_sdk",
