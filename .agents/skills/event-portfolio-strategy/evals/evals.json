@@ -1,0 +1,498 @@
+{
+  "skill_name": "event-portfolio-strategy",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I coordinate Kotlin Northside. It started in Leeds in 2022 and now runs in nine cities: Leeds, Bristol, Porto, Krakow, Bologna, Gothenburg, Cork, Tallinn and Lyon. Each city has its own organizing crew, its own bank account, picks its own dates and signs its own local sponsors. What they get from us is the name, the logo kit and a shared code of conduct they have to adopt. Next year I want to grow the whole thing properly: I think each city should also run a hackathon, we should start a network-wide podcast, and I want to sell one sponsorship deal that covers all nine cities at once. Can you put together the portfolio plan?",
+      "expected_output": "A refusal to treat nine independent city teams as a portfolio, naming the setup as a franchise, declining the composition and sharing menus, pointing at the governance sibling skill, and naming brand licensing as an uncovered gap.",
+      "files": [],
+      "expectations": [
+        "Identifies the nine-city setup as a franchise rather than a portfolio.",
+        "States the distinguishing test explicitly: a portfolio is format diversity under one team, a franchise is team diversity under one format.",
+        "Declines to run the portfolio composition menu on the nine city chapters.",
+        "States that the composition, shared-infrastructure and cadence menus would give the wrong answer for a set of independent teams.",
+        "Does not treat the nine cities as nine properties in a single property inventory.",
+        "Identifies brand licensing - recruiting, vetting and enforcing standards on teams the user does not run - as the part no skill in the collection covers.",
+        "Points at samber/dev-event-organizer-skills@event-team-structure for the governance half of the franchise question.",
+        "Does not produce a nine-city hackathon rollout plan.",
+        "Does not present a network-wide sponsorship deal as established practice.",
+        "Asks which properties, if any, the user's own team runs directly before applying any menu."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Hey. We ran the first edition of ElixirDelta in Antwerp last October, 180 people, went down really well and people are still talking about it. It was rough behind the scenes though: our treasurer walked out six weeks before the date and we closed the books 3,900 euros in the red, which I ended up covering personally. Momentum is good and people keep asking for more, so for spring 2027 I want to add a two-day hackathon. I'd run it myself since I already know the sponsors and the venue people. What do I need to line up to make it happen?",
+      "expected_output": "A refusal to add the second property, citing the stability gate against both failing conditions, rejecting the flagship lead as the new property's owner, and offering a cheaper rung instead.",
+      "files": [],
+      "expectations": [
+        "Refuses to add the hackathon and presents the flagship stability requirement as a hard gate, not one consideration among several.",
+        "Names both failing conditions: fewer than two completed editions, and a last edition the team and the budget did not come out of intact.",
+        "Cites the prompt's own facts against the gate: one completed edition, the treasurer leaving, and the 3,900 euro shortfall.",
+        "States that an unstable flagship plus a new property produces two weak properties and one exhausted team rather than a portfolio.",
+        "Rejects the user owning the hackathon end to end while also owning the flagship.",
+        "States that a different person must be able to own a standalone second format end to end.",
+        "Lists all three conditions required before a standalone second format is promoted: at least two stable flagship editions, a distinct audience that keeps asking for something the flagship's format cannot host, and a different end-to-end owner.",
+        "Places the standalone second format as the highest-value but lowest-efficiency rung on the composition menu, because it is a full second production cycle.",
+        "Offers a cheaper rung - the continuity surface or the low-cadence small format - as what can be done while the flagship stabilizes.",
+        "Does not produce a hackathon planning checklist, budget or run-of-show.",
+        "Routes money modelling to samber/dev-event-organizer-skills@event-budget instead of estimating the hackathon's cost.",
+        "Asks what each existing property is for, in one sentence, and who owns it end to end."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Sanity-checking our 2027 calendar before we lock venues. We're a four-person crew in Nantes. GoCoast Conf is Thursday 10 June. ShipIt Hack is Saturday 24 July. We run the DevNantes meetup on the second Tuesday of every month. And we put out the GoCoast podcast every other Friday. Marta runs the conference and the hackathon, Idriss runs the meetup, I do the podcast. The dates are all weeks apart so I reckon we're fine. Anything you'd change?",
+      "expected_output": "A collision calendar built on build-up windows rather than dates, flagging the conference and hackathon build-ups under one owner, the meetup months that will silently vanish, and the single-owner finding.",
+      "files": [],
+      "expectations": [
+        "Maps each property's build-up window, not only its date.",
+        "Flags that the conference build-up, roughly the six weeks before 10 June, and the hackathon build-up sit under one owner, Marta.",
+        "States that the team constraint is checked before the audience constraint.",
+        "Names Marta owning two properties as a collision the date calendar cannot catch.",
+        "Reports single-owner coverage as a measure, treating one person owning two properties as a finding in itself.",
+        "Flags the monthly meetup months that will silently be skipped because the team is inside another property's build-up.",
+        "Separately flags any two properties whose audiences are the same people within one quarter.",
+        "Does not conclude that the calendar is fine because the dates are far apart.",
+        "Asks whether the four properties draw the same people, overlapping people or genuinely different people before judging the audience collision.",
+        "Asks for, or writes, a one-sentence purpose for each of the four properties."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "We need to cut something. Four properties, three organizers, everyone is done. Numbers from this year: TerraConf, our annual conference, 410 attendees, our biggest thing, Priya runs it. TerraLab, a quarterly hands-on workshop day, 95 people last time and growing, Priya also runs it, though honestly nobody remembers why we started it, it just kind of continued. The Terra Podcast, about 1,100 listens an episode, nobody really owns it, I edit it when I have time. And TerraJams, our monthly evening meetup, down to 22 people from 55 two years ago, Kwame runs it and cares a lot about it. Attendance says kill TerraJams. Agree?",
+      "expected_output": "A retirement analysis that applies the purpose-sentence and owner tests before attendance, names the two purposeless properties as first candidates, and specifies kill criteria with all their required parts.",
+      "files": [],
+      "expectations": [
+        "Does not recommend retiring TerraJams on the basis of its attendance figure.",
+        "Applies the purpose-sentence test before any attendance metric.",
+        "Names TerraLab and the Terra Podcast as the first retirement candidates because neither has a stated purpose.",
+        "Names the podcast's absence of an end-to-end owner as a finding in its own right.",
+        "Flags Priya owning both TerraConf and TerraLab.",
+        "States the structural pass threshold: every property needs a purpose sentence, a named owner and a written kill criterion, with no exceptions.",
+        "States that a criterion written after a property starts failing is a negotiation, not a criterion.",
+        "Specifies the three required parts of a kill criterion: a named metric, a floor value, and the number of consecutive editions below the floor.",
+        "States that the criterion triggers a retirement conversation rather than an automatic retirement.",
+        "Requires each criterion to be dated and written in advance.",
+        "Presents every floor value as self-set, never as a benchmark or an industry figure.",
+        "Checks whether TerraJams' decline is a stale theme or format rather than a portfolio problem, and routes that renewal question away from this decision.",
+        "Maps the funnel between the four properties pair by pair, marking each path as existing or aspirational."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Quick one. Northwind Data Days (our annual conference, 320 people), the Northwind monthly meetup, and our fortnightly podcast are all ours, same team. Vantatek has sponsored the conference three years running and just renewed on the meetup too, as a separate deal. I want to go back to them with one combined package covering all three for 2027. What should I price it at? I was going to open with \"bundled partnerships are pretty much the standard now for event families\" - does that land?",
+      "expected_output": "A refusal to price the bundle or to present it as standard, the four-part bundle test applied to Vantatek, a written per-property fallback, and pricing routed to the sponsor-pricing sibling.",
+      "files": [],
+      "expectations": [
+        "Refuses to supply a bundled price figure.",
+        "Rejects the proposed opening line, stating that a cross-property bundle is not established practice for organizers or for sponsors.",
+        "States explicitly that the cross-property sponsor package rung is untested.",
+        "Confirms the precondition the user already meets: the same sponsor already renews on two properties separately, so the bundle formalizes an existing relationship rather than inventing one.",
+        "Requires that one person can own fulfilment across all three properties before the bundle is offered.",
+        "Requires a per-property price that still stands if Vantatek takes only one property, written down before the conversation.",
+        "Requires the bundle to be described to the sponsor as new rather than as how this is normally done.",
+        "Frames the first bundle as a test with a named fallback to per-property deals.",
+        "Routes the pricing work to samber/dev-event-organizer-skills@event-sponsor-pricing.",
+        "Does not quote any bundled figure as a market rate or as a discount off one.",
+        "States that quoting a bundled figure as a market rate sets a price the portfolio cannot sustain.",
+        "Names the shared audience list, not the sponsor package, as the highest-value shared-infrastructure rung."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "PolarStack Summit is our one thing. 600 people, sells out in nine days, five editions in. Between June and the following June we are completely invisible. Our board just signed off a three-year plan and wants \"a regular touchpoint, something every month, for the next three years minimum\". Core team is four people and two of them told me flat out they have nothing left after the summit build. One of the other two, Noor, has been asking for months to start something of her own. A sponsor will give us a room free any evening we want. What do we launch?",
+      "expected_output": "A composition call that names the continuity surface as the default rung, re-ranks it against the three-year mandate, staffs it with an owner and a moderation plan, and weighs Noor and the free room against the standalone format.",
+      "files": [],
+      "expectations": [
+        "Names the continuity surface - one always-on, non-event property such as a chat space, a list or a publishing surface - as the default composition rung.",
+        "States that the compounding three-year mandate promotes the continuity surface and the low-cadence small format.",
+        "States that the compounding mandate demotes the co-located add-on because it buys nothing between editions.",
+        "Names Noor wanting a property of her own, and the free room, as facts that promote the standalone second format above its normal position.",
+        "Checks the flagship stability gate and states that PolarStack's five editions clear it.",
+        "Requires the continuity surface to have a named owner and a moderation plan before it is added.",
+        "States that an always-on space with no owner and no moderation plan is an unstaffed property with a code of conduct attached, not the cheap rung it looked like.",
+        "Routes animating the continuity surface to samber/dev-event-organizer-skills@event-community-building while keeping the belongs-in-the-set decision here.",
+        "Names gap coverage - the longest stretch of the year with no touchpoint of any kind - as the measure this decision moves.",
+        "States that the move from a continuity surface up to a low-cadence meetup happens once the surface has an audience and the gap is still visibly cold.",
+        "Does not hand a new property to either of the two depleted organizers."
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Here's my situation. I work at Rellik, a database company, and I also run the Helsinki Backend Guild meetup, which is a community thing, free, about 70 people a month, nine years old. Rellik pays for RellikCon, our 500-person user conference, and I organize that too with two colleagues. Same me, two very different things. RellikCon tickets go on sale in five weeks and I have 2,800 meetup RSVPs going back nine years sitting in an export on my laptop. I want to mail all of them about RellikCon, put both events under one \"Helsinki Backend\" visual identity, and reuse the meetup's code of conduct for the conference. Good plan?",
+      "expected_output": "A refusal of the list reuse on per-property consent grounds, identification of the mixed pole, the shared-entity rung promoted, the cross-property ban consequence of a shared code of conduct, and the five-week deadline applied to the menu.",
+      "files": [],
+      "expectations": [
+        "Refuses the mailing of the nine-year meetup RSVP export about RellikCon.",
+        "States that consent has to be carried per property, not assumed across properties.",
+        "Treats carrying one property's attendee list into another property's marketing without that property's own consent as deleted from the menu, not as a cheaper variant of the shared-list rung.",
+        "Names the shared audience list as the default and highest-value shared-infrastructure rung.",
+        "States that the shared audience list is what makes the funnel paths real rather than aspirational.",
+        "Identifies the setup as the mixed community and company pole, not purely community-run or purely company-run.",
+        "States that the mixed case is the one where the shared-entity rung stops being optional, and promotes it out of the basement.",
+        "Requires writing down whose brand, whose list and whose money each property uses before a sponsor, a member or a tax authority asks.",
+        "Flags that one code of conduct spanning both properties means a ban on one carries to the other.",
+        "Requires that cross-property ban rule to be written down before it is first used, not during an incident.",
+        "States that the five-week deadline demotes the rungs that cannot be done quickly, the cross-property sponsor package and the single entity.",
+        "Does not treat a shared visual identity as evidence of a funnel between the two properties."
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Two of our events, one weekend. HydroCode Conf on the Saturday at the Maltings, HackHydro on the Sunday at the university across town, same weekend so anyone travelling in gets both out of one trip. Our crew is six people and four of them ran both last year and said never again. We have to give both venues a yes or no by 14 October, about five weeks from now. Does this shape work?",
+      "expected_output": "A rejection of the two-venue adjacent-days arrangement as a deleted option, the real conditions for co-location, seasonal waves promoted by the exhausted team, and the deadline applied to the menu.",
+      "files": [],
+      "expectations": [
+        "Rejects the two-venue adjacent-days arrangement as deleted from the cadence menu rather than ranked last.",
+        "States why: it takes co-location's promise of one trip and one weekend without its mechanism, because neither the booking nor the crew is shared.",
+        "Names the consequences: the audience is asked to choose or to attend both, and the team runs two full setups inside 48 hours.",
+        "States the conditions that would promote real co-location: an audience that travels to reach you, or the same booking and the same crew genuinely carrying both programmes without a second setup.",
+        "Names anchor-and-spread as the default cadence posture.",
+        "Promotes seasonal waves because the team is already at its limit.",
+        "States that seasonal waves is the only posture that treats recovery as a scheduling decision instead of something hoped for.",
+        "States that the 14 October deadline demotes any option needing a second production cycle.",
+        "Notes that only the postures pre-committing a venue, fixed multi-year rotation and co-location, carry a compliance cost on this menu.",
+        "Does not recommend letting each property's owner pick its own date, and states that the collisions that produces cost more than the coordination it avoids.",
+        "Re-runs the build-up collision calendar against whichever cadence posture is chosen."
+      ]
+    }
+  ],
+  "trigger_queries": [
+    {
+      "query": "We run a monthly meetup and an annual conference. Should we add a hackathon next year?",
+      "should_trigger": true
+    },
+    {
+      "query": "Our conference sells out but the audience vanishes for eleven months. What property fixes that?",
+      "should_trigger": true
+    },
+    {
+      "query": "We have four events and one exhausted team. Which one do we kill?",
+      "should_trigger": true
+    },
+    {
+      "query": "Can we sell one sponsorship that covers the meetup, the conference and the podcast?",
+      "should_trigger": true
+    },
+    {
+      "query": "How do I decide whether a second event is worth running alongside the one we already have?",
+      "should_trigger": true
+    },
+    {
+      "query": "Should our meetup feed our conference, and what actually carries someone from one to the other?",
+      "should_trigger": true
+    },
+    {
+      "query": "we run too many things and i can't tell which ones are actually worth it anymore",
+      "should_trigger": true
+    },
+    {
+      "query": "What should we retire from our lineup next year?",
+      "should_trigger": true
+    },
+    {
+      "query": "How many events should one organizing team realistically run?",
+      "should_trigger": true
+    },
+    {
+      "query": "Is it time to add a podcast to what we already do?",
+      "should_trigger": true
+    },
+    {
+      "query": "Our three events all compete for the same volunteers. How do we split the hours between them?",
+      "should_trigger": true
+    },
+    {
+      "query": "we want to write down in advance the point at which we'd shut one of our events down",
+      "should_trigger": true
+    },
+    {
+      "query": "Should our hackathon and our conference share a mailing list?",
+      "should_trigger": true
+    },
+    {
+      "query": "What do our conference, meetup and hackathon actually share right now, and what should they?",
+      "should_trigger": true
+    },
+    {
+      "query": "Do we need a single legal entity if we run several different events under one team?",
+      "should_trigger": true
+    },
+    {
+      "query": "How should we lay our four events out across a year so they don't crash into each other?",
+      "should_trigger": true
+    },
+    {
+      "query": "we keep scheduling two of our things six weeks apart and everyone ends up fried",
+      "should_trigger": true
+    },
+    {
+      "query": "Should we bolt a workshop day onto our conference or start something new on its own date?",
+      "should_trigger": true
+    },
+    {
+      "query": "our newsletter, our meetup and our conference feel like unrelated things that happen to share a logo",
+      "should_trigger": true
+    },
+    {
+      "query": "We added a Discord as a cheap extra and it's turned into a fourth job. Does it stay in the set?",
+      "should_trigger": true
+    },
+    {
+      "query": "we have five properties and nobody can explain the point of two of them",
+      "should_trigger": true
+    },
+    {
+      "query": "Should the same person run both our conference and the new hackathon we're planning?",
+      "should_trigger": true
+    },
+    {
+      "query": "How do we tell whether our events are actually feeding each other or just sharing a brand?",
+      "should_trigger": true
+    },
+    {
+      "query": "Is a second conference line a good idea, or should we do something smaller instead?",
+      "should_trigger": true
+    },
+    {
+      "query": "We want to add a startup weekend to what we run. What has to be true first?",
+      "should_trigger": true
+    },
+    {
+      "query": "our sponsor renews on two of our events separately. should we combine the deals?",
+      "should_trigger": true
+    },
+    {
+      "query": "We're a company running a dev conference, a meetup and a newsletter. Which of them earn their keep?",
+      "should_trigger": true
+    },
+    {
+      "query": "should we run our two events on the same weekend in the same venue?",
+      "should_trigger": true
+    },
+    {
+      "query": "I want a plan for everything we run in 2027, not just the one event",
+      "should_trigger": true
+    },
+    {
+      "query": "How do we decide what to cut when the team shrinks from six people to three?",
+      "should_trigger": true
+    },
+    {
+      "query": "Which of our events should get the biggest share of organizer hours?",
+      "should_trigger": true
+    },
+    {
+      "query": "We run three events and want to know which one to double down on.",
+      "should_trigger": true
+    },
+    {
+      "query": "how do i make my meetup actually turn into conference attendees",
+      "should_trigger": true
+    },
+    {
+      "query": "When does it make sense to put two of your own events in the same venue on the same dates?",
+      "should_trigger": true
+    },
+    {
+      "query": "Our flagship is stable and profitable. What's the next thing we should launch?",
+      "should_trigger": true
+    },
+    {
+      "query": "we want one brand across a conference, a podcast and a hack night. what does that actually take",
+      "should_trigger": true
+    },
+    {
+      "query": "What's the cheapest thing we can start that keeps us in front of our audience between conferences?",
+      "should_trigger": true
+    },
+    {
+      "query": "Should we drop the hackathon entirely and put everything into the conference?",
+      "should_trigger": true
+    },
+    {
+      "query": "we're planning next year's slate of events and want to be deliberate instead of reactive",
+      "should_trigger": true
+    },
+    {
+      "query": "how do I stop a beloved event from limping along forever because nobody wants to be the one to end it",
+      "should_trigger": true
+    },
+    {
+      "query": "Our hackathon connects to nothing else we run. Is that a reason to shut it down?",
+      "should_trigger": true
+    },
+    {
+      "query": "we're a four-person team with a conference, a meetup and a podcast and i want to know if that's too much",
+      "should_trigger": true
+    },
+    {
+      "query": "Our conference sold out in a day. Should we move to a bigger venue next year?",
+      "should_trigger": false
+    },
+    {
+      "query": "Should we add a second track to our conference?",
+      "should_trigger": false
+    },
+    {
+      "query": "how do we cap attendance instead of growing, and run a lottery for tickets",
+      "should_trigger": false
+    },
+    {
+      "query": "We want to grow our hackathon from 120 participants to 300.",
+      "should_trigger": false
+    },
+    {
+      "query": "Can we swap newsletter mentions with another city's conference?",
+      "should_trigger": false
+    },
+    {
+      "query": "How do I approach another organizer about a ticket discount code swap?",
+      "should_trigger": false
+    },
+    {
+      "query": "we want to co-locate with a bigger conference that somebody else runs",
+      "should_trigger": false
+    },
+    {
+      "query": "What should we post in our Discord during the quiet months?",
+      "should_trigger": false
+    },
+    {
+      "query": "Who takes over our community Slack when the organizer who set it up leaves?",
+      "should_trigger": false
+    },
+    {
+      "query": "how do we turn attendees into contributors inside the community space we already run",
+      "should_trigger": false
+    },
+    {
+      "query": "Single track or multi-track for our 300-person conference?",
+      "should_trigger": false
+    },
+    {
+      "query": "Should our event be hybrid or in-person only?",
+      "should_trigger": false
+    },
+    {
+      "query": "what session mix should a one-day conference have - talks, workshops, open space?",
+      "should_trigger": false
+    },
+    {
+      "query": "What weekend in March should we run our conference on?",
+      "should_trigger": false
+    },
+    {
+      "query": "How far ahead should we announce our date?",
+      "should_trigger": false
+    },
+    {
+      "query": "our date clashes with a bigger event in the region. do we move?",
+      "should_trigger": false
+    },
+    {
+      "query": "Ticket sales are 40% behind where we were at this point last year. What does that mean?",
+      "should_trigger": false
+    },
+    {
+      "query": "Is there actually demand for a Rust conference in our city?",
+      "should_trigger": false
+    },
+    {
+      "query": "Should we form a non-profit association for our meetup?",
+      "should_trigger": false
+    },
+    {
+      "query": "How do we split decision rights between the board and the organizers?",
+      "should_trigger": false
+    },
+    {
+      "query": "our lead organizer is burning out. how do we restructure the team around that",
+      "should_trigger": false
+    },
+    {
+      "query": "Build me a budget for a 400-person conference.",
+      "should_trigger": false
+    },
+    {
+      "query": "What should we charge for tickets to break even?",
+      "should_trigger": false
+    },
+    {
+      "query": "How much should a gold sponsorship cost for a 250-person event?",
+      "should_trigger": false
+    },
+    {
+      "query": "What should go in each of our sponsorship tiers?",
+      "should_trigger": false
+    },
+    {
+      "query": "A sponsor wants to run a party during our conference week. Do we approve it?",
+      "should_trigger": false
+    },
+    {
+      "query": "someone is using our event's name on their own meetup page without asking",
+      "should_trigger": false
+    },
+    {
+      "query": "What do we do with the talk recordings after the conference?",
+      "should_trigger": false
+    },
+    {
+      "query": "Can we republish a speaker's slides if they used stock images?",
+      "should_trigger": false
+    },
+    {
+      "query": "What should we change after this year's edition?",
+      "should_trigger": false
+    },
+    {
+      "query": "how do we stop relearning the same lessons every year when the team turns over",
+      "should_trigger": false
+    },
+    {
+      "query": "Give me a work-back schedule from our conference date.",
+      "should_trigger": false
+    },
+    {
+      "query": "How do I build the session grid so the popular talks don't clash?",
+      "should_trigger": false
+    },
+    {
+      "query": "We've never run an event before. Where do we start?",
+      "should_trigger": false
+    },
+    {
+      "query": "How do we sell the last 80 tickets in the three weeks we have left?",
+      "should_trigger": false
+    },
+    {
+      "query": "What KPIs should our company report internally for its developer conference?",
+      "should_trigger": false
+    },
+    {
+      "query": "Help me build a design portfolio site that shows my best work.",
+      "should_trigger": false
+    },
+    {
+      "query": "How should I structure my investment portfolio across index funds?",
+      "should_trigger": false
+    },
+    {
+      "query": "review our product portfolio and tell me which SKUs to sunset",
+      "should_trigger": false
+    },
+    {
+      "query": "What projects should our engineering team prioritize this quarter?",
+      "should_trigger": false
+    },
+    {
+      "query": "how do we manage a portfolio of open source repos under one github org",
+      "should_trigger": false
+    },
+    {
+      "query": "Should our SaaS company launch a second product line next year?",
+      "should_trigger": false
+    }
+  ]
+}

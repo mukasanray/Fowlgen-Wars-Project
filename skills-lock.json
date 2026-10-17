@@ -25,6 +25,18 @@
       "skillPath": "tools/video/ai-video-generation/SKILL.md",
       "computedHash": "a2d7f92bb0fc3670a531576ce6e4ae0b7ed842cdeebec354a5bebe4c97821e39"
     },
+    "api-database-postgresql": {
+      "source": "agents-inc/skills",
+      "sourceType": "github",
+      "skillPath": "src/skills/api-database-postgresql/SKILL.md",
+      "computedHash": "545bf127b012199a6589015a8c6a2c37dabdcea7f0911b7fe85af03c32411e41"
+    },
+    "assistant-ui": {
+      "source": "assistant-ui/skills",
+      "sourceType": "github",
+      "skillPath": "assistant-ui/skills/assistant-ui/SKILL.md",
+      "computedHash": "364272bd753eef72169a47d448dfebb15a27e9dd7ad794d18cdc436cf2ef381b"
+    },
     "audio-setup-mixers": {
       "source": "Unity-Technologies/skills",
       "sourceType": "github",
@@ -42,6 +54,12 @@
       "sourceType": "github",
       "skillPath": "blender-toolkit/SKILL.md",
       "computedHash": "ed02f571f1feeefa51b4d13d7dd2c384f8fa22b31030b4feeb62a00374b3aa31"
+    },
+    "build-parallelism": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-msbuild/skills/build-parallelism/SKILL.md",
+      "computedHash": "192158e75271819e2588202325b74a70e41534ea5f632f75d17e9c539617da8e"
     },
     "copy-editing": {
       "source": "coreyhaines31/marketingskills",
@@ -66,6 +84,18 @@
       "sourceType": "github",
       "skillPath": "skills/docker-patterns/SKILL.md",
       "computedHash": "2518afd6ae1e1b91d7f8d2f8d9b7145fb08ec640b9624e3dffc0a21289417245"
+    },
+    "event-portfolio-strategy": {
+      "source": "samber/dev-event-organizer-skills",
+      "sourceType": "github",
+      "skillPath": "skills/event-portfolio-strategy/SKILL.md",
+      "computedHash": "f9cb406abc122d1e8eb6f4dda4e847b4a9def7a88e2719fae7c90072b74ef8cf"
+    },
+    "expo-overview": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/expo/skills/expo-overview/SKILL.md",
+      "computedHash": "2c36678b83153fdc259ac1cad0866806a9d1c4a48b5dec958b1e85c46ba13870"
     },
     "handoff-spec": {
       "source": "owl-listener/designer-skills",
@@ -97,6 +127,12 @@
       "skillPath": "skills/kubernetes-specialist/SKILL.md",
       "computedHash": "093f7dc0db832daad4449f36d31cb102a8499009375f4e2eb2e20bc34eef2e9d"
     },
+    "msbuild-modernization": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-msbuild/skills/msbuild-modernization/SKILL.md",
+      "computedHash": "a9cb711b0bb69b40c5948ffc26f4b645b214093550f1e92dc7fe4d114ffe3ef8"
+    },
     "multi-image-to-3d": {
       "source": "kevinbadi/blender-skills",
       "sourceType": "github",
@@ -114,6 +150,12 @@
       "sourceType": "github",
       "skillPath": "polyhaven-texture-apply/SKILL.md",
       "computedHash": "55cdca83dd64836c2b942f3acd5e9df6d5b517ab0fa09e4e4858dd4a3443c498"
+    },
+    "postgres-ops": {
+      "source": "0xdarkmatter/claude-mods",
+      "sourceType": "github",
+      "skillPath": "skills/postgres-ops/SKILL.md",
+      "computedHash": "ccc0032dda0e6c18c9891ba12293182316212f29db8a82aa60d228c8f71f92f2"
     },
     "product-photography": {
       "source": "101-skills/superpowers",
@@ -241,6 +283,12 @@
       "skillPath": "skills/unity/unity-scriptableobjects/SKILL.md",
       "computedHash": "5e30fd4e71f4ee7abd8c56ff4ad01dea47f1b6c645be97d84e7465adb09b93ca"
     },
+    "upstash-redis-js": {
+      "source": "upstash/skills",
+      "sourceType": "github",
+      "skillPath": "skills/upstash-redis-js/SKILL.md",
+      "computedHash": "43bc175ac5a5c6512ef483c1a0370255d6369c0654499e81a46e5b7b42fa7b9a"
+    },
     "urp-postprocessing": {
       "source": "unity-technologies/skills",
       "sourceType": "github",
@@ -252,6 +300,12 @@
       "sourceType": "github",
       "skillPath": "skills/validate-urp-render-graph-renderer-feature/SKILL.md",
       "computedHash": "6d40991d17b1be49c8b01114d6f20de0ee2122b09dbdb9a0b6ed0bce558663b9"
+    },
+    "vercel-react-view-transitions": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-view-transitions/SKILL.md",
+      "computedHash": "2033ef20681c90d4f93deee719e55e019c254e496d9bf80381c27cc539292001"
     },
     "verification-before-completion": {
       "source": "obra/superpowers",
