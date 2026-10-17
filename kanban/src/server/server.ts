@@ -52,19 +52,28 @@ export interface Member {
   color: string;
   github?: string;
   email?: string;
+  status?: 'active' | 'inactive';
+  active?: boolean;
+  deactivatedAt?: string;
+  transferredTo?: string;
 }
 
 function getMembers(): Member[] {
   if (fs.existsSync(MEMBERS_PATH)) {
     try {
-      return JSON.parse(fs.readFileSync(MEMBERS_PATH, 'utf8'));
+      const parsed: Member[] = JSON.parse(fs.readFileSync(MEMBERS_PATH, 'utf8'));
+      return parsed.map(m => ({
+        ...m,
+        status: m.status || (m.active === false ? 'inactive' : 'active'),
+        active: m.active !== undefined ? m.active : (m.status !== 'inactive')
+      }));
     } catch { }
   }
   return [
-    { id: 'marcos', name: 'Marcos', role: 'Unity / C# Developer', github: 'mukasanray', avatar: '👤', color: '#38bdf8' },
-    { id: 'samuel', name: 'Samuel', role: 'Game Designer & Lead', github: 'samuelmenon', avatar: '👑', color: '#f59e0b' },
-    { id: 'todos', name: 'Todos', role: 'Toda a Equipe', github: 'todos', avatar: '👥', color: '#10b981' },
-    { id: 'ia', name: 'Agente IA', role: 'Automação & Copilot', github: 'antigravity-ai', avatar: '🤖', color: '#a855f7' }
+    { id: 'marcos', name: 'Marcos', role: 'Unity / C# Developer', github: 'mukasanray', avatar: '👤', color: '#38bdf8', status: 'active', active: true },
+    { id: 'samuel', name: 'Samuel', role: 'Game Designer & Lead', github: 'samuelmenon', avatar: '👑', color: '#f59e0b', status: 'active', active: true },
+    { id: 'todos', name: 'Todos', role: 'Toda a Equipe', github: 'todos', avatar: '👥', color: '#10b981', status: 'active', active: true },
+    { id: 'ia', name: 'Agente IA', role: 'Automação & Copilot', github: 'antigravity-ai', avatar: '🤖', color: '#a855f7', status: 'active', active: true }
   ];
 }
 
@@ -109,6 +118,121 @@ export function normalizeAssignee(raw?: string): string {
     return 'Todos';
   }
   return raw.replace(/^@/, '').trim();
+}
+
+export function isAssigneeActive(name: string, membersList?: Member[]): boolean {
+  if (!name) return false;
+  const clean = name.trim().toLowerCase();
+  if (clean === 'todos' || clean === 'dev-team') return true;
+  const list = membersList || getMembers();
+  const normalized = normalizeAssignee(name).toLowerCase();
+  const found = list.find(m =>
+    m.name.toLowerCase() === normalized ||
+    m.id.toLowerCase() === normalized ||
+    m.name.toLowerCase() === clean ||
+    m.id.toLowerCase() === clean
+  );
+  if (!found) return true;
+  return found.active !== false && found.status !== 'inactive';
+}
+
+function reassignMemberTasks(oldMember: Member, newMember: Member, scope: 'all' | 'pending' = 'all'): { modifiedFiles: string[], count: number } {
+  let count = 0;
+  const modifiedFiles: string[] = [];
+
+  if (!fs.existsSync(OPEN_SPEC_DIR)) {
+    return { modifiedFiles, count };
+  }
+
+  const oldTokens = new Set<string>([
+    oldMember.name.toLowerCase(),
+    oldMember.id.toLowerCase()
+  ]);
+  if (oldMember.github) oldTokens.add(oldMember.github.toLowerCase());
+  const slugName = oldMember.name.toLowerCase().replace(/\s+/g, '-');
+  oldTokens.add(slugName);
+  const firstWord = oldMember.name.toLowerCase().split(' ')[0];
+  if (firstWord.length > 3 && firstWord !== 'todos') {
+    oldTokens.add(firstWord);
+  }
+
+  const entries = fs.readdirSync(OPEN_SPEC_DIR, { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const tasksPath = path.join(OPEN_SPEC_DIR, entry.name, 'tasks.md');
+    if (!fs.existsSync(tasksPath)) continue;
+
+    const content = fs.readFileSync(tasksPath, 'utf8');
+    const lines = content.split('\n');
+    let fileModified = false;
+
+    const newLines = lines.map(line => {
+      const taskMatch = line.match(/^(\s*[-*]?\s*\[([ xX])\]\s*(?:\*\*.+?\*\*|\d+\.?\d*)?\s*)(.*)/);
+      if (!taskMatch) return line;
+
+      const isDone = taskMatch[2].toLowerCase() === 'x';
+      if (scope === 'pending' && isDone) {
+        return line;
+      }
+
+      const rest = taskMatch[3];
+      const assigneeMatch = rest.match(/\((@?[^)]+)\)\s*$/i) || rest.match(/\[(@?[^\]]+)\]\s*$/i) || rest.match(/@([\w-]+)/i);
+      if (!assigneeMatch) return line;
+
+      const matchedRaw = assigneeMatch[1] || assigneeMatch[0];
+      const cleanMatched = matchedRaw.replace(/^[@()\[\]]+|[@()\[\]]+$/g, '').trim().toLowerCase();
+
+      let isMatch = false;
+      for (const token of oldTokens) {
+        if (cleanMatched === token || normalizeAssignee(cleanMatched).toLowerCase() === oldMember.name.toLowerCase()) {
+          isMatch = true;
+          break;
+        }
+      }
+
+      if (isMatch) {
+        count++;
+        fileModified = true;
+        const successorTag = `(@${newMember.name})`;
+        if (assigneeMatch[0].startsWith('(') || assigneeMatch[0].startsWith('[')) {
+          const idx = line.lastIndexOf(assigneeMatch[0]);
+          return line.substring(0, idx) + successorTag;
+        } else {
+          return line.replace(assigneeMatch[0], successorTag);
+        }
+      }
+
+      return line;
+    });
+
+    if (fileModified) {
+      fs.writeFileSync(tasksPath, newLines.join('\n'), 'utf8');
+      modifiedFiles.push(`openspec/changes/${entry.name}/tasks.md`);
+    }
+
+    // Also check proposal.md if creator or assignee was oldMember
+    const proposalPath = path.join(OPEN_SPEC_DIR, entry.name, 'proposal.md');
+    if (fs.existsSync(proposalPath)) {
+      const pContent = fs.readFileSync(proposalPath, 'utf8');
+      const teamRegex = /(\[(?:APROVADO|CRIADO|VALIDADO|REJEITADO)\]\s+por\s+)([^,\n\r]+?)(?=(\s+em\s+|\s*$|\n))/gi;
+      let pModified = false;
+      const newPContent = pContent.replace(teamRegex, (match, prefix, author) => {
+        const cleanAuthor = author.trim().replace(/^@/, '').toLowerCase();
+        if (oldTokens.has(cleanAuthor) || normalizeAssignee(cleanAuthor).toLowerCase() === oldMember.name.toLowerCase()) {
+          pModified = true;
+          return `${prefix}${newMember.name}`;
+        }
+        return match;
+      });
+
+      if (pModified) {
+        fs.writeFileSync(proposalPath, newPContent, 'utf8');
+        modifiedFiles.push(`openspec/changes/${entry.name}/proposal.md`);
+      }
+    }
+  }
+
+  return { modifiedFiles, count };
 }
 
 function updateOpenSpecTask(featureId: string, taskNumber: string, isCompleted: boolean, status?: string, assignee?: string, text?: string): void {
@@ -218,7 +342,7 @@ function getGitInfo() {
       gitUser.email = execSync('git config user.email', { encoding: 'utf8', cwd: REPO_ROOT }).trim();
     } catch { }
 
-    const members = getMembers();
+    const members = getMembers().filter(m => m.active !== false && m.status !== 'inactive');
     let detectedMember: any = null;
 
     // 1. Prioridade 1: Arquivo local de identidade (.gitignore - 100% privado, só nesta máquina)
@@ -288,6 +412,8 @@ function getFeaturesFromGitBranch(branch: string) {
     }
     const lines = treeOut.trim().split('\n');
     const features: any[] = [];
+    const membersList = getMembers();
+
     for (const line of lines) {
       const match = line.match(/\topenspec\/changes\/(.+)$/);
       if (match) {
@@ -324,7 +450,11 @@ function getFeaturesFromGitBranch(branch: string) {
           const teamMatch = proposal.match(/\[(APROVADO|CRIADO|VALIDADO|REJEITADO)\]\s+por\s+([^,\n\r]+?)(?:\s+em\s+|\s*$)/i) || proposal.match(/\[(APROVADO|CRIADO|VALIDADO|REJEITADO)\]\s+por\s+([^\s\n]+)/i);
           if (teamMatch) {
             ideaAssignee = normalizeAssignee(teamMatch[2].trim());
-            assigneesSet.add(ideaAssignee);
+            if (isAssigneeActive(ideaAssignee, membersList)) {
+              assigneesSet.add(ideaAssignee);
+            } else {
+              ideaAssignee = 'Todos';
+            }
           }
         } catch { }
 
@@ -350,8 +480,10 @@ function getFeaturesFromGitBranch(branch: string) {
               if (!taskAssignee && ideaAssignee && ideaAssignee !== 'Todos') {
                 taskAssignee = ideaAssignee;
               }
-              if (taskAssignee) {
+              if (taskAssignee && isAssigneeActive(taskAssignee, membersList)) {
                 assigneesSet.add(taskAssignee);
+              } else {
+                taskAssignee = '';
               }
 
               tasks.push({
@@ -428,6 +560,7 @@ function getFeaturesData() {
 
   const entries = fs.readdirSync(OPEN_SPEC_DIR, { withFileTypes: true });
   const featureDirs = entries.filter(e => e.isDirectory()).map(e => e.name);
+  const membersList = getMembers();
 
   return featureDirs.map(name => {
     const dirPath = path.join(OPEN_SPEC_DIR, name);
@@ -467,7 +600,11 @@ function getFeaturesData() {
       const teamMatch = proposal.match(/\[(APROVADO|CRIADO|VALIDADO|REJEITADO)\]\s+por\s+([^,\n\r]+?)(?:\s+em\s+|\s*$)/i) || proposal.match(/\[(APROVADO|CRIADO|VALIDADO|REJEITADO)\]\s+por\s+([^\s\n]+)/i);
       if (teamMatch) {
         ideaAssignee = normalizeAssignee(teamMatch[2].trim());
-        assigneesSet.add(ideaAssignee);
+        if (isAssigneeActive(ideaAssignee, membersList)) {
+          assigneesSet.add(ideaAssignee);
+        } else {
+          ideaAssignee = 'Todos';
+        }
       }
     }
 
@@ -495,8 +632,10 @@ function getFeaturesData() {
           if (!taskAssignee && ideaAssignee && ideaAssignee !== 'Todos') {
             taskAssignee = ideaAssignee;
           }
-          if (taskAssignee) {
+          if (taskAssignee && isAssigneeActive(taskAssignee, membersList)) {
             assigneesSet.add(taskAssignee);
+          } else {
+            taskAssignee = '';
           }
 
           tasks.push({
@@ -752,14 +891,16 @@ const server = http.createServer(async (req, res) => {
       }
       cleanId = uniqueId;
 
-      const newMember = {
+      const newMember: Member = {
         id: cleanId,
         name: cleanName,
         role: role && role.trim() ? role.trim() : 'Membro da Equipe',
         email: email && email.trim() ? email.trim().toLowerCase() : '',
         github: github && github.trim() ? github.trim().replace(/^@/, '') : '',
         avatar: avatar && avatar.trim() ? avatar.trim() : '👤',
-        color: color && color.trim() ? color.trim() : '#38bdf8'
+        color: color && color.trim() ? color.trim() : '#38bdf8',
+        status: 'active',
+        active: true
       };
 
       members.push(newMember);
@@ -825,7 +966,9 @@ const server = http.createServer(async (req, res) => {
         email: newEmail,
         github: newGithub,
         avatar: newAvatar,
-        color: newColor
+        color: newColor,
+        status: body.status !== undefined ? body.status : (current.status || 'active'),
+        active: body.active !== undefined ? Boolean(body.active) : (current.active !== undefined ? current.active : true)
       };
 
       saveMembers(members);
@@ -834,6 +977,93 @@ const server = http.createServer(async (req, res) => {
         success: true,
         message: `Integrante ${newName} atualizado com sucesso!`,
         member: members[memberIndex],
+        members
+      });
+      return;
+    }
+
+    // API: Deactivate member and transfer tasks
+    if (req.method === 'POST' && pathname === '/api/members/deactivate') {
+      const { memberId, reassignTo, transferScope } = await parseJSONBody(req);
+      if (!memberId) {
+        sendJSON(res, 400, { success: false, error: 'O ID do integrante a ser inativado é obrigatório.' });
+        return;
+      }
+      if (!reassignTo) {
+        sendJSON(res, 400, { success: false, error: 'Selecione quem assume as tarefas deste integrante.' });
+        return;
+      }
+
+      const members = getMembers();
+      const targetIndex = members.findIndex(m => m.id === memberId || m.name.toLowerCase() === String(memberId).toLowerCase());
+      if (targetIndex === -1) {
+        sendJSON(res, 404, { success: false, error: 'Integrante a ser inativado não foi encontrado.' });
+        return;
+      }
+
+      const successor = members.find(m => m.id === reassignTo || m.name.toLowerCase() === String(reassignTo).toLowerCase());
+      if (!successor) {
+        sendJSON(res, 404, { success: false, error: 'Integrante sucessor não foi encontrado na equipe.' });
+        return;
+      }
+
+      if (members[targetIndex].id === successor.id) {
+        sendJSON(res, 400, { success: false, error: 'O sucessor das tarefas não pode ser o mesmo integrante inativado.' });
+        return;
+      }
+
+      if (successor.active === false || successor.status === 'inactive') {
+        sendJSON(res, 400, { success: false, error: 'O sucessor selecionado não pode estar inativo.' });
+        return;
+      }
+
+      const targetMember = members[targetIndex];
+      targetMember.status = 'inactive';
+      targetMember.active = false;
+      targetMember.deactivatedAt = new Date().toISOString();
+      targetMember.transferredTo = successor.name;
+
+      const transferResult = reassignMemberTasks(targetMember, successor, transferScope === 'pending' ? 'pending' : 'all');
+
+      saveMembers(members);
+
+      sendJSON(res, 200, {
+        success: true,
+        message: `Integrante "${targetMember.name}" inativado com sucesso. ${transferResult.count} tarefas transferidas para "${successor.name}".`,
+        member: targetMember,
+        successor: successor.name,
+        transferredTasks: transferResult.count,
+        modifiedFiles: transferResult.modifiedFiles,
+        members
+      });
+      return;
+    }
+
+    // API: Activate member
+    if (req.method === 'POST' && pathname === '/api/members/activate') {
+      const { memberId } = await parseJSONBody(req);
+      if (!memberId) {
+        sendJSON(res, 400, { success: false, error: 'O ID do integrante a ser reativado é obrigatório.' });
+        return;
+      }
+
+      const members = getMembers();
+      const targetIndex = members.findIndex(m => m.id === memberId || m.name.toLowerCase() === String(memberId).toLowerCase());
+      if (targetIndex === -1) {
+        sendJSON(res, 404, { success: false, error: 'Integrante não foi encontrado na equipe.' });
+        return;
+      }
+
+      const targetMember = members[targetIndex];
+      targetMember.status = 'active';
+      targetMember.active = true;
+
+      saveMembers(members);
+
+      sendJSON(res, 200, {
+        success: true,
+        message: `Integrante "${targetMember.name}" reativado com sucesso!`,
+        member: targetMember,
         members
       });
       return;

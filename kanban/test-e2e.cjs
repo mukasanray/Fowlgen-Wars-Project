@@ -121,6 +121,31 @@ async function runAllTests() {
     assert(resUpdateMember.json.member.github === 'devteste-updated', 'GitHub do integrante atualizado corretamente');
     assert(resUpdateMember.json.member.role === 'Líder de Automação & Testes', 'Papel do integrante atualizado corretamente');
 
+    // Teste de Inativação de Integrante e Transferência de Tarefas (POST /api/members/deactivate)
+    console.log('\n--- Teste de Inativação e Sucessão de Tarefas ---');
+    const resDeactivate = await request({
+      path: '/api/members/deactivate',
+      method: 'POST'
+    }, {
+      memberId: createdMemberId,
+      reassignTo: 'marcos',
+      transferScope: 'all'
+    });
+    assert(resDeactivate.status === 200 && resDeactivate.json && resDeactivate.json.success, 'POST /api/members/deactivate inativa integrante com sucesso');
+    assert(resDeactivate.json.member.status === 'inactive', 'Status do integrante alterado para inactive');
+    assert(resDeactivate.json.member.active === false, 'Campo active alterado para false');
+
+    // Teste de Reativação de Integrante (POST /api/members/activate)
+    const resActivate = await request({
+      path: '/api/members/activate',
+      method: 'POST'
+    }, {
+      memberId: createdMemberId
+    });
+    assert(resActivate.status === 200 && resActivate.json && resActivate.json.success, 'POST /api/members/activate reativa integrante com sucesso');
+    assert(resActivate.json.member.status === 'active', 'Status do integrante restaurado para active');
+    assert(resActivate.json.member.active === true, 'Campo active restaurado para true');
+
     // Teste Exclusão de Integrante (POST /api/members/delete)
     const resDeleteMember = await request({
       path: '/api/members/delete',

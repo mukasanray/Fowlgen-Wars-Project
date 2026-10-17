@@ -574,9 +574,10 @@ function renderAnalyticsDashboard(features) {
   let readyFeatures = 0;
   let backlogFeatures = 0;
 
-  // Mapa de carga de trabalho por membro
+  // Mapa de carga de trabalho por membro (somente membros ativos)
   const memberWorkload = new Map();
-  teamMembers.forEach(m => {
+  const activeMembersOnly = teamMembers.filter(m => m.active !== false && m.status !== 'inactive');
+  activeMembersOnly.forEach(m => {
     memberWorkload.set(m.id.toLowerCase(), {
       id: m.id,
       name: m.name,
@@ -651,7 +652,7 @@ function renderAnalyticsDashboard(features) {
   const readyOrDone = doneFeatures + readyFeatures;
   const deliveryVelocity = totalFeatures > 0 ? Math.round((readyOrDone / totalFeatures) * 100) : 0;
   const activeMembersList = Array.from(memberWorkload.values());
-  const activeCount = activeMembersList.filter(m => m.totalTasks > 0).length || teamMembers.length;
+  const activeCount = activeMembersList.filter(m => m.totalTasks > 0).length || activeMembersOnly.length;
 
   // Donut SVG Calculations
   const r = 70;
@@ -826,11 +827,11 @@ function renderAnalyticsDashboard(features) {
 
       <div class="analytics-kpi-card" style="--kpi-accent: #a855f7;">
         <div class="analytics-kpi-header">
-          <span class="analytics-kpi-title">Equipe do Projeto</span>
+          <span class="analytics-kpi-title">Equipe Ativa</span>
           <span class="analytics-kpi-icon">👥</span>
         </div>
-        <div class="analytics-kpi-value">${teamMembers.length}</div>
-        <div class="analytics-kpi-subtitle">${activeCount} com tarefas atribuídas</div>
+        <div class="analytics-kpi-value">${activeMembersOnly.length}</div>
+        <div class="analytics-kpi-subtitle">${activeCount} ativos com tarefas atribuídas</div>
       </div>
 
       <div class="analytics-kpi-card" style="--kpi-accent: #f59e0b;">
@@ -888,7 +889,7 @@ function renderAnalyticsDashboard(features) {
           <div class="analytics-card-title">
             <span>👥</span> Carga de Trabalho por Integrante
           </div>
-          <span class="analytics-card-badge">${teamMembers.length} Membros</span>
+          <span class="analytics-card-badge">${activeMembersOnly.length} Integrantes Ativos</span>
         </div>
         <div class="team-workload-grid">
           ${teamCardsHtml}
@@ -1270,18 +1271,31 @@ function createFeatureCard(feature) {
     ? `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px;">🌿 ${feature.branch}</span>`
     : '';
 
-  const assigneesHtml = feature.assignees && feature.assignees.length > 0
-    ? feature.assignees.map(a => `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px;">👤 ${a === 'dev-team' ? 'Todos' : a}</span>`).join(' ')
+  const isMemberActive = (name) => {
+    if (!name || name === 'Todos' || name === 'dev-team') return true;
+    const clean = name.replace(/^@/, '').trim().toLowerCase();
+    const found = teamMembers.find(m =>
+      m.name.toLowerCase() === clean ||
+      m.id.toLowerCase() === clean
+    );
+    return !found || (found.active !== false && found.status !== 'inactive');
+  };
+
+  const activeAssignees = (feature.assignees || []).filter(a => isMemberActive(a));
+
+  const assigneesHtml = activeAssignees.length > 0
+    ? activeAssignees.map(a => `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px;">👤 ${a === 'dev-team' ? 'Todos' : a}</span>`).join(' ')
     : `<span class="badge-tag" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; font-size: 10px;">👥 Todos</span>`;
 
   // Task Items HTML
   const tasksHtml = feature.tasks.slice(0, 5).map(t => {
     const cleanText = t.text.replace(/\(([^)]+)\)|@([\w-]+)|\[([\w-]+)\]/g, '').trim();
+    const showAssignee = t.assignee && isMemberActive(t.assignee);
     return `
     <label class="task-item ${t.done ? 'done' : ''}">
       <input type="checkbox" ${t.done ? 'checked' : ''} ${feature.isFromGitBranch ? 'disabled title="Modo Histórico da branch (somente leitura)"' : ''} data-feature="${feature.name}" data-task-id="${t.id}" class="task-checkbox">
       <span><strong>${t.id ? '**' + t.id + '**' : ''}</strong> ${cleanText || t.text}</span>
-      ${t.assignee ? `<span style="font-size: 10px; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); padding: 1px 6px; border-radius: 10px; margin-left: 6px; white-space: nowrap;">👤 ${t.assignee}</span>` : ''}
+      ${showAssignee ? `<span style="font-size: 10px; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); padding: 1px 6px; border-radius: 10px; margin-left: 6px; white-space: nowrap;">👤 ${t.assignee}</span>` : ''}
     </label>
     `;
   }).join('');
@@ -1962,6 +1976,16 @@ const inputMemberColor = document.getElementById('input-member-color');
 const btnSaveMember = document.getElementById('btn-save-member');
 const membersListCards = document.getElementById('members-list-cards');
 const memberCountBadge = document.getElementById('member-count-badge');
+const memberStatusBreakdown = document.getElementById('member-status-breakdown');
+
+// Deactivate Member Modal Elements
+const modalDeactivateMember = document.getElementById('modal-deactivate-member');
+const btnCloseDeactivateModal = document.getElementById('btn-close-deactivate-modal');
+const btnCancelDeactivate = document.getElementById('btn-cancel-deactivate');
+const btnConfirmDeactivate = document.getElementById('btn-confirm-deactivate');
+const selectDeactivateSuccessor = document.getElementById('select-deactivate-successor');
+const inputDeactivateMemberId = document.getElementById('input-deactivate-member-id');
+const deactivateMemberNameLabel = document.getElementById('deactivate-member-name-label');
 
 function updateDeveloperIdentity(data) {
   if (!data) return;
@@ -2054,11 +2078,12 @@ async function fetchMembers() {
 
 function populateQuickGitSelect() {
   const selects = [selectQuickGitMember, selectModalGitMember];
+  const activeMembers = teamMembers.filter(m => m.active !== false && m.status !== 'inactive');
   selects.forEach(sel => {
     if (!sel) return;
     const currentVal = sel.value;
     sel.innerHTML = '<option value="">Selecione quem é você na equipe...</option>';
-    teamMembers.forEach(m => {
+    activeMembers.forEach(m => {
       const opt = document.createElement('option');
       opt.value = m.id;
       opt.textContent = `${m.avatar || '👤'} ${m.name} (${m.role || 'Membro'})`;
@@ -2073,6 +2098,19 @@ function renderMemberFilterPills() {
   if (!memberFilterPillsContainer) return;
   memberFilterPillsContainer.innerHTML = '';
 
+  const activeMembers = teamMembers.filter(m => m.active !== false && m.status !== 'inactive');
+
+  // Se o filtro atual pertencia a um membro que foi inativado, reseta para 'all'
+  if (currentAssigneeFilter !== 'all') {
+    const isCurrentActive = activeMembers.some(m =>
+      m.id.toLowerCase() === currentAssigneeFilter.toLowerCase() ||
+      m.name.toLowerCase() === currentAssigneeFilter.toLowerCase()
+    );
+    if (!isCurrentActive) {
+      currentAssigneeFilter = 'all';
+    }
+  }
+
   // 1. Botão "Todos"
   const allBtn = document.createElement('button');
   allBtn.type = 'button';
@@ -2082,8 +2120,8 @@ function renderMemberFilterPills() {
   allBtn.addEventListener('click', () => setMemberFilter('all'));
   memberFilterPillsContainer.appendChild(allBtn);
 
-  // 2. Filtra membros pelo input de busca se houver
-  const filtered = teamMembers.filter(m => {
+  // 2. Filtra membros ativos pelo input de busca se houver
+  const filtered = activeMembers.filter(m => {
     if (!memberSearchQuery) return true;
     return m.name.toLowerCase().includes(memberSearchQuery) ||
       (m.role && m.role.toLowerCase().includes(memberSearchQuery));
@@ -2107,28 +2145,49 @@ function renderMemberFilterPills() {
 function renderModalMembersList() {
   if (!membersListCards) return;
   membersListCards.innerHTML = '';
+
+  const activeMembers = teamMembers.filter(m => m.active !== false && m.status !== 'inactive');
+  const inactiveMembers = teamMembers.filter(m => m.active === false || m.status === 'inactive');
+
   if (memberCountBadge) memberCountBadge.textContent = teamMembers.length;
+  if (memberStatusBreakdown) {
+    memberStatusBreakdown.textContent = `${activeMembers.length} ativos • ${inactiveMembers.length} inativos`;
+  }
 
   teamMembers.forEach(m => {
+    const isActive = m.active !== false && m.status !== 'inactive';
     const card = document.createElement('div');
     card.className = 'member-row-card';
+    card.style.opacity = isActive ? '1' : '0.75';
     card.innerHTML = `
-      <div class="member-info-left">
-        <div class="member-avatar-circle" style="border-color: ${m.color || '#38bdf8'}; color: ${m.color || '#38bdf8'};">
+      <div class="member-info-left" style="min-width: 0;">
+        <div class="member-avatar-circle" style="border-color: ${isActive ? (m.color || '#38bdf8') : '#64748b'}; color: ${isActive ? (m.color || '#38bdf8') : '#94a3b8'};">
           ${m.avatar || '👤'}
         </div>
-        <div>
-          <div class="member-details-name">
-            ${m.name}
-            ${m.github ? `<span style="font-size: 11px; color: #a78bfa; background: rgba(139, 92, 246, 0.1); padding: 1px 6px; border-radius: 4px; font-weight: normal; margin-left: 6px;">🐙 @${m.github}</span>` : ''}
+        <div style="min-width: 0;">
+          <div class="member-details-name" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+            <span>${m.name}</span>
+            ${isActive
+              ? '<span class="badge-tag" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px;">🟢 Ativo</span>'
+              : '<span class="badge-tag" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px;">⚪ Inativo</span>'
+            }
+            ${m.github ? `<span style="font-size: 11px; color: #a78bfa; background: rgba(139, 92, 246, 0.1); padding: 1px 6px; border-radius: 4px; font-weight: normal;">🐙 @${m.github}</span>` : ''}
           </div>
           <div class="member-details-role">${m.role || 'Membro da Equipe'}</div>
         </div>
       </div>
-      <div style="display: flex; gap: 6px;">
+      <div style="display: flex; gap: 6px; align-items: center; flex-shrink: 0;">
         <button type="button" class="btn btn-secondary btn-sm btn-edit-member" style="padding: 4px 8px; font-size: 11px;" title="Alterar dados do integrante">
           ✏️ Editar
         </button>
+        ${isActive
+          ? `<button type="button" class="btn btn-warning btn-sm btn-deactivate-member" style="padding: 4px 8px; font-size: 11px;" title="Inativar integrante e transferir tarefas">
+              ⏸️ Inativar
+            </button>`
+          : `<button type="button" class="btn btn-success btn-sm btn-activate-member" style="padding: 4px 8px; font-size: 11px;" title="Reativar integrante na equipe">
+              ▶️ Reativar
+            </button>`
+        }
         <button type="button" class="btn btn-danger btn-sm btn-delete-member" style="padding: 4px 8px; font-size: 11px;" title="Remover integrante">
           🗑️ Excluir
         </button>
@@ -2137,6 +2196,14 @@ function renderModalMembersList() {
 
     card.querySelector('.btn-edit-member')?.addEventListener('click', () => {
       startEditMember(m);
+    });
+
+    card.querySelector('.btn-deactivate-member')?.addEventListener('click', () => {
+      openDeactivateModal(m);
+    });
+
+    card.querySelector('.btn-activate-member')?.addEventListener('click', async () => {
+      await activateMember(m.id);
     });
 
     card.querySelector('.btn-delete-member')?.addEventListener('click', async () => {
@@ -2359,12 +2426,134 @@ btnCancelEditMember?.addEventListener('click', cancelEditMember);
   });
 });
 
-// Populate Team / Assignee Selects with registered members
+// Deactivate & Reactivate Member Handlers
+function openDeactivateModal(m) {
+  if (!modalDeactivateMember) return;
+  if (inputDeactivateMemberId) inputDeactivateMemberId.value = m.id;
+  if (deactivateMemberNameLabel) deactivateMemberNameLabel.textContent = m.name;
+
+  // Popula o select com os OUTROS membros ATIVOS
+  if (selectDeactivateSuccessor) {
+    selectDeactivateSuccessor.innerHTML = '';
+    const activeOthers = teamMembers.filter(other =>
+      other.id !== m.id &&
+      other.name.toLowerCase() !== m.name.toLowerCase() &&
+      other.active !== false &&
+      other.status !== 'inactive'
+    );
+
+    if (activeOthers.length === 0) {
+      selectDeactivateSuccessor.innerHTML = '<option value="">⚠️ Nenhum outro integrante ativo disponível</option>';
+      if (btnConfirmDeactivate) btnConfirmDeactivate.disabled = true;
+    } else {
+      if (btnConfirmDeactivate) btnConfirmDeactivate.disabled = false;
+      activeOthers.forEach(other => {
+        const opt = document.createElement('option');
+        opt.value = other.id;
+        opt.textContent = `${other.avatar || '👤'} ${other.name} (${other.role || 'Membro'})`;
+        selectDeactivateSuccessor.appendChild(opt);
+      });
+    }
+  }
+
+  modalDeactivateMember.classList.add('open');
+}
+
+function closeDeactivateModal() {
+  if (modalDeactivateMember) {
+    modalDeactivateMember.classList.remove('open');
+  }
+}
+
+async function confirmDeactivateMember() {
+  const memberId = inputDeactivateMemberId?.value.trim();
+  const successorId = selectDeactivateSuccessor?.value.trim();
+  const scopeEl = document.querySelector('input[name="deactivate-scope"]:checked');
+  const transferScope = scopeEl ? scopeEl.value : 'all';
+
+  if (!memberId) {
+    showToast('Identificador do integrante inválido', 'error');
+    return;
+  }
+  if (!successorId) {
+    showToast('Selecione quem assume as tarefas deste integrante', 'warning');
+    return;
+  }
+
+  if (btnConfirmDeactivate) {
+    btnConfirmDeactivate.disabled = true;
+    btnConfirmDeactivate.innerHTML = '⏳ Transferindo...';
+  }
+
+  try {
+    const res = await fetch('/api/members/deactivate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        memberId,
+        reassignTo: successorId,
+        transferScope
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      appendLog(data.message);
+      closeDeactivateModal();
+      await fetchMembers();
+      await fetchFeatures();
+    } else {
+      showToast(data.error || 'Erro ao inativar integrante', 'error');
+    }
+  } catch (err) {
+    showToast('Erro de conexão ao inativar integrante', 'error');
+  } finally {
+    if (btnConfirmDeactivate) {
+      btnConfirmDeactivate.disabled = false;
+      btnConfirmDeactivate.innerHTML = 'Confirmar e Transferir Tarefas';
+    }
+  }
+}
+
+async function activateMember(memberId) {
+  try {
+    const res = await fetch('/api/members/activate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ memberId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      appendLog(data.message);
+      await fetchMembers();
+      await fetchFeatures();
+    } else {
+      showToast(data.error || 'Erro ao reativar integrante', 'error');
+    }
+  } catch (err) {
+    showToast('Erro de conexão ao reativar integrante', 'error');
+  }
+}
+
+// Modal Inativação Listeners
+btnCloseDeactivateModal?.addEventListener('click', closeDeactivateModal);
+btnCancelDeactivate?.addEventListener('click', closeDeactivateModal);
+btnConfirmDeactivate?.addEventListener('click', confirmDeactivateMember);
+modalDeactivateMember?.addEventListener('click', (e) => {
+  if (e.target === modalDeactivateMember) {
+    closeDeactivateModal();
+  }
+});
+
+// Populate Team / Assignee Selects with active members only
 function populateTeamSelects() {
+  const activeMembers = teamMembers.filter(m => m.active !== false && m.status !== 'inactive');
+
   if (selectIdeaTeam) {
     const curVal = selectIdeaTeam.value;
     selectIdeaTeam.innerHTML = '<option value="Todos">👥 Todos</option>';
-    teamMembers.forEach(m => {
+    activeMembers.forEach(m => {
       const opt = document.createElement('option');
       opt.value = m.name;
       opt.textContent = `${m.avatar || '👤'} ${m.name} (${m.role || 'Membro'})`;
@@ -2380,7 +2569,7 @@ function populateTeamSelects() {
   if (selectTaskAssignee) {
     const curVal = selectTaskAssignee.value;
     selectTaskAssignee.innerHTML = '';
-    teamMembers.forEach(m => {
+    activeMembers.forEach(m => {
       const opt = document.createElement('option');
       opt.value = m.name;
       opt.textContent = `${m.avatar || '👤'} ${m.name} (${m.role || 'Membro'})`;
@@ -2400,7 +2589,7 @@ function populateTeamSelects() {
   if (detailNewTaskAssignee) {
     const curVal = detailNewTaskAssignee.value;
     detailNewTaskAssignee.innerHTML = '';
-    teamMembers.forEach(m => {
+    activeMembers.forEach(m => {
       const opt = document.createElement('option');
       opt.value = m.name;
       opt.textContent = `${m.avatar || '👤'} ${m.name} (${m.role || 'Membro'})`;

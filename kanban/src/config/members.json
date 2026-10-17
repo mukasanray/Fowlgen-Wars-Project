@@ -6,7 +6,9 @@
     "github": "mukasanray",
     "avatar": "👑",
     "color": "#f59e0b",
-    "email": ""
+    "email": "",
+    "status": "active",
+    "active": true
   },
   {
     "id": "marcos",
@@ -15,7 +17,9 @@
     "github": "marcospascoski",
     "avatar": "💻",
     "color": "#38bdf8",
-    "email": ""
+    "email": "",
+    "status": "active",
+    "active": true
   },
   {
     "id": "emanuel",
@@ -24,7 +28,9 @@
     "github": "",
     "avatar": "🕹️",
     "color": "#10b981",
-    "email": ""
+    "email": "",
+    "status": "active",
+    "active": true
   },
   {
     "id": "jorge",
@@ -33,7 +39,9 @@
     "github": "jpespindola",
     "avatar": "🛡️",
     "color": "#6366f1",
-    "email": ""
+    "email": "",
+    "status": "active",
+    "active": true
   },
   {
     "id": "junior",
@@ -42,7 +50,9 @@
     "github": "nobregaxaviieer",
     "avatar": "🌐",
     "color": "#ec4899",
-    "email": ""
+    "email": "",
+    "status": "active",
+    "active": true
   },
   {
     "id": "maria-clara",
@@ -51,7 +61,9 @@
     "github": "",
     "avatar": "🧪",
     "color": "#14b8a6",
-    "email": ""
+    "email": "",
+    "status": "active",
+    "active": true
   },
   {
     "id": "ramiro",
@@ -60,7 +72,9 @@
     "github": "",
     "avatar": "📈",
     "color": "#eab308",
-    "email": ""
+    "email": "",
+    "status": "active",
+    "active": true
   },
   {
     "id": "sthefany",
@@ -69,7 +83,9 @@
     "email": "",
     "github": "",
     "avatar": "📈",
-    "color": "#f59e0b"
+    "color": "#f59e0b",
+    "status": "active",
+    "active": true
   },
   {
     "id": "vaguinhow",
@@ -78,7 +94,9 @@
     "email": "",
     "github": "",
     "avatar": "🎨",
-    "color": "#f59e0b"
+    "color": "#f59e0b",
+    "status": "active",
+    "active": true
   },
   {
     "id": "vyctor",
@@ -87,6 +105,8 @@
     "github": "vyctorrodrigues",
     "avatar": "🌐",
     "color": "#0ea5e9",
-    "email": ""
+    "email": "",
+    "status": "active",
+    "active": true
   }
 ]
