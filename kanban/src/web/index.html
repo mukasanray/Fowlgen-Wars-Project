@@ -1,10 +1,18 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fowlgen Wars — OpenSpec & Kanban Studio</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('kanban_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) { }
+    })();
+  </script>
   <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -44,13 +52,13 @@
         <button type="button" class="mode-toggle-btn active" id="btn-mode-local"
           title="Modo Local: Visualiza e edita tarefas em tempo real no seu workspace">
           <span class="mode-icon">💻</span>
-          <span class="mode-text">Modo Local (Em Edição)</span>
+          <span class="mode-text">Modo Local</span>
           <span class="branch-tag" id="current-branch-tag">carregando...</span>
         </button>
         <button type="button" class="mode-toggle-btn" id="btn-mode-main"
           title="Modo Oficial: Visualiza o estado consolidado da branch main">
           <span class="mode-icon">🌐</span>
-          <span class="mode-text">Modo Oficial (main)</span>
+          <span class="mode-text">Modo Oficial</span>
         </button>
       </div>
 
@@ -76,18 +84,23 @@
       </button>
     <button class="btn btn-save btn-sm" id="btn-commit-openspec"
       title="Salva todas as tarefas alteradas no histórico do Git">
-      💾 Salvar Alterações
+      💾 Salvar
     </button>
     <button class="btn btn-secondary btn-sm" id="btn-open-settings" title="Configurar GitHub Token e Repositório">
-      ⚙️ Configurações
+      ⚙️ Config
       <span class="status-indicator" id="token-status-dot"
         style="width: 7px; height: 7px; background: #64748b; box-shadow: none;" title="GitHub Token"></span>
+    </button>
+    <button class="btn btn-secondary btn-sm btn-theme-toggle" id="btn-toggle-theme"
+      title="Alternar para tema Claro" aria-label="Alternar tema">
+      <span class="theme-icon" id="theme-toggle-icon">☀️</span>
+      <span class="theme-label" id="theme-toggle-label">Claro</span>
     </button>
     <button class="btn btn-secondary btn-sm" id="btn-refresh" title="Recarregar dados">
       🔄 Atualizar
     </button>
     <button class="btn btn-primary btn-sm" id="btn-sync-top" title="Sincronizar com GitHub">
-      🚀 Sincronizar GitHub
+      🚀 Sincronizar
     </button>
     </div>
   </header>
@@ -103,7 +116,6 @@
         <div class="panel-title">
           <h2>⚡ Comandos Essenciais do OpenSpec</h2>
           <div class="panel-title-actions">
-            <span class="badge-tag">PDF Interativo</span>
             <button type="button" class="btn-icon-subtle" id="btn-collapse-sidebar"
               title="Recolher painel lateral (Ctrl+B)">◀</button>
           </div>
@@ -291,7 +303,6 @@
       <div class="terminal-card">
         <div class="terminal-header">
           <span class="terminal-title">💻 Comando Formatado para o Agent</span>
-          <span style="font-size: 11px; color: var(--text-dim);">Padrão do PDF</span>
         </div>
 
         <div class="command-box" id="command-output">
@@ -316,9 +327,7 @@
           <button class="btn btn-secondary btn-sm" id="btn-clear-log"
             style="padding: 2px 8px; font-size: 11px;">Limpar</button>
         </div>
-        <div id="execution-log"
-          style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); background: #06090e; padding: 10px; border-radius: 6px; max-height: 120px; overflow-y: auto; white-space: pre-wrap;">
-          Pronto para executar comandos.</div>
+        <div id="execution-log" class="execution-log-box">Pronto para executar comandos.</div>
       </div>
 
     </section>
@@ -568,7 +577,7 @@
               <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 20px;">🔒</span>
                 <div>
-                  <h4 style="font-size: 13px; font-weight: 700; color: #fff;">Identificação Local (100% Privada)</h4>
+                  <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main);">Identificação Local (100% Privada)</h4>
                   <p style="font-size: 11px; color: var(--text-muted);">Salva exclusivamente no seu computador (ignorado
                     pelo Git). Nenhum e-mail pessoal é versionado.</p>
                 </div>
@@ -756,7 +765,7 @@
           <span id="detail-header-icon" style="font-size: 26px;">💡</span>
           <div style="min-width: 0;">
             <h3 id="detail-header-title"
-              style="font-size: 18px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff;">
+              style="font-size: 18px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main);">
               Título da Ideia / Tarefa</h3>
             <p id="detail-header-subtitle"
               style="font-size: 12px; color: var(--text-dim); margin-top: 2px; font-family: var(--font-mono);">
@@ -825,7 +834,7 @@
         <!-- TAB 2: TASKS LIST & ADD TASK -->
         <div id="detail-view-tasks" class="modal-view-section" style="display: none;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <h4 style="font-size: 14px; font-weight: 700; color: #fff;">Checklist Operacional da Feature</h4>
+            <h4 style="font-size: 14px; font-weight: 700; color: var(--text-main);">Checklist Operacional da Feature</h4>
             <span style="font-size: 12px; color: var(--text-dim);">Clique no checkbox para alterar status em tempo
               real</span>
           </div>

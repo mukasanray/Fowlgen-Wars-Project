@@ -1,0 +1,1353 @@
+- generic [ref=f3e1]:
+  - banner [ref=f3e2]:
+    - generic [ref=f3e3]:
+      - generic [ref=f3e4]: 🐔
+      - generic [ref=f3e5]:
+        - heading "FOWLGEN WARS — OpenSpec & Kanban Studio" [level=1] [ref=f3e6]
+        - paragraph [ref=f3e7]:
+          - generic [ref=f3e9]: Servidor Ativo • Sincronizado com OpenSpec
+    - generic [ref=f3e10]:
+      - generic [ref=f3e11]:
+        - generic [ref=f3e12]: "Features:"
+        - generic [ref=f3e13]: "23"
+      - generic [ref=f3e14]:
+        - generic [ref=f3e15]: "Tarefas:"
+        - generic [ref=f3e16]: "100"
+      - generic [ref=f3e17]:
+        - generic [ref=f3e18]: "Concluídas:"
+        - generic [ref=f3e19]: "42"
+    - generic [ref=f3e20]:
+      - tablist [ref=f3e21]:
+        - button "💻 Modo Local main" [ref=f3e22] [cursor=pointer]:
+          - generic [ref=f3e23]: 💻
+          - generic [ref=f3e24]: Modo Local
+          - 'generic "Branch local ativa: main" [ref=f3e25]': main
+        - button "🌐 Modo Oficial" [ref=f3e26] [cursor=pointer]:
+          - generic [ref=f3e27]: 🌐
+          - generic [ref=f3e28]: Modo Oficial
+      - generic "1 arquivo(s) de tarefas alterados localmente. Clique em Salvar Alterações para registrar no Git." [ref=f3e29]: 1 pendente(s) de salvar
+      - combobox "Visualizar outra branch específica do Git..." [ref=f3e33] [cursor=pointer]:
+        - option "📂 Outras branches..." [disabled] [selected]
+        - option "🌿 origin/backup/pre-vercel-deploy"
+        - option "🌿 origin/feature/devsecops-checklist"
+        - option "🌿 origin/fix/anchor-fmt-and-keys"
+        - option "🌿 origin/fowlgenwars-unity-marcos"
+        - option "🌿 origin/main"
+    - generic [ref=f3e34]:
+      - button "⚡ Ocultar Painel" [ref=f3e35] [cursor=pointer]
+      - button "💾 Salvar (1)" [ref=f3e36] [cursor=pointer]
+      - button "⚙️ Config GitHub Token" [ref=f3e37] [cursor=pointer]:
+        - text: ⚙️ Config
+        - generic "GitHub Token" [ref=f3e38]
+      - button "Alternar para tema Claro" [active] [ref=f3e1168] [cursor=pointer]:
+        - generic [ref=f3e40]: ☀️
+        - generic [ref=f3e41]: Claro
+      - button "🔄 Atualizar" [ref=f3e42] [cursor=pointer]
+      - button "🚀 Sincronizar" [ref=f3e43] [cursor=pointer]
+  - main [ref=f3e44]:
+    - generic [ref=f3e45]:
+      - generic [ref=f3e46]:
+        - generic [ref=f3e47]:
+          - heading "⚡ Comandos Essenciais do OpenSpec" [level=2] [ref=f3e48]
+          - generic [ref=f3e49]:
+            - generic [ref=f3e50]: PDF Interativo
+            - button "◀" [ref=f3e51] [cursor=pointer]
+        - tablist [ref=f3e52]:
+          - button "📋 Tarefas" [ref=f3e53] [cursor=pointer]
+          - button "💡 Ideias / Features" [ref=f3e54] [cursor=pointer]
+          - button "🚀 Automação" [ref=f3e55] [cursor=pointer]
+        - generic [ref=f3e56]:
+          - generic [ref=f3e57]:
+            - generic [ref=f3e58]:
+              - generic [ref=f3e59]: "Feature / Módulo:"
+              - generic [ref=f3e60]: ✨ Opcional (deixe em branco para Tarefas Gerais)
+            - combobox "Feature / Módulo:" [ref=f3e61]:
+              - option "📋 (Em branco - Tarefas Gerais / Avulsas)" [selected]
+              - option "animacoes-personagens-mixamo (20% concluído)"
+              - option "arena-clean-consolidacao-moba (100% concluído)"
+              - option "audio-central-e-vfx-procedurais (100% concluído)"
+              - option "build-apk-android-homologacao-qa (0% concluído)"
+              - option "combate-colisoes-e-destruicao-base (100% concluído)"
+              - option "desempate-timer-game-match (0% concluído)"
+              - option "devsecops-pipeline-ci-cd-gitleaks (0% concluído)"
+              - option "ideia-armadilhas-personalizadas (0% concluído)"
+              - option "ideia-camada-tatica-xadrez (50% concluído)"
+              - option "ideia-dupla-estrategica-duo (50% concluído)"
+              - option "ideia-economia-micro-recompensas (0% concluído)"
+              - option "ideia-legada-arena-4-rotas (0% concluído)"
+              - option "ideia-skins-arenas-tematicas (20% concluído)"
+              - option "infra-k8s-fishnet-server-headless (0% concluído)"
+              - option "multiplayer-fishnet-1v1-hibrido (40% concluído)"
+              - option "poc-01-fundacao-unity-telas (100% concluído)"
+              - option "poc-02-03-smart-contract-anchor-solana (100% concluído)"
+              - option "portal-web-hub-app (70% concluído)"
+              - option "showcase-cinemachine-video-pitch (0% concluído)"
+              - option "submissao-oficial-hackathon-colosseum (20% concluído)"
+              - option "transacao-onchain-vitoria-solana (0% concluído)"
+              - option "web3-hub-app-solana-devnet-jorge (100% concluído)"
+          - generic [ref=f3e62]:
+            - generic [ref=f3e63]:
+              - generic [ref=f3e64]: "Responsável / Equipe:"
+              - combobox "Responsável / Equipe:" [ref=f3e65]:
+                - option "👑 Samuel (Product Owner • Game Design • Kanban)"
+                - option "💻 Marcos (Líder Técnico • Dev Core Unity & Web3)" [selected]
+                - option "🕹️ Emanuel (Dev Unity • Gameplay Core & Ambiente)"
+                - option "🛡️ Jorge Espindola (DevSecOps & Web3 - Áudio & Docs)"
+                - option "🌐 Junior (Dev Web (React/Node) • Docs & Prompts)"
+                - option "🧪 Maria Clara (QA Funcional • UX Testing & Lore)"
+                - option "📈 Ramiro (Marketing Estratégico & Pitch Deck)"
+                - option "📈 Sthefany (Midia Social)"
+                - option "🎨 Vaguinhow (Animador 3D)"
+                - option "🌐 Vyctor Rodrigues (Dev Web Front-end • Criação do Site Oficial (app/))"
+                - option "👥 Todos"
+            - generic [ref=f3e66]:
+              - generic [ref=f3e67]: "Status da Tarefa:"
+              - combobox "Status da Tarefa:" [ref=f3e68]:
+                - option "📝 Backlog" [selected]
+                - option "🔄 Em Andamento"
+                - option "🔍 Testando / Review"
+                - option "✅ Concluído"
+          - generic [ref=f3e69]:
+            - generic [ref=f3e70]: "ID da Tarefa (opcional):"
+            - textbox "ID da Tarefa (opcional):" [ref=f3e71]:
+              - /placeholder: "Automático (ex: 1.1)"
+          - generic [ref=f3e72]:
+            - generic [ref=f3e73]:
+              - generic [ref=f3e74]: "Descrição da Tarefa / Prompt (para IA e Equipe):"
+              - generic [ref=f3e75]: ✨ Suporta Prompt
+            - textbox "Descrição da Tarefa / Prompt (para IA e Equipe):" [ref=f3e76]:
+              - /placeholder: Descreva a tarefa ou insira o prompt com instruções detalhadas para o agente de IA ou desenvolvedor...
+            - generic [ref=f3e77]:
+              - generic [ref=f3e78]: "Sugestões de Prompt:"
+              - button "🤖 Prompt IA" [ref=f3e79] [cursor=pointer]
+              - button "🐛 Bugfix" [ref=f3e80] [cursor=pointer]
+              - button "🎮 Arena_Clean" [ref=f3e81] [cursor=pointer]
+          - generic [ref=f3e82]:
+            - button "➕ Criar Tarefa" [ref=f3e83] [cursor=pointer]
+            - button "💾 Salvar Alterações" [ref=f3e84] [cursor=pointer]
+            - button "👤 Atribuir Tarefa" [ref=f3e85] [cursor=pointer]
+            - button "📋 Listar Tarefas" [ref=f3e86] [cursor=pointer]
+      - generic [ref=f3e87]:
+        - generic [ref=f3e88]:
+          - generic [ref=f3e89]: 💻 Comando Formatado para o Agent
+          - generic [ref=f3e90]: Padrão do PDF
+        - generic [ref=f3e91]: agent atualizar "**2.1**" "Backlog" "Marcos"
+        - generic [ref=f3e92]:
+          - button "📋 Copiar Comando para o Chat" [ref=f3e93] [cursor=pointer]
+          - button "⚡ Executar Direto" [ref=f3e94] [cursor=pointer]
+      - generic [ref=f3e95]:
+        - generic [ref=f3e96]:
+          - heading "📟 Log de Execução" [level=2] [ref=f3e97]
+          - button "Limpar" [ref=f3e98] [cursor=pointer]
+        - generic [ref=f3e99]: Pronto para executar comandos.
+    - generic [ref=f3e100]:
+      - generic [ref=f3e101]:
+        - generic [ref=f3e102]:
+          - button "◀ Recolher Painel" [ref=f3e103] [cursor=pointer]:
+            - generic [ref=f3e104]: ◀
+            - generic [ref=f3e105]: Recolher Painel
+          - tablist [ref=f3e106]:
+            - button "🎯 Tarefas da Sprint 100" [ref=f3e107] [cursor=pointer]:
+              - generic [ref=f3e108]: 🎯
+              - generic [ref=f3e109]: Tarefas da Sprint
+              - generic [ref=f3e110]: "100"
+            - button "💡 Funil de Ideias 23" [ref=f3e111] [cursor=pointer]:
+              - generic [ref=f3e112]: 💡
+              - generic [ref=f3e113]: Funil de Ideias
+              - generic [ref=f3e114]: "23"
+            - button "📊 Analytics & Métricas" [ref=f3e115] [cursor=pointer]:
+              - generic [ref=f3e116]: 📊
+              - generic [ref=f3e117]: Analytics & Métricas
+        - generic [ref=f3e118]:
+          - 'generic "Você está conectado como Marcos (Privacidade ativa: salvo apenas localmente)" [ref=f3e119]':
+            - generic [ref=f3e120]: 💻
+            - generic [ref=f3e121]:
+              - generic [ref=f3e122]: "Você:"
+              - generic [ref=f3e123]: Marcos
+            - button "🎯 Minhas Tarefas" [ref=f3e124] [cursor=pointer]
+          - generic [ref=f3e125]: "👤 Equipe:"
+          - textbox "Buscar integrante por nome ou função" [ref=f3e127]:
+            - /placeholder: 🔍 Buscar...
+          - generic [ref=f3e128]:
+            - button "👥 Todos" [ref=f3e129] [cursor=pointer]
+            - button "👑 Samuel" [ref=f3e130] [cursor=pointer]
+            - button "💻 Marcos" [ref=f3e131] [cursor=pointer]
+            - button "🕹️ Emanuel" [ref=f3e132] [cursor=pointer]
+            - button "🛡️ Jorge Espindola" [ref=f3e133] [cursor=pointer]
+            - button "🌐 Junior" [ref=f3e134] [cursor=pointer]
+            - button "🧪 Maria Clara" [ref=f3e135] [cursor=pointer]
+            - button "📈 Ramiro" [ref=f3e136] [cursor=pointer]
+            - button "📈 Sthefany" [ref=f3e137] [cursor=pointer]
+            - button "🎨 Vaguinhow" [ref=f3e138] [cursor=pointer]
+            - button "🌐 Vyctor Rodrigues" [ref=f3e139] [cursor=pointer]
+          - button "⚙️ Gerenciar" [ref=f3e140] [cursor=pointer]
+      - generic [ref=f3e141]:
+        - generic [ref=f3e142]:
+          - generic [ref=f3e143]: ⚡
+          - generic [ref=f3e144]:
+            - text: Você está no
+            - strong [ref=f3e145]: Modo Local
+            - text: na branch
+            - code [ref=f3e146]: main
+            - text: com
+            - strong [ref=f3e147]: 1 alteração(ões) pendente(s)
+            - text: de salvar.
+        - button "💾 Salvar Alterações" [ref=f3e149] [cursor=pointer]
+      - generic [ref=f3e150]:
+        - generic [ref=f3e151]:
+          - generic [ref=f3e152]:
+            - generic [ref=f3e153]: 📋 A Fazer
+            - generic [ref=f3e154]: "6"
+          - generic [ref=f3e155]:
+            - generic [ref=f3e156] [cursor=pointer]:
+              - generic [ref=f3e157]:
+                - generic [ref=f3e158]: Backlog
+                - generic [ref=f3e159]:
+                  - generic [ref=f3e160]: 👤 Maria Clara
+                  - generic [ref=f3e161]: 👤 Marcos
+              - 'heading "POC-SUB-01: Geração de Build APK Android e Homologação de QA" [level=3] [ref=f3e162]'
+              - generic [ref=f3e164]:
+                - generic [ref=f3e165]: Progresso (0/5)
+                - generic [ref=f3e166]: 0%
+              - generic [ref=f3e168]:
+                - generic [ref=f3e169]:
+                  - generic [ref=f3e170]:
+                    - checkbox "**1.1** Configuração de Build Settings Android com orientação horizontal travada 👤 Marcos" [ref=f3e171]
+                    - generic [ref=f3e172]:
+                      - strong [ref=f3e173]: "**1.1**"
+                      - text: Configuração de Build Settings Android com orientação horizontal travada
+                    - generic [ref=f3e174]: 👤 Marcos
+                  - button "✏️" [ref=f3e175]
+                - generic [ref=f3e176]:
+                  - generic [ref=f3e177]:
+                    - checkbox "**1.2** Compilação do binário FowlgenWars_MVP_Colosseum2026.apk assinado 👤 Marcos" [ref=f3e178]
+                    - generic [ref=f3e179]:
+                      - strong [ref=f3e180]: "**1.2**"
+                      - text: Compilação do binário FowlgenWars_MVP_Colosseum2026.apk assinado
+                    - generic [ref=f3e181]: 👤 Marcos
+                  - button "✏️" [ref=f3e182]
+                - generic [ref=f3e183]:
+                  - generic [ref=f3e184]:
+                    - checkbox "**1.3** Instalação em smartphone físico Android e execução do checklist de QA 👤 Maria Clara" [ref=f3e185]
+                    - generic [ref=f3e186]:
+                      - strong [ref=f3e187]: "**1.3**"
+                      - text: Instalação em smartphone físico Android e execução do checklist de QA
+                    - generic [ref=f3e188]: 👤 Maria Clara
+                  - button "✏️" [ref=f3e189]
+                - generic [ref=f3e190]:
+                  - generic [ref=f3e191]:
+                    - checkbox "**1.4** Validação de usabilidade dos botões táteis e sensibilidade de toque 👤 Maria Clara" [ref=f3e192]
+                    - generic [ref=f3e193]:
+                      - strong [ref=f3e194]: "**1.4**"
+                      - text: Validação de usabilidade dos botões táteis e sensibilidade de toque
+                    - generic [ref=f3e195]: 👤 Maria Clara
+                  - button "✏️" [ref=f3e196]
+                - generic [ref=f3e197]:
+                  - generic [ref=f3e198]:
+                    - checkbox "**1.5** Emissão de relatório funcional de homologação de gameplay 👤 Maria Clara" [ref=f3e199]
+                    - generic [ref=f3e200]:
+                      - strong [ref=f3e201]: "**1.5**"
+                      - text: Emissão de relatório funcional de homologação de gameplay
+                    - generic [ref=f3e202]: 👤 Maria Clara
+                  - button "✏️" [ref=f3e203]
+            - generic [ref=f3e204] [cursor=pointer]:
+              - generic [ref=f3e205]:
+                - generic [ref=f3e206]: Backlog
+                - generic [ref=f3e207]:
+                  - generic [ref=f3e208]: 👤 Samuel
+                  - generic [ref=f3e209]: 👤 Emanuel
+                  - generic [ref=f3e210]: 👤 Maria Clara
+              - heading "Regra de Desempate do Timer da Partida de 3 Minutos" [level=3] [ref=f3e211]
+              - generic [ref=f3e213]:
+                - generic [ref=f3e214]: Progresso (0/4)
+                - generic [ref=f3e215]: 0%
+              - generic [ref=f3e217]:
+                - generic [ref=f3e218]:
+                  - generic [ref=f3e219]:
+                    - checkbox "**1.1** Definição da regra oficial de desempate pelo PO Samuel Menon 👤 Samuel" [ref=f3e220]
+                    - generic [ref=f3e221]:
+                      - strong [ref=f3e222]: "**1.1**"
+                      - text: Definição da regra oficial de desempate pelo PO Samuel Menon
+                    - generic [ref=f3e223]: 👤 Samuel
+                  - button "✏️" [ref=f3e224]
+                - generic [ref=f3e225]:
+                  - generic [ref=f3e226]:
+                    - checkbox "**1.2** Implementação da condição no GameMatchManager e MatchHUDTimerTracker 👤 Emanuel" [ref=f3e227]
+                    - generic [ref=f3e228]:
+                      - strong [ref=f3e229]: "**1.2**"
+                      - text: Implementação da condição no GameMatchManager e MatchHUDTimerTracker
+                    - generic [ref=f3e230]: 👤 Emanuel
+                  - button "✏️" [ref=f3e231]
+                - generic [ref=f3e232]:
+                  - generic [ref=f3e233]:
+                    - checkbox "**1.3** Feedback visual de tempo esgotado e declaração do vencedor 👤 Emanuel" [ref=f3e234]
+                    - generic [ref=f3e235]:
+                      - strong [ref=f3e236]: "**1.3**"
+                      - text: Feedback visual de tempo esgotado e declaração do vencedor
+                    - generic [ref=f3e237]: 👤 Emanuel
+                  - button "✏️" [ref=f3e238]
+                - generic [ref=f3e239]:
+                  - generic [ref=f3e240]:
+                    - checkbox "**1.4** Validação em partida de teste até o timer expirar 👤 Maria Clara" [ref=f3e241]
+                    - generic [ref=f3e242]:
+                      - strong [ref=f3e243]: "**1.4**"
+                      - text: Validação em partida de teste até o timer expirar
+                    - generic [ref=f3e244]: 👤 Maria Clara
+                  - button "✏️" [ref=f3e245]
+            - generic [ref=f3e246] [cursor=pointer]:
+              - generic [ref=f3e247]:
+                - generic [ref=f3e248]: Backlog
+                - generic [ref=f3e249]:
+                  - generic [ref=f3e250]: 👤 Samuel
+                  - generic [ref=f3e251]: 👤 Marcos
+                  - generic [ref=f3e252]: 👤 Emanuel
+                  - generic [ref=f3e253]: 👤 Maria Clara
+              - heading "Sistema de Armadilhas Personalizadas (Ovo Congelante e Minas)" [level=3] [ref=f3e254]
+              - generic [ref=f3e256]:
+                - generic [ref=f3e257]: Progresso (0/4)
+                - generic [ref=f3e258]: 0%
+              - generic [ref=f3e260]:
+                - generic [ref=f3e261]:
+                  - generic [ref=f3e262]:
+                    - checkbox "**1.1** Formatação das 6 camadas conceituais de armadilhas em Markdown 👤 Marcos" [ref=f3e263]
+                    - generic [ref=f3e264]:
+                      - strong [ref=f3e265]: "**1.1**"
+                      - text: Formatação das 6 camadas conceituais de armadilhas em Markdown
+                    - generic [ref=f3e266]: 👤 Marcos
+                  - button "✏️" [ref=f3e267]
+                - generic [ref=f3e268]:
+                  - generic [ref=f3e269]:
+                    - checkbox "**1.2** Prototipagem do prefab de Ovo Congelante com colisor de proximidade 👤 Emanuel" [ref=f3e270]
+                    - generic [ref=f3e271]:
+                      - strong [ref=f3e272]: "**1.2**"
+                      - text: Prototipagem do prefab de Ovo Congelante com colisor de proximidade
+                    - generic [ref=f3e273]: 👤 Emanuel
+                  - button "✏️" [ref=f3e274]
+                - generic [ref=f3e275]:
+                  - generic [ref=f3e276]:
+                    - checkbox "**1.3** Definição das regras de limite de armadilhas ativas por partida 👤 Samuel" [ref=f3e277]
+                    - generic [ref=f3e278]:
+                      - strong [ref=f3e279]: "**1.3**"
+                      - text: Definição das regras de limite de armadilhas ativas por partida
+                    - generic [ref=f3e280]: 👤 Samuel
+                  - button "✏️" [ref=f3e281]
+                - generic [ref=f3e282]:
+                  - generic [ref=f3e283]:
+                    - checkbox "**1.4** Validação funcional de impacto na fluidez do combate móvel 👤 Maria Clara" [ref=f3e284]
+                    - generic [ref=f3e285]:
+                      - strong [ref=f3e286]: "**1.4**"
+                      - text: Validação funcional de impacto na fluidez do combate móvel
+                    - generic [ref=f3e287]: 👤 Maria Clara
+                  - button "✏️" [ref=f3e288]
+            - generic [ref=f3e289] [cursor=pointer]:
+              - generic [ref=f3e290]:
+                - generic [ref=f3e291]: Backlog
+                - generic [ref=f3e292]:
+                  - generic [ref=f3e293]: 👤 Samuel
+                  - generic [ref=f3e294]: 👤 Marcos
+                  - generic [ref=f3e295]: 👤 Junior
+              - heading "Sistema de Micro-Recompensas, Moedas e Baús Pós-Partida" [level=3] [ref=f3e296]
+              - generic [ref=f3e298]:
+                - generic [ref=f3e299]: Progresso (0/4)
+                - generic [ref=f3e300]: 0%
+              - generic [ref=f3e302]:
+                - generic [ref=f3e303]:
+                  - generic [ref=f3e304]:
+                    - checkbox "**1.1** Estruturação do catálogo de moedas e baús do WhatsApp em Markdown 👤 Marcos" [ref=f3e305]
+                    - generic [ref=f3e306]:
+                      - strong [ref=f3e307]: "**1.1**"
+                      - text: Estruturação do catálogo de moedas e baús do WhatsApp em Markdown
+                    - generic [ref=f3e308]: 👤 Marcos
+                  - button "✏️" [ref=f3e309]
+                - generic [ref=f3e310]:
+                  - generic [ref=f3e311]:
+                    - checkbox "**1.2** Modelagem dos tipos de dados de inventário e contadores no backend 👤 Marcos" [ref=f3e312]
+                    - generic [ref=f3e313]:
+                      - strong [ref=f3e314]: "**1.2**"
+                      - text: Modelagem dos tipos de dados de inventário e contadores no backend
+                    - generic [ref=f3e315]: 👤 Marcos
+                  - button "✏️" [ref=f3e316]
+                - generic [ref=f3e317]:
+                  - generic [ref=f3e318]:
+                    - checkbox "**1.3** Criação de mock visual da tela de vitória com distribuição de gemas 👤 Junior" [ref=f3e319]
+                    - generic [ref=f3e320]:
+                      - strong [ref=f3e321]: "**1.3**"
+                      - text: Criação de mock visual da tela de vitória com distribuição de gemas
+                    - generic [ref=f3e322]: 👤 Junior
+                  - button "✏️" [ref=f3e323]
+                - generic [ref=f3e324]:
+                  - generic [ref=f3e325]:
+                    - checkbox "**1.4** Validação de conformidade com o princípio Anti-P2W e Nivelamento Proporcional 👤 Samuel" [ref=f3e326]
+                    - generic [ref=f3e327]:
+                      - strong [ref=f3e328]: "**1.4**"
+                      - text: Validação de conformidade com o princípio Anti-P2W e Nivelamento Proporcional
+                    - generic [ref=f3e329]: 👤 Samuel
+                  - button "✏️" [ref=f3e330]
+            - generic [ref=f3e331] [cursor=pointer]:
+              - generic [ref=f3e332]:
+                - generic [ref=f3e333]: Backlog
+                - generic [ref=f3e334]:
+                  - generic [ref=f3e335]: 👤 Marcos
+                  - generic [ref=f3e336]: 👤 Samuel
+              - heading "Conceito Legado de Mini-MOBA em 4 Rotas (Sprint 01)" [level=3] [ref=f3e337]
+              - generic [ref=f3e339]:
+                - generic [ref=f3e340]: Progresso (0/4)
+                - generic [ref=f3e341]: 0%
+              - generic [ref=f3e343]:
+                - generic [ref=f3e344]:
+                  - generic [ref=f3e345]:
+                    - checkbox "**1.1** Registro do briefing original de 4 rotas da Sprint 01 em Markdown 👤 Marcos" [ref=f3e346]
+                    - generic [ref=f3e347]:
+                      - strong [ref=f3e348]: "**1.1**"
+                      - text: Registro do briefing original de 4 rotas da Sprint 01 em Markdown
+                    - generic [ref=f3e349]: 👤 Marcos
+                  - button "✏️" [ref=f3e350]
+                - generic [ref=f3e351]:
+                  - generic [ref=f3e352]:
+                    - checkbox "**1.2** Análise comparativa de ergonomia de 4 rotas vs 3 rotas para partidas de 3 min 👤 Samuel" [ref=f3e353]
+                    - generic [ref=f3e354]:
+                      - strong [ref=f3e355]: "**1.2**"
+                      - text: Análise comparativa de ergonomia de 4 rotas vs 3 rotas para partidas de 3 min
+                    - generic [ref=f3e356]: 👤 Samuel
+                  - button "✏️" [ref=f3e357]
+                - generic [ref=f3e358]:
+                  - generic [ref=f3e359]:
+                    - checkbox "**1.3** Deliberação de PO descartando 4 rotas em favor da cena canônica Arena_Clean 👤 Samuel" [ref=f3e360]
+                    - generic [ref=f3e361]:
+                      - strong [ref=f3e362]: "**1.3**"
+                      - text: Deliberação de PO descartando 4 rotas em favor da cena canônica Arena_Clean
+                    - generic [ref=f3e363]: 👤 Samuel
+                  - button "✏️" [ref=f3e364]
+                - generic [ref=f3e365]:
+                  - generic [ref=f3e366]:
+                    - checkbox "**1.4** Registro formal de descarte para prevenção de conflitos em Claude.md 👤 Marcos" [ref=f3e367]
+                    - generic [ref=f3e368]:
+                      - strong [ref=f3e369]: "**1.4**"
+                      - text: Registro formal de descarte para prevenção de conflitos em Claude.md
+                    - generic [ref=f3e370]: 👤 Marcos
+                  - button "✏️" [ref=f3e371]
+            - generic [ref=f3e372] [cursor=pointer]:
+              - generic [ref=f3e373]:
+                - generic [ref=f3e374]: Backlog
+                - generic [ref=f3e375]: 👤 Marcos
+              - heading "Dedicated Game Server Headless & Infraestrutura K8s" [level=3] [ref=f3e377]
+              - generic [ref=f3e379]:
+                - generic [ref=f3e380]: Progresso (0/2)
+                - generic [ref=f3e381]: 0%
+              - generic [ref=f3e383]:
+                - generic [ref=f3e384]:
+                  - generic [ref=f3e385]:
+                    - checkbox "**1.1** Criação do Dockerfile Linux headless para servidor dedicado FishNet 💬 Prompt 👤 Marcos" [ref=f3e386]
+                    - generic [ref=f3e387]:
+                      - strong [ref=f3e388]: "**1.1**"
+                      - text: Criação do Dockerfile Linux headless para servidor dedicado FishNet
+                    - generic "-**1.2** Manifestos Kubernetes (Deployment, Service, PVC) para Minikube (@Sthefany) -**1.3** Injeção de credenciais via K8s Secrets pelo install.sh (@Sthefany)" [ref=f3e389]: 💬 Prompt
+                    - generic [ref=f3e390]: 👤 Marcos
+                  - button "✏️" [ref=f3e391]
+                - generic [ref=f3e392]:
+                  - generic [ref=f3e393]:
+                    - checkbox "**1.4** Teste de subida e conexão remota UDP na porta 7770 👤 Marcos" [ref=f3e394]
+                    - generic [ref=f3e395]:
+                      - strong [ref=f3e396]: "**1.4**"
+                      - text: Teste de subida e conexão remota UDP na porta 7770
+                    - generic [ref=f3e397]: 👤 Marcos
+                  - button "✏️" [ref=f3e398]
+        - generic [ref=f3e399]:
+          - generic [ref=f3e400]:
+            - generic [ref=f3e401]: ⚡ Em Progresso
+            - generic [ref=f3e402]: "7"
+          - generic [ref=f3e403]:
+            - generic [ref=f3e404] [cursor=pointer]:
+              - generic [ref=f3e405]:
+                - generic [ref=f3e406]: In Progress
+                - generic [ref=f3e407]:
+                  - generic [ref=f3e408]: 👤 Emanuel
+                  - generic [ref=f3e409]: 👤 Vaguinhow
+                  - generic [ref=f3e410]: 👤 Marcos
+              - 'heading "Fase 8: Rigging e Animator Controllers dos Personagens" [level=3] [ref=f3e411]'
+              - generic [ref=f3e413]:
+                - generic [ref=f3e414]: Progresso (1/5)
+                - generic [ref=f3e415]: 20%
+              - generic [ref=f3e418]:
+                - generic [ref=f3e419]:
+                  - generic [ref=f3e420]:
+                    - checkbox "**1.1** Importação dos modelos FBX Tripo3D com esqueleto e materiais URP 👤 Vaguinhow" [ref=f3e421]
+                    - generic [ref=f3e422]:
+                      - strong [ref=f3e423]: "**1.1**"
+                      - text: Importação dos modelos FBX Tripo3D com esqueleto e materiais URP
+                    - generic [ref=f3e424]: 👤 Vaguinhow
+                  - button "✏️" [ref=f3e425]
+                - generic [ref=f3e426]:
+                  - generic [ref=f3e427]:
+                    - checkbox "**1.2** Instalação e integração do pacote Mixamo MCP na Unity 👤 Marcos" [checked] [ref=f3e428]
+                    - generic [ref=f3e429]:
+                      - strong [ref=f3e430]: "**1.2**"
+                      - text: Instalação e integração do pacote Mixamo MCP na Unity
+                    - generic [ref=f3e431]: 👤 Marcos
+                  - button "✏️" [ref=f3e432]
+                - generic [ref=f3e433]:
+                  - generic [ref=f3e434]:
+                    - checkbox "**1.3** Configuração do MiloAnimatorController com estados Idle, Walk e Attack 👤 Vaguinhow" [ref=f3e435]
+                    - generic [ref=f3e436]:
+                      - strong [ref=f3e437]: "**1.3**"
+                      - text: Configuração do MiloAnimatorController com estados Idle, Walk e Attack
+                    - generic [ref=f3e438]: 👤 Vaguinhow
+                  - button "✏️" [ref=f3e439]
+                - generic [ref=f3e440]:
+                  - generic [ref=f3e441]:
+                    - checkbox "**1.4** Configuração do AxelAnimatorController e MinionAnimatorController 👤 Vaguinhow" [ref=f3e442]
+                    - generic [ref=f3e443]:
+                      - strong [ref=f3e444]: "**1.4**"
+                      - text: Configuração do AxelAnimatorController e MinionAnimatorController
+                    - generic [ref=f3e445]: 👤 Vaguinhow
+                  - button "✏️" [ref=f3e446]
+                - generic [ref=f3e447]:
+                  - generic [ref=f3e448]:
+                    - checkbox "**1.5** Vinculação dos triggers de animação aos scripts de combate 👤 Emanuel" [ref=f3e449]
+                    - generic [ref=f3e450]:
+                      - strong [ref=f3e451]: "**1.5**"
+                      - text: Vinculação dos triggers de animação aos scripts de combate
+                    - generic [ref=f3e452]: 👤 Emanuel
+                  - button "✏️" [ref=f3e453]
+            - generic [ref=f3e454] [cursor=pointer]:
+              - generic [ref=f3e455]:
+                - generic [ref=f3e456]: In Progress
+                - generic [ref=f3e457]:
+                  - generic [ref=f3e458]: 👤 Samuel
+                  - generic [ref=f3e459]: 👤 Marcos
+                  - generic [ref=f3e460]: 👤 Emanuel
+                  - generic [ref=f3e461]: 👤 Maria Clara
+              - heading "Camada Estratégica e Tomada de Decisão Inspirada no Xadrez" [level=3] [ref=f3e462]
+              - generic [ref=f3e464]:
+                - generic [ref=f3e465]: Progresso (2/4)
+                - generic [ref=f3e466]: 50%
+              - generic [ref=f3e469]:
+                - generic [ref=f3e470]:
+                  - generic [ref=f3e471]:
+                    - checkbox "**1.1** Estruturação do prompt conceitual do WhatsApp em Markdown formatado 👤 Marcos" [checked] [ref=f3e472]
+                    - generic [ref=f3e473]:
+                      - strong [ref=f3e474]: "**1.1**"
+                      - text: Estruturação do prompt conceitual do WhatsApp em Markdown formatado
+                    - generic [ref=f3e475]: 👤 Marcos
+                  - button "✏️" [ref=f3e476]
+                - generic [ref=f3e477]:
+                  - generic [ref=f3e478]:
+                    - checkbox "**1.2** Mapeamento do centro da Arena_Clean como área de disputa entre as 3 rotas 👤 Emanuel" [checked] [ref=f3e479]
+                    - generic [ref=f3e480]:
+                      - strong [ref=f3e481]: "**1.2**"
+                      - text: Mapeamento do centro da Arena_Clean como área de disputa entre as 3 rotas
+                    - generic [ref=f3e482]: 👤 Emanuel
+                  - button "✏️" [ref=f3e483]
+                - generic [ref=f3e484]:
+                  - generic [ref=f3e485]:
+                    - checkbox "**1.3** Calibração de buffs/vantagem de visão no controle do centro da arena 👤 Samuel" [ref=f3e486]
+                    - generic [ref=f3e487]:
+                      - strong [ref=f3e488]: "**1.3**"
+                      - text: Calibração de buffs/vantagem de visão no controle do centro da arena
+                    - generic [ref=f3e489]: 👤 Samuel
+                  - button "✏️" [ref=f3e490]
+                - generic [ref=f3e491]:
+                  - generic [ref=f3e492]:
+                    - checkbox "**1.4** Validação da mecânica com testes de UX em partidas contra IA 👤 Maria Clara" [ref=f3e493]
+                    - generic [ref=f3e494]:
+                      - strong [ref=f3e495]: "**1.4**"
+                      - text: Validação da mecânica com testes de UX em partidas contra IA
+                    - generic [ref=f3e496]: 👤 Maria Clara
+                  - button "✏️" [ref=f3e497]
+            - generic [ref=f3e498] [cursor=pointer]:
+              - generic [ref=f3e499]:
+                - generic [ref=f3e500]: In Progress
+                - generic [ref=f3e501]:
+                  - generic [ref=f3e502]: 👤 Samuel
+                  - generic [ref=f3e503]: 👤 Marcos
+                  - generic [ref=f3e504]: 👤 Emanuel
+                  - generic [ref=f3e505]: 👤 Maria Clara
+              - heading "Sistema de Dupla Estratégica (Duo Inseparável ADC + Suporte)" [level=3] [ref=f3e506]
+              - generic [ref=f3e508]:
+                - generic [ref=f3e509]: Progresso (2/4)
+                - generic [ref=f3e510]: 50%
+              - generic [ref=f3e513]:
+                - generic [ref=f3e514]:
+                  - generic [ref=f3e515]:
+                    - checkbox "**1.1** Estruturação do briefing de duo no WhatsApp em documento Markdown oficial 👤 Marcos" [checked] [ref=f3e516]
+                    - generic [ref=f3e517]:
+                      - strong [ref=f3e518]: "**1.1**"
+                      - text: Estruturação do briefing de duo no WhatsApp em documento Markdown oficial
+                    - generic [ref=f3e519]: 👤 Marcos
+                  - button "✏️" [ref=f3e520]
+                - generic [ref=f3e521]:
+                  - generic [ref=f3e522]:
+                    - checkbox "**1.2** Modelagem preliminar dos papéis de dano e suporte em ScriptableObjects 👤 Marcos" [checked] [ref=f3e523]
+                    - generic [ref=f3e524]:
+                      - strong [ref=f3e525]: "**1.2**"
+                      - text: Modelagem preliminar dos papéis de dano e suporte em ScriptableObjects
+                    - generic [ref=f3e526]: 👤 Marcos
+                  - button "✏️" [ref=f3e527]
+                - generic [ref=f3e528]:
+                  - generic [ref=f3e529]:
+                    - checkbox "**1.3** Implementação de comportamento de bloco onde o suporte acompanha o ADC 👤 Emanuel" [ref=f3e530]
+                    - generic [ref=f3e531]:
+                      - strong [ref=f3e532]: "**1.3**"
+                      - text: Implementação de comportamento de bloco onde o suporte acompanha o ADC
+                    - generic [ref=f3e533]: 👤 Emanuel
+                  - button "✏️" [ref=f3e534]
+                - generic [ref=f3e535]:
+                  - generic [ref=f3e536]:
+                    - checkbox "**1.4** Testes de estresse de balanceamento em partidas 2v2 👤 Maria Clara" [ref=f3e537]
+                    - generic [ref=f3e538]:
+                      - strong [ref=f3e539]: "**1.4**"
+                      - text: Testes de estresse de balanceamento em partidas 2v2
+                    - generic [ref=f3e540]: 👤 Maria Clara
+                  - button "✏️" [ref=f3e541]
+            - generic [ref=f3e542] [cursor=pointer]:
+              - generic [ref=f3e543]:
+                - generic [ref=f3e544]: In Progress
+                - generic [ref=f3e545]:
+                  - generic [ref=f3e546]: 👤 Samuel
+                  - generic [ref=f3e547]: 👤 Marcos
+                  - generic [ref=f3e548]: 👤 Emanuel
+                  - generic [ref=f3e549]: 👤 Jorge Espindola
+                  - generic [ref=f3e550]: 👤 Ramiro
+                  - generic [ref=f3e551]: 👤 Junior
+              - heading "Sistema de Arenas e Skins Temáticas Cosméticas" [level=3] [ref=f3e552]
+              - generic [ref=f3e554]:
+                - generic [ref=f3e555]: Progresso (1/5)
+                - generic [ref=f3e556]: 20%
+              - generic [ref=f3e559]:
+                - generic [ref=f3e560]:
+                  - generic [ref=f3e561]:
+                    - checkbox "**1.1** Formatação das 6 temáticas oficiais de arena em documento Markdown 👤 Marcos" [ref=f3e562]
+                    - generic [ref=f3e563]:
+                      - strong [ref=f3e564]: "**1.1**"
+                      - text: Formatação das 6 temáticas oficiais de arena em documento Markdown
+                    - generic [ref=f3e565]: 👤 Marcos
+                  - button "✏️" [ref=f3e566]
+                - generic [ref=f3e567]:
+                  - generic [ref=f3e568]:
+                    - checkbox "**1.2** Criação de protótipo de iluminação e skybox para a Arena Medieval 👤 Emanuel" [ref=f3e569]
+                    - generic [ref=f3e570]:
+                      - strong [ref=f3e571]: "**1.2**"
+                      - text: Criação de protótipo de iluminação e skybox para a Arena Medieval
+                    - generic [ref=f3e572]: 👤 Emanuel
+                  - button "✏️" [ref=f3e573]
+                - generic [ref=f3e574]:
+                  - generic [ref=f3e575]:
+                    - checkbox "**1.3** Curadoria de trilhas sonoras temáticas 👤 Jorge Espindola" [ref=f3e576]
+                    - generic [ref=f3e577]:
+                      - strong [ref=f3e578]: "**1.3**"
+                      - text: Curadoria de trilhas sonoras temáticas
+                    - generic [ref=f3e579]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e580]
+                - generic [ref=f3e581]:
+                  - generic [ref=f3e582]:
+                    - checkbox "**1.4** Planejamento de precificação cosmética e passes de temporada sem P2W 👤 Ramiro" [ref=f3e583]
+                    - generic [ref=f3e584]:
+                      - strong [ref=f3e585]: "**1.4**"
+                      - text: Planejamento de precificação cosmética e passes de temporada sem P2W
+                    - generic [ref=f3e586]: 👤 Ramiro
+                  - button "✏️" [ref=f3e587]
+                - generic [ref=f3e588]:
+                  - generic [ref=f3e589]:
+                    - checkbox "**1.5** Conversão e padronização do prompt da arena Caos Total em Markdown 👤 Junior" [checked] [ref=f3e590]
+                    - generic [ref=f3e591]:
+                      - strong [ref=f3e592]: "**1.5**"
+                      - text: Conversão e padronização do prompt da arena Caos Total em Markdown
+                    - generic [ref=f3e593]: 👤 Junior
+                  - button "✏️" [ref=f3e594]
+            - generic [ref=f3e595] [cursor=pointer]:
+              - generic [ref=f3e596]:
+                - generic [ref=f3e597]: In Progress
+                - generic [ref=f3e598]:
+                  - generic [ref=f3e599]: 👤 Marcos
+                  - generic [ref=f3e600]: 👤 Jorge Espindola
+              - 'heading "POC-NET-01: Multiplayer Híbrido FishNet 1v1" [level=3] [ref=f3e601]'
+              - generic [ref=f3e603]:
+                - generic [ref=f3e604]: Progresso (2/5)
+                - generic [ref=f3e605]: 40%
+              - generic [ref=f3e608]:
+                - generic [ref=f3e609]:
+                  - generic [ref=f3e610]:
+                    - checkbox "**1.1** Integração do NetworkManager e NetworkObject na cena Arena_Clean 👤 Marcos" [checked] [ref=f3e611]
+                    - generic [ref=f3e612]:
+                      - strong [ref=f3e613]: "**1.1**"
+                      - text: Integração do NetworkManager e NetworkObject na cena Arena_Clean
+                    - generic [ref=f3e614]: 👤 Marcos
+                  - button "✏️" [ref=f3e615]
+                - generic [ref=f3e616]:
+                  - generic [ref=f3e617]:
+                    - checkbox "**1.2** Validação de CmdTakeDamage e sincronização de HP via SyncVars 👤 Marcos" [checked] [ref=f3e618]
+                    - generic [ref=f3e619]:
+                      - strong [ref=f3e620]: "**1.2**"
+                      - text: Validação de CmdTakeDamage e sincronização de HP via SyncVars
+                    - generic [ref=f3e621]: 👤 Marcos
+                  - button "✏️" [ref=f3e622]
+                - generic [ref=f3e623]:
+                  - generic [ref=f3e624]:
+                    - checkbox "**1.3** Conexão e handshake P2P/LAN entre 2 dispositivos no mesmo Wi-Fi 👤 Marcos" [ref=f3e625]
+                    - generic [ref=f3e626]:
+                      - strong [ref=f3e627]: "**1.3**"
+                      - text: Conexão e handshake P2P/LAN entre 2 dispositivos no mesmo Wi-Fi
+                    - generic [ref=f3e628]: 👤 Marcos
+                  - button "✏️" [ref=f3e629]
+                - generic [ref=f3e630]:
+                  - generic [ref=f3e631]:
+                    - checkbox "**1.4** Sincronização do estado dos galinheiros e evento de vitória em rede 👤 Marcos" [ref=f3e632]
+                    - generic [ref=f3e633]:
+                      - strong [ref=f3e634]: "**1.4**"
+                      - text: Sincronização do estado dos galinheiros e evento de vitória em rede
+                    - generic [ref=f3e635]: 👤 Marcos
+                  - button "✏️" [ref=f3e636]
+                - generic [ref=f3e637]:
+                  - generic [ref=f3e638]:
+                    - checkbox "**1.5** Gravação do take demonstrativo de 15s com 2 telas sincronizadas para o pitch 👤 Jorge Espindola" [ref=f3e639]
+                    - generic [ref=f3e640]:
+                      - strong [ref=f3e641]: "**1.5**"
+                      - text: Gravação do take demonstrativo de 15s com 2 telas sincronizadas para o pitch
+                    - generic [ref=f3e642]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e643]
+            - generic [ref=f3e644] [cursor=pointer]:
+              - generic [ref=f3e645]:
+                - generic [ref=f3e646]: In Progress
+                - generic [ref=f3e647]:
+                  - generic [ref=f3e648]: 👤 Vyctor Rodrigues
+                  - generic [ref=f3e649]: 👤 Junior
+              - 'heading "POC-WEB-01: Portal Web Oficial e Solana Wallet Adapter" [level=3] [ref=f3e650]'
+              - generic [ref=f3e652]:
+                - generic [ref=f3e653]: Progresso (7/10)
+                - generic [ref=f3e654]: 70%
+              - generic [ref=f3e657]:
+                - generic [ref=f3e658]:
+                  - generic [ref=f3e659]:
+                    - checkbox "**1.1** Criação do site oficial CW e estruturação base 👤 Vyctor Rodrigues" [checked] [ref=f3e660]
+                    - generic [ref=f3e661]:
+                      - strong [ref=f3e662]: "**1.1**"
+                      - text: Criação do site oficial CW e estruturação base
+                    - generic [ref=f3e663]: 👤 Vyctor Rodrigues
+                  - button "✏️" [ref=f3e664]
+                - generic [ref=f3e665]:
+                  - generic [ref=f3e666]:
+                    - checkbox "**1.2** Implementação de responsividade mobile e ajustes de layout e botões 👤 Vyctor Rodrigues" [checked] [ref=f3e667]
+                    - generic [ref=f3e668]:
+                      - strong [ref=f3e669]: "**1.2**"
+                      - text: Implementação de responsividade mobile e ajustes de layout e botões
+                    - generic [ref=f3e670]: 👤 Vyctor Rodrigues
+                  - button "✏️" [ref=f3e671]
+                - generic [ref=f3e672]:
+                  - generic [ref=f3e673]:
+                    - checkbox "**1.3** Implementação do botão Membro Fundador e correção de bugs de interface 👤 Vyctor Rodrigues" [checked] [ref=f3e674]
+                    - generic [ref=f3e675]:
+                      - strong [ref=f3e676]: "**1.3**"
+                      - text: Implementação do botão Membro Fundador e correção de bugs de interface
+                    - generic [ref=f3e677]: 👤 Vyctor Rodrigues
+                  - button "✏️" [ref=f3e678]
+                - generic [ref=f3e679]:
+                  - generic [ref=f3e680]:
+                    - checkbox "**1.4** Ajustes finos de rolagem da página e revisão ortográfica dos textos 👤 Vyctor Rodrigues" [checked] [ref=f3e681]
+                    - generic [ref=f3e682]:
+                      - strong [ref=f3e683]: "**1.4**"
+                      - text: Ajustes finos de rolagem da página e revisão ortográfica dos textos
+                    - generic [ref=f3e684]: 👤 Vyctor Rodrigues
+                  - button "✏️" [ref=f3e685]
+                - generic [ref=f3e686]:
+                  - generic [ref=f3e687]:
+                    - checkbox "**1.5** Elaboração da documentação técnica inicial do portal 👤 Vyctor Rodrigues" [checked] [ref=f3e688]
+                    - generic [ref=f3e689]:
+                      - strong [ref=f3e690]: "**1.5**"
+                      - text: Elaboração da documentação técnica inicial do portal
+                    - generic [ref=f3e691]: 👤 Vyctor Rodrigues
+                  - button "✏️" [ref=f3e692]
+                - generic [ref=f3e693]: + 5 tarefas...
+            - generic [ref=f3e694] [cursor=pointer]:
+              - generic [ref=f3e695]:
+                - generic [ref=f3e696]: In Progress
+                - generic [ref=f3e697]:
+                  - generic [ref=f3e698]: 👤 Ramiro
+                  - generic [ref=f3e699]: 👤 Marcos
+                  - generic [ref=f3e700]: 👤 Samuel
+              - 'heading "POC-SUB-03: Submissão Oficial Colosseum Arena e Superteam Brasil" [level=3] [ref=f3e701]'
+              - generic [ref=f3e703]:
+                - generic [ref=f3e704]: Progresso (1/5)
+                - generic [ref=f3e705]: 20%
+              - generic [ref=f3e708]:
+                - generic [ref=f3e709]:
+                  - generic [ref=f3e710]:
+                    - checkbox "**1.1** Atualização do README.md com Program ID, transação de exemplo e instruções 👤 Marcos" [checked] [ref=f3e711]
+                    - generic [ref=f3e712]:
+                      - strong [ref=f3e713]: "**1.1**"
+                      - text: Atualização do README.md com Program ID, transação de exemplo e instruções
+                    - generic [ref=f3e714]: 👤 Marcos
+                  - button "✏️" [ref=f3e715]
+                - generic [ref=f3e716]:
+                  - generic [ref=f3e717]:
+                    - checkbox "**1.2** Upload do APK Android no GitHub Releases e Google Drive com link público 👤 Ramiro" [ref=f3e718]
+                    - generic [ref=f3e719]:
+                      - strong [ref=f3e720]: "**1.2**"
+                      - text: Upload do APK Android no GitHub Releases e Google Drive com link público
+                    - generic [ref=f3e721]: 👤 Ramiro
+                  - button "✏️" [ref=f3e722]
+                - generic [ref=f3e723]:
+                  - generic [ref=f3e724]:
+                    - checkbox "**1.3** Publicação do vídeo pitch de demonstração no YouTube 👤 Samuel" [ref=f3e725]
+                    - generic [ref=f3e726]:
+                      - strong [ref=f3e727]: "**1.3**"
+                      - text: Publicação do vídeo pitch de demonstração no YouTube
+                    - generic [ref=f3e728]: 👤 Samuel
+                  - button "✏️" [ref=f3e729]
+                - generic [ref=f3e730]:
+                  - generic [ref=f3e731]:
+                    - checkbox "**1.4** Preenchimento do formulário na Colosseum Arena com os 7 membros da equipe 👤 Ramiro" [ref=f3e732]
+                    - generic [ref=f3e733]:
+                      - strong [ref=f3e734]: "**1.4**"
+                      - text: Preenchimento do formulário na Colosseum Arena com os 7 membros da equipe
+                    - generic [ref=f3e735]: 👤 Ramiro
+                  - button "✏️" [ref=f3e736]
+                - generic [ref=f3e737]:
+                  - generic [ref=f3e738]:
+                    - checkbox "**1.5** Vinculação da submissão na plataforma Superteam Brasil 👤 Ramiro" [ref=f3e739]
+                    - generic [ref=f3e740]:
+                      - strong [ref=f3e741]: "**1.5**"
+                      - text: Vinculação da submissão na plataforma Superteam Brasil
+                    - generic [ref=f3e742]: 👤 Ramiro
+                  - button "✏️" [ref=f3e743]
+        - generic [ref=f3e744]:
+          - generic [ref=f3e745]:
+            - generic [ref=f3e746]: 👀 Em Revisão
+            - generic [ref=f3e747]: "4"
+          - generic [ref=f3e748]:
+            - generic [ref=f3e749] [cursor=pointer]:
+              - generic [ref=f3e750]:
+                - generic [ref=f3e751]: Ready
+                - generic [ref=f3e752]: 👤 Jorge Espindola
+              - 'heading "POC-SEC-01: Pipeline DevSecOps, Gitleaks e CI/CD Anchor" [level=3] [ref=f3e754]'
+              - generic [ref=f3e756]:
+                - generic [ref=f3e757]: Progresso (0/4)
+                - generic [ref=f3e758]: 0%
+              - generic [ref=f3e760]:
+                - generic [ref=f3e761]:
+                  - generic [ref=f3e762]:
+                    - checkbox "**1.1** Configuração do workflow anchor-ci.yml com cargo check, clippy e test 👤 Jorge Espindola" [ref=f3e763]
+                    - generic [ref=f3e764]:
+                      - strong [ref=f3e765]: "**1.1**"
+                      - text: Configuração do workflow anchor-ci.yml com cargo check, clippy e test
+                    - generic [ref=f3e766]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e767]
+                - generic [ref=f3e768]:
+                  - generic [ref=f3e769]:
+                    - checkbox "**1.2** Verificação automática de segredos com Gitleaks em pull requests 👤 Jorge Espindola" [ref=f3e770]
+                    - generic [ref=f3e771]:
+                      - strong [ref=f3e772]: "**1.2**"
+                      - text: Verificação automática de segredos com Gitleaks em pull requests
+                    - generic [ref=f3e773]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e774]
+                - generic [ref=f3e775]:
+                  - generic [ref=f3e776]:
+                    - checkbox "**1.3** Auditoria de .gitignore para garantir isolamento de private keys 👤 Jorge Espindola" [ref=f3e777]
+                    - generic [ref=f3e778]:
+                      - strong [ref=f3e779]: "**1.3**"
+                      - text: Auditoria de .gitignore para garantir isolamento de private keys
+                    - generic [ref=f3e780]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e781]
+                - generic [ref=f3e782]:
+                  - generic [ref=f3e783]:
+                    - checkbox "**1.4** Revisão do Threat Modeling da arquitetura híbrida de premiação 👤 Jorge Espindola" [ref=f3e784]
+                    - generic [ref=f3e785]:
+                      - strong [ref=f3e786]: "**1.4**"
+                      - text: Revisão do Threat Modeling da arquitetura híbrida de premiação
+                    - generic [ref=f3e787]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e788]
+            - generic [ref=f3e789] [cursor=pointer]:
+              - generic [ref=f3e790]:
+                - generic [ref=f3e791]: Ready
+                - generic [ref=f3e792]:
+                  - generic [ref=f3e793]: 👤 Samuel
+                  - generic [ref=f3e794]: 👤 Emanuel
+                  - generic [ref=f3e795]: 👤 Ramiro
+              - 'heading "POC-CIN-01: Apresentação Cinemachine e Vídeo Pitch ≤ 3 Minutos" [level=3] [ref=f3e796]'
+              - generic [ref=f3e798]:
+                - generic [ref=f3e799]: Progresso (0/4)
+                - generic [ref=f3e800]: 0%
+              - generic [ref=f3e802]:
+                - generic [ref=f3e803]:
+                  - generic [ref=f3e804]:
+                    - checkbox "**1.1** Ajuste das tomadas de câmera aérea com Cinemachine na Arena_Clean 👤 Emanuel" [ref=f3e805]
+                    - generic [ref=f3e806]:
+                      - strong [ref=f3e807]: "**1.1**"
+                      - text: Ajuste das tomadas de câmera aérea com Cinemachine na Arena_Clean
+                    - generic [ref=f3e808]: 👤 Emanuel
+                  - button "✏️" [ref=f3e809]
+                - generic [ref=f3e810]:
+                  - generic [ref=f3e811]:
+                    - checkbox "**1.2** Roteiro cronometrado segundo a segundo com foco na tese comercial 👤 Ramiro" [ref=f3e812]
+                    - generic [ref=f3e813]:
+                      - strong [ref=f3e814]: "**1.2**"
+                      - text: Roteiro cronometrado segundo a segundo com foco na tese comercial
+                    - generic [ref=f3e815]: 👤 Ramiro
+                  - button "✏️" [ref=f3e816]
+                - generic [ref=f3e817]:
+                  - generic [ref=f3e818]:
+                    - checkbox "**1.3** Narração e edição do vídeo demonstrativo com duração estrita ≤ 180s 👤 Samuel" [ref=f3e819]
+                    - generic [ref=f3e820]:
+                      - strong [ref=f3e821]: "**1.3**"
+                      - text: Narração e edição do vídeo demonstrativo com duração estrita ≤ 180s
+                    - generic [ref=f3e822]: 👤 Samuel
+                  - button "✏️" [ref=f3e823]
+                - generic [ref=f3e824]:
+                  - generic [ref=f3e825]:
+                    - checkbox "**1.4** Revisão de qualidade e conformidade com os 5 critérios dos jurados 👤 Samuel" [ref=f3e826]
+                    - generic [ref=f3e827]:
+                      - strong [ref=f3e828]: "**1.4**"
+                      - text: Revisão de qualidade e conformidade com os 5 critérios dos jurados
+                    - generic [ref=f3e829]: 👤 Samuel
+                  - button "✏️" [ref=f3e830]
+            - generic [ref=f3e831] [cursor=pointer]:
+              - generic [ref=f3e832]:
+                - generic [ref=f3e833]: Ready
+                - generic [ref=f3e834]:
+                  - generic [ref=f3e835]: 👤 Sthefany
+                  - generic "Alterações locais pendentes de commit" [ref=f3e836]: ⚡ Modificado Local
+              - heading "Tarefas Gerais & Avulsas" [level=3] [ref=f3e837]
+              - generic [ref=f3e839]:
+                - generic [ref=f3e840]: Progresso (0/1)
+                - generic [ref=f3e841]: 0%
+              - generic [ref=f3e844]:
+                - generic [ref=f3e845]:
+                  - checkbox "**1.2** Criar tumbinails para videos do yutube 👤 Sthefany" [ref=f3e846]
+                  - generic [ref=f3e847]:
+                    - strong [ref=f3e848]: "**1.2**"
+                    - text: Criar tumbinails para videos do yutube
+                  - generic [ref=f3e849]: 👤 Sthefany
+                - button "✏️" [ref=f3e850]
+            - generic [ref=f3e851] [cursor=pointer]:
+              - generic [ref=f3e852]:
+                - generic [ref=f3e853]: Ready
+                - generic [ref=f3e854]:
+                  - generic [ref=f3e855]: 👤 Jorge Espindola
+                  - generic [ref=f3e856]: 👤 Marcos
+                  - generic [ref=f3e857]: 👤 Maria Clara
+              - 'heading "POC-INT-02: Registro On-Chain da Vitória na Solana Devnet" [level=3] [ref=f3e858]'
+              - generic [ref=f3e860]:
+                - generic [ref=f3e861]: Progresso (0/4)
+                - generic [ref=f3e862]: 0%
+              - generic [ref=f3e864]:
+                - generic [ref=f3e865]:
+                  - generic [ref=f3e866]:
+                    - checkbox "**1.1** Integração do botão Registrar Vitória On-Chain no painel de vitória 👤 Jorge Espindola" [ref=f3e867]
+                    - generic [ref=f3e868]:
+                      - strong [ref=f3e869]: "**1.1**"
+                      - text: Integração do botão Registrar Vitória On-Chain no painel de vitória
+                    - generic [ref=f3e870]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e871]
+                - generic [ref=f3e872]:
+                  - generic [ref=f3e873]:
+                    - checkbox "**1.2** Montagem da instrução de incremento via TransactionManager e Solana SDK 👤 Marcos" [ref=f3e874]
+                    - generic [ref=f3e875]:
+                      - strong [ref=f3e876]: "**1.2**"
+                      - text: Montagem da instrução de incremento via TransactionManager e Solana SDK
+                    - generic [ref=f3e877]: 👤 Marcos
+                  - button "✏️" [ref=f3e878]
+                - generic [ref=f3e879]:
+                  - generic [ref=f3e880]:
+                    - checkbox "**1.3** Exibição do toast de confirmação e link direto para o Solana Explorer 👤 Jorge Espindola" [ref=f3e881]
+                    - generic [ref=f3e882]:
+                      - strong [ref=f3e883]: "**1.3**"
+                      - text: Exibição do toast de confirmação e link direto para o Solana Explorer
+                    - generic [ref=f3e884]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e885]
+                - generic [ref=f3e886]:
+                  - generic [ref=f3e887]:
+                    - checkbox "**1.4** Teste de ponta a ponta com carteira Devnet em smartphone Android 👤 Maria Clara" [ref=f3e888]
+                    - generic [ref=f3e889]:
+                      - strong [ref=f3e890]: "**1.4**"
+                      - text: Teste de ponta a ponta com carteira Devnet em smartphone Android
+                    - generic [ref=f3e891]: 👤 Maria Clara
+                  - button "✏️" [ref=f3e892]
+        - generic [ref=f3e893]:
+          - generic [ref=f3e894]:
+            - generic [ref=f3e895]: ✅ Concluído
+            - generic [ref=f3e896]: "6"
+          - generic [ref=f3e897]:
+            - generic [ref=f3e898] [cursor=pointer]:
+              - generic [ref=f3e899]:
+                - generic [ref=f3e900]: Done
+                - generic [ref=f3e901]:
+                  - generic [ref=f3e902]: 👤 Emanuel
+                  - generic [ref=f3e903]: 👤 Marcos
+              - 'heading "POC-UNI-01: Consolidação da Cena Canônica Arena_Clean" [level=3] [ref=f3e904]'
+              - generic [ref=f3e906]:
+                - generic [ref=f3e907]: Progresso (5/5)
+                - generic [ref=f3e908]: 100%
+              - generic [ref=f3e911]:
+                - generic [ref=f3e912]:
+                  - generic [ref=f3e913]:
+                    - checkbox "**1.1** Calibração da câmera tática MOBA e travamento paisagem mobile 👤 Emanuel" [checked] [ref=f3e914]
+                    - generic [ref=f3e915]:
+                      - strong [ref=f3e916]: "**1.1**"
+                      - text: Calibração da câmera tática MOBA e travamento paisagem mobile
+                    - generic [ref=f3e917]: 👤 Emanuel
+                  - button "✏️" [ref=f3e918]
+                - generic [ref=f3e919]:
+                  - generic [ref=f3e920]:
+                    - checkbox "**1.2** Implementação do Joystick Virtual flutuante e cluster de 4 habilidades 👤 Emanuel" [checked] [ref=f3e921]
+                    - generic [ref=f3e922]:
+                      - strong [ref=f3e923]: "**1.2**"
+                      - text: Implementação do Joystick Virtual flutuante e cluster de 4 habilidades
+                    - generic [ref=f3e924]: 👤 Emanuel
+                  - button "✏️" [ref=f3e925]
+                - generic [ref=f3e926]:
+                  - generic [ref=f3e927]:
+                    - checkbox "**1.3** Configuração das 3 rotas nas pontes Top , Mid e Bot 👤 Emanuel" [checked] [ref=f3e928]
+                    - generic [ref=f3e929]:
+                      - strong [ref=f3e930]: "**1.3**"
+                      - text: Configuração das 3 rotas nas pontes Top , Mid e Bot
+                    - generic [ref=f3e931]: 👤 Emanuel
+                  - button "✏️" [ref=f3e932]
+                - generic [ref=f3e933]:
+                  - generic [ref=f3e934]:
+                    - checkbox "**1.4** IA ofensiva do Bot Axel com perseguição contínua e raio de 18m 👤 Emanuel" [checked] [ref=f3e935]
+                    - generic [ref=f3e936]:
+                      - strong [ref=f3e937]: "**1.4**"
+                      - text: IA ofensiva do Bot Axel com perseguição contínua e raio de 18m
+                    - generic [ref=f3e938]: 👤 Emanuel
+                  - button "✏️" [ref=f3e939]
+                - generic [ref=f3e940]:
+                  - generic [ref=f3e941]:
+                    - checkbox "**1.5** Substituição de caminhos absolutos por caminhos relativos canônicos Assets/ 👤 Marcos" [checked] [ref=f3e942]
+                    - generic [ref=f3e943]:
+                      - strong [ref=f3e944]: "**1.5**"
+                      - text: Substituição de caminhos absolutos por caminhos relativos canônicos Assets/
+                    - generic [ref=f3e945]: 👤 Marcos
+                  - button "✏️" [ref=f3e946]
+            - generic [ref=f3e947] [cursor=pointer]:
+              - generic [ref=f3e948]:
+                - generic [ref=f3e949]: Done
+                - generic [ref=f3e950]:
+                  - generic [ref=f3e951]: 👤 Jorge Espindola
+                  - generic [ref=f3e952]: 👤 Marcos
+                  - generic [ref=f3e953]: 👤 Emanuel
+              - 'heading "POC-UNI-04: AudioManager Central e Efeitos Visuais (VFX)" [level=3] [ref=f3e954]'
+              - generic [ref=f3e956]:
+                - generic [ref=f3e957]: Progresso (4/4)
+                - generic [ref=f3e958]: 100%
+              - generic [ref=f3e961]:
+                - generic [ref=f3e962]:
+                  - generic [ref=f3e963]:
+                    - checkbox "**1.1** Criação do AudioManager singleton com pool de 12 canais e áudio procedural 👤 Jorge Espindola" [checked] [ref=f3e964]
+                    - generic [ref=f3e965]:
+                      - strong [ref=f3e966]: "**1.1**"
+                      - text: Criação do AudioManager singleton com pool de 12 canais e áudio procedural
+                    - generic [ref=f3e967]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e968]
+                - generic [ref=f3e969]:
+                  - generic [ref=f3e970]:
+                    - checkbox "**1.2** Implementação de CombatVFXManager para penas voando, auras e explosão 👤 Marcos" [checked] [ref=f3e971]
+                    - generic [ref=f3e972]:
+                      - strong [ref=f3e973]: "**1.2**"
+                      - text: Implementação de CombatVFXManager para penas voando, auras e explosão
+                    - generic [ref=f3e974]: 👤 Marcos
+                  - button "✏️" [ref=f3e975]
+                - generic [ref=f3e976]:
+                  - generic [ref=f3e977]:
+                    - checkbox "**1.3** Vinculação dos materiais URP Lit dos Minions Caipira e Rodilan 👤 Emanuel" [checked] [ref=f3e978]
+                    - generic [ref=f3e979]:
+                      - strong [ref=f3e980]: "**1.3**"
+                      - text: Vinculação dos materiais URP Lit dos Minions Caipira e Rodilan
+                    - generic [ref=f3e981]: 👤 Emanuel
+                  - button "✏️" [ref=f3e982]
+                - generic [ref=f3e983]:
+                  - generic [ref=f3e984]:
+                    - checkbox "**1.4** Correção do Device Simulator para AutoRotation paisagem horizontal 👤 Marcos" [checked] [ref=f3e985]
+                    - generic [ref=f3e986]:
+                      - strong [ref=f3e987]: "**1.4**"
+                      - text: Correção do Device Simulator para AutoRotation paisagem horizontal
+                    - generic [ref=f3e988]: 👤 Marcos
+                  - button "✏️" [ref=f3e989]
+            - generic [ref=f3e990] [cursor=pointer]:
+              - generic [ref=f3e991]:
+                - generic [ref=f3e992]: Done
+                - generic [ref=f3e993]:
+                  - generic [ref=f3e994]: 👤 Emanuel
+                  - generic [ref=f3e995]: 👤 Marcos
+              - 'heading "POC-UNI-02: Colisão Física, Dano e Queda dos Galinheiros" [level=3] [ref=f3e996]'
+              - generic [ref=f3e998]:
+                - generic [ref=f3e999]: Progresso (4/4)
+                - generic [ref=f3e1000]: 100%
+              - generic [ref=f3e1003]:
+                - generic [ref=f3e1004]:
+                  - generic [ref=f3e1005]:
+                    - checkbox "**1.1** Configuração de BoxColliders e camadas de colisão nas bases e tropas 👤 Emanuel" [checked] [ref=f3e1006]
+                    - generic [ref=f3e1007]:
+                      - strong [ref=f3e1008]: "**1.1**"
+                      - text: Configuração de BoxColliders e camadas de colisão nas bases e tropas
+                    - generic [ref=f3e1009]: 👤 Emanuel
+                  - button "✏️" [ref=f3e1010]
+                - generic [ref=f3e1011]:
+                  - generic [ref=f3e1012]:
+                    - checkbox "**1.2** Implementação de StructureGalinheiro com barra de HP 3D no mundo 👤 Emanuel" [checked] [ref=f3e1013]
+                    - generic [ref=f3e1014]:
+                      - strong [ref=f3e1015]: "**1.2**"
+                      - text: Implementação de StructureGalinheiro com barra de HP 3D no mundo
+                    - generic [ref=f3e1016]: 👤 Emanuel
+                  - button "✏️" [ref=f3e1017]
+                - generic [ref=f3e1018]:
+                  - generic [ref=f3e1019]:
+                    - checkbox "**1.3** Lógica de combate frente a frente entre tropas até derrota 👤 Emanuel" [checked] [ref=f3e1020]
+                    - generic [ref=f3e1021]:
+                      - strong [ref=f3e1022]: "**1.3**"
+                      - text: Lógica de combate frente a frente entre tropas até derrota
+                    - generic [ref=f3e1023]: 👤 Emanuel
+                  - button "✏️" [ref=f3e1024]
+                - generic [ref=f3e1025]:
+                  - generic [ref=f3e1026]:
+                    - checkbox "**1.4** Bateria automatizada CombatAndBaseDestructionTests 4/4 passando 100% 👤 Marcos" [checked] [ref=f3e1027]
+                    - generic [ref=f3e1028]:
+                      - strong [ref=f3e1029]: "**1.4**"
+                      - text: Bateria automatizada CombatAndBaseDestructionTests 4/4 passando 100%
+                    - generic [ref=f3e1030]: 👤 Marcos
+                  - button "✏️" [ref=f3e1031]
+            - generic [ref=f3e1032] [cursor=pointer]:
+              - generic [ref=f3e1033]:
+                - generic [ref=f3e1034]: Done
+                - generic [ref=f3e1035]: 👤 Marcos
+              - 'heading "POC-01: Fundação Unity, Telas e Ciclo de Vida" [level=3] [ref=f3e1037]'
+              - generic [ref=f3e1039]:
+                - generic [ref=f3e1040]: Progresso (4/4)
+                - generic [ref=f3e1041]: 100%
+              - generic [ref=f3e1044]:
+                - generic [ref=f3e1045]:
+                  - generic [ref=f3e1046]:
+                    - checkbox "**1.1** Setup de bootstrap e ciclo de vida da engine Unity 2022 URP 👤 Marcos" [checked] [ref=f3e1047]
+                    - generic [ref=f3e1048]:
+                      - strong [ref=f3e1049]: "**1.1**"
+                      - text: Setup de bootstrap e ciclo de vida da engine Unity 2022 URP
+                    - generic [ref=f3e1050]: 👤 Marcos
+                  - button "✏️" [ref=f3e1051]
+                - generic [ref=f3e1052]:
+                  - generic [ref=f3e1053]:
+                    - checkbox "**1.2** Implementação do menu principal e navegação em Play.unity 👤 Marcos" [checked] [ref=f3e1054]
+                    - generic [ref=f3e1055]:
+                      - strong [ref=f3e1056]: "**1.2**"
+                      - text: Implementação do menu principal e navegação em Play.unity
+                    - generic [ref=f3e1057]: 👤 Marcos
+                  - button "✏️" [ref=f3e1058]
+                - generic [ref=f3e1059]:
+                  - generic [ref=f3e1060]:
+                    - checkbox "**1.3** Framework de telas de teste com tabela de status e feedback visual 👤 Marcos" [checked] [ref=f3e1061]
+                    - generic [ref=f3e1062]:
+                      - strong [ref=f3e1063]: "**1.3**"
+                      - text: Framework de telas de teste com tabela de status e feedback visual
+                    - generic [ref=f3e1064]: 👤 Marcos
+                  - button "✏️" [ref=f3e1065]
+                - generic [ref=f3e1066]:
+                  - generic [ref=f3e1067]:
+                    - checkbox "**1.4** Validação em PlayMode batch sem warnings impeditivos 👤 Marcos" [checked] [ref=f3e1068]
+                    - generic [ref=f3e1069]:
+                      - strong [ref=f3e1070]: "**1.4**"
+                      - text: Validação em PlayMode batch sem warnings impeditivos
+                    - generic [ref=f3e1071]: 👤 Marcos
+                  - button "✏️" [ref=f3e1072]
+            - generic [ref=f3e1073] [cursor=pointer]:
+              - generic [ref=f3e1074]:
+                - generic [ref=f3e1075]: Done
+                - generic [ref=f3e1076]:
+                  - generic [ref=f3e1077]: 👤 Jorge Espindola
+                  - generic [ref=f3e1078]: 👤 Marcos
+              - 'heading "POC-ANC-01/02: Smart Contract Anchor & Deploy Devnet" [level=3] [ref=f3e1079]'
+              - generic [ref=f3e1081]:
+                - generic [ref=f3e1082]: Progresso (4/4)
+                - generic [ref=f3e1083]: 100%
+              - generic [ref=f3e1086]:
+                - generic [ref=f3e1087]:
+                  - generic [ref=f3e1088]:
+                    - checkbox "**1.1** Implementação das instruções initialize e increment em Rust em program/ 👤 Jorge Espindola" [checked] [ref=f3e1089]
+                    - generic [ref=f3e1090]:
+                      - strong [ref=f3e1091]: "**1.1**"
+                      - text: Implementação das instruções initialize e increment em Rust em program/
+                    - generic [ref=f3e1092]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e1093]
+                - generic [ref=f3e1094]:
+                  - generic [ref=f3e1095]:
+                    - checkbox "**1.2** Teste automatizado test_initialize.rs via LiteSVM com cargo test aprovado 100% 👤 Jorge Espindola" [checked] [ref=f3e1096]
+                    - generic [ref=f3e1097]:
+                      - strong [ref=f3e1098]: "**1.2**"
+                      - text: Teste automatizado test_initialize.rs via LiteSVM com cargo test aprovado 100%
+                    - generic [ref=f3e1099]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e1100]
+                - generic [ref=f3e1101]:
+                  - generic [ref=f3e1102]:
+                    - checkbox "**1.3** Deploy do contrato na Solana Devnet com Program ID 81MprTi78xQvtVg9aaK4s4Cw9K62CU6PtcPYsChLNyxE 👤 Jorge Espindola" [checked] [ref=f3e1103]
+                    - generic [ref=f3e1104]:
+                      - strong [ref=f3e1105]: "**1.3**"
+                      - text: Deploy do contrato na Solana Devnet com Program ID 81MprTi78xQvtVg9aaK4s4Cw9K62CU6PtcPYsChLNyxE
+                    - generic [ref=f3e1106]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e1107]
+                - generic [ref=f3e1108]:
+                  - generic [ref=f3e1109]:
+                    - checkbox "**1.4** Exportação do IDL fowlgen_wars_contract.json sincronizado com a Unity 👤 Marcos" [checked] [ref=f3e1110]
+                    - generic [ref=f3e1111]:
+                      - strong [ref=f3e1112]: "**1.4**"
+                      - text: Exportação do IDL fowlgen_wars_contract.json sincronizado com a Unity
+                    - generic [ref=f3e1113]: 👤 Marcos
+                  - button "✏️" [ref=f3e1114]
+            - generic [ref=f3e1115] [cursor=pointer]:
+              - generic [ref=f3e1116]:
+                - generic [ref=f3e1117]: Done
+                - generic [ref=f3e1118]: 👤 Jorge Espindola
+              - 'heading "POC-WEB-02: Hub Web3 Solana Devnet, Wallet Adapter e Deploy Vercel (Jorge Espindola)" [level=3] [ref=f3e1120]'
+              - generic [ref=f3e1122]:
+                - generic [ref=f3e1123]: Progresso (5/5)
+                - generic [ref=f3e1124]: 100%
+              - generic [ref=f3e1127]:
+                - generic [ref=f3e1128]:
+                  - generic [ref=f3e1129]:
+                    - checkbox "**1.1** Implementação do client RPC Solana Devnet e detecção de carteiras Phantom e Solflare em app/app.ts - commit a3a505e 👤 Jorge Espindola" [checked] [ref=f3e1130]
+                    - generic [ref=f3e1131]:
+                      - strong [ref=f3e1132]: "**1.1**"
+                      - text: Implementação do client RPC Solana Devnet e detecção de carteiras Phantom e Solflare em app/app.ts - commit a3a505e
+                    - generic [ref=f3e1133]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e1134]
+                - generic [ref=f3e1135]:
+                  - generic [ref=f3e1136]:
+                    - checkbox "**1.2** Sistema de autenticação por assinatura de mensagem Ed25519 e sessão JWT em app/app.ts - commit a3a505e 👤 Jorge Espindola" [checked] [ref=f3e1137]
+                    - generic [ref=f3e1138]:
+                      - strong [ref=f3e1139]: "**1.2**"
+                      - text: Sistema de autenticação por assinatura de mensagem Ed25519 e sessão JWT em app/app.ts - commit a3a505e
+                    - generic [ref=f3e1140]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e1141]
+                - generic [ref=f3e1142]:
+                  - generic [ref=f3e1143]:
+                    - checkbox "**1.3** Arquitetura de deploy contínuo, roteamento SPA e rollback em app/vercel.json e rollback.sh - commit a3a505e 👤 Jorge Espindola" [checked] [ref=f3e1144]
+                    - generic [ref=f3e1145]:
+                      - strong [ref=f3e1146]: "**1.3**"
+                      - text: Arquitetura de deploy contínuo, roteamento SPA e rollback em app/vercel.json e rollback.sh - commit a3a505e
+                    - generic [ref=f3e1147]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e1148]
+                - generic [ref=f3e1149]:
+                  - generic [ref=f3e1150]:
+                    - checkbox "**1.4** Desbloqueio de batalha e fallback para carteira Web3 em sandbox CSP/iframe da Itch.io - commit 31b37a6 👤 Jorge Espindola" [checked] [ref=f3e1151]
+                    - generic [ref=f3e1152]:
+                      - strong [ref=f3e1153]: "**1.4**"
+                      - text: Desbloqueio de batalha e fallback para carteira Web3 em sandbox CSP/iframe da Itch.io - commit 31b37a6
+                    - generic [ref=f3e1154]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e1155]
+                - generic [ref=f3e1156]:
+                  - generic [ref=f3e1157]:
+                    - checkbox "**1.5** Correção reativa dos botões de conectar carteira, carga de arena e saldo na Vercel - commit a02e21c 👤 Jorge Espindola" [checked] [ref=f3e1158]
+                    - generic [ref=f3e1159]:
+                      - strong [ref=f3e1160]: "**1.5**"
+                      - text: Correção reativa dos botões de conectar carteira, carga de arena e saldo na Vercel - commit a02e21c
+                    - generic [ref=f3e1161]: 👤 Jorge Espindola
+                  - button "✏️" [ref=f3e1162]
+  - generic:
+    - generic:
+      - generic:
+        - heading "⚙️ Configurações do Sistema" [level=3]
+        - button "×"
+      - generic:
+        - button "🐙 GitHub & Projetos (Modo Oficial)"
+        - button "👥 Integrantes da Equipe"
+      - generic:
+        - generic:
+          - paragraph:
+            - text: Insira seu
+            - strong: Personal Access Token (PAT)
+            - text: do GitHub com permissões de
+            - code: repo
+            - text: e
+            - code: project
+            - text: para sincronização com o GitHub Projects.
+          - generic:
+            - generic: "GitHub Personal Access Token (PAT):"
+            - generic:
+              - textbox "GitHub Personal Access Token (PAT):":
+                - /placeholder: ghp_xxxxxxxxxxxxxxxxxxxx
+              - button "👁️"
+            - generic:
+              - text: "Obtenha em:"
+              - link "github.com/settings/tokens":
+                - /url: https://github.com/settings/tokens
+          - generic:
+            - generic:
+              - generic: "Repositório:"
+              - textbox "Repositório:": mukasanray/Fowlgen-Wars-Project
+            - generic:
+              - generic: "Branch:"
+              - textbox "Branch:": main
+          - generic:
+            - generic:
+              - generic: "Project ID (GitHub Projects):"
+              - textbox "Project ID (GitHub Projects):":
+                - /placeholder: "ex: PVT_kwDOBr-_0g"
+                - text: PVT_kwDOBr-_0g
+            - generic:
+              - generic: "Responsável Padrão:"
+              - textbox "Responsável Padrão:": Marcos
+          - generic:
+            - button "🧪 Testar Conexão GitHub"
+      - generic:
+        - button "Cancelar"
+        - button "💾 Salvar Configurações"
+  - generic:
+    - generic:
+      - generic:
+        - heading "⏸️ Inativar Integrante e Repassar Tarefas" [level=3]:
+          - generic: ⏸️
+          - text: Inativar Integrante e Repassar Tarefas
+        - button "×"
+      - generic:
+        - generic:
+          - paragraph:
+            - text: Ao inativar
+            - strong: este integrante
+            - text: ", as tarefas"
+            - strong: não terminadas
+            - text: serão repassadas automaticamente ao Membro Ativo selecionado. O integrante inativado não aparecerá no Kanban, filtros ou seletores de tarefas.
+        - generic:
+          - generic: "Selecione o Membro Ativo que assumirá as tarefas não terminadas: *"
+          - 'combobox "Selecione o Membro Ativo que assumirá as tarefas não terminadas: *"'
+        - generic:
+          - generic: "Escopo do repasse de tarefas:"
+          - generic:
+            - generic:
+              - radio "Repassar tarefas não terminadas (pendentes / em andamento - padrão)" [checked]
+              - generic:
+                - strong: Repassar tarefas não terminadas
+                - text: (pendentes / em andamento - padrão)
+            - generic:
+              - radio "Repassar todas as tarefas (incluindo histórico concluído)"
+              - generic: Repassar todas as tarefas (incluindo histórico concluído)
+      - generic:
+        - button "Cancelar"
+        - button "Confirmar e Repassar Tarefas"
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic: 💡
+          - generic:
+            - heading "Título da Ideia / Tarefa" [level=3]
+            - paragraph: openspec/changes/...
+        - generic:
+          - button "×"
+      - generic:
+        - generic:
+          - generic: CRIADO
+          - generic: 👥 Todos
+        - generic: "Progresso: 0/0 (0%)"
+      - generic:
+        - button "📄 Proposta da Feature (proposal.md)"
+        - button "📋 Checklist de Tarefas ( 0 )":
+          - text: 📋 Checklist de Tarefas (
+          - generic: "0"
+          - text: )
+        - button "💻 Comandos & Agent OpenSpec"
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - button "👁️ Visualizar Formatado"
+              - button "✏️ Editar Markdown"
+      - generic:
+        - button "Fechar"
+  - generic [ref=f3e1169]:
+    - generic [ref=f3e1170]: ⚠️
+    - generic [ref=f3e1171]: 🌙 Modo Escuro ativado (Padrão)

@@ -1,0 +1,263 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: 🐔
+      - generic [ref=e5]:
+        - heading "FOWLGEN WARS — OpenSpec & Kanban Studio" [level=1] [ref=e6]
+        - paragraph [ref=e7]:
+          - generic [ref=e9]: Conectado ao OpenSpec Engine
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]: "Features:"
+        - generic [ref=e13]: "0"
+      - generic [ref=e14]:
+        - generic [ref=e15]: "Tarefas:"
+        - generic [ref=e16]: "0"
+      - generic [ref=e17]:
+        - generic [ref=e18]: "Concluídas:"
+        - generic [ref=e19]: "0"
+    - generic [ref=e20]:
+      - tablist [ref=e21]:
+        - button "💻 Modo Local (Em Edição) main" [ref=e22] [cursor=pointer]:
+          - generic [ref=e23]: 💻
+          - generic [ref=e24]: Modo Local (Em Edição)
+          - 'generic "Branch local ativa: main" [ref=e25]': main
+        - button "🌐 Modo Oficial (main)" [ref=e26] [cursor=pointer]:
+          - generic [ref=e27]: 🌐
+          - generic [ref=e28]: Modo Oficial (main)
+      - generic "1 arquivo(s) de tarefas alterados localmente. Clique em Salvar Alterações para registrar no Git." [ref=e29]: 1 pendente(s) de salvar
+      - combobox "Visualizar outra branch específica do Git..." [ref=e33] [cursor=pointer]:
+        - option "📂 Outras branches..." [disabled] [selected]
+        - option "🌿 origin/backup/pre-vercel-deploy"
+        - option "🌿 origin/feature/devsecops-checklist"
+        - option "🌿 origin/fix/anchor-fmt-and-keys"
+        - option "🌿 origin/fowlgenwars-unity-marcos"
+        - option "🌿 origin/main"
+    - generic [ref=e34]:
+      - button "⚡ Ocultar Painel" [ref=e35] [cursor=pointer]
+      - button "💾 Salvar Alterações (1)" [ref=e36] [cursor=pointer]
+      - button "⚙️ Configurações GitHub Token" [ref=e37] [cursor=pointer]:
+        - text: ⚙️ Configurações
+        - generic "GitHub Token" [ref=e38]
+      - button "Alternar para tema Escuro" [ref=e39] [cursor=pointer]:
+        - generic [ref=e40]: 🌙
+        - generic [ref=e41]: Escuro
+      - button "🔄 Atualizar" [ref=e42] [cursor=pointer]
+      - button "🚀 Sincronizar GitHub" [ref=e43] [cursor=pointer]
+  - main [ref=e44]:
+    - generic [ref=e45]:
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - heading "⚡ Comandos Essenciais do OpenSpec" [level=2] [ref=e48]
+          - generic [ref=e49]:
+            - generic [ref=e50]: PDF Interativo
+            - button "◀" [ref=e51] [cursor=pointer]
+        - tablist [ref=e52]:
+          - button "📋 Tarefas" [ref=e53] [cursor=pointer]
+          - button "💡 Ideias / Features" [ref=e54] [cursor=pointer]
+          - button "🚀 Automação" [ref=e55] [cursor=pointer]
+        - generic [ref=e56]:
+          - generic [ref=e57]:
+            - generic [ref=e58]:
+              - generic [ref=e59]: "Feature / Módulo:"
+              - generic [ref=e60]: ✨ Opcional (deixe em branco para Tarefas Gerais)
+            - combobox "Feature / Módulo:" [ref=e61]:
+              - option "📋 (Em branco - Tarefas Gerais / Avulsas)" [selected]
+          - generic [ref=e62]:
+            - generic [ref=e63]:
+              - generic [ref=e64]: "Responsável / Equipe:"
+              - combobox "Responsável / Equipe:" [ref=e65]:
+                - option "Marcos" [selected]
+            - generic [ref=e66]:
+              - generic [ref=e67]: "Status da Tarefa:"
+              - combobox "Status da Tarefa:" [ref=e68]:
+                - option "📝 Backlog" [selected]
+                - option "🔄 Em Andamento"
+                - option "🔍 Testando / Review"
+                - option "✅ Concluído"
+          - generic [ref=e69]:
+            - generic [ref=e70]: "ID da Tarefa (opcional):"
+            - textbox "ID da Tarefa (opcional):" [ref=e71]:
+              - /placeholder: "Automático (ex: 1.1)"
+          - generic [ref=e72]:
+            - generic [ref=e73]:
+              - generic [ref=e74]: "Descrição da Tarefa / Prompt (para IA e Equipe):"
+              - generic [ref=e75]: ✨ Suporta Prompt
+            - textbox "Descrição da Tarefa / Prompt (para IA e Equipe):" [ref=e76]:
+              - /placeholder: Descreva a tarefa ou insira o prompt com instruções detalhadas para o agente de IA ou desenvolvedor...
+            - generic [ref=e77]:
+              - generic [ref=e78]: "Sugestões de Prompt:"
+              - button "🤖 Prompt IA" [ref=e79] [cursor=pointer]
+              - button "🐛 Bugfix" [ref=e80] [cursor=pointer]
+              - button "🎮 Arena_Clean" [ref=e81] [cursor=pointer]
+          - generic [ref=e82]:
+            - button "➕ Criar Tarefa" [ref=e83] [cursor=pointer]
+            - button "💾 Salvar Alterações" [ref=e84] [cursor=pointer]
+            - button "👤 Atribuir Tarefa" [ref=e85] [cursor=pointer]
+            - button "📋 Listar Tarefas" [ref=e86] [cursor=pointer]
+      - generic [ref=e87]:
+        - generic [ref=e88]:
+          - generic [ref=e89]: 💻 Comando Formatado para o Agent
+          - generic [ref=e90]: Padrão do PDF
+        - generic [ref=e91]: agent atualizar "**2.1**" "Backlog" "Marcos"
+        - generic [ref=e92]:
+          - button "📋 Copiar Comando para o Chat" [ref=e93] [cursor=pointer]
+          - button "⚡ Executar Direto" [ref=e94] [cursor=pointer]
+      - generic [ref=e95]:
+        - generic [ref=e96]:
+          - heading "📟 Log de Execução" [level=2] [ref=e97]
+          - button "Limpar" [ref=e98] [cursor=pointer]
+        - generic [ref=e99]: Pronto para executar comandos.
+    - generic [ref=e100]:
+      - generic [ref=e101]:
+        - generic [ref=e102]:
+          - button "◀ Recolher Painel" [ref=e103] [cursor=pointer]:
+            - generic [ref=e104]: ◀
+            - generic [ref=e105]: Recolher Painel
+          - tablist [ref=e106]:
+            - button "🎯 Tarefas da Sprint 0" [ref=e107] [cursor=pointer]:
+              - generic [ref=e108]: 🎯
+              - generic [ref=e109]: Tarefas da Sprint
+              - generic [ref=e110]: "0"
+            - button "💡 Funil de Ideias 0" [ref=e111] [cursor=pointer]:
+              - generic [ref=e112]: 💡
+              - generic [ref=e113]: Funil de Ideias
+              - generic [ref=e114]: "0"
+            - button "📊 Analytics & Métricas" [ref=e115] [cursor=pointer]:
+              - generic [ref=e116]: 📊
+              - generic [ref=e117]: Analytics & Métricas
+        - generic [ref=e118]:
+          - 'generic "Você está conectado como Marcos (Privacidade ativa: salvo apenas localmente)" [ref=e119]':
+            - generic [ref=e120]: 💻
+            - generic [ref=e121]:
+              - generic [ref=e122]: "Você:"
+              - generic [ref=e123]: Marcos
+            - button "🎯 Minhas Tarefas" [ref=e124] [cursor=pointer]
+          - generic [ref=e125]: "👤 Equipe:"
+          - textbox "Buscar integrante por nome ou função" [ref=e127]:
+            - /placeholder: 🔍 Buscar...
+          - button "👥 Todos" [ref=e129] [cursor=pointer]
+          - button "⚙️ Gerenciar" [ref=e130] [cursor=pointer]
+      - generic [ref=e131]:
+        - generic [ref=e133]:
+          - generic [ref=e134]: 📋 A Fazer
+          - generic [ref=e135]: "0"
+        - generic [ref=e137]:
+          - generic [ref=e138]: ⚡ Em Progresso
+          - generic [ref=e139]: "0"
+        - generic [ref=e141]:
+          - generic [ref=e142]: 👀 Em Revisão
+          - generic [ref=e143]: "0"
+        - generic [ref=e145]:
+          - generic [ref=e146]: ✅ Concluído
+          - generic [ref=e147]: "0"
+  - generic:
+    - generic:
+      - generic:
+        - heading "⚙️ Configurações do Sistema" [level=3]
+        - button "×"
+      - generic:
+        - button "🐙 GitHub & Projetos (Modo Oficial)"
+        - button "👥 Integrantes da Equipe"
+      - generic:
+        - generic:
+          - paragraph:
+            - text: Insira seu
+            - strong: Personal Access Token (PAT)
+            - text: do GitHub com permissões de
+            - code: repo
+            - text: e
+            - code: project
+            - text: para sincronização com o GitHub Projects.
+          - generic:
+            - generic: "GitHub Personal Access Token (PAT):"
+            - generic:
+              - textbox "GitHub Personal Access Token (PAT):":
+                - /placeholder: ghp_xxxxxxxxxxxxxxxxxxxx
+              - button "👁️"
+            - generic:
+              - text: "Obtenha em:"
+              - link "github.com/settings/tokens":
+                - /url: https://github.com/settings/tokens
+          - generic:
+            - generic:
+              - generic: "Repositório:"
+              - textbox "Repositório:": mukasanray/Fowlgen-Wars-Project
+            - generic:
+              - generic: "Branch:"
+              - textbox "Branch:": main
+          - generic:
+            - generic:
+              - generic: "Project ID (GitHub Projects):"
+              - textbox "Project ID (GitHub Projects):":
+                - /placeholder: "ex: PVT_kwDOBr-_0g"
+            - generic:
+              - generic: "Responsável Padrão:"
+              - textbox "Responsável Padrão:": Marcos
+          - generic:
+            - button "🧪 Testar Conexão GitHub"
+      - generic:
+        - button "Cancelar"
+        - button "💾 Salvar Configurações"
+  - generic:
+    - generic:
+      - generic:
+        - heading "⏸️ Inativar Integrante e Repassar Tarefas" [level=3]:
+          - generic: ⏸️
+          - text: Inativar Integrante e Repassar Tarefas
+        - button "×"
+      - generic:
+        - generic:
+          - paragraph:
+            - text: Ao inativar
+            - strong: este integrante
+            - text: ", as tarefas"
+            - strong: não terminadas
+            - text: serão repassadas automaticamente ao Membro Ativo selecionado. O integrante inativado não aparecerá no Kanban, filtros ou seletores de tarefas.
+        - generic:
+          - generic: "Selecione o Membro Ativo que assumirá as tarefas não terminadas: *"
+          - 'combobox "Selecione o Membro Ativo que assumirá as tarefas não terminadas: *"'
+        - generic:
+          - generic: "Escopo do repasse de tarefas:"
+          - generic:
+            - generic:
+              - radio "Repassar tarefas não terminadas (pendentes / em andamento - padrão)" [checked]
+              - generic:
+                - strong: Repassar tarefas não terminadas
+                - text: (pendentes / em andamento - padrão)
+            - generic:
+              - radio "Repassar todas as tarefas (incluindo histórico concluído)"
+              - generic: Repassar todas as tarefas (incluindo histórico concluído)
+      - generic:
+        - button "Cancelar"
+        - button "Confirmar e Repassar Tarefas"
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic: 💡
+          - generic:
+            - heading "Título da Ideia / Tarefa" [level=3]
+            - paragraph: openspec/changes/...
+        - generic:
+          - button "×"
+      - generic:
+        - generic:
+          - generic: CRIADO
+          - generic: 👥 Todos
+        - generic: "Progresso: 0/0 (0%)"
+      - generic:
+        - button "📄 Proposta da Feature (proposal.md)"
+        - button "📋 Checklist de Tarefas ( 0 )":
+          - text: 📋 Checklist de Tarefas (
+          - generic: "0"
+          - text: )
+        - button "💻 Comandos & Agent OpenSpec"
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - button "👁️ Visualizar Formatado"
+              - button "✏️ Editar Markdown"
+      - generic:
+        - button "Fechar"

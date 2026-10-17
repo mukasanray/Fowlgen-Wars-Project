@@ -389,7 +389,7 @@ function updateGitStatusPill(data) {
       gitStatusPill.title = `${count} arquivo(s) de tarefas alterados localmente. Clique em Salvar Alterações para registrar no Git.`;
     }
     if (btnCommitOpenspec) {
-      btnCommitOpenspec.innerHTML = `💾 Salvar Alterações (${count})`;
+      btnCommitOpenspec.innerHTML = `💾 Salvar (${count})`;
       btnCommitOpenspec.className = 'btn btn-save btn-sm has-pending';
       btnCommitOpenspec.title = `Salvar ${count} alteração(ões) pendente(s) no Git`;
     }
@@ -402,7 +402,7 @@ function updateGitStatusPill(data) {
       gitStatusPill.title = `Todas as tarefas estão salvas na branch ${data.currentBranch}`;
     }
     if (btnCommitOpenspec) {
-      btnCommitOpenspec.innerHTML = `💾 Salvar Alterações`;
+      btnCommitOpenspec.innerHTML = `💾 Salvar`;
       btnCommitOpenspec.className = 'btn btn-save btn-sm';
       btnCommitOpenspec.title = `Nenhuma alteração pendente de salvar`;
     }
@@ -3431,8 +3431,70 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
+// ============================================================
+// Gerenciamento de Tema (Dark / Light - Padrão: Dark)
+// ============================================================
+function getSavedTheme() {
+  try {
+    return localStorage.getItem('kanban_theme') || 'dark';
+  } catch {
+    return 'dark';
+  }
+}
+
+function applyTheme(theme, notify = false) {
+  const currentTheme = theme === 'light' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  if (document.body) {
+    document.body.setAttribute('data-theme', currentTheme);
+  }
+
+  try {
+    localStorage.setItem('kanban_theme', currentTheme);
+  } catch { }
+
+  const themeIcon = document.getElementById('theme-toggle-icon');
+  const themeLabel = document.getElementById('theme-toggle-label');
+  const themeBtn = document.getElementById('btn-toggle-theme');
+
+  if (currentTheme === 'dark') {
+    if (themeIcon) themeIcon.textContent = '☀️';
+    if (themeLabel) themeLabel.textContent = 'Claro';
+    if (themeBtn) {
+      themeBtn.title = 'Alternar para tema Claro';
+      themeBtn.setAttribute('aria-label', 'Alternar para tema Claro');
+    }
+  } else {
+    if (themeIcon) themeIcon.textContent = '🌙';
+    if (themeLabel) themeLabel.textContent = 'Escuro';
+    if (themeBtn) {
+      themeBtn.title = 'Alternar para tema Escuro (Padrão: Escuro)';
+      themeBtn.setAttribute('aria-label', 'Alternar para tema Escuro');
+    }
+  }
+
+  if (notify) {
+    showToast(currentTheme === 'dark' ? '🌙 Modo Escuro ativado (Padrão)' : '☀️ Modo Claro ativado', 'info');
+  }
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const nextTheme = current === 'dark' ? 'light' : 'dark';
+  applyTheme(nextTheme, true);
+}
+
+function initTheme() {
+  const initialTheme = getSavedTheme();
+  applyTheme(initialTheme, false);
+
+  const btnToggleTheme = document.getElementById('btn-toggle-theme');
+  btnToggleTheme?.addEventListener('click', toggleTheme);
+}
+
 // Initialize on Load
 function initApp() {
+  initTheme();
   try {
     const savedSidebarState = localStorage.getItem('kanban_sidebar_collapsed');
     if (savedSidebarState === 'true') {
