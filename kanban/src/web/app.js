@@ -16,6 +16,16 @@ function isMemberActive(name) {
   return found.active !== false && found.status !== 'inactive';
 }
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // DOM Elements
 const selectFeatureTask = document.getElementById('select-feature-task');
 const inputTaskId = document.getElementById('input-task-id');
@@ -481,14 +491,25 @@ function setConnectionStatus(online) {
 function updateFeatureSelect(features) {
   const currentVal = selectFeatureTask.value;
   selectFeatureTask.innerHTML = '';
+
+  // Opção padrão no topo: Em branco / Tarefas Gerais
+  const optDefault = document.createElement('option');
+  optDefault.value = 'tarefas-gerais';
+  optDefault.textContent = '📋 (Em branco - Tarefas Gerais / Avulsas)';
+  selectFeatureTask.appendChild(optDefault);
+
   features.forEach(f => {
+    if (f.name === 'tarefas-gerais') return;
     const opt = document.createElement('option');
     opt.value = f.name;
     opt.textContent = `${f.name} (${f.progress}% concluído)`;
     selectFeatureTask.appendChild(opt);
   });
-  if (currentVal && features.some(f => f.name === currentVal)) {
+
+  if (currentVal && (currentVal === 'tarefas-gerais' || features.some(f => f.name === currentVal))) {
     selectFeatureTask.value = currentVal;
+  } else {
+    selectFeatureTask.value = 'tarefas-gerais';
   }
 }
 
@@ -1295,10 +1316,14 @@ function createFeatureCard(feature) {
   const tasksHtml = feature.tasks.slice(0, 5).map(t => {
     const cleanText = t.text.replace(/\(([^)]+)\)|@([\w-]+)|\[([\w-]+)\]/g, '').trim();
     const showAssignee = t.assignee && isMemberActive(t.assignee);
+    const promptBadge = t.prompt
+      ? `<span title="${escapeHtml(t.prompt)}" style="font-size: 10px; color: #c084fc; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); padding: 1px 5px; border-radius: 8px; margin-left: 4px; cursor: help;">💬 Prompt</span>`
+      : '';
     return `
     <label class="task-item ${t.done ? 'done' : ''}">
       <input type="checkbox" ${t.done ? 'checked' : ''} ${feature.isFromGitBranch ? 'disabled title="Modo Histórico da branch (somente leitura)"' : ''} data-feature="${feature.name}" data-task-id="${t.id}" class="task-checkbox">
       <span><strong>${t.id ? '**' + t.id + '**' : ''}</strong> ${cleanText || t.text}</span>
+      ${promptBadge}
       ${showAssignee ? `<span style="font-size: 10px; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); padding: 1px 6px; border-radius: 10px; margin-left: 6px; white-space: nowrap;">👤 ${t.assignee}</span>` : ''}
     </label>
     `;
@@ -1386,51 +1411,112 @@ async function updateTaskStatusDirect(feature, taskId, done) {
 // Action Handlers for PDF Commands (Buttons)
 // -------------------------------------------------------------
 
-// 1. Criar Tarefa: agent criar openspec/changes/<id>/tasks.md "**2.1** Implementar BackEnd"
+// 1. Criar Tarefa: agent criar openspec/changes/<id>/tasks.md "**2.1** Implementar BackEnd (@Nome)"
 document.getElementById('btn-action-create-task').addEventListener('click', async () => {
-  const feature = selectFeatureTask.value;
+  const feature = (selectFeatureTask?.value || '').trim() || 'tarefas-gerais';
   const taskId = inputTaskId.value.trim();
-  const text = inputTaskText.value.trim() || 'Nova tarefa';
-  const cmd = `agent criar openspec/changes/${feature}/tasks.md "**${taskId}** ${text}"`;
+  const text = inputTaskText.value.trim();
+  if (!text) {
+    showToast('Informe a descrição da tarefa que deseja criar', 'warning');
+    inputTaskText?.focus();
+    return;
+  }
+
+  const assignee = (selectTaskAssignee?.value || inputTaskAssignee?.value || '').trim();
+  const status = selectTaskStatus?.value || 'Backlog';
+  const assigneeTag = assignee && assignee !== 'Todos' ? ` (@${assignee})` : '';
+  const firstLine = text.split(/\r?\n/)[0].trim();
+  const cmd = `agent criar openspec/changes/${feature}/tasks.md "${taskId ? '**' + taskId + '** ' : ''}${firstLine}${assigneeTag}"`;
   updateCommandPreview(cmd);
 
   try {
     const res = await fetch('/api/tasks/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ feature, taskId, text })
+      body: JSON.stringify({
+        feature,
+        taskId,
+        text,
+        assignee: assignee && assignee !== 'Todos' ? assignee : undefined,
+        status
+      })
     });
     const data = await res.json();
     if (data.success) {
       showToast(data.message, 'success');
       appendLog(data.message);
-      fetchFeatures();
+      inputTaskText.value = '';
+      if (inputTaskId) inputTaskId.value = '';
+      await fetchFeatures();
+    } else {
+      showToast(data.error || 'Erro ao criar tarefa', 'error');
     }
   } catch {
-    showToast('Comando pronto para copiar pro Chat!', 'success');
+    showToast('Não foi possível conectar ao servidor', 'error');
   }
+});
+
+// Setup prompt chips for quick templates
+document.querySelectorAll('.btn-prompt-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const templateType = btn.getAttribute('data-template');
+    let templateText = '';
+    if (templateType === 'ia') {
+      templateText = `[Prompt IA] Objetivo:\nInstruções:\n- \nCritério de Aceite:\n- `;
+    } else if (templateType === 'bugfix') {
+      templateText = `[Bugfix] Problema:\nCausa provável:\nCorreção esperada:\n- `;
+    } else if (templateType === 'arena') {
+      templateText = `[Gameplay] Testar na Arena_Clean:\n- Cenário:\n- Validação esperada:\n`;
+    }
+    if (templateText && inputTaskText) {
+      if (inputTaskText.value.trim()) {
+        inputTaskText.value += '\n' + templateText;
+      } else {
+        inputTaskText.value = templateText;
+      }
+      inputTaskText.focus();
+      inputTaskText.scrollTop = inputTaskText.scrollHeight;
+    }
+  });
 });
 
 // 2. Atualizar Tarefa: agent atualizar "**2.1**" "Concluído" "João"
 document.getElementById('btn-action-update-task').addEventListener('click', async () => {
-  const feature = selectFeatureTask.value;
-  const taskId = inputTaskId.value.trim() || '2.1';
+  const feature = (selectFeatureTask?.value || '').trim() || 'tarefas-gerais';
+  const taskId = inputTaskId.value.trim() || '1.1';
   const status = selectTaskStatus.value;
-  const assignee = inputTaskAssignee.value.trim() || 'Marcos';
-  const cmd = `agent atualizar "**${taskId}**" "${status}" "${assignee}"`;
+  const assignee = (selectTaskAssignee?.value || inputTaskAssignee?.value || '').trim();
+  const cmd = `agent atualizar "**${taskId}**" "${status}" "${assignee || 'Todos'}"`;
   updateCommandPreview(cmd);
 
-  await updateTaskStatusDirect(feature, taskId, status === 'Concluído');
+  await updateTaskStatusDirect(feature, taskId, status === 'Concluído', (assignee && assignee !== 'Todos') ? assignee : undefined);
 });
 
 // 3. Atribuir Tarefa: agent atribuir "**2.1**" "Equipe de Backend"
-document.getElementById('btn-action-assign-task').addEventListener('click', () => {
-  const taskId = inputTaskId.value.trim() || '2.1';
-  const assignee = inputTaskAssignee.value.trim() || 'Equipe de Backend';
+document.getElementById('btn-action-assign-task').addEventListener('click', async () => {
+  const feature = (selectFeatureTask?.value || '').trim() || 'tarefas-gerais';
+  const taskId = inputTaskId.value.trim() || '1.1';
+  const assignee = (selectTaskAssignee?.value || inputTaskAssignee?.value || 'Todos').trim();
   const cmd = `agent atribuir "**${taskId}**" "${assignee}"`;
   updateCommandPreview(cmd);
-  appendLog(`Atribuindo tarefa: ${cmd}`);
-  showToast('Comando de atribuição gerado!', 'success');
+
+  try {
+    const res = await fetch('/api/tasks/assign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feature, taskId, assignee })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      appendLog(data.message);
+      await fetchFeatures();
+    } else {
+      showToast(data.error || 'Erro ao atribuir tarefa', 'error');
+    }
+  } catch {
+    showToast('Não foi possível conectar ao servidor local', 'error');
+  }
 });
 
 // 4. Listar Tarefas: agent listar openspec/changes/*/tasks.md
@@ -2171,9 +2257,9 @@ function renderModalMembersList() {
           <div class="member-details-name" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
             <span>${m.name}</span>
             ${isActive
-              ? '<span class="badge-tag" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px;">🟢 Ativo</span>'
-              : '<span class="badge-tag" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px;">⚪ Inativo</span>'
-            }
+        ? '<span class="badge-tag" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px;">🟢 Ativo</span>'
+        : '<span class="badge-tag" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px;">⚪ Inativo</span>'
+      }
             ${m.github ? `<span style="font-size: 11px; color: #a78bfa; background: rgba(139, 92, 246, 0.1); padding: 1px 6px; border-radius: 4px; font-weight: normal;">🐙 @${m.github}</span>` : ''}
           </div>
           <div class="member-details-role">${m.role || 'Membro da Equipe'}</div>
@@ -2184,13 +2270,13 @@ function renderModalMembersList() {
           ✏️ Editar
         </button>
         ${isActive
-          ? `<button type="button" class="btn btn-warning btn-sm btn-deactivate-member" style="padding: 4px 8px; font-size: 11px;" title="Inativar integrante e transferir tarefas">
+        ? `<button type="button" class="btn btn-warning btn-sm btn-deactivate-member" style="padding: 4px 8px; font-size: 11px;" title="Inativar integrante e transferir tarefas">
               ⏸️ Inativar
             </button>`
-          : `<button type="button" class="btn btn-success btn-sm btn-activate-member" style="padding: 4px 8px; font-size: 11px;" title="Reativar integrante na equipe">
+        : `<button type="button" class="btn btn-success btn-sm btn-activate-member" style="padding: 4px 8px; font-size: 11px;" title="Reativar integrante na equipe">
               ▶️ Reativar
             </button>`
-        }
+      }
         <button type="button" class="btn btn-danger btn-sm btn-delete-member" style="padding: 4px 8px; font-size: 11px;" title="Remover integrante">
           🗑️ Excluir
         </button>
@@ -2763,15 +2849,37 @@ function renderDetailTasksList(feature) {
       ? `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 11px;">👤 ${activeTaskAssignee}</span>`
       : '';
 
+    const promptHtml = t.prompt
+      ? `<div class="task-prompt-box">
+          <div class="prompt-header">
+            <span style="color: #c084fc; font-weight: 600;">🤖 Prompt / Instruções:</span>
+            <button type="button" class="btn-copy-prompt" title="Copiar prompt completo para a área de transferência">📋 Copiar Prompt</button>
+          </div>
+          <div class="prompt-text" style="white-space: pre-wrap; font-family: var(--font-mono); font-size: 12px; color: #cbd5e1;">${escapeHtml(t.prompt)}</div>
+        </div>`
+      : '';
+
     card.innerHTML = `
-      <label class="detail-task-label">
-        <input type="checkbox" ${t.done ? 'checked' : ''} ${feature.isFromGitBranch ? 'disabled' : ''} class="detail-task-chk" data-task-id="${t.id}">
-        <span><strong>${t.id ? '**' + t.id + '**' : ''}</strong> ${cleanText || t.text}</span>
-      </label>
-      <div style="display: flex; align-items: center; gap: 8px;">
-        ${assigneeHtml}
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+        <label class="detail-task-label" style="flex: 1;">
+          <input type="checkbox" ${t.done ? 'checked' : ''} ${feature.isFromGitBranch ? 'disabled' : ''} class="detail-task-chk" data-task-id="${t.id}">
+          <span><strong>${t.id ? '**' + t.id + '**' : ''}</strong> ${cleanText || t.text}</span>
+        </label>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          ${assigneeHtml}
+        </div>
       </div>
+      ${promptHtml}
     `;
+
+    card.querySelector('.btn-copy-prompt')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(t.prompt).then(() => {
+        showToast('Prompt copiado para a área de transferência!', 'success');
+      }).catch(() => {
+        showToast('Não foi possível copiar o prompt', 'error');
+      });
+    });
 
     card.querySelector('.detail-task-chk')?.addEventListener('change', async (e) => {
       const isDone = e.target.checked;
@@ -2932,8 +3040,9 @@ btnDetailAddTask?.addEventListener('click', async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         feature: currentDetailFeature.name,
-        taskId: taskId || '1.0',
-        text: `${text} (${assignee})`
+        taskId: taskId || '',
+        text: text,
+        assignee: assignee !== 'Todos' ? assignee : undefined
       })
     });
     const data = await res.json();
@@ -3001,14 +3110,14 @@ document.querySelectorAll('.btn-copy-detail-cmd').forEach(btn => {
 function toggleSidebar(forceState) {
   const container = document.querySelector('.app-container');
   if (!container) return;
-  const isCollapsed = forceState !== undefined 
-    ? forceState 
+  const isCollapsed = forceState !== undefined
+    ? forceState
     : !container.classList.contains('sidebar-collapsed');
-  
+
   container.classList.toggle('sidebar-collapsed', isCollapsed);
   try {
     localStorage.setItem('kanban_sidebar_collapsed', isCollapsed ? 'true' : 'false');
-  } catch {}
+  } catch { }
   updateSidebarToggleButtons(isCollapsed);
 }
 
@@ -3020,8 +3129,8 @@ function updateSidebarToggleButtons(isCollapsed) {
   }
   const btnKanban = document.getElementById('btn-toggle-sidebar-kanban');
   if (btnKanban) {
-    btnKanban.innerHTML = isCollapsed 
-      ? '<span class="toggle-icon">▶</span> <span class="toggle-label">Abrir Painel OpenSpec</span>' 
+    btnKanban.innerHTML = isCollapsed
+      ? '<span class="toggle-icon">▶</span> <span class="toggle-label">Abrir Painel OpenSpec</span>'
       : '<span class="toggle-icon">◀</span> <span class="toggle-label">Recolher Painel</span>';
     btnKanban.classList.toggle('collapsed', isCollapsed);
   }
@@ -3053,7 +3162,7 @@ window.addEventListener('DOMContentLoaded', () => {
     } else {
       updateSidebarToggleButtons(false);
     }
-  } catch {}
+  } catch { }
   fetchGitInfo();
   fetchMembers();
   fetchFeatures();

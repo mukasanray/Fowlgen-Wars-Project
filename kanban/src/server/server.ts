@@ -231,19 +231,42 @@ function reassignMemberTasks(oldMember: Member, newMember: Member, scope: 'all' 
 }
 
 function updateOpenSpecTask(featureId: string, taskNumber: string, isCompleted: boolean, status?: string, assignee?: string, text?: string): void {
-  const tasksPath = path.join(OPEN_SPEC_DIR, featureId, 'tasks.md');
+  const cleanFeature = (featureId && featureId.trim()) ? featureId.trim().toLowerCase().replace(/\s+/g, '-') : 'tarefas-gerais';
+  const targetFeature = cleanFeature || 'tarefas-gerais';
+  const featureDir = path.join(OPEN_SPEC_DIR, targetFeature);
+
+  if (!fs.existsSync(featureDir)) {
+    fs.mkdirSync(featureDir, { recursive: true });
+    const title = targetFeature === 'tarefas-gerais' ? 'Tarefas Gerais & Avulsas' : targetFeature.replace(/-/g, ' ');
+    const proposalContent = `# Feature: ${targetFeature}\n\n## Title\n${title}\n\n## Summary\nTarefas gerais, avulsas e manutenções da equipe.\n\n## Status\n[APROVADO]\n`;
+    fs.writeFileSync(path.join(featureDir, 'proposal.md'), proposalContent, 'utf8');
+    fs.writeFileSync(path.join(featureDir, 'tasks.md'), `# Tasks for ${targetFeature}\n\n## 1. Backlog Geral\n`, 'utf8');
+  }
+
+  const tasksPath = path.join(featureDir, 'tasks.md');
   if (fs.existsSync(tasksPath)) {
     const content = fs.readFileSync(tasksPath, 'utf8');
     const lines = content.split('\n');
     let found = false;
 
     const newLines = lines.map(line => {
-      if (line.includes(`**${taskNumber}**`)) {
+      if (taskNumber && line.includes(`**${taskNumber}**`)) {
         found = true;
         const mark = isCompleted ? '[x]' : '[ ]';
         let updated = line.replace(/\[[ xX]\]/, mark);
-        if (assignee && !updated.includes(assignee)) {
-          updated += ` (${assignee})`;
+
+        // Se assignee foi especificado (diferente de undefined)
+        if (assignee !== undefined && assignee !== null) {
+          const cleanAssignee = assignee.trim().replace(/^@/, '');
+          const newTag = cleanAssignee && cleanAssignee !== 'Todos' ? `(@${cleanAssignee})` : '';
+
+          // Remove qualquer tag anterior de responsável da linha
+          const withoutAssignees = updated.replace(/\s*(\((@[^)]+)\)|\[(@[^\]]+)\]|\((@?[^)]+)\)\s*$|\[(@?[^\]]+)\]\s*)/gi, '').trimEnd();
+          if (newTag) {
+            updated = `${withoutAssignees} ${newTag}`;
+          } else {
+            updated = withoutAssignees;
+          }
         }
         return updated;
       }
@@ -251,7 +274,24 @@ function updateOpenSpecTask(featureId: string, taskNumber: string, isCompleted: 
     });
 
     if (!found && text) {
-      newLines.push(`- [${isCompleted ? 'x' : ' '}] **${taskNumber}** ${text}${assignee ? ` (${assignee})` : ''}`);
+      let effectiveNumber = taskNumber ? taskNumber.trim() : '';
+      if (!effectiveNumber) {
+        const existingCount = newLines.filter(l => l.match(/^\s*[-*]?\s*\[[ xX]\]/)).length;
+        effectiveNumber = `1.${existingCount + 1}`;
+      }
+      const cleanAssignee = assignee ? assignee.trim().replace(/^@/, '') : '';
+      const newTag = cleanAssignee && cleanAssignee !== 'Todos' ? ` (@${cleanAssignee})` : '';
+
+      const rawLines = text.split(/\r?\n/).map(l => l.trimEnd()).filter(l => l.trim().length > 0);
+      if (rawLines.length <= 1) {
+        newLines.push(`- [${isCompleted ? 'x' : ' '}] **${effectiveNumber}** ${text.trim()}${newTag}`);
+      } else {
+        const firstLine = rawLines[0].trim();
+        newLines.push(`- [${isCompleted ? 'x' : ' '}] **${effectiveNumber}** ${firstLine}${newTag}`);
+        for (let i = 1; i < rawLines.length; i++) {
+          newLines.push(`    > ${rawLines[i].trim()}`);
+        }
+      }
     }
 
     fs.writeFileSync(tasksPath, newLines.join('\n'), 'utf8');
@@ -453,7 +493,7 @@ function getFeaturesFromGitBranch(branch: string) {
           }
         } catch { }
 
-        let tasks: Array<{ id: string; text: string; done: boolean; assignee?: string; raw: string; section: string }> = [];
+        let tasks: Array<{ id: string; text: string; done: boolean; assignee?: string; prompt?: string; raw: string; section: string }> = [];
         try {
           const tasksContent = execSync(`git show ${branch}:openspec/changes/${featureName}/tasks.md`, { encoding: 'utf8', cwd: REPO_ROOT, stdio: ['pipe', 'pipe', 'ignore'] });
           const tlines = tasksContent.split('\n');
@@ -489,6 +529,14 @@ function getFeaturesFromGitBranch(branch: string) {
                 raw: tl.trim(),
                 section: currentSection
               });
+            } else if (tasks.length > 0 && tl.trim() && !tl.startsWith('#')) {
+              const lastTask = tasks[tasks.length - 1];
+              const cleanPromptLine = tl.trim().replace(/^>\s*/, '');
+              if (!lastTask.prompt) {
+                lastTask.prompt = cleanPromptLine;
+              } else {
+                lastTask.prompt += '\n' + cleanPromptLine;
+              }
             }
           }
         } catch { }
@@ -603,7 +651,7 @@ function getFeaturesData() {
       }
     }
 
-    const tasks: Array<{ id: string; text: string; done: boolean; assignee?: string; raw: string; section: string }> = [];
+    const tasks: Array<{ id: string; text: string; done: boolean; assignee?: string; prompt?: string; raw: string; section: string }> = [];
     if (fs.existsSync(tasksPath)) {
       const content = fs.readFileSync(tasksPath, 'utf8');
       const lines = content.split('\n');
@@ -641,6 +689,14 @@ function getFeaturesData() {
             raw: line.trim(),
             section: currentSection
           });
+        } else if (tasks.length > 0 && line.trim() && !line.startsWith('#')) {
+          const lastTask = tasks[tasks.length - 1];
+          const cleanPromptLine = line.trim().replace(/^>\s*/, '');
+          if (!lastTask.prompt) {
+            lastTask.prompt = cleanPromptLine;
+          } else {
+            lastTask.prompt += '\n' + cleanPromptLine;
+          }
         }
       }
     }
@@ -1336,20 +1392,27 @@ const server = http.createServer(async (req, res) => {
 
     // API: Create new task
     if (req.method === 'POST' && pathname === '/api/tasks/create') {
-      const { feature, taskId, text } = await parseJSONBody(req);
-      if (!feature || !text) {
-        sendJSON(res, 400, { success: false, error: 'Feature e texto são obrigatórios.' });
+      const { feature, taskId, text, assignee, status } = await parseJSONBody(req);
+      if (!text || !text.trim()) {
+        sendJSON(res, 400, { success: false, error: 'O texto da tarefa é obrigatório.' });
         return;
       }
 
+      const targetFeature = (feature && feature.trim()) ? feature.trim().toLowerCase().replace(/\s+/g, '-') : 'tarefas-gerais';
+      const markDone = status === 'Concluído';
+      const cleanAssignee = (assignee && assignee.trim() && assignee !== 'Todos') ? assignee.trim() : undefined;
+
       // Sincroniza diretamente no OpenSpec Markdown
-      updateOpenSpecTask(feature, taskId || '1.0', false, 'Backlog', 'Marcos', text);
+      updateOpenSpecTask(targetFeature, taskId || '', markDone, status || 'Backlog', cleanAssignee, text.trim());
 
       const idPrefix = taskId ? `**${taskId}** ` : '';
+      const assigneeSuffix = cleanAssignee ? ` (@${cleanAssignee})` : '';
+      const firstLine = text.trim().split(/\r?\n/)[0];
       sendJSON(res, 200, {
         success: true,
-        message: `Tarefa criada em ${feature} (OpenSpec Git-Native)`,
-        command: `agent criar openspec/changes/${feature}/tasks.md "${idPrefix}${text}"`
+        message: `Tarefa criada em "${targetFeature}" (OpenSpec Git-Native)`,
+        feature: targetFeature,
+        command: `agent criar openspec/changes/${targetFeature}/tasks.md "${idPrefix}${firstLine}${assigneeSuffix}"`
       });
       return;
     }
@@ -1357,23 +1420,45 @@ const server = http.createServer(async (req, res) => {
     // API: Update task status
     if (req.method === 'POST' && pathname === '/api/tasks/update') {
       const { feature, taskId, done, isCompleted, status, assignee } = await parseJSONBody(req);
-      if (!feature || !taskId) {
-        sendJSON(res, 400, { success: false, error: 'Feature e taskId são obrigatórios.' });
+      if (!taskId) {
+        sendJSON(res, 400, { success: false, error: 'taskId é obrigatório.' });
         return;
       }
 
+      const targetFeature = (feature && feature.trim()) ? feature.trim() : 'tarefas-gerais';
       const markDone = done !== undefined ? Boolean(done) : Boolean(isCompleted);
+      const cleanAssignee = (assignee && assignee.trim() && assignee !== 'Todos' && assignee !== 'Equipe') ? assignee.trim() : undefined;
 
       // Sincroniza diretamente no OpenSpec Markdown
-      updateOpenSpecTask(feature, taskId, markDone, status, assignee);
+      updateOpenSpecTask(targetFeature, taskId, markDone, status, cleanAssignee);
 
       const displayStatus = markDone ? 'Concluído' : (status || 'Em Andamento');
-      const displayAssignee = assignee || 'Marcos';
+      const displayAssignee = cleanAssignee || 'Todos';
 
       sendJSON(res, 200, {
         success: true,
         message: `Tarefa **${taskId}** atualizada para ${displayStatus} (OpenSpec Git-Native)`,
         command: `agent atualizar "**${taskId}**" "${displayStatus}" "${displayAssignee}"`
+      });
+      return;
+    }
+
+    // API: Assign task to member
+    if (req.method === 'POST' && pathname === '/api/tasks/assign') {
+      const { feature, taskId, assignee } = await parseJSONBody(req);
+      if (!taskId) {
+        sendJSON(res, 400, { success: false, error: 'taskId é obrigatório.' });
+        return;
+      }
+
+      const targetFeature = (feature && feature.trim()) ? feature.trim() : 'tarefas-gerais';
+      const cleanAssignee = (assignee && assignee.trim() && assignee !== 'Todos') ? assignee.trim() : '';
+      updateOpenSpecTask(targetFeature, taskId, false, undefined, cleanAssignee);
+
+      sendJSON(res, 200, {
+        success: true,
+        message: `Tarefa **${taskId}** atribuída a "${assignee || 'Todos'}" (OpenSpec Git-Native)`,
+        command: `agent atribuir "**${taskId}**" "${assignee || 'Todos'}"`
       });
       return;
     }
