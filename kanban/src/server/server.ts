@@ -230,7 +230,15 @@ function reassignMemberTasks(oldMember: Member, newMember: Member, scope: 'all' 
   return { modifiedFiles, count };
 }
 
-function updateOpenSpecTask(featureId: string, taskNumber: string, isCompleted: boolean, status?: string, assignee?: string, text?: string): void {
+function updateOpenSpecTask(
+  featureId: string,
+  taskNumber: string,
+  isCompleted: boolean,
+  status?: string,
+  assignee?: string,
+  text?: string,
+  newTaskId?: string
+): boolean {
   const cleanFeature = (featureId && featureId.trim()) ? featureId.trim().toLowerCase().replace(/\s+/g, '-') : 'tarefas-gerais';
   const targetFeature = cleanFeature || 'tarefas-gerais';
   const featureDir = path.join(OPEN_SPEC_DIR, targetFeature);
@@ -244,58 +252,137 @@ function updateOpenSpecTask(featureId: string, taskNumber: string, isCompleted: 
   }
 
   const tasksPath = path.join(featureDir, 'tasks.md');
-  if (fs.existsSync(tasksPath)) {
-    const content = fs.readFileSync(tasksPath, 'utf8');
-    const lines = content.split('\n');
-    let found = false;
+  if (!fs.existsSync(tasksPath)) return false;
 
-    const newLines = lines.map(line => {
-      if (taskNumber && line.includes(`**${taskNumber}**`)) {
-        found = true;
-        const mark = isCompleted ? '[x]' : '[ ]';
-        let updated = line.replace(/\[[ xX]\]/, mark);
+  const content = fs.readFileSync(tasksPath, 'utf8');
+  const lines = content.split('\n');
+  const cleanTaskNum = taskNumber ? taskNumber.trim() : '';
 
-        // Se assignee foi especificado (diferente de undefined)
-        if (assignee !== undefined && assignee !== null) {
-          const cleanAssignee = assignee.trim().replace(/^@/, '');
-          const newTag = cleanAssignee && cleanAssignee !== 'Todos' ? `(@${cleanAssignee})` : '';
+  const escapedNum = cleanTaskNum.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const idRegex = cleanTaskNum ? new RegExp(`^\\s*[-*]?\\s*\\[[ xX]\\]\\s*\\*\\*(${escapedNum}(\\s+[^*]+)?|[^\\*]*?${escapedNum}[^\\*]*?)\\*\\*`, 'i') : null;
 
-          // Remove qualquer tag anterior de responsável da linha
-          const withoutAssignees = updated.replace(/\s*(\((@[^)]+)\)|\[(@[^\]]+)\]|\((@?[^)]+)\)\s*$|\[(@?[^\]]+)\]\s*)/gi, '').trimEnd();
-          if (newTag) {
-            updated = `${withoutAssignees} ${newTag}`;
-          } else {
-            updated = withoutAssignees;
-          }
-        }
-        return updated;
-      }
-      return line;
-    });
+  let foundIndex = -1;
+  let matchedTaskId = cleanTaskNum;
 
-    if (!found && text) {
-      let effectiveNumber = taskNumber ? taskNumber.trim() : '';
-      if (!effectiveNumber) {
-        const existingCount = newLines.filter(l => l.match(/^\s*[-*]?\s*\[[ xX]\]/)).length;
-        effectiveNumber = `1.${existingCount + 1}`;
-      }
-      const cleanAssignee = assignee ? assignee.trim().replace(/^@/, '') : '';
-      const newTag = cleanAssignee && cleanAssignee !== 'Todos' ? ` (@${cleanAssignee})` : '';
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    if (cleanTaskNum && (l.includes(`**${cleanTaskNum}**`) || (idRegex && idRegex.test(l)))) {
+      foundIndex = i;
+      const m = l.match(/^\s*[-*]?\s*\[[ xX]\]\s*\*\*(.+?)\*\*/);
+      if (m) matchedTaskId = m[1].trim();
+      break;
+    }
+  }
 
+  const mark = isCompleted ? '[x]' : '[ ]';
+  const cleanAssignee = (assignee !== undefined && assignee !== null) ? assignee.trim().replace(/^@/, '') : undefined;
+  const newTag = cleanAssignee && cleanAssignee !== 'Todos' ? `(@${cleanAssignee})` : '';
+
+  if (foundIndex !== -1) {
+    // Tarefa existente encontrada!
+    const effectiveId = (newTaskId && newTaskId.trim()) ? newTaskId.trim() : matchedTaskId;
+
+    if (text !== undefined && text !== null && text.trim().length > 0) {
+      // Usuário está alterando texto/prompt
       const rawLines = text.split(/\r?\n/).map(l => l.trimEnd()).filter(l => l.trim().length > 0);
-      if (rawLines.length <= 1) {
-        newLines.push(`- [${isCompleted ? 'x' : ' '}] **${effectiveNumber}** ${text.trim()}${newTag}`);
-      } else {
-        const firstLine = rawLines[0].trim();
-        newLines.push(`- [${isCompleted ? 'x' : ' '}] **${effectiveNumber}** ${firstLine}${newTag}`);
-        for (let i = 1; i < rawLines.length; i++) {
-          newLines.push(`    > ${rawLines[i].trim()}`);
+      const firstLine = rawLines[0].trim();
+      const cleanFirstLine = firstLine.replace(/\s*(\((@[^)]+)\)|\[(@[^\]]+)\]|\((@?[^)]+)\)\s*$|\[(@?[^\]]+)\]\s*)/gi, '').trimEnd();
+      const updatedFirstLine = `- ${mark} **${effectiveId}** ${cleanFirstLine}${newTag ? ' ' + newTag : ''}`;
+
+      const replacementLines = [updatedFirstLine];
+      for (let k = 1; k < rawLines.length; k++) {
+        replacementLines.push(`    > ${rawLines[k].trim()}`);
+      }
+
+      // Substitui as linhas antigas de continuação de prompt
+      let continuationCount = 0;
+      for (let j = foundIndex + 1; j < lines.length; j++) {
+        const nextLine = lines[j];
+        if (nextLine.trim() && !nextLine.match(/^\s*[-*]?\s*\[[ xX]\]/) && !nextLine.startsWith('#')) {
+          continuationCount++;
+        } else {
+          break;
         }
       }
+
+      lines.splice(foundIndex, 1 + continuationCount, ...replacementLines);
+    } else {
+      // Apenas status, assignee ou novo ID
+      let targetLine = lines[foundIndex];
+      targetLine = targetLine.replace(/\[[ xX]\]/, mark);
+
+      if (newTaskId && newTaskId.trim() && newTaskId.trim() !== matchedTaskId) {
+        targetLine = targetLine.replace(`**${matchedTaskId}**`, `**${newTaskId.trim()}**`);
+      }
+
+      if (cleanAssignee !== undefined) {
+        const withoutAssignees = targetLine.replace(/\s*(\((@[^)]+)\)|\[(@[^\]]+)\]|\((@?[^)]+)\)\s*$|\[(@?[^\]]+)\]\s*)/gi, '').trimEnd();
+        targetLine = newTag ? `${withoutAssignees} ${newTag}` : withoutAssignees;
+      }
+      lines[foundIndex] = targetLine;
     }
 
-    fs.writeFileSync(tasksPath, newLines.join('\n'), 'utf8');
+    fs.writeFileSync(tasksPath, lines.join('\n'), 'utf8');
+    return true;
+  } else if (text) {
+    // Nova tarefa
+    let effectiveNumber = (newTaskId && newTaskId.trim()) ? newTaskId.trim() : (taskNumber ? taskNumber.trim() : '');
+    if (!effectiveNumber) {
+      const existingCount = lines.filter(l => l.match(/^\s*[-*]?\s*\[[ xX]\]/)).length;
+      effectiveNumber = `1.${existingCount + 1}`;
+    }
+    const finalAssigneeTag = cleanAssignee && cleanAssignee !== 'Todos' ? ` (@${cleanAssignee})` : '';
+    const rawLines = text.split(/\r?\n/).map(l => l.trimEnd()).filter(l => l.trim().length > 0);
+    if (rawLines.length <= 1) {
+      lines.push(`- [${isCompleted ? 'x' : ' '}] **${effectiveNumber}** ${text.trim()}${finalAssigneeTag}`);
+    } else {
+      const firstLine = rawLines[0].trim();
+      lines.push(`- [${isCompleted ? 'x' : ' '}] **${effectiveNumber}** ${firstLine}${finalAssigneeTag}`);
+      for (let i = 1; i < rawLines.length; i++) {
+        lines.push(`    > ${rawLines[i].trim()}`);
+      }
+    }
+    fs.writeFileSync(tasksPath, lines.join('\n'), 'utf8');
+    return true;
   }
+  return false;
+}
+
+function deleteOpenSpecTask(featureId: string, taskNumber: string): boolean {
+  const cleanFeature = (featureId && featureId.trim()) ? featureId.trim().toLowerCase().replace(/\s+/g, '-') : 'tarefas-gerais';
+  const tasksPath = path.join(OPEN_SPEC_DIR, cleanFeature, 'tasks.md');
+  if (!fs.existsSync(tasksPath)) return false;
+
+  const content = fs.readFileSync(tasksPath, 'utf8');
+  const lines = content.split('\n');
+  const cleanTaskNum = taskNumber ? taskNumber.trim() : '';
+  const escapedNum = cleanTaskNum.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const idRegex = cleanTaskNum ? new RegExp(`^\\s*[-*]?\\s*\\[[ xX]\\]\\s*\\*\\*(${escapedNum}(\\s+[^*]+)?|[^\\*]*?${escapedNum}[^\\*]*?)\\*\\*`, 'i') : null;
+
+  let foundIndex = -1;
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    if (cleanTaskNum && (l.includes(`**${cleanTaskNum}**`) || (idRegex && idRegex.test(l)))) {
+      foundIndex = i;
+      break;
+    }
+  }
+
+  if (foundIndex === -1) return false;
+
+  let continuationCount = 0;
+  for (let j = foundIndex + 1; j < lines.length; j++) {
+    const nextLine = lines[j];
+    if (nextLine.trim() && !nextLine.match(/^\s*[-*]?\s*\[[ xX]\]/) && !nextLine.startsWith('#')) {
+      continuationCount++;
+    } else {
+      break;
+    }
+  }
+
+  lines.splice(foundIndex, 1 + continuationCount);
+  fs.writeFileSync(tasksPath, lines.join('\n'), 'utf8');
+  return true;
 }
 
 function loadEnvFile() {
@@ -1417,29 +1504,51 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    // API: Update task status
+    // API: Update / Alter task
     if (req.method === 'POST' && pathname === '/api/tasks/update') {
-      const { feature, taskId, done, isCompleted, status, assignee } = await parseJSONBody(req);
+      const { feature, taskId, newTaskId, text, done, isCompleted, status, assignee } = await parseJSONBody(req);
       if (!taskId) {
         sendJSON(res, 400, { success: false, error: 'taskId é obrigatório.' });
         return;
       }
 
       const targetFeature = (feature && feature.trim()) ? feature.trim() : 'tarefas-gerais';
-      const markDone = done !== undefined ? Boolean(done) : Boolean(isCompleted);
-      const cleanAssignee = (assignee && assignee.trim() && assignee !== 'Todos' && assignee !== 'Equipe') ? assignee.trim() : undefined;
+      const markDone = done !== undefined ? Boolean(done) : (status === 'Concluído' || Boolean(isCompleted));
+      const cleanAssignee = (assignee !== undefined && assignee !== null && assignee !== 'Todos' && assignee !== 'Equipe') ? assignee.trim() : (assignee === 'Todos' ? '' : undefined);
 
-      // Sincroniza diretamente no OpenSpec Markdown
-      updateOpenSpecTask(targetFeature, taskId, markDone, status, cleanAssignee);
+      // Sincroniza diretamente no OpenSpec Markdown (altera texto, prompt, status, assignee, id)
+      updateOpenSpecTask(targetFeature, taskId, markDone, status, cleanAssignee, text, newTaskId);
 
+      const effectiveId = (newTaskId && newTaskId.trim()) ? newTaskId.trim() : taskId;
       const displayStatus = markDone ? 'Concluído' : (status || 'Em Andamento');
       const displayAssignee = cleanAssignee || 'Todos';
 
       sendJSON(res, 200, {
         success: true,
-        message: `Tarefa **${taskId}** atualizada para ${displayStatus} (OpenSpec Git-Native)`,
-        command: `agent atualizar "**${taskId}**" "${displayStatus}" "${displayAssignee}"`
+        message: `Tarefa **${effectiveId}** alterada com sucesso em "${targetFeature}" (OpenSpec Git-Native)`,
+        command: `agent atualizar "**${effectiveId}**" "${displayStatus}" "${displayAssignee}"`
       });
+      return;
+    }
+
+    // API: Delete task
+    if (req.method === 'POST' && pathname === '/api/tasks/delete') {
+      const { feature, taskId } = await parseJSONBody(req);
+      if (!taskId) {
+        sendJSON(res, 400, { success: false, error: 'taskId é obrigatório.' });
+        return;
+      }
+
+      const targetFeature = (feature && feature.trim()) ? feature.trim() : 'tarefas-gerais';
+      const deleted = deleteOpenSpecTask(targetFeature, taskId);
+      if (deleted) {
+        sendJSON(res, 200, {
+          success: true,
+          message: `Tarefa **${taskId}** removida com sucesso de "${targetFeature}" (OpenSpec Git-Native)`
+        });
+      } else {
+        sendJSON(res, 404, { success: false, error: `Tarefa **${taskId}** não encontrada em "${targetFeature}".` });
+      }
       return;
     }
 

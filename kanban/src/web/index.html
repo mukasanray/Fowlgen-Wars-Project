@@ -118,6 +118,17 @@
 
         <!-- TAB 1: GESTÃO DE TAREFAS -->
         <div class="tab-content active" id="tab-content-tasks">
+          <!-- Active Editing Mode Banner -->
+          <div id="task-editing-banner" style="display: none; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; padding: 7px 12px; margin-bottom: 12px; font-size: 12.5px; color: #38bdf8; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span>✏️ Editando Tarefa:</span>
+              <strong id="editing-task-id-label">1.1</strong>
+            </div>
+            <button type="button" id="btn-cancel-task-edit" style="background: none; border: none; color: #cbd5e1; cursor: pointer; font-size: 11px; text-decoration: underline;">
+              ❌ Cancelar Edição
+            </button>
+          </div>
+
           <div class="form-group">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
               <label for="select-feature-task" style="margin-bottom: 0;">Feature / Módulo:</label>
@@ -171,14 +182,17 @@
             <button class="btn btn-primary" id="btn-action-create-task" title="Criar nova tarefa no tasks.md">
               ➕ Criar Tarefa
             </button>
-            <button class="btn btn-success" id="btn-action-update-task" title="Atualizar status e responsável">
-              🔄 Atualizar Status
+            <button class="btn btn-success" id="btn-action-update-task" title="Salvar alterações na tarefa (texto, prompt, status e responsável)">
+              💾 Salvar Alterações
             </button>
             <button class="btn btn-secondary" id="btn-action-assign-task" title="Atribuir tarefa a uma equipe">
               👤 Atribuir Tarefa
             </button>
             <button class="btn btn-secondary" id="btn-action-list-tasks" title="Listar tarefas da feature">
               📋 Listar Tarefas
+            </button>
+            <button class="btn btn-danger" id="btn-action-delete-task" title="Excluir a tarefa selecionada" style="display: none;">
+              🗑️ Excluir Tarefa
             </button>
           </div>
         </div>

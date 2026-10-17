@@ -33,6 +33,61 @@ const selectTaskStatus = document.getElementById('select-task-status');
 const selectTaskAssignee = document.getElementById('select-task-assignee');
 const inputTaskAssignee = document.getElementById('input-task-assignee') || selectTaskAssignee;
 const inputTaskText = document.getElementById('input-task-text');
+const taskEditingBanner = document.getElementById('task-editing-banner');
+const editingTaskIdLabel = document.getElementById('editing-task-id-label');
+const btnCancelTaskEdit = document.getElementById('btn-cancel-task-edit');
+const btnActionDeleteTask = document.getElementById('btn-action-delete-task');
+let editingTaskInfo = null;
+
+function startEditingTask(featureName, task) {
+  if (!task) return;
+  editingTaskInfo = { feature: featureName, taskId: task.id };
+
+  if (selectFeatureTask) selectFeatureTask.value = featureName || 'tarefas-gerais';
+  if (inputTaskId) inputTaskId.value = task.id || '';
+  if (selectTaskStatus) selectTaskStatus.value = task.done ? 'Concluído' : 'Backlog';
+  if (selectTaskAssignee) {
+    const rawAss = (task.assignee || 'Todos').trim().replace(/^@/, '');
+    selectTaskAssignee.value = rawAss;
+  }
+
+  const cleanText = (task.text || '').replace(/\(([^)]+)\)|@([\w-]+)|\[([\w-]+)\]/g, '').trim();
+  const fullContent = task.prompt ? `${cleanText}\n${task.prompt}` : cleanText;
+  if (inputTaskText) {
+    inputTaskText.value = fullContent;
+  }
+
+  if (taskEditingBanner) {
+    taskEditingBanner.style.display = 'flex';
+  }
+  if (editingTaskIdLabel) {
+    editingTaskIdLabel.textContent = `${task.id || 'Avulsa'} (${featureName})`;
+  }
+  if (btnActionDeleteTask) {
+    btnActionDeleteTask.style.display = 'inline-flex';
+  }
+
+  const btnTabTasks = document.querySelector('.tab-btn[data-tab="tasks"]');
+  if (btnTabTasks) btnTabTasks.click();
+
+  if (inputTaskText) {
+    inputTaskText.focus();
+  }
+
+  const sidebar = document.querySelector('.control-panel');
+  if (sidebar) sidebar.scrollTo({ top: 0, behavior: 'smooth' });
+
+  showToast(`Tarefa ${task.id} carregada no formulário para alteração!`, 'info');
+}
+
+function cancelEditingTask() {
+  editingTaskInfo = null;
+  if (taskEditingBanner) taskEditingBanner.style.display = 'none';
+  if (btnActionDeleteTask) btnActionDeleteTask.style.display = 'none';
+  if (inputTaskId) inputTaskId.value = '';
+  if (inputTaskText) inputTaskText.value = '';
+  showToast('Modo de alteração cancelado.', 'info');
+}
 
 const inputIdeaTitle = document.getElementById('input-idea-title');
 const inputIdeaId = document.getElementById('input-idea-id');
@@ -255,7 +310,7 @@ function updateCommandPreview(customCmd = null) {
   });
 
 // Clipboard Copy com validação para nunca copiar placeholders
-document.getElementById('btn-copy-command').addEventListener('click', async () => {
+document.getElementById('btn-copy-command')?.addEventListener('click', async () => {
   if (lastGeneratedCommand.includes('[informe-o-titulo-ou-id]') || lastGeneratedCommand.includes('<id>')) {
     showToast('⚠️ Preencha o Título ou ID da ideia antes de copiar o comando!', 'warning');
     if (inputIdeaTitle) inputIdeaTitle.focus();
@@ -278,8 +333,8 @@ document.getElementById('btn-copy-command').addEventListener('click', async () =
 });
 
 // Clear Log
-document.getElementById('btn-clear-log').addEventListener('click', () => {
-  executionLog.textContent = '';
+document.getElementById('btn-clear-log')?.addEventListener('click', () => {
+  if (executionLog) executionLog.textContent = '';
 });
 
 // Fetch Git Info & Branches
@@ -1320,12 +1375,15 @@ function createFeatureCard(feature) {
       ? `<span title="${escapeHtml(t.prompt)}" style="font-size: 10px; color: #c084fc; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); padding: 1px 5px; border-radius: 8px; margin-left: 4px; cursor: help;">💬 Prompt</span>`
       : '';
     return `
-    <label class="task-item ${t.done ? 'done' : ''}">
-      <input type="checkbox" ${t.done ? 'checked' : ''} ${feature.isFromGitBranch ? 'disabled title="Modo Histórico da branch (somente leitura)"' : ''} data-feature="${feature.name}" data-task-id="${t.id}" class="task-checkbox">
-      <span><strong>${t.id ? '**' + t.id + '**' : ''}</strong> ${cleanText || t.text}</span>
-      ${promptBadge}
-      ${showAssignee ? `<span style="font-size: 10px; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); padding: 1px 6px; border-radius: 10px; margin-left: 6px; white-space: nowrap;">👤 ${t.assignee}</span>` : ''}
-    </label>
+    <div class="task-item-row" style="display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 2px;">
+      <label class="task-item ${t.done ? 'done' : ''}" style="margin-bottom: 0; flex: 1; min-width: 0; display: flex; align-items: center;">
+        <input type="checkbox" ${t.done ? 'checked' : ''} ${feature.isFromGitBranch ? 'disabled title="Modo Histórico da branch (somente leitura)"' : ''} data-feature="${feature.name}" data-task-id="${t.id}" class="task-checkbox">
+        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><strong>${t.id ? '**' + t.id + '**' : ''}</strong> ${cleanText || t.text}</span>
+        ${promptBadge}
+        ${showAssignee ? `<span style="font-size: 10px; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); padding: 1px 6px; border-radius: 10px; margin-left: 4px; white-space: nowrap;">👤 ${t.assignee}</span>` : ''}
+      </label>
+      ${!feature.isFromGitBranch ? `<button type="button" class="btn-task-quick-edit" title="Alterar esta tarefa no formulário" data-task-id="${t.id}" style="background: none; border: none; color: #38bdf8; font-size: 11px; cursor: pointer; padding: 2px 4px; opacity: 0.75;">✏️</button>` : ''}
+    </div>
     `;
   }).join('');
 
@@ -1373,6 +1431,19 @@ function createFeatureCard(feature) {
       const tId = e.target.getAttribute('data-task-id');
       const isDone = e.target.checked;
       await updateTaskStatusDirect(featName, tId, isDone);
+    });
+  });
+
+  // Task Quick Edit Button
+  card.querySelectorAll('.btn-task-quick-edit').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const tId = btn.getAttribute('data-task-id');
+      const targetTask = feature.tasks.find(x => x.id === tId);
+      if (targetTask) {
+        startEditingTask(feature.name, targetTask);
+      }
     });
   });
 
@@ -1480,17 +1551,92 @@ document.querySelectorAll('.btn-prompt-chip').forEach(btn => {
   });
 });
 
-// 2. Atualizar Tarefa: agent atualizar "**2.1**" "Concluído" "João"
+// 2. Alterar / Atualizar Tarefa: agent atualizar "**2.1**" "Concluído" "João"
 document.getElementById('btn-action-update-task').addEventListener('click', async () => {
   const feature = (selectFeatureTask?.value || '').trim() || 'tarefas-gerais';
-  const taskId = inputTaskId.value.trim() || '1.1';
+  const originalTaskId = editingTaskInfo ? editingTaskInfo.taskId : inputTaskId.value.trim();
+  const newTaskId = inputTaskId.value.trim();
+  const taskId = originalTaskId || newTaskId;
+
+  if (!taskId) {
+    showToast('Informe ou selecione o ID da tarefa que deseja alterar (ex: 1.1)', 'warning');
+    inputTaskId?.focus();
+    return;
+  }
+
+  const text = inputTaskText ? inputTaskText.value.trim() : '';
   const status = selectTaskStatus.value;
   const assignee = (selectTaskAssignee?.value || inputTaskAssignee?.value || '').trim();
-  const cmd = `agent atualizar "**${taskId}**" "${status}" "${assignee || 'Todos'}"`;
+  const isDone = status === 'Concluído';
+
+  const cmd = `agent atualizar "**${newTaskId || taskId}**" "${status}" "${assignee || 'Todos'}"`;
   updateCommandPreview(cmd);
 
-  await updateTaskStatusDirect(feature, taskId, status === 'Concluído', (assignee && assignee !== 'Todos') ? assignee : undefined);
+  try {
+    const res = await fetch('/api/tasks/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        feature,
+        taskId,
+        newTaskId: (newTaskId && newTaskId !== taskId) ? newTaskId : undefined,
+        text,
+        status,
+        assignee: (assignee && assignee !== 'Todos') ? assignee : undefined,
+        done: isDone
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      appendLog(data.message);
+      cancelEditingTask();
+      await fetchFeatures();
+    } else {
+      showToast(data.error || 'Erro ao alterar tarefa', 'error');
+    }
+  } catch {
+    showToast('Não foi possível conectar ao servidor local', 'error');
+  }
 });
+
+// Botão Cancelar Edição no formulário
+if (btnCancelTaskEdit) {
+  btnCancelTaskEdit.addEventListener('click', cancelEditingTask);
+}
+
+// Botão Excluir Tarefa
+if (btnActionDeleteTask) {
+  btnActionDeleteTask.addEventListener('click', async () => {
+    const feature = (selectFeatureTask?.value || '').trim() || 'tarefas-gerais';
+    const taskId = editingTaskInfo ? editingTaskInfo.taskId : inputTaskId.value.trim();
+    if (!taskId) {
+      showToast('Nenhuma tarefa selecionada para exclusão', 'warning');
+      return;
+    }
+    if (!confirm(`Deseja realmente excluir a tarefa "${taskId}" do arquivo tasks.md?`)) {
+      return;
+    }
+    try {
+      const res = await fetch('/api/tasks/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ feature, taskId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, 'success');
+        appendLog(data.message);
+        cancelEditingTask();
+        await fetchFeatures();
+      } else {
+        showToast(data.error || 'Erro ao excluir tarefa', 'error');
+      }
+    } catch {
+      showToast('Erro de conexão ao excluir tarefa', 'error');
+    }
+  });
+}
 
 // 3. Atribuir Tarefa: agent atribuir "**2.1**" "Equipe de Backend"
 document.getElementById('btn-action-assign-task').addEventListener('click', async () => {
@@ -1520,8 +1666,8 @@ document.getElementById('btn-action-assign-task').addEventListener('click', asyn
 });
 
 // 4. Listar Tarefas: agent listar openspec/changes/*/tasks.md
-document.getElementById('btn-action-list-tasks').addEventListener('click', () => {
-  const feature = selectFeatureTask.value || '*';
+document.getElementById('btn-action-list-tasks')?.addEventListener('click', () => {
+  const feature = selectFeatureTask?.value || '*';
   const cmd = `agent listar openspec/changes/${feature}/tasks.md`;
   updateCommandPreview(cmd);
   fetchFeatures();
@@ -1565,7 +1711,7 @@ document.getElementById('btn-action-generate-ai')?.addEventListener('click', asy
 });
 
 // 5. Nova Feature Completa: agent criar openspec/changes/<id>/proposal.md "# Feature: ..."
-document.getElementById('btn-action-new-feature').addEventListener('click', async () => {
+document.getElementById('btn-action-new-feature')?.addEventListener('click', async () => {
   const featureId = resolveTargetIdeaId();
   const title = (inputIdeaTitle ? inputIdeaTitle.value.trim() : '') || (featureId ? featureId.replace(/-/g, ' ') : '');
   const promptText = inputIdeaPrompt ? inputIdeaPrompt.value.trim() : '';
@@ -1605,7 +1751,7 @@ document.getElementById('btn-action-new-feature').addEventListener('click', asyn
 });
 
 // 6. Validar Ideia: agent validar ideia "sistema-ouro"
-document.getElementById('btn-action-validate-idea').addEventListener('click', async () => {
+document.getElementById('btn-action-validate-idea')?.addEventListener('click', async () => {
   const ideaId = resolveTargetIdeaId();
 
   if (!ideaId) {
@@ -1637,7 +1783,7 @@ document.getElementById('btn-action-validate-idea').addEventListener('click', as
 });
 
 // 7. Aprovar Ideia: agent aprovar ideia "sistema-ouro" "Todos"
-document.getElementById('btn-action-approve-idea').addEventListener('click', async () => {
+document.getElementById('btn-action-approve-idea')?.addEventListener('click', async () => {
   const ideaId = resolveTargetIdeaId();
 
   if (!ideaId) {
@@ -1670,7 +1816,7 @@ document.getElementById('btn-action-approve-idea').addEventListener('click', asy
 });
 
 // 8. Rejeitar Ideia: agent rejeitar ideia "sistema-ouro" "Sem valor"
-document.getElementById('btn-action-reject-idea').addEventListener('click', async () => {
+document.getElementById('btn-action-reject-idea')?.addEventListener('click', async () => {
   const ideaId = resolveTargetIdeaId();
 
   if (!ideaId) {
@@ -1818,27 +1964,27 @@ document.getElementById('tab-btn-dash-md')?.addEventListener('click', () => {
 });
 
 // Kanban automation script buttons
-document.getElementById('btn-script-sync').addEventListener('click', () => runScriptAPI('sync'));
-document.getElementById('btn-sync-top').addEventListener('click', () => runScriptAPI('sync'));
-document.getElementById('btn-script-dashboard').addEventListener('click', async () => {
+document.getElementById('btn-script-sync')?.addEventListener('click', () => runScriptAPI('sync'));
+document.getElementById('btn-sync-top')?.addEventListener('click', () => runScriptAPI('sync'));
+document.getElementById('btn-script-dashboard')?.addEventListener('click', async () => {
   await runScriptAPI('dashboard');
   await fetchFeatures();
   setBoardView('analytics');
   showToast('Dashboard gerado e exibido na aba Analytics!', 'success');
 });
-document.getElementById('btn-script-verify').addEventListener('click', () => runScriptAPI('verify'));
-document.getElementById('btn-script-status').addEventListener('click', () => runScriptAPI('status'));
-document.getElementById('btn-refresh').addEventListener('click', () => {
+document.getElementById('btn-script-verify')?.addEventListener('click', () => runScriptAPI('verify'));
+document.getElementById('btn-script-status')?.addEventListener('click', () => runScriptAPI('status'));
+document.getElementById('btn-refresh')?.addEventListener('click', () => {
   fetchFeatures();
   showToast('Quadro atualizado!', 'success');
 });
 
 // Execute Local Button
-document.getElementById('btn-execute-local').addEventListener('click', () => {
+document.getElementById('btn-execute-local')?.addEventListener('click', () => {
   if (activeTab === 'tasks') {
-    document.getElementById('btn-action-update-task').click();
+    document.getElementById('btn-action-update-task')?.click();
   } else if (activeTab === 'ideas') {
-    document.getElementById('btn-action-validate-idea').click();
+    document.getElementById('btn-action-validate-idea')?.click();
   } else {
     runScriptAPI('sync');
   }
@@ -2859,18 +3005,150 @@ function renderDetailTasksList(feature) {
         </div>`
       : '';
 
+    const fullTextContent = t.prompt ? `${cleanText}\n${t.prompt}` : cleanText;
+
     card.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
         <label class="detail-task-label" style="flex: 1;">
           <input type="checkbox" ${t.done ? 'checked' : ''} ${feature.isFromGitBranch ? 'disabled' : ''} class="detail-task-chk" data-task-id="${t.id}">
           <span><strong>${t.id ? '**' + t.id + '**' : ''}</strong> ${cleanText || t.text}</span>
         </label>
-        <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
           ${assigneeHtml}
+          ${!feature.isFromGitBranch ? `
+            <button type="button" class="btn-detail-edit-task" title="Alterar esta tarefa" style="background: none; border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; border-radius: 4px; padding: 2px 7px; font-size: 11px; cursor: pointer;">✏️ Alterar</button>
+            <button type="button" class="btn-detail-del-task" title="Excluir tarefa" style="background: none; border: 1px solid rgba(239, 68, 68, 0.35); color: #f87171; border-radius: 4px; padding: 2px 6px; font-size: 11px; cursor: pointer;">🗑️</button>
+          ` : ''}
         </div>
       </div>
       ${promptHtml}
+
+      <!-- Inline Task Editor Container -->
+      <div class="inline-task-edit-box" style="display: none; margin-top: 10px; padding: 12px; background: rgba(10, 15, 26, 0.85); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px;">
+        <div style="font-size: 12px; font-weight: 700; color: #38bdf8; margin-bottom: 8px;">✏️ Alterar Tarefa</div>
+        <div class="form-row" style="margin-bottom: 8px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size: 11px;">ID da Tarefa:</label>
+            <input type="text" class="form-input form-input-sm edit-id-input" value="${escapeHtml(t.id)}">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size: 11px;">Responsável:</label>
+            <select class="form-select form-select-sm edit-assignee-select"></select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label style="font-size: 11px;">Descrição da Tarefa / Prompt:</label>
+          <textarea class="form-textarea form-textarea-sm edit-text-input" rows="3" style="min-height: 70px; resize: vertical;">${escapeHtml(fullTextContent)}</textarea>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            <input type="checkbox" class="edit-done-chk" ${t.done ? 'checked' : ''}>
+            <span>Marcar como Concluído</span>
+          </label>
+          <div style="display: flex; gap: 6px;">
+            <button type="button" class="btn btn-secondary btn-sm btn-inline-cancel" style="padding: 4px 10px; font-size: 11px;">❌ Cancelar</button>
+            <button type="button" class="btn btn-primary btn-sm btn-inline-save" style="padding: 4px 12px; font-size: 11px;">💾 Salvar</button>
+          </div>
+        </div>
+      </div>
     `;
+
+    // Populate members in inline editor select
+    const editSelect = card.querySelector('.edit-assignee-select');
+    if (editSelect) {
+      editSelect.innerHTML = `<option value="Todos">👥 Todos</option>`;
+      const activeMembers = teamMembers.filter(m => isMemberActive(m.name));
+      activeMembers.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.name;
+        opt.textContent = m.name;
+        if (t.assignee && (t.assignee.toLowerCase() === m.name.toLowerCase() || t.assignee.toLowerCase() === m.id.toLowerCase())) {
+          opt.selected = true;
+        }
+        editSelect.appendChild(opt);
+      });
+    }
+
+    // Toggle inline editor
+    const editBox = card.querySelector('.inline-task-edit-box');
+    card.querySelector('.btn-detail-edit-task')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      editBox.style.display = editBox.style.display === 'none' ? 'block' : 'none';
+    });
+    card.querySelector('.btn-inline-cancel')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      editBox.style.display = 'none';
+    });
+
+    // Save inline edit
+    card.querySelector('.btn-inline-save')?.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const newId = card.querySelector('.edit-id-input')?.value.trim();
+      const newAssignee = card.querySelector('.edit-assignee-select')?.value;
+      const newText = card.querySelector('.edit-text-input')?.value.trim();
+      const isDone = card.querySelector('.edit-done-chk')?.checked;
+
+      if (!newText) {
+        showToast('A descrição da tarefa não pode ficar vazia', 'warning');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/tasks/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            feature: feature.name,
+            taskId: t.id,
+            newTaskId: newId !== t.id ? newId : undefined,
+            text: newText,
+            assignee: (newAssignee && newAssignee !== 'Todos') ? newAssignee : undefined,
+            done: isDone
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          appendLog(data.message);
+          await fetchFeatures();
+          const updatedFeat = currentFeatures.find(f => f.name === feature.name);
+          if (updatedFeat) {
+            openFeatureDetailsModal(updatedFeat, 'tasks');
+          }
+        } else {
+          showToast(data.error || 'Erro ao alterar tarefa', 'error');
+        }
+      } catch {
+        showToast('Erro de conexão ao alterar tarefa', 'error');
+      }
+    });
+
+    // Delete task from modal
+    card.querySelector('.btn-detail-del-task')?.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (!confirm(`Deseja realmente excluir a tarefa "${t.id}"?`)) return;
+      try {
+        const res = await fetch('/api/tasks/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ feature: feature.name, taskId: t.id })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          appendLog(data.message);
+          await fetchFeatures();
+          const updatedFeat = currentFeatures.find(f => f.name === feature.name);
+          if (updatedFeat) {
+            openFeatureDetailsModal(updatedFeat, 'tasks');
+          }
+        } else {
+          showToast(data.error || 'Erro ao excluir tarefa', 'error');
+        }
+      } catch {
+        showToast('Erro de conexão ao excluir tarefa', 'error');
+      }
+    });
 
     card.querySelector('.btn-copy-prompt')?.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -3154,7 +3432,7 @@ window.addEventListener('keydown', (e) => {
 });
 
 // Initialize on Load
-window.addEventListener('DOMContentLoaded', () => {
+function initApp() {
   try {
     const savedSidebarState = localStorage.getItem('kanban_sidebar_collapsed');
     if (savedSidebarState === 'true') {
@@ -3168,7 +3446,13 @@ window.addEventListener('DOMContentLoaded', () => {
   fetchFeatures();
   loadConfig();
   updateCommandPreview();
-});
+}
+
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 
 
