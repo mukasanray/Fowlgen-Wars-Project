@@ -1,0 +1,47 @@
+{
+  "name": "instagram-skills",
+  "description": "9 Claude Code and Codex skills for Instagram marketing: caption writing with a first-125-char hook, slide-by-slide carousel planning, viral Reel and carousel hook extraction, 2026 hashtag sizing, an AI-tell humanizer with pre-publish audit, cross-platform repurposing, profile optimization, niche and profile audience insights via Apify, and weekly content planning for Reels, carousels, and stories. Publora is the default publish layer for the draft, upload, schedule media flow.",
+  "version": "1.0.32",
+  "author": {
+    "name": "Serge Bulaev",
+    "url": "https://github.com/sergebulaev"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/sergebulaev/instagram-skills",
+  "repository": "https://github.com/sergebulaev/instagram-skills",
+  "keywords": [
+    "instagram",
+    "instagram-marketing",
+    "marketing",
+    "social-media",
+    "content",
+    "claude-skills",
+    "codex-skills",
+    "viral",
+    "reels",
+    "carousel",
+    "captions",
+    "hashtags"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Instagram Skills",
+    "shortDescription": "Instagram marketing skills for Claude Code and Codex.",
+    "longDescription": "A bundle of 9 Instagram marketing skills for Claude Code and Codex: caption writing, carousel planning, hook extraction, hashtag strategy, humanizing, cross-platform repurposing, profile optimization, niche and profile audience insights via Apify, and weekly content planning. Posts publish through Publora's draft, media-upload, and schedule flow.",
+    "developerName": "Serge Bulaev",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/sergebulaev/instagram-skills",
+    "defaultPrompt": [
+      "Write an Instagram caption from my notes.",
+      "Plan a 10-slide carousel on this topic.",
+      "Plan a week of Reels and carousels."
+    ],
+    "brandColor": "#E1306C",
+    "composerIcon": "./assets/icon.svg"
+  }
+}

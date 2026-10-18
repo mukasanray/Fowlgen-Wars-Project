@@ -1,0 +1,39 @@
+{
+  "name": "instagram-skills",
+  "owner": {
+    "name": "Serge Bulaev",
+    "url": "https://github.com/sergebulaev"
+  },
+  "metadata": {
+    "description": "Claude Code and Codex skills for Instagram growth: caption writing with a first-125-char hook, slide-by-slide carousel planning, viral Reel and carousel hook extraction, 2026 hashtag sizing, an AI-tell humanizer with bundled pre-publish audit, and weekly content planning. Posts publish through the Publora API media flow."
+  },
+  "plugins": [
+    {
+      "name": "instagram-skills",
+      "source": "./",
+      "description": "Bundle of 9 Instagram marketing skills for Claude Code and Codex with Instagram-native hook formulas, caption writing that front-loads the first 125 chars, a 10-slide carousel planner, viral hook extraction, 2026 hashtag sizing, a unified humanizer (rewrite plus pre-publish audit), cross-platform repurposing, a profile optimizer, an Apify-powered niche and profile audience insights reader, and a weekly Reels and carousel planner. Posts ship via Publora's draft, upload, schedule media flow.",
+      "version": "1.0.32",
+      "author": {
+        "name": "Serge Bulaev",
+        "url": "https://github.com/sergebulaev"
+      },
+      "homepage": "https://github.com/sergebulaev/instagram-skills",
+      "license": "MIT",
+      "keywords": [
+        "instagram",
+        "instagram-marketing",
+        "marketing",
+        "social-media",
+        "content-creation",
+        "claude-skills",
+        "codex-skills",
+        "anthropic",
+        "reels",
+        "carousel",
+        "captions",
+        "hashtags"
+      ],
+      "category": "productivity"
+    }
+  ]
+}
