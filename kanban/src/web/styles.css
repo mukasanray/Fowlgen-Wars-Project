@@ -982,7 +982,8 @@ body[data-theme="light"] .btn-reset-repo:hover {
   background: var(--bg-input-focus);
 }
 
-.multi-select-trigger.has-error {
+.multi-select-trigger.has-error,
+.form-select.has-error {
   border-color: var(--accent-rose, #f43f5e) !important;
   box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.25) !important;
   animation: multiSelectShake 0.3s ease-in-out;

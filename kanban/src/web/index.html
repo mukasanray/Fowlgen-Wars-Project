@@ -167,9 +167,9 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="select-task-directory">Projeto / Diretório:</label>
-              <select class="form-select" id="select-task-directory">
-                <option value="">📂 Automático (Herdar da Feature)</option>
+              <label for="select-task-directory">Projeto / Diretório: <span style="color: #f43f5e;">*</span></label>
+              <select class="form-select" id="select-task-directory" required>
+                <option value="" disabled selected>📁 Selecione o Projeto / Diretório... *</option>
               </select>
             </div>
             <div class="form-group">
@@ -276,9 +276,9 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="select-idea-directory">Projeto / Diretório:</label>
-              <select class="form-select" id="select-idea-directory">
-                <option value="geral">📂 Geral (Raiz do Projeto)</option>
+              <label for="select-idea-directory">Projeto / Diretório: <span style="color: #f43f5e;">*</span></label>
+              <select class="form-select" id="select-idea-directory" required>
+                <option value="" disabled selected>📁 Selecione o Projeto / Diretório... *</option>
               </select>
             </div>
             <div class="form-group">
@@ -1205,9 +1205,9 @@
                 <select class="form-select" id="detail-new-task-assignee"></select>
               </div>
               <div class="form-group" style="margin-bottom: 8px; flex: 1.3;">
-                <label for="detail-new-task-directory" style="font-size: 12px;">Projeto / Diretório:</label>
-                <select class="form-select" id="detail-new-task-directory">
-                  <option value="">📂 Herdar da Feature</option>
+                <label for="detail-new-task-directory" style="font-size: 12px;">Projeto / Diretório: <span style="color: #f43f5e;">*</span></label>
+                <select class="form-select" id="detail-new-task-directory" required>
+                  <option value="" disabled selected>📁 Selecione o Projeto / Diretório... *</option>
                 </select>
               </div>
             </div>

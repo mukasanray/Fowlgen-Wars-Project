@@ -349,7 +349,10 @@ function clearTaskForm(silent = true) {
   if (inputTaskId) inputTaskId.value = '';
   if (inputTaskText) inputTaskText.value = '';
   if (selectTaskStatus) selectTaskStatus.value = 'Backlog';
-  if (selectTaskDirectory) selectTaskDirectory.value = '';
+  if (selectTaskDirectory) {
+    selectTaskDirectory.value = '';
+    selectTaskDirectory.classList.remove('has-error');
+  }
   updateTaskDirectoryPlaceholder();
   selectedTaskAssignees = [];
   if (selectTaskAssignee) selectTaskAssignee.value = '';
@@ -386,7 +389,10 @@ function clearIdeaForm(silent = true) {
   if (inputIdeaTitle) inputIdeaTitle.value = '';
   if (inputIdeaId) inputIdeaId.value = '';
   if (inputIdeaPrompt) inputIdeaPrompt.value = '';
-  if (selectIdeaDirectory) selectIdeaDirectory.value = 'geral';
+  if (selectIdeaDirectory) {
+    selectIdeaDirectory.value = '';
+    selectIdeaDirectory.classList.remove('has-error');
+  }
   if (selectIdeaTeam) selectIdeaTeam.value = 'Todos';
   if (inputIdeaTeam && inputIdeaTeam !== selectIdeaTeam) inputIdeaTeam.value = 'Todos';
   if (inputIdeaReason) inputIdeaReason.value = '';
@@ -1222,16 +1228,9 @@ function updateFeatureSelect(features) {
 
 function updateTaskDirectoryPlaceholder() {
   if (!selectTaskDirectory || !selectTaskDirectory.options || selectTaskDirectory.options.length === 0) return;
-  const featName = selectFeatureTask?.value || 'tarefas-gerais';
-  const feat = currentFeatures?.find(f => f.name === featName);
   const firstOpt = selectTaskDirectory.options[0];
   if (firstOpt) {
-    if (feat && feat.directory && feat.directory !== 'geral') {
-      const dirObj = projectDirectories?.find(d => d.id === feat.directory);
-      firstOpt.textContent = `📂 Automático (Herdar da Feature: ${dirObj ? dirObj.name : feat.directory})`;
-    } else {
-      firstOpt.textContent = '📂 Automático (Herdar da Feature)';
-    }
+    firstOpt.textContent = '📁 Selecione o Projeto / Diretório... *';
   }
 }
 
@@ -2490,9 +2489,19 @@ document.getElementById('btn-action-create-task').addEventListener('click', asyn
     return;
   }
 
+  // Validação obrigatória: Projeto / Diretório é obrigatório!
+  const directory = selectTaskDirectory?.value || '';
+  if (!directory) {
+    showToast('⚠️ Selecione o Projeto / Diretório da tarefa!', 'warning');
+    if (selectTaskDirectory) {
+      selectTaskDirectory.classList.add('has-error');
+      selectTaskDirectory.focus();
+    }
+    return;
+  }
+
   const assignee = selectedTaskAssignees.join(', ');
   const status = selectTaskStatus?.value || 'Backlog';
-  const directory = selectTaskDirectory?.value || '';
   const dirTag = directory ? `(${directory}/) ` : '';
   const assigneeTag = ` (@${selectedTaskAssignees.join(', @')})`;
   const firstLine = text.split(/\r?\n/)[0].trim().replace(/^\s*\([^)]+\/\)\s*/i, '');
@@ -2770,11 +2779,21 @@ document.getElementById('btn-action-new-feature')?.addEventListener('click', asy
   const title = (inputIdeaTitle ? inputIdeaTitle.value.trim() : '') || (featureId ? featureId.replace(/-/g, ' ') : '');
   const promptText = inputIdeaPrompt ? inputIdeaPrompt.value.trim() : '';
   const team = (selectIdeaTeam ? selectIdeaTeam.value : 'Todos') || 'Todos';
-  const directory = (selectIdeaDirectory ? selectIdeaDirectory.value : 'geral') || 'geral';
+  const directory = selectIdeaDirectory ? selectIdeaDirectory.value : '';
 
   if (!featureId) {
     showToast('⚠️ Informe o Título ou o ID da nova feature antes de criar!', 'warning');
     if (inputIdeaTitle) inputIdeaTitle.focus();
+    return;
+  }
+
+  // Validação obrigatória: Projeto / Diretório é obrigatório!
+  if (!directory) {
+    showToast('⚠️ Selecione o Projeto / Diretório da nova feature!', 'warning');
+    if (selectIdeaDirectory) {
+      selectIdeaDirectory.classList.add('has-error');
+      selectIdeaDirectory.focus();
+    }
     return;
   }
 
@@ -3525,41 +3544,63 @@ async function fetchDirectories() {
 function populateDirectorySelects() {
   if (selectTaskDirectory) {
     const curVal = selectTaskDirectory.value;
-    selectTaskDirectory.innerHTML = '<option value="">📂 Automático (Herdar da Feature)</option>';
+    selectTaskDirectory.innerHTML = '<option value="" disabled selected>📁 Selecione o Projeto / Diretório... *</option>';
     projectDirectories.forEach(dir => {
       const opt = document.createElement('option');
       opt.value = dir.id;
       opt.textContent = `${dir.icon || '📁'} ${dir.name}`;
       selectTaskDirectory.appendChild(opt);
     });
+    if (!projectDirectories.some(d => d.id.toLowerCase() === 'geral')) {
+      const optGeral = document.createElement('option');
+      optGeral.value = 'geral';
+      optGeral.textContent = '📁 Geral / Raiz';
+      selectTaskDirectory.appendChild(optGeral);
+    }
     if (curVal) selectTaskDirectory.value = curVal;
     updateTaskDirectoryPlaceholder();
   }
 
   if (selectIdeaDirectory) {
-    const curVal = selectIdeaDirectory.value || 'geral';
-    selectIdeaDirectory.innerHTML = '<option value="geral">📂 Geral (Raiz do Projeto)</option>';
+    const curVal = selectIdeaDirectory.value;
+    selectIdeaDirectory.innerHTML = '<option value="" disabled selected>📁 Selecione o Projeto / Diretório... *</option>';
     projectDirectories.forEach(dir => {
       const opt = document.createElement('option');
       opt.value = dir.id;
       opt.textContent = `${dir.icon || '📁'} ${dir.name}`;
       selectIdeaDirectory.appendChild(opt);
     });
-    selectIdeaDirectory.value = curVal;
+    if (!projectDirectories.some(d => d.id.toLowerCase() === 'geral')) {
+      const optGeral = document.createElement('option');
+      optGeral.value = 'geral';
+      optGeral.textContent = '📁 Geral / Raiz';
+      selectIdeaDirectory.appendChild(optGeral);
+    }
+    if (curVal) selectIdeaDirectory.value = curVal;
   }
 
   if (detailNewTaskDirectory) {
     const curVal = detailNewTaskDirectory.value;
-    detailNewTaskDirectory.innerHTML = '<option value="">📂 Herdar da Feature</option>';
+    detailNewTaskDirectory.innerHTML = '<option value="" disabled selected>📁 Selecione o Projeto / Diretório... *</option>';
     projectDirectories.forEach(dir => {
       const opt = document.createElement('option');
       opt.value = dir.id;
       opt.textContent = `${dir.icon || '📁'} ${dir.name}`;
       detailNewTaskDirectory.appendChild(opt);
     });
+    if (!projectDirectories.some(d => d.id.toLowerCase() === 'geral')) {
+      const optGeral = document.createElement('option');
+      optGeral.value = 'geral';
+      optGeral.textContent = '📁 Geral / Raiz';
+      detailNewTaskDirectory.appendChild(optGeral);
+    }
     if (curVal) detailNewTaskDirectory.value = curVal;
   }
 }
+
+selectTaskDirectory?.addEventListener('change', () => selectTaskDirectory.classList.remove('has-error'));
+selectIdeaDirectory?.addEventListener('change', () => selectIdeaDirectory.classList.remove('has-error'));
+detailNewTaskDirectory?.addEventListener('change', () => detailNewTaskDirectory.classList.remove('has-error'));
 
 function renderDirectoryFilterPills() {
   if (!directoryFilterPillsContainer) return;
@@ -4949,6 +4990,16 @@ btnDetailAddTask?.addEventListener('click', async () => {
   if (!text) {
     showToast('Informe a descrição da nova tarefa', 'warning');
     detailNewTaskText?.focus();
+    return;
+  }
+
+  // Validação obrigatória: Projeto / Diretório é obrigatório!
+  if (!directory) {
+    showToast('⚠️ Selecione o Projeto / Diretório da tarefa!', 'warning');
+    if (detailNewTaskDirectory) {
+      detailNewTaskDirectory.classList.add('has-error');
+      detailNewTaskDirectory.focus();
+    }
     return;
   }
 
