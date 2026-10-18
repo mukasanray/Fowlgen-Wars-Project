@@ -444,8 +444,47 @@ async function runAllTests() {
     assert(resGithubSync.json.repo === 'mukasanray/Fowlgen-Wars-Project', 'Sincronização configurada para o repositório correto mukasanray/Fowlgen-Wars-Project');
     assert(typeof resGithubSync.json.output === 'string' && resGithubSync.json.output.includes('Kanban sincronizado com sucesso'), 'Saída do orquestrador confirma sincronização com sucesso');
 
-    // 15. Clean Up Test Feature
-    console.log('\n--- 15. Limpeza do Ambiente de Teste ---');
+    // 15. Test Card Tasks Scrolling & Directory / Site Change in Card
+    console.log('\n--- 15. Alteração de Diretório / Site no Card e Rolagem de Tarefas ---');
+    const resSetDirApp = await request({
+      path: '/api/features/directory',
+      method: 'POST'
+    }, {
+      featureId: testFeatureId,
+      directory: 'app'
+    });
+    assert(resSetDirApp.status === 200 && resSetDirApp.json && resSetDirApp.json.success, 'POST /api/features/directory define projeto da feature para "app"');
+    assert(resSetDirApp.json.directory === 'app', 'Resposta confirma directory="app"');
+
+    // Valida reflexo em GET /api/features
+    const resFeatDir1 = await request({ path: '/api/features' });
+    const fDir1 = resFeatDir1.json.features.find(f => f.name === testFeatureId);
+    assert(fDir1 && fDir1.directory === 'app', 'GET /api/features reflete diretório "app" na feature');
+
+    // Altera novamente para "unity"
+    const resSetDirUnity = await request({
+      path: '/api/features/directory',
+      method: 'POST'
+    }, {
+      feature: testFeatureId,
+      directory: 'unity'
+    });
+    assert(resSetDirUnity.status === 200 && resSetDirUnity.json && resSetDirUnity.json.success, 'POST /api/features/directory aceita alteração para "unity"');
+
+    const resFeatDir2 = await request({ path: '/api/features' });
+    const fDir2 = resFeatDir2.json.features.find(f => f.name === testFeatureId);
+    assert(fDir2 && fDir2.directory === 'unity', 'GET /api/features reflete novo diretório "unity"');
+
+    // Validações de UI (HTML/CSS/JS) para rolagem de tarefas e botão de diretório no card
+    assert(resStylesCss.data.includes('.card-tasks {') && resStylesCss.data.includes('overflow-y: auto'), 'styles.css configura overflow-y: auto na lista de tarefas do card');
+    assert(resStylesCss.data.includes('.btn-card-directory'), 'styles.css define estilos para botão de projeto/diretório no card');
+    assert(resStylesCss.data.includes('.card-dir-dropdown-menu'), 'styles.css define menu suspenso de seleção de projeto');
+    assert(resAppJs.data.includes('openCardDirDropdown'), 'app.js implementa abertura de dropdown de projeto no card');
+    assert(resAppJs.data.includes('changeFeatureDirectory'), 'app.js implementa alteração de projeto via API');
+    assert(resAppJs.data.includes('card-tasks-header'), 'app.js inclui cabeçalho de tarefas com indicador de rolagem');
+
+    // 16. Clean Up Test Feature
+    console.log('\n--- 16. Limpeza do Ambiente de Teste ---');
     const repoRoot = path.resolve(__dirname, '..');
     const testFeatureDir = path.join(repoRoot, 'openspec', 'changes', testFeatureId);
     if (fs.existsSync(testFeatureDir)) {

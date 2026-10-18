@@ -2034,13 +2034,116 @@ body[data-theme="light"] .btn-reset-repo:hover {
   transition: width 0.4s ease;
 }
 
-/* Task Checkbox List inside card */
+/* Task Checkbox List inside card (Scrollable) */
 .card-tasks {
   display: flex;
   flex-direction: column;
   gap: 5px;
   border-top: 1px solid var(--border-subtle);
   padding-top: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+  scroll-behavior: smooth;
+}
+
+.card-tasks::-webkit-scrollbar {
+  width: 5px;
+}
+
+.card-tasks::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+}
+
+.card-tasks::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.35);
+  border-radius: 4px;
+}
+
+.card-tasks::-webkit-scrollbar-thumb:hover {
+  background: var(--primary, #0ea5e9);
+}
+
+.card-tasks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10.5px;
+  color: var(--text-muted);
+  padding: 0 2px 4px 2px;
+  border-bottom: 1px dashed var(--border-subtle);
+  margin-bottom: 4px;
+  user-select: none;
+}
+
+/* Card Directory Change Button & Dropdown */
+.btn-card-directory {
+  background: rgba(14, 165, 233, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(14, 165, 233, 0.35);
+  font-size: 10px;
+  cursor: pointer;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.btn-card-directory:hover {
+  background: rgba(14, 165, 233, 0.28);
+  border-color: #38bdf8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(14, 165, 233, 0.25);
+}
+
+.card-dir-dropdown-menu {
+  position: fixed;
+  z-index: 99999;
+  background: var(--bg-card, #1e293b);
+  border: 1px solid var(--border-focus, #38bdf8);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
+  padding: 6px;
+  min-width: 175px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  backdrop-filter: blur(10px);
+  animation: fadeInDown 0.15s ease;
+}
+
+.card-dir-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-main, #f8fafc);
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  text-align: left;
+  width: 100%;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.card-dir-dropdown-item:hover {
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+}
+
+.card-dir-dropdown-item.active {
+  background: rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+  font-weight: 700;
 }
 
 .task-item {

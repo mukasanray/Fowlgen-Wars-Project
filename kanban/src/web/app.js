@@ -2059,11 +2059,21 @@ function createIdeaCard(feature) {
   const title = feature.title || feature.name;
   const summary = feature.summary || 'Proposta de feature para Fowlgen Wars.';
 
+  const curDirIdea = (feature.directory || 'geral').toLowerCase();
+  const dirObjIdea = projectDirectories.find(d => d.id.toLowerCase() === curDirIdea);
+  const dirLabelIdea = dirObjIdea ? `${dirObjIdea.icon || '📁'} ${dirObjIdea.name}` : (feature.directory ? `📁 ${feature.directory}` : '📁 Projeto');
+  const dirButtonHtmlIdea = `
+    <button type="button" class="btn-card-directory" data-feature="${escapeHtml(feature.name)}" title="Clique para alterar o projeto / site desta ideia">
+      <span>${escapeHtml(dirLabelIdea)}</span>
+      <span style="font-size: 8px; opacity: 0.7;">▼</span>
+    </button>
+  `;
+
   card.innerHTML = `
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 6px; flex-wrap: wrap;">
       <span class="card-tag ${tagClass}">${statusEmoji} ${status}</span>
       <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
-        ${feature.directory ? `<span class="badge-tag" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); font-size: 10px;">📁 ${escapeHtml(feature.directory)}</span>` : ''}
+        ${dirButtonHtmlIdea}
         ${assigneeBadge}
         ${modifiedBadge}
       </div>
@@ -2078,6 +2088,12 @@ function createIdeaCard(feature) {
     <div class="card-hover-hint">🔍 Clique para ver os detalhes completos da ideia ("outra tela")</div>
     ${actionButtonsHtml}
   `;
+
+  // Directory button dropdown on idea card
+  card.querySelector('.btn-card-directory')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openCardDirDropdown(e.currentTarget, feature.name, feature.directory);
+  });
 
   // Click card to open Details Modal ("outra tela") and populate form inputs
   card.addEventListener('click', (e) => {
@@ -2205,19 +2221,19 @@ function createFeatureCard(feature) {
     ? activeAssignees.map(a => `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px;">👤 ${a === 'dev-team' ? 'Todos' : a}</span>`).join(' ')
     : `<span class="badge-tag" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; font-size: 10px;">👥 Todos</span>`;
 
-  // Task Items HTML (Prioriza exibição das tarefas que batem com a pesquisa)
-  let displayedTasks = feature.tasks.slice(0, 5);
+  // Task Items HTML (Exibe todas as tarefas com rolagem, priorizando matches de busca)
+  let displayedTasks = feature.tasks ? [...feature.tasks] : [];
   if (kanbanSearchQuery) {
     const q = kanbanSearchQuery;
-    const matching = feature.tasks.filter(t =>
+    const matching = displayedTasks.filter(t =>
       (t.id && t.id.toLowerCase().includes(q)) ||
       (t.text && t.text.toLowerCase().includes(q)) ||
       (t.prompt && t.prompt.toLowerCase().includes(q)) ||
       (t.assignee && t.assignee.toLowerCase().includes(q))
     );
     if (matching.length > 0) {
-      const nonMatching = feature.tasks.filter(t => !matching.includes(t));
-      displayedTasks = [...matching, ...nonMatching].slice(0, Math.max(5, matching.length));
+      const nonMatching = displayedTasks.filter(t => !matching.includes(t));
+      displayedTasks = [...matching, ...nonMatching];
     }
   }
 
@@ -2247,16 +2263,21 @@ function createFeatureCard(feature) {
     `;
   }).join('');
 
-  const dirObj = projectDirectories.find(d => d.id.toLowerCase() === (feature.directory || '').toLowerCase());
-  const dirBadge = feature.directory
-    ? `<span class="badge-tag" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); font-size: 10px;" title="Diretório / Projeto: ${escapeHtml(feature.directory)}">${dirObj?.icon || '📁'} ${escapeHtml(dirObj?.name || feature.directory)}</span>`
-    : '';
+  const curDir = (feature.directory || 'geral').toLowerCase();
+  const dirObj = projectDirectories.find(d => d.id.toLowerCase() === curDir);
+  const dirLabel = dirObj ? `${dirObj.icon || '📁'} ${dirObj.name}` : (feature.directory ? `📁 ${feature.directory}` : '📁 Projeto');
+  const dirButtonHtml = `
+    <button type="button" class="btn-card-directory" data-feature="${escapeHtml(feature.name)}" title="Clique para alterar o projeto / site desta feature">
+      <span>${escapeHtml(dirLabel)}</span>
+      <span style="font-size: 8px; opacity: 0.7;">▼</span>
+    </button>
+  `;
 
   card.innerHTML = `
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 6px; flex-wrap: wrap;">
       <span class="card-tag ${tagClass}">${feature.kanbanColumn}</span>
       <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
-        ${dirBadge}
+        ${dirButtonHtml}
         ${assigneesHtml}
         ${modifiedBadge}
         ${branchBadge}
@@ -2273,15 +2294,31 @@ function createFeatureCard(feature) {
       </div>
     </div>
     <div class="card-tasks">
+      ${feature.tasks && feature.tasks.length > 0 ? `
+        <div class="card-tasks-header">
+          <span>📋 Tarefas (${feature.doneTasks}/${feature.totalTasks})</span>
+          ${feature.tasks.length > 3 ? `<span style="font-size: 10px; opacity: 0.85;">↕️ Role para ver</span>` : ''}
+        </div>
+      ` : ''}
       ${tasksHtml}
-      ${feature.tasks.length > 5 ? `<span style="font-size: 11px; color: var(--text-dim);">+ ${feature.tasks.length - 5} tarefas...</span>` : ''}
     </div>
     <div class="card-hover-hint">🔍 Clique para ver os detalhes da tarefa e proposta ("outra tela")</div>
   `;
 
+  // Previne que cliques/rolagem dentro da lista de tarefas abram o modal
+  card.querySelector('.card-tasks')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  // Dropdown para alterar diretório/projeto
+  card.querySelector('.btn-card-directory')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openCardDirDropdown(e.currentTarget, feature.name, feature.directory);
+  });
+
   // Select feature and open Details Modal on card click
   card.addEventListener('click', (e) => {
-    if (e.target.tagName !== 'INPUT' && !e.target.closest('button')) {
+    if (e.target.tagName !== 'INPUT' && !e.target.closest('button') && !e.target.closest('.card-tasks') && !e.target.closest('.btn-card-directory')) {
       selectFeatureTask.value = feature.name;
       inputIdeaId.value = feature.name;
       inputIdeaTitle.value = feature.title || feature.name;
@@ -3541,6 +3578,138 @@ if (btnSaveNewDirectory) {
   });
 }
 
+// =============================================================
+// DROPDOWN FLUTUANTE PARA ALTERAR DIRETÓRIO / PROJETO NO CARD
+// =============================================================
+let activeCardDirDropdown = null;
+
+function closeCardDirDropdown() {
+  if (activeCardDirDropdown) {
+    activeCardDirDropdown.remove();
+    activeCardDirDropdown = null;
+  }
+}
+
+// Fecha o dropdown ao clicar fora ou pressionar Escape
+document.addEventListener('click', (e) => {
+  if (activeCardDirDropdown && !activeCardDirDropdown.contains(e.target) && !e.target.closest('.btn-card-directory')) {
+    closeCardDirDropdown();
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeCardDirDropdown();
+  }
+});
+
+function openCardDirDropdown(targetBtn, featureName, currentDir) {
+  if (activeCardDirDropdown && activeCardDirDropdown._targetBtn === targetBtn) {
+    closeCardDirDropdown();
+    return;
+  }
+  closeCardDirDropdown();
+
+  const menu = document.createElement('div');
+  menu.className = 'card-dir-dropdown-menu';
+  menu.id = 'card-dir-dropdown';
+  menu._targetBtn = targetBtn;
+
+  // Header do Dropdown
+  const header = document.createElement('div');
+  header.style.cssText = 'font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dim); padding: 4px 8px 6px 8px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 4px;';
+  header.textContent = 'Mudar Projeto / Site';
+  menu.appendChild(header);
+
+  const curDirNorm = (currentDir || '').toLowerCase().trim();
+
+  // Opções de diretórios cadastrados
+  projectDirectories.forEach(dir => {
+    const item = document.createElement('button');
+    item.type = 'button';
+    const isAct = curDirNorm === dir.id.toLowerCase();
+    item.className = `card-dir-dropdown-item ${isAct ? 'active' : ''}`;
+    item.innerHTML = `<span>${dir.icon || '📁'}</span> <span style="flex: 1; text-align: left;">${escapeHtml(dir.name)}</span> ${isAct ? '<span style="font-size: 11px;">✓</span>' : ''}`;
+    item.title = `Definir projeto como "${dir.name}" (${dir.path || dir.id})`;
+    item.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      changeFeatureDirectory(featureName, dir.id, dir.name);
+    });
+    menu.appendChild(item);
+  });
+
+  // Opção Geral / Padrão se não estiver na lista
+  const hasGeral = projectDirectories.some(d => d.id.toLowerCase() === 'geral');
+  if (!hasGeral) {
+    const itemGeral = document.createElement('button');
+    itemGeral.type = 'button';
+    const isGeralAct = !curDirNorm || curDirNorm === 'geral';
+    itemGeral.className = `card-dir-dropdown-item ${isGeralAct ? 'active' : ''}`;
+    itemGeral.innerHTML = `<span>📁</span> <span style="flex: 1; text-align: left;">Geral / Raiz</span> ${isGeralAct ? '<span style="font-size: 11px;">✓</span>' : ''}`;
+    itemGeral.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      changeFeatureDirectory(featureName, 'geral', 'Geral');
+    });
+    menu.appendChild(itemGeral);
+  }
+
+  document.body.appendChild(menu);
+  activeCardDirDropdown = menu;
+
+  // Posicionamento inteligente
+  const rect = targetBtn.getBoundingClientRect();
+  const menuWidth = 190;
+  let top = rect.bottom + window.scrollY + 4;
+  let left = rect.left + window.scrollX;
+
+  if (left + menuWidth > window.innerWidth - 12) {
+    left = window.innerWidth - menuWidth - 12;
+  }
+  if (left < 10) left = 10;
+
+  menu.style.top = `${top}px`;
+  menu.style.left = `${left}px`;
+}
+
+async function changeFeatureDirectory(featureName, newDirId, dirName) {
+  closeCardDirDropdown();
+  try {
+    const res = await fetch('/api/features/directory', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ featureId: featureName, directory: newDirId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message || `Projeto alterado para "${dirName || newDirId}"!`, 'success');
+      appendLog(`Projeto da feature "${featureName}" alterado para "${dirName || newDirId}".`);
+
+      // Atualiza na memória imediatamente
+      const feat = currentFeatures.find(f => f.name === featureName);
+      if (feat) {
+        feat.directory = newDirId;
+      }
+      renderFeatures(currentFeatures);
+
+      // Atualiza também se a modal de detalhes estiver aberta
+      if (currentDetailFeature && currentDetailFeature.name === featureName) {
+        currentDetailFeature.directory = newDirId;
+        const detBadge = document.getElementById('detail-badge-directory');
+        if (detBadge) {
+          const dirObj = projectDirectories.find(d => d.id.toLowerCase() === newDirId.toLowerCase());
+          detBadge.innerHTML = `${dirObj?.icon || '📁'} ${escapeHtml(dirObj?.name || newDirId)} <span style="font-size: 8px; opacity: 0.7;">▼</span>`;
+        }
+      }
+
+      // Sincroniza estado fresco do backend
+      fetchFeatures();
+    } else {
+      showToast(data.error || 'Erro ao alterar projeto', 'error');
+    }
+  } catch (err) {
+    showToast('Erro de conexão ao alterar projeto', 'error');
+  }
+}
 
 function renderModalMembersList() {
   if (!membersListCards) return;
@@ -4070,6 +4239,17 @@ function openFeatureDetailsModal(feature, defaultTab = 'proposal') {
       detailBadgeStatus.textContent = feature.kanbanColumn || 'Backlog';
       detailBadgeStatus.className = 'card-tag ' + (feature.kanbanColumn === 'Done' ? 'tag-done' : feature.kanbanColumn === 'In Progress' ? 'tag-progress' : 'tag-backlog');
     }
+  }
+
+  const detailBadgeDirectory = document.getElementById('detail-badge-directory');
+  if (detailBadgeDirectory) {
+    const curDir = (feature.directory || 'geral').toLowerCase();
+    const dirObj = projectDirectories.find(d => d.id.toLowerCase() === curDir);
+    detailBadgeDirectory.innerHTML = `${dirObj ? `${dirObj.icon || '📁'} ${escapeHtml(dirObj.name)}` : (feature.directory ? `📁 ${escapeHtml(feature.directory)}` : '📁 Projeto')} <span style="font-size: 8px; opacity: 0.7;">▼</span>`;
+    detailBadgeDirectory.onclick = (e) => {
+      e.stopPropagation();
+      openCardDirDropdown(detailBadgeDirectory, feature.name, feature.directory);
+    };
   }
 
   if (detailBadgeAssignee) {

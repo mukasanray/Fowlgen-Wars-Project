@@ -115,6 +115,17 @@ function saveDirectories(dirs: ProjectDirectory[]) {
 }
 
 function detectDirectory(featureName: string, title: string, summary: string, proposal: string): string {
+  // 1. Prioridade máxima: Campo explícito no proposal.md (## Directory: app ou ## Projeto: unity ou [DIRETORIO: app])
+  const explicitMatch = proposal.match(/##\s*(?:Directory|Diretório|Projeto)\s*\n+([^\n#]+)/i) ||
+                        proposal.match(/(?:^|\n)\s*(?:Directory|Diretório|Projeto):\s*([^\n#\r]+)/i);
+  if (explicitMatch) {
+    const rawDir = explicitMatch[1].trim().toLowerCase();
+    const dirs = getDirectories();
+    const found = dirs.find(d => d.id.toLowerCase() === rawDir || d.name.toLowerCase() === rawDir || d.path.toLowerCase() === rawDir);
+    if (found) return found.id;
+    if (rawDir) return rawDir;
+  }
+
   const text = `${featureName} ${title} ${summary} ${proposal}`.toLowerCase();
   const dirs = getDirectories();
   for (const dir of dirs) {
@@ -133,6 +144,31 @@ function detectDirectory(featureName: string, title: string, summary: string, pr
   if (/devsecops|pipeline|ci-cd|gitleaks|k8s|docker/i.test(text)) return 'devsecops';
   if (/docs|pitch|hackathon|showcase/i.test(text)) return 'docs';
   return 'geral';
+}
+
+function setFeatureDirectory(featureId: string, directory: string): boolean {
+  const clean = (featureId || '').trim().toLowerCase().replace(/\s+/g, '-');
+  const proposalPath = path.join(OPEN_SPEC_DIR, clean, 'proposal.md');
+  if (!fs.existsSync(proposalPath)) return false;
+
+  let content = fs.readFileSync(proposalPath, 'utf8');
+  const dirHeaderRegex = /##\s*(?:Directory|Diretório|Projeto)\s*\n+([^\n#]+)/i;
+  const inlineDirRegex = /(?:^|\n)\s*(?:Directory|Diretório|Projeto):\s*([^\n#\r]+)/i;
+
+  if (dirHeaderRegex.test(content)) {
+    content = content.replace(dirHeaderRegex, `## Directory\n${directory.trim()}\n`);
+  } else if (inlineDirRegex.test(content)) {
+    content = content.replace(inlineDirRegex, `\nDirectory: ${directory.trim()}`);
+  } else {
+    if (content.includes('## Title')) {
+      content = content.replace(/##\s*Title\s*\n+[^\n#]+/i, (match) => `${match}\n\n## Directory\n${directory.trim()}`);
+    } else {
+      content += `\n\n## Directory\n${directory.trim()}\n`;
+    }
+  }
+
+  fs.writeFileSync(proposalPath, content, 'utf8');
+  return true;
 }
 
 function detectTaskDirectory(taskText: string, defaultDir: string): string {
@@ -2008,6 +2044,32 @@ const server = http.createServer(async (req, res) => {
         message: `Diretório "${targetId}" removido.`,
         directories: filtered
       });
+      return;
+    }
+
+    // API: Set feature directory / project
+    if (req.method === 'POST' && (pathname === '/api/features/directory' || pathname === '/api/features/set-directory')) {
+      const body = await parseJSONBody(req);
+      const featureId = body.featureId || body.feature || body.id;
+      const directory = body.directory || body.dir;
+      if (!featureId || !directory) {
+        sendJSON(res, 400, { success: false, error: 'Parâmetros featureId e directory são obrigatórios.' });
+        return;
+      }
+      const ok = setFeatureDirectory(featureId, directory);
+      if (ok) {
+        const dirs = getDirectories();
+        const dirObj = dirs.find(d => d.id.toLowerCase() === directory.toLowerCase());
+        sendJSON(res, 200, {
+          success: true,
+          message: `Projeto da feature alterado para "${dirObj?.name || directory}"!`,
+          featureId,
+          directory,
+          directoryObj: dirObj || null
+        });
+      } else {
+        sendJSON(res, 404, { success: false, error: `Feature "${featureId}" ou proposal.md não encontrado.` });
+      }
       return;
     }
 
