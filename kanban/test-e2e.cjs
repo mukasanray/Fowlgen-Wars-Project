@@ -217,10 +217,13 @@ async function runAllTests() {
     assert(typeof resGitHistory.json.unpushedCount === 'number', 'GET /api/git/history calcula commits pendentes de push');
 
     assert(resRoot.data.includes('btn-open-git-desktop'), 'index.html contém botão btn-open-git-desktop no cabeçalho');
-    assert(resRoot.data.includes('modal-git-desktop'), 'index.html contém modal de tela cheia modal-git-desktop');
+    assert(resRoot.data.includes('modal-git-desktop'), 'index.html contém container modal-git-desktop');
+    assert(resRoot.data.includes('btn-view-git'), 'index.html contém botão btn-view-git no alternador de quadro do Kanban');
+    assert(resRoot.data.includes('btn-git-back-to-kanban'), 'index.html contém botão btn-git-back-to-kanban para retornar ao Kanban');
     assert(resRoot.data.includes('tab-btn-git-changes'), 'index.html contém aba Changes estilo GitHub Desktop');
     assert(resRoot.data.includes('tab-btn-git-history'), 'index.html contém aba History estilo GitHub Desktop');
     assert(resStyles.data.includes('.git-desktop-modal'), 'styles.css define estilos para .git-desktop-modal');
+    assert(resStyles.data.includes('.git-desktop-board-container'), 'styles.css define estilos para .git-desktop-board-container integrado');
     assert(resStyles.data.includes('.git-commit-unpushed-indicator'), 'styles.css define setinha pra cima elegante para commits unpushed');
     assert(resAppJs.data.includes('openGitDesktopModal'), 'app.js implementa openGitDesktopModal');
     assert(resAppJs.data.includes('fetchGitChanges'), 'app.js implementa fetchGitChanges');

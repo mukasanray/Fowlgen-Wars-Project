@@ -606,8 +606,13 @@ document.addEventListener('keydown', (e) => {
 const btnViewTasks = document.getElementById('btn-view-tasks');
 const btnViewIdeas = document.getElementById('btn-view-ideas');
 const btnViewAnalytics = document.getElementById('btn-view-analytics');
+const btnViewGit = document.getElementById('btn-view-git');
+const badgeGitViewCount = document.getElementById('badge-git-view-count');
 const kanbanColumnsContainer = document.querySelector('.kanban-columns');
 const analyticsDashboardContainer = document.getElementById('analytics-dashboard-container');
+const kanbanSearchWrapper = document.querySelector('.kanban-search-wrapper');
+const memberFilterBar = document.querySelector('.member-filter-bar');
+const directoryFilterBar = document.querySelector('.directory-filter-bar');
 const badgeTotalTasksView = document.getElementById('badge-total-tasks-view');
 const badgeTotalIdeasView = document.getElementById('badge-total-ideas-view');
 const colTitle1 = document.getElementById('col-title-1');
@@ -1214,10 +1219,35 @@ function updateStats(features) {
   statDoneTasks.textContent = doneTasks;
 }
 
-// Board View Switcher (Tarefas da Sprint vs Funil de Ideias vs Analytics)
+// Board View Switcher (Tarefas da Sprint vs Funil de Ideias vs Analytics vs Changes & History)
 function setBoardView(view) {
   currentBoardView = view;
   updateSearchPlaceholder();
+
+  const gitBoardContainer = document.getElementById('modal-git-desktop');
+
+  if (view === 'git') {
+    btnViewGit?.classList.add('active');
+    btnViewTasks?.classList.remove('active');
+    btnViewIdeas?.classList.remove('active');
+    btnViewAnalytics?.classList.remove('active');
+    if (kanbanColumnsContainer) kanbanColumnsContainer.style.display = 'none';
+    if (kanbanSearchEmptyState) kanbanSearchEmptyState.style.display = 'none';
+    if (analyticsDashboardContainer) analyticsDashboardContainer.style.display = 'none';
+    if (gitBoardContainer) gitBoardContainer.style.display = 'flex';
+    if (kanbanSearchWrapper) kanbanSearchWrapper.style.display = 'none';
+    if (memberFilterBar) memberFilterBar.style.display = 'none';
+    if (directoryFilterBar) directoryFilterBar.style.display = 'none';
+    refreshGitDesktop();
+    return;
+  }
+
+  // Se não for 'git', esconde o Git Desktop e restaura as barras de filtro
+  if (gitBoardContainer) gitBoardContainer.style.display = 'none';
+  if (btnViewGit) btnViewGit.classList.remove('active');
+  if (kanbanSearchWrapper) kanbanSearchWrapper.style.display = '';
+  if (memberFilterBar) memberFilterBar.style.display = '';
+  if (directoryFilterBar) directoryFilterBar.style.display = '';
 
   if (view === 'analytics') {
     btnViewAnalytics?.classList.add('active');
@@ -1256,6 +1286,7 @@ function setBoardView(view) {
 btnViewTasks?.addEventListener('click', () => setBoardView('tasks'));
 btnViewIdeas?.addEventListener('click', () => setBoardView('ideas'));
 btnViewAnalytics?.addEventListener('click', () => setBoardView('analytics'));
+btnViewGit?.addEventListener('click', () => setBoardView('git'));
 
 // Member Filter Handler
 function setMemberFilter(assignee) {
@@ -4954,16 +4985,13 @@ let gitFilterChangesQuery = '';
 let gitFilterHistoryQuery = '';
 
 function openGitDesktopModal(defaultTab = 'changes') {
-  if (!modalGitDesktop) return;
-  modalGitDesktop.classList.add('open');
+  setBoardView('git');
   setGitDesktopTab(defaultTab);
   refreshGitDesktop();
 }
 
 function closeGitDesktopModal() {
-  if (modalGitDesktop) {
-    modalGitDesktop.classList.remove('open');
-  }
+  setBoardView('tasks');
 }
 
 function setGitDesktopTab(tab) {
@@ -5013,6 +5041,10 @@ async function fetchGitChanges() {
       }
       if (badgeGitChangesCount) {
         badgeGitChangesCount.textContent = gitChangesList.length;
+      }
+      if (badgeGitViewCount) {
+        badgeGitViewCount.textContent = gitChangesList.length;
+        badgeGitViewCount.style.display = gitChangesList.length > 0 ? 'inline-block' : 'none';
       }
       if (labelGitChangedCount) {
         labelGitChangedCount.textContent = `${gitChangesList.length} changed files`;
@@ -5395,6 +5427,7 @@ async function loadGitCommitDetails(hash) {
 btnOpenGitDesktop?.addEventListener('click', () => openGitDesktopModal('changes'));
 gitStatusPill?.addEventListener('click', () => openGitDesktopModal('changes'));
 btnCloseGitDesktop?.addEventListener('click', closeGitDesktopModal);
+document.getElementById('btn-git-back-to-kanban')?.addEventListener('click', closeGitDesktopModal);
 
 modalGitDesktop?.addEventListener('click', (e) => {
   if (e.target === modalGitDesktop) closeGitDesktopModal();

@@ -3257,19 +3257,23 @@ body[data-theme="light"] .btn-reset-repo:hover {
 /* ============================================================
    CENTRAL GIT - ESTILO GITHUB DESKTOP (CHANGES & HISTORY)
    ============================================================ */
+.git-desktop-board-container,
 .git-desktop-modal {
-  width: 94vw;
-  max-width: 1350px;
-  height: 88vh;
-  max-height: 900px;
+  width: 100%;
+  max-width: 100%;
+  height: calc(100vh - 165px);
+  min-height: 580px;
+  max-height: none;
   display: flex;
   flex-direction: column;
   padding: 0;
   overflow: hidden;
-  background: var(--bg-modal);
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  margin-top: 4px;
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .git-desktop-header {
