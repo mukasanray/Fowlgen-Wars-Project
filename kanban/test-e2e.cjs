@@ -543,9 +543,9 @@ async function runAllTests() {
     }
 
     // Validações de UI (HTML/JS) para seletores de diretório no cadastro
-    assert(resHtml.data.includes('id="select-task-directory"'), 'index.html contém select-task-directory no formulário de Nova Tarefa');
-    assert(resHtml.data.includes('id="select-idea-directory"'), 'index.html contém select-idea-directory no formulário de Nova Feature');
-    assert(resHtml.data.includes('id="detail-new-task-directory"'), 'index.html contém detail-new-task-directory no modal de detalhes');
+    assert(resRoot.data.includes('id="select-task-directory"'), 'index.html contém select-task-directory no formulário de Nova Tarefa');
+    assert(resRoot.data.includes('id="select-idea-directory"'), 'index.html contém select-idea-directory no formulário de Nova Feature');
+    assert(resRoot.data.includes('id="detail-new-task-directory"'), 'index.html contém detail-new-task-directory no modal de detalhes');
     assert(resAppJs.data.includes('populateDirectorySelects'), 'app.js implementa populateDirectorySelects para preenchimento dinâmico');
     assert(resAppJs.data.includes('updateTaskDirectoryPlaceholder'), 'app.js implementa herança e placeholder informativo de diretório');
 
