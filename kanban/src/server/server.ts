@@ -2324,15 +2324,28 @@ const server = http.createServer(async (req, res) => {
     // API: Reset uncommitted local changes (Reset Repo Local)
     if (req.method === 'POST' && pathname === '/api/git/reset') {
       try {
-        const checkoutOut = execSync('git checkout HEAD -- .', { encoding: 'utf8', cwd: REPO_ROOT });
-        let cleanOut = '';
+        let isDryRun = false;
         try {
-          cleanOut = execSync('git clean -fd -e ".env" -e "*.local.json" -e "node_modules"', { encoding: 'utf8', cwd: REPO_ROOT });
+          const body = await parseJSONBody(req);
+          if (body && (body.dryRun === true || req.headers['x-dry-run'] === 'true')) {
+            isDryRun = true;
+          }
         } catch { }
+
+        let checkoutOut = '';
+        let cleanOut = '';
+        if (!isDryRun) {
+          checkoutOut = execSync('git checkout HEAD -- .', { encoding: 'utf8', cwd: REPO_ROOT });
+          try {
+            cleanOut = execSync('git clean -fd -e ".env" -e "*.local.json" -e "node_modules"', { encoding: 'utf8', cwd: REPO_ROOT });
+          } catch { }
+        } else {
+          checkoutOut = 'Simulação: git checkout HEAD -- . (dryRun ativo)';
+        }
         const updatedGitInfo = getGitInfo(true);
         sendJSON(res, 200, {
           success: true,
-          message: 'Repositório local resetado com sucesso para o estado limpo do commit atual!',
+          message: isDryRun ? 'Simulação de reset concluída com sucesso!' : 'Repositório local resetado com sucesso para o estado limpo do commit atual!',
           details: (checkoutOut + (cleanOut ? '\n' + cleanOut : '')).trim() || 'Modificações locais descartadas com sucesso.',
           gitInfo: updatedGitInfo
         });

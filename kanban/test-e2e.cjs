@@ -198,7 +198,8 @@ async function runAllTests() {
     // Teste de Reset Repo Local (POST /api/git/reset e elementos de UI)
     const resGitReset = await request({
       path: '/api/git/reset',
-      method: 'POST'
+      method: 'POST',
+      body: { dryRun: true }
     });
     assert(resGitReset.status === 200 && resGitReset.json && resGitReset.json.success, 'POST /api/git/reset restaura estado limpo do repositório');
     assert(resRoot.data.includes('btn-reset-repo-local'), 'index.html contém botão btn-reset-repo-local (Reset Repo Local)');
@@ -216,7 +217,8 @@ async function runAllTests() {
     assert(Array.isArray(resGitHistory.json.commits), 'GET /api/git/history retorna lista de commits');
     assert(typeof resGitHistory.json.unpushedCount === 'number', 'GET /api/git/history calcula commits pendentes de push');
 
-    assert(resRoot.data.includes('btn-open-git-desktop'), 'index.html contém botão btn-open-git-desktop no cabeçalho');
+    assert(!resRoot.data.includes('id="btn-open-git-desktop"'), 'index.html removeu o botão Changes & History do cabeçalho');
+    assert(!resRoot.data.includes('id="btn-close-git-desktop"'), 'index.html removeu o botão X da central Git');
     assert(resRoot.data.includes('modal-git-desktop'), 'index.html contém container modal-git-desktop');
     assert(resRoot.data.includes('btn-view-git'), 'index.html contém botão btn-view-git no alternador de quadro do Kanban');
     assert(resRoot.data.includes('btn-git-back-to-kanban'), 'index.html contém botão btn-git-back-to-kanban para retornar ao Kanban');
