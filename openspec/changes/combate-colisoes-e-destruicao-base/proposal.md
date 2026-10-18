@@ -16,4 +16,4 @@ Scripts StructureGalinheiro.cs, HeroAgent.cs, MinionAgent.cs e CombatAndBaseDest
 Detecção de combate frente a frente, dedução de HP, evento OnStructureDestroyed e testes automatizados.
 
 ## Status
-[APROVADO] por Emanuel em 2026-10-13
+[APROVADO] por Marcos em 2026-10-13

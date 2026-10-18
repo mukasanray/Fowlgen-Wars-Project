@@ -16,4 +16,4 @@ Cena Assets/Scenes/Game/Arena_Clean.unity e script de automação SetupMobaArena
 Câmera tática em Pitch 40.8°, Yaw 88.2°, waypoints nas 3 pontes, Galinheiros Base-Amarela e Base-Roxa-Inimiga e caminhos relativos Assets/.
 
 ## Status
-[APROVADO] por Emanuel em 2026-10-13
+[APROVADO] por Marcos em 2026-10-13
