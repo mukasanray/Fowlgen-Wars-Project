@@ -1223,6 +1223,385 @@ ${conflictNotes.length > 0 ? `## Análise de Diretrizes & Guardrails (Claude.md)
   return { cleanId, cleanTitle, proposal, tasksMd, totalTasks };
 }
 
+function escapeHtml(str?: string): string {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function csvEscape(val: any): string {
+  if (val === null || val === undefined) return '""';
+  const str = String(val).replace(/"/g, '""');
+  return `"${str}"`;
+}
+
+function generateSprintCsv(features: any[]): string {
+  const headers = [
+    'Feature ID',
+    'Título da Feature',
+    'Status Kanban',
+    'Diretório / Projeto',
+    'Responsáveis da Feature',
+    'Progresso (%)',
+    'Total de Tarefas',
+    'Tarefas Concluídas',
+    'ID Tarefa',
+    'Descrição da Tarefa',
+    'Status Tarefa',
+    'Responsável Tarefa'
+  ];
+
+  const rows: string[] = [];
+  rows.push(headers.map(h => csvEscape(h)).join(';'));
+
+  for (const feat of features) {
+    const fId = feat.name || '';
+    const fTitle = feat.title || feat.name || '';
+    const fColumn = feat.kanbanColumn || 'Backlog';
+    const fDir = feat.directory || 'geral';
+    const fAssignees = Array.isArray(feat.assignees) ? feat.assignees.join(', ') : (feat.assignee || '');
+    const fProgress = typeof feat.progress === 'number' ? feat.progress : 0;
+    const fTotal = feat.totalTasks || (feat.tasks ? feat.tasks.length : 0);
+    const fDone = feat.doneTasks || 0;
+
+    if (Array.isArray(feat.tasks) && feat.tasks.length > 0) {
+      for (const t of feat.tasks) {
+        const tId = t.id || '';
+        const tDesc = t.description || t.text || '';
+        const tStatus = t.done ? 'Concluída' : (t.status || 'Pendente');
+        const tAssignee = Array.isArray(t.assignees) ? t.assignees.join(', ') : (t.assignee || fAssignees);
+
+        rows.push([
+          csvEscape(fId),
+          csvEscape(fTitle),
+          csvEscape(fColumn),
+          csvEscape(fDir),
+          csvEscape(fAssignees),
+          csvEscape(fProgress),
+          csvEscape(fTotal),
+          csvEscape(fDone),
+          csvEscape(tId),
+          csvEscape(tDesc),
+          csvEscape(tStatus),
+          csvEscape(tAssignee)
+        ].join(';'));
+      }
+    } else {
+      rows.push([
+        csvEscape(fId),
+        csvEscape(fTitle),
+        csvEscape(fColumn),
+        csvEscape(fDir),
+        csvEscape(fAssignees),
+        csvEscape(fProgress),
+        csvEscape(fTotal),
+        csvEscape(fDone),
+        csvEscape(''),
+        csvEscape('(Sem tarefas cadastradas)'),
+        csvEscape(feat.done ? 'Concluída' : 'Pendente'),
+        csvEscape(fAssignees)
+      ].join(';'));
+    }
+  }
+
+  // Adiciona UTF-8 BOM (\uFEFF) para garantir acentuação correta no Excel brasileiro/internacional
+  return '\uFEFF' + rows.join('\r\n');
+}
+
+function generateSprintPrintableHtml(features: any[], branch: string = 'local'): string {
+  const totalFeatures = features.length;
+  let totalTasks = 0;
+  let doneTasks = 0;
+
+  for (const f of features) {
+    totalTasks += (f.totalTasks || (f.tasks ? f.tasks.length : 0));
+    doneTasks += (f.doneTasks || (f.tasks ? f.tasks.filter((t: any) => t.done).length : 0));
+  }
+
+  const overallProgress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+  const now = new Date();
+  const nowStr = `${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR')}`;
+
+  const rowsHtml = features.map(f => {
+    const tasks = Array.isArray(f.tasks) ? f.tasks : [];
+    const featProg = typeof f.progress === 'number' ? f.progress : 0;
+    const assignees = Array.isArray(f.assignees) ? f.assignees.join(', ') : (f.assignee || 'Não atribuído');
+    const dir = f.directory || 'geral';
+
+    const tasksListHtml = tasks.map((t: any) => {
+      const isDone = t.done;
+      const tAssignee = Array.isArray(t.assignees) ? t.assignees.join(', ') : (t.assignee || assignees);
+      return `<li style="margin-bottom: 5px; color: ${isDone ? '#166534' : '#1e293b'};">
+        <span style="display: inline-block; width: 18px; font-weight: bold;">${isDone ? '✅' : '⬜'}</span>
+        <strong>${escapeHtml(t.id)}:</strong> ${escapeHtml(t.description || t.text)}
+        <span style="font-size: 11px; color: #64748b; margin-left: 8px;">(${escapeHtml(tAssignee)})</span>
+      </li>`;
+    }).join('');
+
+    const colClass = f.kanbanColumn === 'Done' ? 'status-done' :
+      (f.kanbanColumn === 'In Progress' ? 'status-in-progress' :
+      (f.kanbanColumn === 'Ready to Review' ? 'status-ready' : 'status-backlog'));
+
+    return `
+    <div class="report-feature-card">
+      <div class="report-feature-header">
+        <div>
+          <span class="report-feature-title">${escapeHtml(f.title || f.name)}</span>
+          <span class="report-feature-id">(${escapeHtml(f.name)})</span>
+          <span class="report-badge dir">${escapeHtml(dir)}</span>
+        </div>
+        <div>
+          <span class="report-badge ${colClass}">${escapeHtml(f.kanbanColumn || 'Backlog')}</span>
+          <span style="font-size: 12px; font-weight: 700; color: #0284c7; margin-left: 8px;">${featProg}%</span>
+        </div>
+      </div>
+      <div class="report-progress-bar">
+        <div class="report-progress-fill" style="width: ${featProg}%;"></div>
+      </div>
+      <div class="report-feature-desc">
+        <strong>Responsáveis:</strong> ${escapeHtml(assignees)} &bull;
+        <strong>Tarefas:</strong> ${f.doneTasks || 0} de ${f.totalTasks || tasks.length} finalizadas
+      </div>
+      ${tasks.length > 0 ? `<ul class="report-tasks-list">${tasksListHtml}</ul>` : '<div style="font-size: 11px; color: #94a3b8; font-style: italic;">Nenhuma tarefa detalhada</div>'}
+    </div>`;
+  }).join('');
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Relatório Executivo da Sprint - Fowlgen Wars</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 15mm;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #0f172a;
+      background: #fff;
+      margin: 0;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .report-header {
+      border-bottom: 2px solid #0284c7;
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .report-brand {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .report-sub {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .report-meta {
+      text-align: right;
+      font-size: 11.5px;
+      color: #475569;
+    }
+    .kpis-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 12px;
+      background: #f8fafc;
+      text-align: center;
+    }
+    .kpi-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .kpi-val {
+      font-size: 26px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 4px 0;
+    }
+    .kpi-desc {
+      font-size: 11px;
+      color: #475569;
+    }
+    .report-feature-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      page-break-inside: avoid;
+      background: #fff;
+    }
+    .report-feature-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .report-feature-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .report-feature-id {
+      font-family: monospace;
+      font-size: 12px;
+      color: #64748b;
+      margin-left: 4px;
+    }
+    .report-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-left: 6px;
+      border: 1px solid #cbd5e1;
+      display: inline-block;
+    }
+    .status-done { background: #dcfce7; color: #166534; border-color: #86efac; }
+    .status-in-progress { background: #e0f2fe; color: #075985; border-color: #7dd3fc; }
+    .status-ready { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+    .status-backlog { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+    .report-badge.dir { background: rgba(14, 165, 233, 0.12); color: #0284c7; border-color: rgba(14, 165, 233, 0.3); }
+    .report-progress-bar {
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .report-progress-fill {
+      height: 100%;
+      background: #10b981;
+    }
+    .report-feature-desc {
+      font-size: 12px;
+      color: #475569;
+      margin-bottom: 10px;
+    }
+    .report-tasks-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .print-actions {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid #cbd5e1;
+      padding: 8px 12px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    .btn-print {
+      background: #0ea5e9;
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-close-print {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    @media print {
+      .print-actions { display: none !important; }
+      body { padding: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <div class="print-actions">
+    <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar em PDF</button>
+    <button class="btn-close-print" onclick="window.close()">✕ Fechar</button>
+  </div>
+
+  <div class="report-header">
+    <div>
+      <div class="report-brand">🎮 Fowlgen Wars - OpenSpec Kanban</div>
+      <div class="report-sub">Relatório Executivo da Sprint & Acompanhamento de Desenvolvimento</div>
+    </div>
+    <div class="report-meta">
+      <div><strong>Emissão:</strong> ${nowStr}</div>
+      <div><strong>Ambiente / Branch:</strong> ${escapeHtml(branch)}</div>
+    </div>
+  </div>
+
+  <div class="kpis-grid">
+    <div class="kpi-card">
+      <div class="kpi-title">Conclusão da Sprint</div>
+      <div class="kpi-val" style="color: #059669;">${overallProgress}%</div>
+      <div class="kpi-desc">${doneTasks} de ${totalTasks} tarefas</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Features OpenSpec</div>
+      <div class="kpi-val" style="color: #0284c7;">${totalFeatures}</div>
+      <div class="kpi-desc">Total de propostas</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Tarefas Concluídas</div>
+      <div class="kpi-val" style="color: #10b981;">${doneTasks}</div>
+      <div class="kpi-desc">Finalizadas e testadas</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Tarefas Pendentes</div>
+      <div class="kpi-val" style="color: #d97706;">${Math.max(0, totalTasks - doneTasks)}</div>
+      <div class="kpi-desc">Em andamento ou backlog</div>
+    </div>
+  </div>
+
+  <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px; margin-bottom: 14px;">
+    Detalhamento de Features & Tarefas
+  </h3>
+
+  ${rowsHtml}
+
+  <script>
+    if (new URLSearchParams(window.location.search).get('auto') === 'print') {
+      window.addEventListener('load', () => {
+        setTimeout(() => window.print(), 500);
+      });
+    }
+  </script>
+</body>
+</html>`;
+}
+
 const server = http.createServer(async (req, res) => {
   const parsedUrl = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
   const pathname = parsedUrl.pathname;
@@ -2519,6 +2898,46 @@ const server = http.createServer(async (req, res) => {
           output: err.stdout || err.stderr || err.message
         });
       }
+      return;
+    }
+
+    // API: Export Sprint Report as CSV (Planilha Excel/Google Sheets)
+    if (req.method === 'GET' && (pathname === '/api/reports/sprint/csv' || pathname === '/api/reports/csv')) {
+      const selectedBranch = parsedUrl.searchParams.get('branch') || 'local';
+      const gitInfo = getGitInfo();
+      let features: any[] = [];
+      if (selectedBranch === 'local' || selectedBranch === gitInfo.currentBranch) {
+        features = getFeaturesData();
+      } else {
+        features = getFeaturesFromGitBranch(selectedBranch);
+      }
+
+      const csvContent = generateSprintCsv(features);
+      const today = new Date().toISOString().slice(0, 10);
+      res.writeHead(200, {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': `attachment; filename="sprint-relatorio-${today}.csv"`
+      });
+      res.end(csvContent);
+      return;
+    }
+
+    // API: Export Sprint Report as Printable PDF / HTML
+    if (req.method === 'GET' && (pathname === '/api/reports/sprint/pdf' || pathname === '/api/reports/sprint/print' || pathname === '/api/reports/print')) {
+      const selectedBranch = parsedUrl.searchParams.get('branch') || 'local';
+      const gitInfo = getGitInfo();
+      let features: any[] = [];
+      if (selectedBranch === 'local' || selectedBranch === gitInfo.currentBranch) {
+        features = getFeaturesData();
+      } else {
+        features = getFeaturesFromGitBranch(selectedBranch);
+      }
+
+      const printHtml = generateSprintPrintableHtml(features, selectedBranch);
+      res.writeHead(200, {
+        'Content-Type': 'text/html; charset=utf-8'
+      });
+      res.end(printHtml);
       return;
     }
 

@@ -409,8 +409,33 @@ async function runAllTests() {
     assert(resAppJs.data.includes('function renderDirectoryFilterPills'), 'app.js implementa renderDirectoryFilterPills');
     assert(resAppJs.data.includes('function setDirectoryFilter'), 'app.js implementa setDirectoryFilter');
 
-    // 13. Clean Up Test Feature
-    console.log('\n--- 13. Limpeza do Ambiente de Teste ---');
+    // 13. Test Sprint Reports Export (CSV & Printable PDF)
+    console.log('\n--- 13. Exportação de Relatórios da Sprint (Planilha CSV & PDF Imprimível) ---');
+    const resCsv = await request({ path: '/api/reports/sprint/csv' });
+    assert(resCsv.status === 200, 'GET /api/reports/sprint/csv retorna 200 OK');
+    assert(resCsv.headers['content-type'] && resCsv.headers['content-type'].includes('text/csv'), 'Header Content-Type é text/csv; charset=utf-8');
+    assert(resCsv.headers['content-disposition'] && resCsv.headers['content-disposition'].includes('attachment; filename="sprint-relatorio-'), 'Header Content-Disposition define download como anexo com nome sprint-relatorio-*.csv');
+    assert(resCsv.data.startsWith('\uFEFF'), 'CSV inicia com UTF-8 BOM (\uFEFF) para compatibilidade perfeita com Excel');
+    assert(resCsv.data.includes('Feature ID') && resCsv.data.includes('Título da Feature') && resCsv.data.includes('Status Kanban'), 'CSV contém cabeçalhos detalhados da Sprint');
+
+    const resPdf = await request({ path: '/api/reports/sprint/pdf' });
+    assert(resPdf.status === 200, 'GET /api/reports/sprint/pdf retorna 200 OK');
+    assert(resPdf.headers['content-type'] && resPdf.headers['content-type'].includes('text/html'), 'Header Content-Type de PDF/Print é text/html; charset=utf-8');
+    assert(resPdf.data.includes('Relatório Executivo da Sprint'), 'HTML do relatório contém título executivo');
+    assert(resPdf.data.includes('Fowlgen Wars - OpenSpec Kanban'), 'HTML do relatório contém branding oficial Fowlgen Wars');
+    assert(resPdf.data.includes('@page') && resPdf.data.includes('A4 portrait'), 'HTML do relatório define regras CSS @page para impressão em A4');
+    assert(resPdf.data.includes('window.print()'), 'HTML do relatório possui gatilho de impressão/PDF');
+
+    // Validação de botões e funções no frontend
+    assert(resRoot.data.includes('id="btn-export-sprint-csv"'), 'index.html contém botão btn-export-sprint-csv na barra lateral');
+    assert(resRoot.data.includes('id="btn-export-sprint-pdf"'), 'index.html contém botão btn-export-sprint-pdf na barra lateral');
+    assert(resAppJs.data.includes('function exportSprintCsv'), 'app.js implementa função exportSprintCsv');
+    assert(resAppJs.data.includes('function exportSprintPdf'), 'app.js implementa função exportSprintPdf');
+    assert(resAppJs.data.includes('btn-analytics-export-csv'), 'app.js inclui botão de exportação CSV no Analytics');
+    assert(resAppJs.data.includes('btn-analytics-export-pdf'), 'app.js inclui botão de exportação PDF no Analytics');
+
+    // 14. Clean Up Test Feature
+    console.log('\n--- 14. Limpeza do Ambiente de Teste ---');
     const repoRoot = path.resolve(__dirname, '..');
     const testFeatureDir = path.join(repoRoot, 'openspec', 'changes', testFeatureId);
     if (fs.existsSync(testFeatureDir)) {

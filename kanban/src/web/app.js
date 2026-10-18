@@ -1281,6 +1281,29 @@ document.querySelectorAll('.member-pill').forEach(pill => {
 });
 
 // =============================================================
+// Exportação de Relatórios da Sprint (CSV & PDF)
+// =============================================================
+function exportSprintCsv() {
+  const branch = currentSelectedBranch || 'local';
+  showToast('Gerando e baixando planilha CSV da Sprint...', 'info');
+  const downloadUrl = `/api/reports/sprint/csv?branch=${encodeURIComponent(branch)}`;
+  const a = document.createElement('a');
+  a.href = downloadUrl;
+  const dateStr = new Date().toISOString().slice(0, 10);
+  a.download = `sprint-relatorio-${dateStr}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function exportSprintPdf() {
+  const branch = currentSelectedBranch || 'local';
+  showToast('Abrindo relatório da Sprint para visualização / impressão em PDF...', 'info');
+  const printUrl = `/api/reports/sprint/pdf?branch=${encodeURIComponent(branch)}&auto=print`;
+  window.open(printUrl, '_blank');
+}
+
+// =============================================================
 // 3ª ABA: ANALYTICS & MÉTRICAS (Dashboard Integrado)
 // =============================================================
 function renderAnalyticsDashboard(features) {
@@ -1554,6 +1577,12 @@ function renderAnalyticsDashboard(features) {
         <button type="button" class="btn btn-secondary btn-sm" id="btn-analytics-refresh" title="Atualizar dados do servidor">
           🔄 Atualizar
         </button>
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-analytics-export-csv" title="Exportar dados da Sprint em planilha CSV para Excel">
+          📊 Exportar CSV
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-analytics-export-pdf" title="Exportar relatório da Sprint em formato PDF">
+          📄 Exportar PDF
+        </button>
         <button type="button" class="btn btn-secondary btn-sm" id="btn-analytics-copy-md" title="Copiar relatório resumido em Markdown">
           📋 Copiar Resumo MD
         </button>
@@ -1692,6 +1721,9 @@ function renderAnalyticsDashboard(features) {
   document.getElementById('btn-analytics-goto-tasks')?.addEventListener('click', () => {
     setBoardView('tasks');
   });
+
+  document.getElementById('btn-analytics-export-csv')?.addEventListener('click', exportSprintCsv);
+  document.getElementById('btn-analytics-export-pdf')?.addEventListener('click', exportSprintPdf);
 
   document.getElementById('btn-analytics-copy-md')?.addEventListener('click', async () => {
     const mdSummary = [
@@ -2896,6 +2928,8 @@ document.getElementById('btn-script-dashboard')?.addEventListener('click', async
   setBoardView('analytics');
   showToast('Dashboard gerado e exibido na aba Analytics!', 'success');
 });
+document.getElementById('btn-export-sprint-csv')?.addEventListener('click', exportSprintCsv);
+document.getElementById('btn-export-sprint-pdf')?.addEventListener('click', exportSprintPdf);
 document.getElementById('btn-script-verify')?.addEventListener('click', () => runScriptAPI('verify'));
 document.getElementById('btn-script-status')?.addEventListener('click', () => runScriptAPI('status'));
 document.getElementById('btn-refresh')?.addEventListener('click', () => {
