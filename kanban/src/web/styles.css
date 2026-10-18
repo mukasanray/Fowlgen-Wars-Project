@@ -1036,28 +1036,31 @@ body {
   border-radius: var(--radius-sm);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(16px);
-  max-height: 240px;
+  max-height: 250px;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 .multi-select-options {
-  max-height: 190px;
+  max-height: 200px;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 4px;
 }
 
 .multi-select-option {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 8px 10px;
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.15s ease;
   font-size: 12px;
   color: var(--text-main);
   user-select: none;
+  min-width: 0;
 }
 
 .multi-select-option:hover {
@@ -1072,23 +1075,47 @@ body {
 .multi-select-option input[type="checkbox"] {
   cursor: pointer;
   accent-color: var(--primary);
-  width: 14px;
-  height: 14px;
-  margin: 0;
+  width: 15px;
+  height: 15px;
+  margin: 2px 0 0 0;
+  flex-shrink: 0;
 }
 
 .multi-select-option .option-avatar {
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.option-text-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  gap: 2px;
 }
 
 .multi-select-option .option-name {
-  font-weight: 500;
-  flex: 1;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.multi-select-option.selected .option-name {
+  color: #38bdf8;
 }
 
 .multi-select-option .option-role {
-  font-size: 10.5px;
+  font-size: 11px;
   color: var(--text-dim);
+  line-height: 1.35;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .btn-task-quick-edit {
@@ -1340,6 +1367,127 @@ body {
   font-weight: 800;
 }
 
+/* Kanban Search Bar (Tarefas e Ideias) */
+.kanban-search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 260px;
+  max-width: 360px;
+  min-width: 190px;
+}
+
+.kanban-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 0 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.kanban-search-box:hover {
+  border-color: rgba(168, 85, 247, 0.5);
+}
+
+.kanban-search-box:focus-within {
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25), inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  background: var(--bg-card);
+}
+
+.kanban-search-icon {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-right: 6px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.kanban-search-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  padding: 6px 0;
+}
+
+.kanban-search-input::placeholder {
+  color: var(--text-dim);
+  font-size: 11.5px;
+}
+
+.btn-clear-kanban-search {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  border-radius: 50%;
+  transition: color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-clear-kanban-search:hover {
+  color: var(--accent-rose);
+}
+
+.kanban-search-count-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  white-space: nowrap;
+}
+
+/* Kanban Search Empty State */
+.kanban-search-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px dashed rgba(168, 85, 247, 0.35);
+  border-radius: var(--radius-md);
+  margin-bottom: 14px;
+}
+
+.kanban-search-empty-state .empty-state-icon {
+  font-size: 26px;
+}
+
+.kanban-search-empty-state .empty-state-content {
+  flex: 1;
+}
+
+.kanban-search-empty-state .empty-state-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 2px;
+}
+
+.kanban-search-empty-state .empty-state-desc {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
 /* Member Filter Bar */
 .member-filter-bar {
   display: flex;
@@ -1481,6 +1629,109 @@ body {
 [data-theme="dark"] .member-pill.active {
   color: #34d399;
 }
+
+/* Directory / Project Filter Bar */
+.directory-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 6px 0 2px 0;
+  border-top: 1px dashed var(--border-subtle);
+  margin-top: 4px;
+}
+
+.directory-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.directory-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.directory-pill {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.directory-pill:hover {
+  border-color: var(--accent-sky);
+  color: var(--accent-sky);
+  background: var(--bg-card-hover);
+}
+
+.directory-pill.active {
+  background: rgba(14, 165, 233, 0.15);
+  border-color: #0ea5e9;
+  color: #0284c7;
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.25);
+}
+
+[data-theme="dark"] .directory-pill.active {
+  color: #38bdf8;
+  border-color: #38bdf8;
+}
+
+.btn-manage-directories-pill {
+  background: rgba(14, 165, 233, 0.12);
+  border: 1px solid rgba(14, 165, 233, 0.35);
+  color: #38bdf8;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-manage-directories-pill:hover {
+  background: rgba(14, 165, 233, 0.25);
+  border-color: rgba(14, 165, 233, 0.6);
+  color: #fff;
+}
+
+.directory-row-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s;
+  gap: 12px;
+}
+
+.directory-row-card:hover {
+  border-color: var(--accent-sky);
+  background: var(--bg-card-hover);
+}
+
 
 /* Idea Tags */
 .tag-created {

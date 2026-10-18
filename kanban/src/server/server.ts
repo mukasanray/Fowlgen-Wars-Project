@@ -81,6 +81,72 @@ function saveMembers(members: Member[]) {
   fs.writeFileSync(MEMBERS_PATH, JSON.stringify(members, null, 2), 'utf8');
 }
 
+const DIRECTORIES_PATH = path.join(KANBAN_ROOT, 'src/config/directories.json');
+
+export interface ProjectDirectory {
+  id: string;
+  name: string;
+  path: string;
+  icon: string;
+  patterns?: string[];
+}
+
+function getDirectories(): ProjectDirectory[] {
+  if (fs.existsSync(DIRECTORIES_PATH)) {
+    try {
+      return JSON.parse(fs.readFileSync(DIRECTORIES_PATH, 'utf8'));
+    } catch { }
+  }
+  return [
+    { id: 'app', name: 'Site: app', path: 'app', icon: '🌐', patterns: ['app', 'site', 'web', 'portal', 'frontend'] },
+    { id: 'unity', name: 'Game: Unity', path: 'unity', icon: '🎮', patterns: ['unity', 'game', 'arena', 'combate', 'audio', 'mixamo', 'fishnet', 'apk'] },
+    { id: 'prompt', name: 'Skills: prompt', path: 'prompt', icon: '✨', patterns: ['prompt', 'skill', 'ia', 'agente', 'falas', 'claude'] },
+    { id: 'kanban', name: 'Kanban: kanban', path: 'kanban', icon: '📋', patterns: ['kanban', 'studio'] },
+    { id: 'program', name: 'Solana: program', path: 'program', icon: '🦀', patterns: ['program', 'solana', 'anchor', 'smart-contract'] },
+    { id: 'devsecops', name: 'DevSecOps: devsecops', path: 'devsecops', icon: '🛡️', patterns: ['devsecops', 'pipeline', 'ci-cd', 'gitleaks', 'k8s'] },
+    { id: 'docs', name: 'Docs: docs', path: 'docs', icon: '📄', patterns: ['docs', 'pitch', 'hackathon'] }
+  ];
+}
+
+function saveDirectories(dirs: ProjectDirectory[]) {
+  const dir = path.dirname(DIRECTORIES_PATH);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(DIRECTORIES_PATH, JSON.stringify(dirs, null, 2), 'utf8');
+}
+
+function detectDirectory(featureName: string, title: string, summary: string, proposal: string): string {
+  const text = `${featureName} ${title} ${summary} ${proposal}`.toLowerCase();
+  const dirs = getDirectories();
+  for (const dir of dirs) {
+    if (featureName.toLowerCase() === dir.id.toLowerCase() || featureName.toLowerCase().startsWith(dir.id.toLowerCase() + '-')) {
+      return dir.id;
+    }
+    if (dir.patterns && dir.patterns.some(p => text.includes(p.toLowerCase()))) {
+      return dir.id;
+    }
+  }
+  if (/portal-web|web3-hub|site|frontend|html|react|\bapp\b/i.test(text)) return 'app';
+  if (/unity|arena|combate|audio|mixamo|game|fishnet|apk|android|minion|hud|gameplay/i.test(text)) return 'unity';
+  if (/prompt|skill|ia|agente|falas|montarias|claude|ideia/i.test(text)) return 'prompt';
+  if (/kanban/i.test(text)) return 'kanban';
+  if (/solana|anchor|smart-contract|program|token|onchain/i.test(text)) return 'program';
+  if (/devsecops|pipeline|ci-cd|gitleaks|k8s|docker/i.test(text)) return 'devsecops';
+  if (/docs|pitch|hackathon|showcase/i.test(text)) return 'docs';
+  return 'geral';
+}
+
+function detectTaskDirectory(taskText: string, defaultDir: string): string {
+  const text = taskText.toLowerCase();
+  if (/\(app\/|\bapp\/|site:|\[app\]/i.test(text)) return 'app';
+  if (/\(unity\/|\bunity\/|game:|\[unity\]|arena_clean/i.test(text)) return 'unity';
+  if (/\(prompt\/|\bprompt\/|skills?:|\[prompt\]/i.test(text)) return 'prompt';
+  if (/\(kanban\/|\bkanban\/|\[kanban\]/i.test(text)) return 'kanban';
+  if (/\(program\/|\bprogram\/|solana:|\[program\]/i.test(text)) return 'program';
+  if (/\(devsecops\/|\bdevsecops\/|\[devsecops\]/i.test(text)) return 'devsecops';
+  if (/\(docs\/|\bdocs\/|\[docs\]/i.test(text)) return 'docs';
+  return defaultDir || 'geral';
+}
+
 export function formatAssigneeTag(assigneeStr?: string): string {
   if (!assigneeStr || !assigneeStr.trim() || assigneeStr === 'Todos') return '';
   const parts = assigneeStr
@@ -742,7 +808,8 @@ function getFeaturesFromGitBranch(branch: string) {
           }
         } catch { }
 
-        let tasks: Array<{ id: string; text: string; done: boolean; assignee?: string; prompt?: string; raw: string; section: string }> = [];
+        const detectedDir = detectDirectory(featureName, title, summary, proposal);
+        let tasks: Array<{ id: string; text: string; done: boolean; assignee?: string; directory?: string; prompt?: string; raw: string; section: string }> = [];
         try {
           const tasksContent = execSync(`git show ${branch}:openspec/changes/${featureName}/tasks.md`, { encoding: 'utf8', cwd: REPO_ROOT, stdio: ['pipe', 'pipe', 'ignore'] });
           const tlines = tasksContent.split('\n');
@@ -775,11 +842,13 @@ function getFeaturesFromGitBranch(branch: string) {
                 taskAssignee = '';
               }
 
+              const taskDir = detectTaskDirectory(text, detectedDir);
               tasks.push({
                 id: taskId,
                 text,
                 done,
                 assignee: taskAssignee,
+                directory: taskDir,
                 raw: tl.trim(),
                 section: currentSection
               });
@@ -817,6 +886,7 @@ function getFeaturesFromGitBranch(branch: string) {
           name: featureName,
           title,
           summary,
+          directory: detectedDir,
           status,
           ideaStatus,
           ideaColumn: ideaStatus,
@@ -905,7 +975,8 @@ function getFeaturesData() {
       }
     }
 
-    const tasks: Array<{ id: string; text: string; done: boolean; assignee?: string; prompt?: string; raw: string; section: string }> = [];
+    const detectedDir = detectDirectory(name, title, summary, proposal);
+    const tasks: Array<{ id: string; text: string; done: boolean; assignee?: string; directory?: string; prompt?: string; raw: string; section: string }> = [];
     if (fs.existsSync(tasksPath)) {
       const content = fs.readFileSync(tasksPath, 'utf8');
       const lines = content.split('\n');
@@ -940,11 +1011,13 @@ function getFeaturesData() {
             taskAssignee = '';
           }
 
+          const taskDir = detectTaskDirectory(text, detectedDir);
           tasks.push({
             id: taskId,
             text,
             done,
             assignee: taskAssignee,
+            directory: taskDir,
             raw: line.trim(),
             section: currentSection
           });
@@ -983,6 +1056,7 @@ function getFeaturesData() {
       name,
       title,
       summary,
+      directory: detectedDir,
       status,
       ideaStatus,
       ideaColumn: ideaStatus,
@@ -1483,6 +1557,81 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // API: Get project directories
+    if (req.method === 'GET' && pathname === '/api/directories') {
+      sendJSON(res, 200, {
+        success: true,
+        directories: getDirectories()
+      });
+      return;
+    }
+
+    // API: Add or update project directory
+    if (req.method === 'POST' && pathname === '/api/directories') {
+      const { id, name, path: dirPath, icon, patterns } = await parseJSONBody(req);
+      if (!name || !name.trim()) {
+        sendJSON(res, 400, { success: false, error: 'O nome do projeto/diretório é obrigatório.' });
+        return;
+      }
+      const cleanPath = (dirPath && dirPath.trim())
+        ? dirPath.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '')
+        : name.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+      const cleanId = (id && id.trim())
+        ? id.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '')
+        : cleanPath;
+
+      const dirs = getDirectories();
+      const existingIdx = dirs.findIndex(d => d.id === cleanId);
+      const newDir: ProjectDirectory = {
+        id: cleanId,
+        name: name.trim(),
+        path: cleanPath,
+        icon: (icon && icon.trim()) ? icon.trim() : '📁',
+        patterns: Array.isArray(patterns) && patterns.length > 0
+          ? patterns.map(p => String(p).trim().toLowerCase()).filter(Boolean)
+          : [cleanId, cleanPath, name.trim().toLowerCase()]
+      };
+
+      if (existingIdx >= 0) {
+        dirs[existingIdx] = newDir;
+      } else {
+        dirs.push(newDir);
+      }
+      saveDirectories(dirs);
+
+      sendJSON(res, 200, {
+        success: true,
+        message: `Diretório "${newDir.name}" salvo com sucesso!`,
+        directory: newDir,
+        directories: dirs
+      });
+      return;
+    }
+
+    // API: Delete project directory
+    if ((req.method === 'POST' && pathname === '/api/directories/delete') || (req.method === 'DELETE' && pathname.startsWith('/api/directories/'))) {
+      let targetId = '';
+      if (req.method === 'DELETE') {
+        targetId = decodeURIComponent(pathname.substring('/api/directories/'.length));
+      } else {
+        const body = await parseJSONBody(req);
+        targetId = body.id;
+      }
+      if (!targetId) {
+        sendJSON(res, 400, { success: false, error: 'ID do diretório é obrigatório.' });
+        return;
+      }
+      const dirs = getDirectories();
+      const filtered = dirs.filter(d => d.id !== targetId.toLowerCase());
+      saveDirectories(filtered);
+      sendJSON(res, 200, {
+        success: true,
+        message: `Diretório "${targetId}" removido.`,
+        directories: filtered
+      });
+      return;
+    }
+
     // API: Get GitHub and project config + Database info
     if (req.method === 'GET' && pathname === '/api/config') {
       let configData: any = {};
@@ -1703,6 +1852,7 @@ const server = http.createServer(async (req, res) => {
       sendJSON(res, 200, {
         success: true,
         features,
+        directories: getDirectories(),
         branch: selectedBranch,
         currentBranch: gitInfo.currentBranch,
         isGitBranch,

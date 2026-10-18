@@ -1,0 +1,110 @@
+[
+  {
+    "id": "app",
+    "name": "Site: app",
+    "path": "app",
+    "icon": "🌐",
+    "patterns": [
+      "app",
+      "site",
+      "web",
+      "portal",
+      "frontend",
+      "html",
+      "react"
+    ]
+  },
+  {
+    "id": "unity",
+    "name": "Game: Unity",
+    "path": "unity",
+    "icon": "🎮",
+    "patterns": [
+      "unity",
+      "game",
+      "arena",
+      "combate",
+      "audio",
+      "vfx",
+      "mixamo",
+      "gameplay",
+      "fishnet",
+      "apk",
+      "android",
+      "minion"
+    ]
+  },
+  {
+    "id": "prompt",
+    "name": "Skills: prompt",
+    "path": "prompt",
+    "icon": "✨",
+    "patterns": [
+      "prompt",
+      "skill",
+      "ia",
+      "agente",
+      "falas",
+      "claude",
+      "montarias",
+      "ideia",
+      "lore"
+    ]
+  },
+  {
+    "id": "kanban",
+    "name": "Kanban: kanban",
+    "path": "kanban",
+    "icon": "📋",
+    "patterns": [
+      "kanban",
+      "studio",
+      "quadro",
+      "openspec-kanban"
+    ]
+  },
+  {
+    "id": "program",
+    "name": "Solana: program",
+    "path": "program",
+    "icon": "🦀",
+    "patterns": [
+      "program",
+      "solana",
+      "anchor",
+      "smart-contract",
+      "token",
+      "onchain",
+      "web3"
+    ]
+  },
+  {
+    "id": "devsecops",
+    "name": "DevSecOps: devsecops",
+    "path": "devsecops",
+    "icon": "🛡️",
+    "patterns": [
+      "devsecops",
+      "pipeline",
+      "ci-cd",
+      "gitleaks",
+      "k8s",
+      "docker",
+      "security"
+    ]
+  },
+  {
+    "id": "docs",
+    "name": "Docs: docs",
+    "path": "docs",
+    "icon": "📄",
+    "patterns": [
+      "docs",
+      "pitch",
+      "pitch-deck",
+      "hackathon",
+      "showcase",
+      "apresentacao"
+    ]
+  }
+]

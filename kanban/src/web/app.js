@@ -59,7 +59,7 @@ function updateMultiAssigneeTriggerDisplay() {
   if (selectedTaskAssignees.length === 0) {
     const placeholder = document.createElement('span');
     placeholder.className = 'multi-select-placeholder';
-    placeholder.textContent = '👤 Selecione o(s) responsável(is)... *';
+    placeholder.textContent = '👤 Responsáveis... *';
     multiAssigneeValues.appendChild(placeholder);
     if (selectTaskAssignee) selectTaskAssignee.value = '';
     if (assigneeCountBadge) assigneeCountBadge.style.display = 'none';
@@ -115,8 +115,8 @@ function populateMultiAssigneeDropdown(filterText = '') {
   const filteredMembers = activeMembers.filter(m => {
     if (!searchLower) return true;
     return m.name.toLowerCase().includes(searchLower) ||
-           (m.role && m.role.toLowerCase().includes(searchLower)) ||
-           (m.id && m.id.toLowerCase().includes(searchLower));
+      (m.role && m.role.toLowerCase().includes(searchLower)) ||
+      (m.id && m.id.toLowerCase().includes(searchLower));
   });
 
   if (filteredMembers.length === 0) {
@@ -137,8 +137,10 @@ function populateMultiAssigneeDropdown(filterText = '') {
     opt.innerHTML = `
       <input type="checkbox" ${isSelected ? 'checked' : ''}>
       <span class="option-avatar">${m.avatar || '👤'}</span>
-      <span class="option-name">${escapeHtml(m.name)}</span>
-      <span class="option-role">${escapeHtml(m.role || 'Membro')}</span>
+      <div class="option-text-group">
+        <span class="option-name">${escapeHtml(m.name)}</span>
+        <span class="option-role">${escapeHtml(m.role || 'Membro')}</span>
+      </div>
     `;
 
     opt.addEventListener('click', (e) => {
@@ -502,6 +504,103 @@ const btnPushGit = document.getElementById('btn-push-git');
 // Board View State: 'tasks' (Tarefas da Sprint) vs 'ideas' (Funil de Ideias) vs 'analytics' (Analytics & Métricas)
 let currentBoardView = 'tasks';
 let currentAssigneeFilter = 'all';
+let currentDirectoryFilter = 'all';
+let projectDirectories = [];
+
+// Directory Filter DOM Elements
+const directoryFilterPillsContainer = document.getElementById('directory-filter-pills');
+const btnQuickManageDirectories = document.getElementById('btn-quick-manage-directories');
+const modalManageDirectories = document.getElementById('modal-manage-directories');
+const btnCloseDirectoriesModal = document.getElementById('btn-close-directories-modal');
+const btnCancelDirectories = document.getElementById('btn-cancel-directories');
+const btnSaveNewDirectory = document.getElementById('btn-save-new-directory');
+const inputNewDirName = document.getElementById('input-new-dir-name');
+const inputNewDirIcon = document.getElementById('input-new-dir-icon');
+const inputNewDirPath = document.getElementById('input-new-dir-path');
+const modalDirectoriesList = document.getElementById('modal-directories-list');
+const directoriesCountBadge = document.getElementById('directories-count-badge');
+
+
+// Kanban Search State & Elements (Tarefas e Ideias)
+let kanbanSearchQuery = '';
+const inputSearchKanban = document.getElementById('input-search-kanban');
+const btnClearKanbanSearch = document.getElementById('btn-clear-kanban-search');
+const kanbanSearchCountBadge = document.getElementById('kanban-search-count-badge');
+const kanbanSearchEmptyState = document.getElementById('kanban-search-empty-state');
+const emptyStateSearchTitle = document.getElementById('empty-state-search-title');
+const emptyStateSearchDesc = document.getElementById('empty-state-search-desc');
+const btnClearSearchEmpty = document.getElementById('btn-clear-search-empty');
+
+function updateSearchPlaceholder() {
+  if (!inputSearchKanban) return;
+  if (currentBoardView === 'tasks') {
+    inputSearchKanban.placeholder = '🔍 Pesquisar tarefas no Kanban... (Ctrl+F)';
+    inputSearchKanban.title = 'Pesquisar tarefas por texto, prompt, ID ou responsável (Atalho: Ctrl+F ou /)';
+  } else if (currentBoardView === 'ideas') {
+    inputSearchKanban.placeholder = '🔍 Pesquisar ideias no Kanban... (Ctrl+F)';
+    inputSearchKanban.title = 'Pesquisar ideias por título, ID, briefing ou status (Atalho: Ctrl+F ou /)';
+  } else {
+    inputSearchKanban.placeholder = '🔍 Filtrar features no Analytics... (Ctrl+F)';
+    inputSearchKanban.title = 'Filtrar features e entregas da sprint';
+  }
+}
+
+function clearKanbanSearch() {
+  kanbanSearchQuery = '';
+  if (inputSearchKanban) {
+    inputSearchKanban.value = '';
+    inputSearchKanban.focus();
+  }
+  if (btnClearKanbanSearch) {
+    btnClearKanbanSearch.style.display = 'none';
+  }
+  if (kanbanSearchCountBadge) {
+    kanbanSearchCountBadge.style.display = 'none';
+  }
+  if (kanbanSearchEmptyState) {
+    kanbanSearchEmptyState.style.display = 'none';
+  }
+  if (currentBoardView === 'analytics') {
+    renderAnalyticsDashboard(currentFeatures);
+  } else {
+    renderFeatures(currentFeatures);
+  }
+}
+
+if (inputSearchKanban) {
+  inputSearchKanban.addEventListener('input', (e) => {
+    kanbanSearchQuery = e.target.value.trim().toLowerCase();
+    if (btnClearKanbanSearch) {
+      btnClearKanbanSearch.style.display = kanbanSearchQuery ? 'inline-flex' : 'none';
+    }
+    if (currentBoardView === 'analytics') {
+      renderAnalyticsDashboard(currentFeatures);
+    } else {
+      renderFeatures(currentFeatures);
+    }
+  });
+}
+
+if (btnClearKanbanSearch) {
+  btnClearKanbanSearch.addEventListener('click', clearKanbanSearch);
+}
+if (btnClearSearchEmpty) {
+  btnClearSearchEmpty.addEventListener('click', clearKanbanSearch);
+}
+
+// Atalho global Ctrl+F, Ctrl+K ou "/" para focar rapidamente na busca do Kanban
+document.addEventListener('keydown', (e) => {
+  const isInputActive = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+  if ((e.ctrlKey && (e.key === 'f' || e.key === 'k')) || (e.key === '/' && !isInputActive)) {
+    if (inputSearchKanban) {
+      e.preventDefault();
+      inputSearchKanban.focus();
+      inputSearchKanban.select();
+    }
+  } else if (e.key === 'Escape' && document.activeElement === inputSearchKanban) {
+    clearKanbanSearch();
+  }
+});
 
 const btnViewTasks = document.getElementById('btn-view-tasks');
 const btnViewIdeas = document.getElementById('btn-view-ideas');
@@ -1068,12 +1167,14 @@ function updateStats(features) {
 // Board View Switcher (Tarefas da Sprint vs Funil de Ideias vs Analytics)
 function setBoardView(view) {
   currentBoardView = view;
+  updateSearchPlaceholder();
 
   if (view === 'analytics') {
     btnViewAnalytics?.classList.add('active');
     btnViewTasks?.classList.remove('active');
     btnViewIdeas?.classList.remove('active');
     if (kanbanColumnsContainer) kanbanColumnsContainer.style.display = 'none';
+    if (kanbanSearchEmptyState) kanbanSearchEmptyState.style.display = 'none';
     if (analyticsDashboardContainer) analyticsDashboardContainer.style.display = 'flex';
     renderAnalyticsDashboard(currentFeatures);
     return;
@@ -1134,6 +1235,26 @@ document.querySelectorAll('.member-pill').forEach(pill => {
 // =============================================================
 function renderAnalyticsDashboard(features) {
   if (!analyticsDashboardContainer) return;
+
+  if (currentDirectoryFilter !== 'all') {
+    const targetDir = currentDirectoryFilter.toLowerCase().trim();
+    features = features.filter(feature => {
+      if (feature.directory && feature.directory.toLowerCase() === targetDir) return true;
+      if (feature.tasks && feature.tasks.some(t => t.directory && t.directory.toLowerCase() === targetDir)) return true;
+      const dirObj = projectDirectories.find(d => d.id.toLowerCase() === targetDir);
+      if (dirObj) {
+        const p = (dirObj.path || '').toLowerCase();
+        const id = dirObj.id.toLowerCase();
+        if (feature.name && (feature.name.toLowerCase().includes(id) || (p && feature.name.toLowerCase().includes(p)))) return true;
+        if (feature.title && (feature.title.toLowerCase().includes(id) || (p && feature.title.toLowerCase().includes(p)))) return true;
+        if (feature.tasks && feature.tasks.some(t => {
+          const txt = (t.text || '').toLowerCase();
+          return (p && txt.includes(p)) || txt.includes(`(${id}/)`) || txt.includes(`(${id})`);
+        })) return true;
+      }
+      return false;
+    });
+  }
 
   const totalFeatures = features.length;
   let totalTasks = 0;
@@ -1302,12 +1423,24 @@ function renderAnalyticsDashboard(features) {
     }).join('');
   }
 
-  // Build Features Table Rows HTML
+  // Build Features Table Rows HTML (filtrado pela busca se ativa)
+  let displayFeatures = features;
+  if (kanbanSearchQuery) {
+    const q = kanbanSearchQuery;
+    displayFeatures = features.filter(f =>
+      (f.title && f.title.toLowerCase().includes(q)) ||
+      (f.name && f.name.toLowerCase().includes(q)) ||
+      (f.summary && f.summary.toLowerCase().includes(q)) ||
+      (f.assignees && f.assignees.some(a => a.toLowerCase().includes(q))) ||
+      (f.tasks && f.tasks.some(t => (t.text && t.text.toLowerCase().includes(q)) || (t.id && t.id.toLowerCase().includes(q))))
+    );
+  }
+
   let featuresRowsHtml = '';
-  if (features.length === 0) {
-    featuresRowsHtml = `<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--text-dim);">Nenhuma feature cadastrada no OpenSpec.</td></tr>`;
+  if (displayFeatures.length === 0) {
+    featuresRowsHtml = `<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--text-dim);">Nenhuma feature encontrada para a pesquisa atual.</td></tr>`;
   } else {
-    featuresRowsHtml = features.map(f => {
+    featuresRowsHtml = displayFeatures.map(f => {
       let statusBadge = '<span class="badge-tag" style="background: rgba(100, 116, 139, 0.15); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3);">📋 A Fazer</span>';
       if (f.kanbanColumn === 'Done') {
         statusBadge = '<span class="badge-tag" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">✅ Concluído</span>';
@@ -1587,7 +1720,7 @@ function renderFeatures(features) {
   let countBacklog = 0, countProgress = 0, countReview = 0, countDone = 0;
 
   // Filtragem por integrante
-  const filtered = features.filter(feature => {
+  let filtered = features.filter(feature => {
     if (currentAssigneeFilter === 'all') return true;
     const filterLower = currentAssigneeFilter.toLowerCase().replace(/^@/, '').trim();
 
@@ -1631,6 +1764,101 @@ function renderFeatures(features) {
 
     return false;
   });
+
+  // Filtragem por Diretório / Projeto (ex: app, unity, prompt, kanban, etc.)
+  if (currentDirectoryFilter !== 'all') {
+    const targetDir = currentDirectoryFilter.toLowerCase().trim();
+    filtered = filtered.filter(feature => {
+      // 1. Diretório explicitamente atribuído à feature pelo backend
+      if (feature.directory && feature.directory.toLowerCase() === targetDir) {
+        return true;
+      }
+      // 2. Se a feature tiver tarefas com esse diretório
+      if (feature.tasks && feature.tasks.some(t => t.directory && t.directory.toLowerCase() === targetDir)) {
+        return true;
+      }
+      // 3. Fallback de matching por identificador ou caminho
+      const dirObj = projectDirectories.find(d => d.id.toLowerCase() === targetDir);
+      if (dirObj) {
+        const p = (dirObj.path || '').toLowerCase();
+        const id = dirObj.id.toLowerCase();
+        if (feature.name && (feature.name.toLowerCase().includes(id) || (p && feature.name.toLowerCase().includes(p)))) return true;
+        if (feature.title && (feature.title.toLowerCase().includes(id) || (p && feature.title.toLowerCase().includes(p)))) return true;
+        if (feature.tasks && feature.tasks.some(t => {
+          const txt = (t.text || '').toLowerCase();
+          return (p && txt.includes(p)) || txt.includes(`(${id}/)`) || txt.includes(`(${id})`);
+        })) return true;
+      }
+      return false;
+    });
+  }
+
+  // Filtragem por pesquisa no Kanban (Tarefas ou Ideias)
+  if (kanbanSearchQuery) {
+    const q = kanbanSearchQuery;
+    if (currentBoardView === 'tasks') {
+      filtered = filtered.filter(feature => {
+        const matchFeature = (feature.title && feature.title.toLowerCase().includes(q)) ||
+          (feature.name && feature.name.toLowerCase().includes(q)) ||
+          (feature.summary && feature.summary.toLowerCase().includes(q)) ||
+          (feature.assignees && feature.assignees.some(a => a.toLowerCase().includes(q)));
+
+        const matchTasks = feature.tasks && feature.tasks.some(t => {
+          return (t.id && t.id.toLowerCase().includes(q)) ||
+            (t.text && t.text.toLowerCase().includes(q)) ||
+            (t.prompt && t.prompt.toLowerCase().includes(q)) ||
+            (t.assignee && t.assignee.toLowerCase().includes(q)) ||
+            (t.status && t.status.toLowerCase().includes(q));
+        });
+
+        return matchFeature || matchTasks;
+      });
+    } else {
+      // Funil de Ideias
+      filtered = filtered.filter(feature => {
+        const matchTitle = feature.title && feature.title.toLowerCase().includes(q);
+        const matchId = feature.name && feature.name.toLowerCase().includes(q);
+        const matchSummary = feature.summary && feature.summary.toLowerCase().includes(q);
+        const matchPrompt = feature.prompt && feature.prompt.toLowerCase().includes(q);
+        const matchAssignee = feature.ideaAssignee && feature.ideaAssignee.toLowerCase().includes(q);
+        const matchStatus = (feature.ideaStatus || feature.ideaColumn || '').toLowerCase().includes(q);
+        const matchTasks = feature.tasks && feature.tasks.some(t => {
+          return (t.text && t.text.toLowerCase().includes(q)) ||
+            (t.id && t.id.toLowerCase().includes(q)) ||
+            (t.prompt && t.prompt.toLowerCase().includes(q));
+        });
+
+        return matchTitle || matchId || matchSummary || matchPrompt || matchAssignee || matchStatus || matchTasks;
+      });
+    }
+  }
+
+  // Atualiza badge de contagem de pesquisa e empty-state
+  if (kanbanSearchCountBadge) {
+    if (kanbanSearchQuery) {
+      kanbanSearchCountBadge.style.display = 'inline-block';
+      const label = currentBoardView === 'tasks' ? 'tarefa(s)/feature(s)' : 'ideia(s)';
+      kanbanSearchCountBadge.textContent = `${filtered.length} ${label}`;
+    } else {
+      kanbanSearchCountBadge.style.display = 'none';
+    }
+  }
+
+  if (kanbanSearchEmptyState) {
+    if (kanbanSearchQuery && filtered.length === 0) {
+      kanbanSearchEmptyState.style.display = 'flex';
+      if (emptyStateSearchTitle) {
+        emptyStateSearchTitle.textContent = currentBoardView === 'tasks'
+          ? `Nenhuma tarefa encontrada para "${kanbanSearchQuery}"`
+          : `Nenhuma ideia encontrada para "${kanbanSearchQuery}"`;
+      }
+      if (emptyStateSearchDesc) {
+        emptyStateSearchDesc.textContent = 'Verifique a digitação ou limpe a pesquisa para visualizar todo o quadro.';
+      }
+    } else {
+      kanbanSearchEmptyState.style.display = 'none';
+    }
+  }
 
   if (currentBoardView === 'tasks') {
     // -----------------------------------------------------------------
@@ -1686,6 +1914,10 @@ function renderFeatures(features) {
 function createIdeaCard(feature) {
   const card = document.createElement('div');
   card.className = 'feature-card idea-card';
+  if (kanbanSearchQuery) {
+    card.style.borderColor = 'rgba(168, 85, 247, 0.45)';
+    card.style.boxShadow = '0 0 10px rgba(168, 85, 247, 0.12)';
+  }
 
   const status = feature.ideaStatus || 'Criado';
   let tagClass = 'tag-created';
@@ -1748,7 +1980,8 @@ function createIdeaCard(feature) {
   card.innerHTML = `
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 6px; flex-wrap: wrap;">
       <span class="card-tag ${tagClass}">${statusEmoji} ${status}</span>
-      <div style="display: flex; gap: 4px; align-items: center;">
+      <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+        ${feature.directory ? `<span class="badge-tag" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); font-size: 10px;">📁 ${escapeHtml(feature.directory)}</span>` : ''}
         ${assigneeBadge}
         ${modifiedBadge}
       </div>
@@ -1890,15 +2123,37 @@ function createFeatureCard(feature) {
     ? activeAssignees.map(a => `<span class="badge-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px;">👤 ${a === 'dev-team' ? 'Todos' : a}</span>`).join(' ')
     : `<span class="badge-tag" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; font-size: 10px;">👥 Todos</span>`;
 
-  // Task Items HTML
-  const tasksHtml = feature.tasks.slice(0, 5).map(t => {
+  // Task Items HTML (Prioriza exibição das tarefas que batem com a pesquisa)
+  let displayedTasks = feature.tasks.slice(0, 5);
+  if (kanbanSearchQuery) {
+    const q = kanbanSearchQuery;
+    const matching = feature.tasks.filter(t =>
+      (t.id && t.id.toLowerCase().includes(q)) ||
+      (t.text && t.text.toLowerCase().includes(q)) ||
+      (t.prompt && t.prompt.toLowerCase().includes(q)) ||
+      (t.assignee && t.assignee.toLowerCase().includes(q))
+    );
+    if (matching.length > 0) {
+      const nonMatching = feature.tasks.filter(t => !matching.includes(t));
+      displayedTasks = [...matching, ...nonMatching].slice(0, Math.max(5, matching.length));
+    }
+  }
+
+  const tasksHtml = displayedTasks.map(t => {
+    const isMatching = Boolean(kanbanSearchQuery && (
+      (t.id && t.id.toLowerCase().includes(kanbanSearchQuery)) ||
+      (t.text && t.text.toLowerCase().includes(kanbanSearchQuery)) ||
+      (t.prompt && t.prompt.toLowerCase().includes(kanbanSearchQuery)) ||
+      (t.assignee && t.assignee.toLowerCase().includes(kanbanSearchQuery))
+    ));
     const cleanText = t.text.replace(/\(([^)]+)\)|@([\w-]+)|\[([\w-]+)\]/g, '').trim();
     const showAssignee = t.assignee && isMemberActive(t.assignee);
     const promptBadge = t.prompt
       ? `<span title="${escapeHtml(t.prompt)}" style="font-size: 10px; color: #c084fc; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); padding: 1px 5px; border-radius: 8px; margin-left: 4px; cursor: help;">💬 Prompt</span>`
       : '';
+    const matchHighlightStyle = isMatching ? 'background: rgba(168, 85, 247, 0.18); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 4px; padding: 2px 4px;' : '';
     return `
-    <div class="task-item-row" style="display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 2px;">
+    <div class="task-item-row" style="display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 2px; ${matchHighlightStyle}">
       <label class="task-item ${t.done ? 'done' : ''}" style="margin-bottom: 0; flex: 1; min-width: 0; display: flex; align-items: center;">
         <input type="checkbox" ${t.done ? 'checked' : ''} ${feature.isFromGitBranch ? 'disabled title="Modo Histórico da branch (somente leitura)"' : ''} data-feature="${feature.name}" data-task-id="${t.id}" class="task-checkbox">
         <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${t.id ? `<strong>${escapeHtml(t.id)}</strong> ` : ''}${escapeHtml(cleanText || t.text)}</span>
@@ -1910,10 +2165,16 @@ function createFeatureCard(feature) {
     `;
   }).join('');
 
+  const dirObj = projectDirectories.find(d => d.id.toLowerCase() === (feature.directory || '').toLowerCase());
+  const dirBadge = feature.directory
+    ? `<span class="badge-tag" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); font-size: 10px;" title="Diretório / Projeto: ${escapeHtml(feature.directory)}">${dirObj?.icon || '📁'} ${escapeHtml(dirObj?.name || feature.directory)}</span>`
+    : '';
+
   card.innerHTML = `
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 6px; flex-wrap: wrap;">
       <span class="card-tag ${tagClass}">${feature.kanbanColumn}</span>
       <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+        ${dirBadge}
         ${assigneesHtml}
         ${modifiedBadge}
         ${branchBadge}
@@ -2990,6 +3251,212 @@ function renderMemberFilterPills() {
     memberFilterPillsContainer.appendChild(btn);
   });
 }
+
+// =============================================================
+// GESTÃO E FILTRO DE DIRETÓRIOS / PROJETOS (app, unity, prompt...)
+// =============================================================
+async function fetchDirectories() {
+  try {
+    const res = await fetch('/api/directories');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.success && data.directories) {
+      projectDirectories = data.directories;
+      renderDirectoryFilterPills();
+      renderModalDirectoriesList();
+    }
+  } catch (err) {
+    console.warn('Erro ao carregar diretórios:', err);
+  }
+}
+
+function renderDirectoryFilterPills() {
+  if (!directoryFilterPillsContainer) return;
+  directoryFilterPillsContainer.innerHTML = '';
+
+  // 1. Pílula "Todos"
+  const allBtn = document.createElement('button');
+  allBtn.type = 'button';
+  allBtn.className = `directory-pill ${currentDirectoryFilter === 'all' ? 'active' : ''}`;
+  allBtn.setAttribute('data-directory', 'all');
+  allBtn.innerHTML = '📂 Todos';
+  allBtn.addEventListener('click', () => setDirectoryFilter('all'));
+  directoryFilterPillsContainer.appendChild(allBtn);
+
+  // 2. Pílula para cada diretório cadastrado
+  projectDirectories.forEach(dir => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    const isAct = currentDirectoryFilter.toLowerCase() === dir.id.toLowerCase();
+    btn.className = `directory-pill ${isAct ? 'active' : ''}`;
+    btn.setAttribute('data-directory', dir.id);
+    btn.innerHTML = `${dir.icon || '📁'} ${escapeHtml(dir.name)}`;
+    btn.title = `Filtrar tarefas no projeto "${dir.path || dir.id}"`;
+    btn.addEventListener('click', () => setDirectoryFilter(dir.id));
+    directoryFilterPillsContainer.appendChild(btn);
+  });
+}
+
+function setDirectoryFilter(dirId) {
+  currentDirectoryFilter = dirId;
+  renderDirectoryFilterPills();
+  if (currentBoardView === 'analytics') {
+    renderAnalyticsDashboard(currentFeatures);
+  } else {
+    renderFeatures(currentFeatures);
+  }
+}
+
+function renderModalDirectoriesList() {
+  if (!modalDirectoriesList) return;
+  modalDirectoriesList.innerHTML = '';
+  if (directoriesCountBadge) {
+    directoriesCountBadge.textContent = `${projectDirectories.length} diretório(s)`;
+  }
+
+  projectDirectories.forEach(dir => {
+    const row = document.createElement('div');
+    row.className = 'directory-row-card';
+    row.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+        <span style="font-size: 20px;">${dir.icon || '📁'}</span>
+        <div style="min-width: 0;">
+          <div style="font-size: 13px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            ${escapeHtml(dir.name)}
+          </div>
+          <div style="font-size: 11px; color: var(--text-dim); font-family: var(--font-mono);">
+            caminho: <code>${escapeHtml(dir.path || dir.id)}</code> (ID: ${escapeHtml(dir.id)})
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 6px; align-items: center; flex-shrink: 0;">
+        <button type="button" class="btn btn-secondary btn-sm btn-filter-dir" style="padding: 3px 8px; font-size: 11px;" title="Filtrar tarefas deste projeto">
+          🎯 Filtrar
+        </button>
+        <button type="button" class="btn btn-danger btn-sm btn-del-dir" style="padding: 3px 8px; font-size: 11px;" title="Remover diretório">
+          🗑️ Excluir
+        </button>
+      </div>
+    `;
+
+    row.querySelector('.btn-filter-dir')?.addEventListener('click', () => {
+      setDirectoryFilter(dir.id);
+      if (modalManageDirectories) modalManageDirectories.classList.remove('open');
+      showToast(`Filtrando tarefas do projeto "${dir.name}"!`, 'info');
+    });
+
+    row.querySelector('.btn-del-dir')?.addEventListener('click', async () => {
+      const confirmed = await showConfirmModal({
+        title: 'Remover Diretório de Filtro',
+        icon: '🗑️',
+        message: `Deseja remover o diretório **${dir.name}** (${dir.path}) da barra de filtros?`,
+        confirmText: 'Sim, Remover',
+        confirmBtnClass: 'btn-danger'
+      });
+      if (!confirmed) return;
+
+      try {
+        const res = await fetch('/api/directories/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: dir.id })
+        });
+        const data = await res.json();
+        if (data.success) {
+          projectDirectories = data.directories || projectDirectories.filter(d => d.id !== dir.id);
+          if (currentDirectoryFilter === dir.id) setDirectoryFilter('all');
+          else renderDirectoryFilterPills();
+          renderModalDirectoriesList();
+          showToast(`Diretório "${dir.name}" removido!`, 'success');
+        } else {
+          showToast(data.error || 'Erro ao remover diretório', 'error');
+        }
+      } catch (err) {
+        showToast('Erro de conexão ao remover diretório', 'error');
+      }
+    });
+
+    modalDirectoriesList.appendChild(row);
+  });
+}
+
+// Handlers do Modal de Diretórios
+if (btnQuickManageDirectories) {
+  btnQuickManageDirectories.addEventListener('click', () => {
+    renderModalDirectoriesList();
+    if (modalManageDirectories) modalManageDirectories.classList.add('open');
+  });
+}
+
+if (btnCloseDirectoriesModal) {
+  btnCloseDirectoriesModal.addEventListener('click', () => {
+    if (modalManageDirectories) modalManageDirectories.classList.remove('open');
+  });
+}
+
+if (btnCancelDirectories) {
+  btnCancelDirectories.addEventListener('click', () => {
+    if (modalManageDirectories) modalManageDirectories.classList.remove('open');
+  });
+}
+
+if (modalManageDirectories) {
+  modalManageDirectories.addEventListener('click', (e) => {
+    if (e.target === modalManageDirectories) {
+      modalManageDirectories.classList.remove('open');
+    }
+  });
+}
+
+// Handler para salvar novo diretório
+if (btnSaveNewDirectory) {
+  btnSaveNewDirectory.addEventListener('click', async () => {
+    const name = inputNewDirName ? inputNewDirName.value.trim() : '';
+    const pathVal = inputNewDirPath ? inputNewDirPath.value.trim() : '';
+    const icon = inputNewDirIcon ? (inputNewDirIcon.value.trim() || '📁') : '📁';
+
+    if (!name || !pathVal) {
+      showToast('⚠️ Preencha o Nome e o Caminho do diretório!', 'warning');
+      if (!name && inputNewDirName) inputNewDirName.focus();
+      else if (inputNewDirPath) inputNewDirPath.focus();
+      return;
+    }
+
+    const id = pathVal.toLowerCase().replace(/[^a-z0-9_-]/g, '-').replace(/^-+|-+$/g, '');
+
+    const confirmed = await showConfirmModal({
+      title: 'Cadastrar Novo Diretório',
+      icon: icon || '📁',
+      message: `Deseja adicionar o filtro de diretório **${name}** (caminho: \`${pathVal}\`) no Kanban?`,
+      confirmText: 'Sim, Cadastrar',
+      confirmBtnClass: 'btn-primary'
+    });
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch('/api/directories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, name, path: pathVal, icon })
+      });
+      const data = await res.json();
+      if (data.success) {
+        projectDirectories = data.directories || [...projectDirectories, { id, name, path: pathVal, icon }];
+        renderDirectoryFilterPills();
+        renderModalDirectoriesList();
+        if (inputNewDirName) inputNewDirName.value = '';
+        if (inputNewDirPath) inputNewDirPath.value = '';
+        if (inputNewDirIcon) inputNewDirIcon.value = '📁';
+        showToast(`Diretório "${name}" cadastrado com sucesso!`, 'success');
+      } else {
+        showToast(data.error || 'Erro ao cadastrar diretório', 'error');
+      }
+    } catch (err) {
+      showToast('Erro de conexão ao cadastrar diretório', 'error');
+    }
+  });
+}
+
 
 function renderModalMembersList() {
   if (!membersListCards) return;
@@ -4175,6 +4642,7 @@ function initApp() {
   } catch { }
   fetchGitInfo();
   fetchMembers();
+  fetchDirectories();
   fetchFeatures();
   loadConfig();
   updateCommandPreview();

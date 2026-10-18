@@ -1,8 +1,5 @@
 # Tasks: Tarefas Gerais & Avulsas
 
 ## 1. Demandas Avulsas da Equipe
-
-
--**1.1  youtube** Criar canal de youtube (@Marcos)
-- [ ] **1.2** Criar tumbinails para videos do yutube (@Sthefany)
-
+- [ ] **1.1** Criar canal do YouTube (@Marcos)
+- [ ] **1.2** Criar thumbnails para vídeos do YouTube (@Sthefany)

@@ -43,7 +43,31 @@ function request(options, body = null) {
   });
 }
 
+const { spawn } = require('child_process');
+
+let spawnedServer = null;
+async function ensureServerRunning() {
+  for (let i = 0; i < 3; i++) {
+    try {
+      await request({ path: '/' });
+      return;
+    } catch (e) {
+      if (i === 0) {
+        console.log('⚡ Servidor não detectado na porta 3000. Iniciando servidor Node/TS...');
+        spawnedServer = spawn('npx', ['tsx', 'src/server/server.ts'], {
+          cwd: path.resolve(__dirname),
+          shell: true,
+          stdio: 'ignore'
+        });
+      }
+      await new Promise(r => setTimeout(r, 2000));
+    }
+  }
+}
+
 async function runAllTests() {
+  await ensureServerRunning();
+
   console.log('====================================================');
   console.log('🧪 INICIANDO BATERIA COMPLETA DE TESTES DO KANBAN');
   console.log('====================================================\n');
@@ -175,6 +199,10 @@ async function runAllTests() {
     console.log('\n--- 3. Criação de Ideia / Feature OpenSpec ---');
     const testFeatureId = 'teste-arena-pvp';
     const testTitle = 'Arena PvP Multijogador em Tempo Real';
+    const preCleanDir = path.join(path.resolve(__dirname, '..'), 'openspec', 'changes', testFeatureId);
+    if (fs.existsSync(preCleanDir)) {
+      fs.rmSync(preCleanDir, { recursive: true, force: true });
+    }
     const resCreate = await request({
       path: '/api/features/create',
       method: 'POST'
@@ -246,7 +274,9 @@ async function runAllTests() {
     assert(resRoot.data.includes('multi-assignee-container'), 'index.html contém container multi-assignee-container');
     assert(resRoot.data.includes('multi-assignee-trigger'), 'index.html contém trigger multi-assignee-trigger');
     assert(resRoot.data.includes('multi-assignee-dropdown'), 'index.html contém menu multi-assignee-dropdown');
-    assert(resRoot.data.includes('Selecione o(s) responsável(is)... *'), 'index.html exibe placeholder de seleção obrigatória');
+    assert(resRoot.data.includes('Responsáveis... *'), 'index.html exibe placeholder de seleção obrigatória mais curto (Responsáveis... *)');
+    assert(resAppJs.data.includes('option-text-group'), 'app.js estrutura descrição de cargo embaixo do nome do integrante');
+    assert(resStyles.data.includes('.option-text-group'), 'styles.css define regras para .option-text-group sem scroll horizontal');
     assert(resStyles.data.includes('.multi-select-container'), 'styles.css define regras para .multi-select-container');
     assert(resStyles.data.includes('.multi-select-trigger.has-error'), 'styles.css define efeito de erro/shake para validação obrigatória');
     assert(resAppJs.data.includes('selectedTaskAssignees'), 'app.js gerencia estado selectedTaskAssignees');
@@ -292,8 +322,64 @@ async function runAllTests() {
     assert(resRoot.data.includes('Arte e Animador 3D'), 'index.html contém opção Arte e Animador 3D');
     assert(!resRoot.data.includes('Arte 2D / 3D & VFX'), 'index.html não contém mais a opção combinada com VFX');
 
-    // 11. Clean Up Test Feature
-    console.log('\n--- 11. Limpeza do Ambiente de Teste ---');
+    // 11. Test Kanban Search for Tasks and Ideas
+    console.log('\n--- 11. Pesquisa de Tarefas e Ideias no Kanban ---');
+    assert(resRoot.data.includes('id="input-search-kanban"'), 'index.html contém input de busca no Kanban input-search-kanban');
+    assert(resRoot.data.includes('id="btn-clear-kanban-search"'), 'index.html contém botão para limpar busca no Kanban');
+    assert(resRoot.data.includes('id="kanban-search-count-badge"'), 'index.html contém badge com contador de resultados');
+    assert(resRoot.data.includes('id="kanban-search-empty-state"'), 'index.html contém container de empty-state para busca sem resultados');
+    assert(resStyles.data.includes('.kanban-search-box'), 'styles.css contém estilos do kanban-search-box');
+    assert(resStyles.data.includes('.kanban-search-empty-state'), 'styles.css contém estilos do kanban-search-empty-state');
+    assert(resAppJs.data.includes('let kanbanSearchQuery'), 'app.js gerencia estado kanbanSearchQuery');
+    assert(resAppJs.data.includes('function clearKanbanSearch'), 'app.js implementa função clearKanbanSearch');
+    assert(resAppJs.data.includes('function updateSearchPlaceholder'), 'app.js atualiza placeholder dinamicamente conforme a visão (Tarefas vs Ideias)');
+    assert(resAppJs.data.includes('inputSearchKanban.addEventListener(\'input\''), 'app.js escuta evento de input para filtragem reativa em tempo real');
+
+    // 12. Test Directory / Project Filtering and Management
+    console.log('\n--- 12. Filtro e Gestão de Diretórios / Projetos (site: app, Game: Unity, Skills: prompt...) ---');
+    const resDirs = await request({ path: '/api/directories' });
+    assert(resDirs.status === 200 && resDirs.json && resDirs.json.success, 'GET /api/directories retorna lista de diretórios');
+    assert(Array.isArray(resDirs.json.directories) && resDirs.json.directories.length >= 4, 'Lista de diretórios contém múltiplos projetos padrão configurados');
+    assert(resDirs.json.directories.some(d => d.id === 'app' || d.path === 'app'), 'Diretório site: app está presente');
+    assert(resDirs.json.directories.some(d => d.id === 'unity' || d.path === 'unity'), 'Diretório Game: Unity está presente');
+    assert(resDirs.json.directories.some(d => d.id === 'prompt' || d.path === 'prompt'), 'Diretório Skills: prompt está presente');
+
+    // Cadastrar diretório temporário de teste
+    const resCreateDir = await request({
+      path: '/api/directories',
+      method: 'POST'
+    }, {
+      id: 'test-backend',
+      name: 'Backend API',
+      path: 'backend',
+      icon: '⚙️'
+    });
+    assert(resCreateDir.status === 200 && resCreateDir.json && resCreateDir.json.success, 'POST /api/directories cadastra novo diretório com sucesso');
+    assert(resCreateDir.json.directories.some(d => d.id === 'test-backend'), 'Diretório de teste está na coleção retornada');
+
+    // Excluir diretório temporário de teste
+    const resDeleteDir = await request({
+      path: '/api/directories/delete',
+      method: 'POST'
+    }, {
+      id: 'test-backend'
+    });
+    assert(resDeleteDir.status === 200 && resDeleteDir.json && resDeleteDir.json.success, 'POST /api/directories/delete remove diretório com sucesso');
+
+    // Validação de DOM, CSS e JS para Diretórios
+    assert(resRoot.data.includes('directory-filter-bar'), 'index.html contém barra de filtro de diretório directory-filter-bar');
+    assert(resRoot.data.includes('directory-filter-pills'), 'index.html contém container de pílulas directory-filter-pills');
+    assert(resRoot.data.includes('btn-quick-manage-directories'), 'index.html contém botão para gerenciar diretórios');
+    assert(resRoot.data.includes('modal-manage-directories'), 'index.html contém modal de gestão de diretórios');
+    assert(resStyles.data.includes('.directory-filter-bar'), 'styles.css contém estilos para .directory-filter-bar');
+    assert(resStyles.data.includes('.directory-pill'), 'styles.css contém estilos para .directory-pill');
+    assert(resAppJs.data.includes('let currentDirectoryFilter'), 'app.js gerencia estado currentDirectoryFilter');
+    assert(resAppJs.data.includes('function fetchDirectories'), 'app.js implementa fetchDirectories');
+    assert(resAppJs.data.includes('function renderDirectoryFilterPills'), 'app.js implementa renderDirectoryFilterPills');
+    assert(resAppJs.data.includes('function setDirectoryFilter'), 'app.js implementa setDirectoryFilter');
+
+    // 13. Clean Up Test Feature
+    console.log('\n--- 13. Limpeza do Ambiente de Teste ---');
     const repoRoot = path.resolve(__dirname, '..');
     const testFeatureDir = path.join(repoRoot, 'openspec', 'changes', testFeatureId);
     if (fs.existsSync(testFeatureDir)) {

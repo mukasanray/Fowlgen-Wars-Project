@@ -170,7 +170,7 @@
               <div class="multi-select-container" id="multi-assignee-container">
                 <button type="button" class="form-select multi-select-trigger" id="multi-assignee-trigger" aria-haspopup="listbox" aria-expanded="false">
                   <div class="multi-select-values" id="multi-assignee-values">
-                    <span class="multi-select-placeholder">👤 Selecione o(s) responsável(is)... *</span>
+                    <span class="multi-select-placeholder">👤 Responsáveis... *</span>
                   </div>
                   <span class="multi-select-arrow">▾</span>
                 </button>
@@ -390,6 +390,20 @@
           </div>
         </div>
 
+        <!-- Barra de Busca no Kanban (Tarefas / Ideias) -->
+        <div class="kanban-search-wrapper">
+          <div class="kanban-search-box">
+            <span class="kanban-search-icon" id="kanban-search-icon">🔍</span>
+            <input type="text" id="input-search-kanban" class="kanban-search-input"
+              placeholder="Pesquisar tarefas no Kanban... (Ctrl+F)"
+              title="Pesquisar tarefas por texto, prompt, ID ou responsável (Atalho: Ctrl+F ou /)"
+              autocomplete="off">
+            <button type="button" class="btn-clear-kanban-search" id="btn-clear-kanban-search"
+              title="Limpar pesquisa" style="display: none;">&times;</button>
+          </div>
+          <span class="kanban-search-count-badge" id="kanban-search-count-badge" style="display: none;">0 itens</span>
+        </div>
+
         <!-- Filtro Rápido por Integrante -->
         <div class="member-filter-bar">
           <div class="dev-profile-chip" id="developer-profile-chip" style="display: none;"
@@ -407,7 +421,7 @@
 
           <span class="filter-label">👤 Equipe:</span>
           <div class="member-search-box">
-            <input type="text" id="input-search-members" class="member-search-input" placeholder="🔍 Buscar..."
+            <input type="text" id="input-search-members" class="member-search-input" placeholder="🔍 Integrante..."
               title="Buscar integrante por nome ou função">
           </div>
           <div class="member-pills" id="member-filter-pills">
@@ -416,6 +430,25 @@
           <button type="button" class="btn-manage-members-pill" id="btn-quick-manage-members"
             title="Cadastrar ou gerenciar integrantes da equipe">
             ⚙️ Gerenciar
+          </button>
+        </div>
+
+        <!-- Filtro Rápido por Diretório / Projeto -->
+        <div class="directory-filter-bar">
+          <span class="directory-label">📁 Projeto / Diretório:</span>
+          <div class="directory-pills" id="directory-filter-pills">
+            <button type="button" class="directory-pill active" data-directory="all">📂 Todos</button>
+            <button type="button" class="directory-pill" data-directory="app">🌐 Site: app</button>
+            <button type="button" class="directory-pill" data-directory="unity">🎮 Game: Unity</button>
+            <button type="button" class="directory-pill" data-directory="prompt">✨ Skills: prompt</button>
+            <button type="button" class="directory-pill" data-directory="kanban">📋 Kanban: kanban</button>
+            <button type="button" class="directory-pill" data-directory="program">🦀 Solana: program</button>
+            <button type="button" class="directory-pill" data-directory="devsecops">🛡️ DevSecOps: devsecops</button>
+            <button type="button" class="directory-pill" data-directory="docs">📄 Docs: docs</button>
+          </div>
+          <button type="button" class="btn-manage-directories-pill" id="btn-quick-manage-directories"
+            title="Adicionar ou gerenciar diretórios de projetos">
+            ➕ Adicionar Diretório
           </button>
         </div>
       </div>
@@ -441,7 +474,7 @@
             <select id="select-quick-git-member" class="form-select-sm">
               <option value="">Selecione quem é você na equipe...</option>
             </select>
-            <button type="button" class="btn btn-primary btn-sm" id="btn-quick-link-git"
+            <button type="button" class="btn-primary btn-sm" id="btn-quick-link-git"
               style="padding: 4px 12px; font-size: 11px;">
               💾 Salvar Localmente
             </button>
@@ -463,6 +496,18 @@
           <span id="git-branch-banner-text"></span>
         </div>
         <div id="git-branch-banner-actions"></div>
+      </div>
+
+      <!-- Banner de Nenhum Resultado na Busca do Kanban -->
+      <div id="kanban-search-empty-state" class="kanban-search-empty-state" style="display: none;">
+        <span class="empty-state-icon">🔍</span>
+        <div class="empty-state-content">
+          <div class="empty-state-title" id="empty-state-search-title">Nenhum resultado encontrado</div>
+          <div class="empty-state-desc" id="empty-state-search-desc">Nenhuma tarefa ou ideia corresponde à sua pesquisa.</div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-clear-search-empty">
+          Limpar Pesquisa
+        </button>
       </div>
 
       <div class="kanban-columns">
@@ -781,6 +826,62 @@
         <button type="button" class="btn btn-warning" id="btn-confirm-deactivate" style="font-weight: 700;">
           Confirmar e Repassar Tarefas
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Gerenciamento e Adição de Diretórios / Projetos -->
+  <div class="modal-backdrop" id="modal-manage-directories" style="z-index: 1060;">
+    <div class="modal-card" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 style="display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; color: var(--accent-sky);">
+          <span>📁</span> Gerenciar Diretórios e Filtros de Projeto
+        </h3>
+        <button type="button" class="btn-close" id="btn-close-directories-modal">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 18px 20px;">
+        <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5;">
+          Filtre tarefas e features do Kanban por diretório de projeto (ex: <code>app</code>, <code>unity</code>, <code>prompt</code>, etc.). Adicione novos diretórios personalizados para a sua equipe.
+        </p>
+
+        <!-- Formulário Adicionar Novo Diretório -->
+        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+            <span>➕</span> Adicionar Novo Diretório de Projeto
+          </h4>
+          <div class="form-row">
+            <div class="form-group" style="flex: 2; margin-bottom: 10px;">
+              <label for="input-new-dir-name" style="font-size: 12px; margin-bottom: 4px;">Nome de Exibição: *</label>
+              <input type="text" class="form-input" id="input-new-dir-name" placeholder="ex: Site / Webapp ou Assets 3D">
+            </div>
+            <div class="form-group" style="flex: 1; margin-bottom: 10px;">
+              <label for="input-new-dir-icon" style="font-size: 12px; margin-bottom: 4px;">Ícone / Emoji:</label>
+              <input type="text" class="form-input" id="input-new-dir-icon" placeholder="ex: 🌐, 🎮, 📦" value="📁" maxlength="4">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="input-new-dir-path" style="font-size: 12px; margin-bottom: 4px;">Identificador / Subdiretório: *</label>
+            <input type="text" class="form-input" id="input-new-dir-path" placeholder="ex: app, unity, prompt, backend, mobile">
+            <span style="font-size: 11px; color: var(--text-dim); margin-top: 3px; display: block;">As tarefas com tags <code>(caminho/)</code> ou da feature serão vinculadas a este filtro.</span>
+          </div>
+          <div style="display: flex; justify-content: flex-end;">
+            <button type="button" class="btn btn-primary btn-sm" id="btn-save-new-directory">
+              ➕ Cadastrar Diretório
+            </button>
+          </div>
+        </div>
+
+        <!-- Lista de Diretórios Atuais -->
+        <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+          <span>Diretórios Atuais</span>
+          <span id="directories-count-badge" class="badge-tag" style="font-size: 11px;">0 diretórios</span>
+        </h4>
+        <div id="modal-directories-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; padding-right: 4px;">
+          <!-- Preenchido dinamicamente via JS -->
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end;">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-directories">Fechar</button>
       </div>
     </div>
   </div>

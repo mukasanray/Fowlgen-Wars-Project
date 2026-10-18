@@ -1,0 +1,19 @@
+# Tasks for kanban-painel-integracao-openspec
+
+## 1. Infraestrutura, Backend e UX Preventiva (Implementado)
+- [x] **1.1** Servidor Node/TypeScript com API REST e sincronização bidirecional do OpenSpec (proposal.md e tasks.md) (@Marcos)
+- [x] **1.2** Interface Web do Kanban com 4 colunas de sprint, Funil de Ideias e Dashboard de Analytics (@Marcos)
+- [x] **1.3** Suite de testes E2E automatizada com Playwright / Node para validação de endpoints e integridade (@Marcos)
+- [x] **1.4** Botão de Sincronização Git com detecção de commits remotos ("Subir ao Repo" vs "Baixar do Repo") (@Marcos)
+- [x] **1.5** Seletor de Múltiplos Responsáveis (Multi-Dropdown) com obrigatoriedade e feedback visual (@Marcos)
+- [x] **1.6** Sistema de Modais Preventivos (Confirm / Cancel) para exclusões, git push/pull e ações acidentais (@Marcos)
+- [x] **1.7** Separação das opções de Avatar em "Arte Designer 2D" e "Arte e Animador 3D" com remoção de VFX (@Marcos)
+- [x] **1.8** Limpeza automática dos inputs dos formulários após cadastrar tarefas e ideias/features (@Marcos)
+- [x] **1.9** Sistema de Busca e Filtragem Reativa de Tarefas e Ideias no Kanban com atalhos de teclado (@Marcos)
+
+## 2. Filtros por Diretório/Projeto e Próximas Entregas (Em Andamento)
+- [x] **2.1** Filtro e Seletor dinâmico por Diretório/Projeto no Kanban (Site: app, Game: Unity, Skills: prompt, etc.) (@Marcos)
+- [x] **2.2** Modal para cadastrar e customizar novos diretórios de projeto com persistência (@Marcos)
+- [ ] **2.3** Sincronização automatizada com GitHub Projects / Issues API (@Junior)
+- [ ] **2.4** Exportação de relatórios da Sprint em formato PDF e planilha CSV (@Samuel)
+- [ ] **2.5** Notificações sonoras/toast para atualizações de status de tarefas na equipe (@Jorge Espindola)
