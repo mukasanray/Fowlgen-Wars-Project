@@ -2496,6 +2496,16 @@ document.getElementById('btn-action-create-task').addEventListener('click', asyn
   const cmd = `agent criar openspec/changes/${feature}/tasks.md "${taskId ? '**' + taskId + '** ' : ''}${dirTag}${firstLine}${assigneeTag}"`;
   updateCommandPreview(cmd);
 
+  const confirmed = await showConfirmModal({
+    title: 'Criar Nova Tarefa',
+    icon: '➕',
+    message: `Deseja cadastrar a tarefa **${taskId ? taskId + ' - ' : ''}${firstLine}** na feature **${feature}**?`,
+    warning: `Status inicial: ${status} | Responsável: ${assignee}${directory ? ` | Projeto: ${directory}` : ''}`,
+    confirmText: 'Sim, Criar Tarefa',
+    confirmBtnClass: 'btn-primary'
+  });
+  if (!confirmed) return;
+
   try {
     const res = await fetch('/api/tasks/create', {
       method: 'POST',
@@ -2570,6 +2580,16 @@ document.getElementById('btn-action-update-task').addEventListener('click', asyn
 
   const cmd = `agent atualizar "**${newTaskId || taskId}**" "${status}" "${assignee || 'Todos'}"`;
   updateCommandPreview(cmd);
+
+  const confirmed = await showConfirmModal({
+    title: 'Atualizar Tarefa',
+    icon: '✏️',
+    message: `Deseja salvar as alterações na tarefa **${taskId}** da feature **${feature}**?`,
+    warning: `Status: ${status} | Responsável: ${assignee || 'Todos'}${directory ? ` | Projeto: ${directory}` : ''}`,
+    confirmText: 'Sim, Atualizar Tarefa',
+    confirmBtnClass: 'btn-primary'
+  });
+  if (!confirmed) return;
 
   try {
     const res = await fetch('/api/tasks/update', {
@@ -2665,6 +2685,15 @@ document.getElementById('btn-action-assign-task').addEventListener('click', asyn
   const cmd = `agent atribuir "**${taskId}**" "${assignee}"`;
   updateCommandPreview(cmd);
 
+  const confirmed = await showConfirmModal({
+    title: 'Atribuir Responsável da Tarefa',
+    icon: '👥',
+    message: `Deseja atribuir a tarefa **${taskId}** da feature **${feature}** para **${assignee}**?`,
+    confirmText: 'Sim, Atribuir',
+    confirmBtnClass: 'btn-primary'
+  });
+  if (!confirmed) return;
+
   try {
     const res = await fetch('/api/tasks/assign', {
       method: 'POST',
@@ -2748,6 +2777,16 @@ document.getElementById('btn-action-new-feature')?.addEventListener('click', asy
 
   const cmd = `agent criar openspec/changes/${featureId}/proposal.md "# Feature: ${title}"`;
   updateCommandPreview(cmd);
+
+  const confirmed = await showConfirmModal({
+    title: 'Cadastrar Nova Ideia / Feature',
+    icon: '💡',
+    message: `Deseja realmente cadastrar a nova feature **${title}** (\`${featureId}\`)?`,
+    warning: `Projeto: ${directory} | Responsável: ${team}`,
+    confirmText: 'Sim, Cadastrar Feature',
+    confirmBtnClass: 'btn-primary'
+  });
+  if (!confirmed) return;
 
   try {
     const res = await fetch('/api/features/create', {
@@ -2909,6 +2948,17 @@ document.getElementById('btn-action-reject-idea')?.addEventListener('click', asy
 
 // Run script helper
 async function runScriptAPI(scriptName) {
+  if (scriptName === 'sync') {
+    const confirmed = await showConfirmModal({
+      title: 'Sincronizar OpenSpec & Kanban',
+      icon: '🔄',
+      message: 'Deseja executar a sincronização entre as propostas OpenSpec e o Kanban?',
+      warning: 'Os arquivos de tarefas e status do quadro serão sincronizados.',
+      confirmText: 'Sim, Sincronizar',
+      confirmBtnClass: 'btn-primary'
+    });
+    if (!confirmed) return;
+  }
   showToast(`Executando ${scriptName}...`, 'success');
   appendLog(`Iniciando npm.cmd run ${scriptName}...`);
   try {
@@ -3201,6 +3251,15 @@ btnSaveSettings.addEventListener('click', async () => {
 
   if (token) localStorage.setItem('fowlgen_gh_token', token);
   if (repo) localStorage.setItem('fowlgen_gh_repo', repo);
+
+  const confirmed = await showConfirmModal({
+    title: 'Salvar Configurações',
+    icon: '⚙️',
+    message: 'Deseja salvar as configurações de integração com o repositório GitHub?',
+    confirmText: 'Sim, Salvar Configurações',
+    confirmBtnClass: 'btn-primary'
+  });
+  if (!confirmed) return;
 
   try {
     const res = await fetch('/api/config', {
@@ -3781,6 +3840,30 @@ function openCardDirDropdown(targetBtn, featureName, currentDir) {
 
 async function changeFeatureDirectory(featureName, newDirId, dirName) {
   closeCardDirDropdown();
+
+  const feat = currentFeatures.find(f => f.name === featureName);
+  const currentDirId = ((feat && feat.directory) || 'geral').toLowerCase();
+  const targetDirId = (newDirId || 'geral').toLowerCase();
+
+  if (feat && currentDirId === targetDirId) {
+    return;
+  }
+
+  const currentDirObj = projectDirectories.find(d => d.id.toLowerCase() === currentDirId);
+  const currentDirDisplayName = currentDirObj ? currentDirObj.name : (currentDirId === 'geral' ? 'Geral' : currentDirId);
+  const targetDirDisplayName = dirName || newDirId;
+
+  const confirmed = await showConfirmModal({
+    title: 'Alterar Projeto / Diretório',
+    icon: '📁',
+    message: `Deseja realmente alterar o projeto da feature **${featureName}** de *${currentDirDisplayName}* para **${targetDirDisplayName}**?`,
+    warning: 'O diretório base de execução das tarefas e comandos desta feature será atualizado.',
+    confirmText: 'Sim, Alterar Projeto',
+    cancelText: 'Cancelar',
+    confirmBtnClass: 'btn-primary'
+  });
+  if (!confirmed) return;
+
   try {
     const res = await fetch('/api/features/directory', {
       method: 'POST',
@@ -3958,6 +4041,17 @@ async function saveOrUpdateMember() {
   const method = isEditing ? 'PUT' : 'POST';
   const payload = isEditing ? { id: editId, name, role, github, avatar, color } : { name, role, github, avatar, color };
 
+  const confirmed = await showConfirmModal({
+    title: isEditing ? 'Atualizar Integrante' : 'Cadastrar Integrante',
+    icon: avatar || '👤',
+    message: isEditing
+      ? `Deseja salvar as alterações no perfil do integrante **${name}**?`
+      : `Deseja cadastrar **${name}** (${role}) na equipe?`,
+    confirmText: isEditing ? 'Sim, Salvar Alterações' : 'Sim, Cadastrar',
+    confirmBtnClass: 'btn-primary'
+  });
+  if (!confirmed) return;
+
   if (btnSaveMember) {
     btnSaveMember.disabled = true;
     btnSaveMember.innerHTML = '⏳ Salvando...';
@@ -4018,6 +4112,19 @@ async function setLocalDeveloperIdentity(memberId, optionalName) {
     showToast('Selecione um integrante na lista', 'warning');
     return;
   }
+  const member = teamMembers.find(m => m.id === memberId);
+  const memberName = member ? member.name : (optionalName || memberId);
+
+  const confirmed = await showConfirmModal({
+    title: 'Definir Identidade do Desenvolvedor Local',
+    icon: '👤',
+    message: `Deseja configurar o Git local para registrar novos commits e ações como **${memberName}**?`,
+    warning: 'Seus próximos commits e alterações no repositório serão identificados com este autor.',
+    confirmText: 'Sim, Definir Identidade',
+    confirmBtnClass: 'btn-primary'
+  });
+  if (!confirmed) return;
+
   try {
     const res = await fetch('/api/git/set-local-identity', {
       method: 'POST',
@@ -4546,6 +4653,16 @@ function renderDetailTasksList(feature) {
         return;
       }
 
+      const confirmed = await showConfirmModal({
+        title: 'Salvar Alterações da Tarefa',
+        icon: '✏️',
+        message: `Deseja salvar as alterações na tarefa **${t.id}**?`,
+        warning: `Responsável: ${newAssignee || 'Todos'} | Status: ${isDone ? 'Concluído' : 'Pendente'}`,
+        confirmText: 'Sim, Salvar Alterações',
+        confirmBtnClass: 'btn-primary'
+      });
+      if (!confirmed) return;
+
       try {
         const res = await fetch('/api/tasks/update', {
           method: 'POST',
@@ -4787,6 +4904,17 @@ btnProposalModeEdit?.addEventListener('click', () => setProposalMode('edit'));
 btnSaveProposalContent?.addEventListener('click', async () => {
   if (!currentDetailFeature) return;
   const content = detailProposalRaw.value;
+
+  const confirmed = await showConfirmModal({
+    title: 'Salvar Proposta (proposal.md)',
+    icon: '💾',
+    message: `Deseja realmente salvar as alterações na proposta da feature **${currentDetailFeature.name}**?`,
+    warning: 'O arquivo proposal.md no OpenSpec será atualizado com o texto editado.',
+    confirmText: 'Sim, Salvar Proposta',
+    confirmBtnClass: 'btn-primary'
+  });
+  if (!confirmed) return;
+
   try {
     const res = await fetch('/api/features/update-proposal', {
       method: 'POST',
@@ -4820,6 +4948,16 @@ btnDetailAddTask?.addEventListener('click', async () => {
     detailNewTaskText?.focus();
     return;
   }
+
+  const confirmed = await showConfirmModal({
+    title: 'Adicionar Nova Tarefa',
+    icon: '➕',
+    message: `Deseja adicionar a tarefa **${taskId ? taskId + ' - ' : ''}${text.slice(0, 60)}** à feature **${currentDetailFeature.name}**?`,
+    warning: `Responsável: ${assignee}${directory ? ` | Projeto: ${directory}` : ''}`,
+    confirmText: 'Sim, Adicionar Tarefa',
+    confirmBtnClass: 'btn-primary'
+  });
+  if (!confirmed) return;
 
   try {
     const res = await fetch('/api/tasks/create', {
@@ -5642,6 +5780,16 @@ btnGitCommitSubmit?.addEventListener('click', async () => {
     showToast('Selecione ao menos um arquivo para commitar', 'warning');
     return;
   }
+
+  const confirmed = await showConfirmModal({
+    title: 'Confirmar Git Commit',
+    icon: '💾',
+    message: `Deseja realmente criar um commit com **${selectedFiles.length} arquivo(s)** selecionado(s)?`,
+    warning: `Mensagem: "${summary}"`,
+    confirmText: 'Sim, Realizar Commit',
+    confirmBtnClass: 'btn-success'
+  });
+  if (!confirmed) return;
 
   const fullMsg = desc ? `${summary}\n\n${desc}` : summary;
 

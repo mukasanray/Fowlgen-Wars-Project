@@ -3,6 +3,9 @@
 ## Title
 Sistema de Armadilhas Personalizadas (Ovo Congelante e Minas)
 
+## Directory
+unity
+
 ## Summary
 Sistema de armadilhas táticas de 6 camadas (Essência, Tipo, Gatilho, Efeito, Área, Comportamento) preparadas antes da partida, com ativação por proximidade e desaceleração de tropas/heróis.
 
