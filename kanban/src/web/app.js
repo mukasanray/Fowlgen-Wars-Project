@@ -544,13 +544,13 @@ const btnClearSearchEmpty = document.getElementById('btn-clear-search-empty');
 function updateSearchPlaceholder() {
   if (!inputSearchKanban) return;
   if (currentBoardView === 'tasks') {
-    inputSearchKanban.placeholder = '🔍 Pesquisar tarefas no Kanban... (Ctrl+F)';
+    inputSearchKanban.placeholder = 'Pesquisar tarefas no Kanban... (Ctrl+F)';
     inputSearchKanban.title = 'Pesquisar tarefas por texto, prompt, ID ou responsável (Atalho: Ctrl+F ou /)';
   } else if (currentBoardView === 'ideas') {
-    inputSearchKanban.placeholder = '🔍 Pesquisar ideias no Kanban... (Ctrl+F)';
+    inputSearchKanban.placeholder = 'Pesquisar ideias no Kanban... (Ctrl+F)';
     inputSearchKanban.title = 'Pesquisar ideias por título, ID, briefing ou status (Atalho: Ctrl+F ou /)';
   } else {
-    inputSearchKanban.placeholder = '🔍 Filtrar features no Analytics... (Ctrl+F)';
+    inputSearchKanban.placeholder = 'Filtrar features no Analytics... (Ctrl+F)';
     inputSearchKanban.title = 'Filtrar features e entregas da sprint';
   }
 }
