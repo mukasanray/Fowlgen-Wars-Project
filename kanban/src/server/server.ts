@@ -451,6 +451,12 @@ function getGitInfo() {
       }
     } catch { }
 
+    let unpushedCommits = 0;
+    try {
+      const revOut = execSync('git rev-list @{u}..HEAD --count', { encoding: 'utf8', cwd: REPO_ROOT }).trim();
+      unpushedCommits = parseInt(revOut, 10) || 0;
+    } catch { }
+
     let lastCommit = '';
     try {
       lastCommit = execSync('git log -1 --format="%h - %s (%cr)"', { encoding: 'utf8', cwd: REPO_ROOT }).trim();
@@ -510,6 +516,7 @@ function getGitInfo() {
       branches,
       uncommittedChanges: modifiedFiles.length > 0,
       modifiedFiles,
+      unpushedCommits,
       lastCommit,
       gitUser,
       detectedMember,
@@ -521,6 +528,7 @@ function getGitInfo() {
       branches: ['main'],
       uncommittedChanges: false,
       modifiedFiles: [],
+      unpushedCommits: 0,
       lastCommit: ''
     };
   }
@@ -1441,6 +1449,28 @@ const server = http.createServer(async (req, res) => {
         sendJSON(res, 200, {
           success: false,
           error: err.message || 'Nenhuma alteração para commitar ou erro no git commit'
+        });
+      }
+      return;
+    }
+
+    // API: Push commits to remote Git repository
+    if (req.method === 'POST' && pathname === '/api/git/push') {
+      try {
+        const gitInfo = getGitInfo();
+        const branch = gitInfo.currentBranch || 'main';
+        const pushOut = execSync(`git push origin ${branch}`, { encoding: 'utf8', cwd: REPO_ROOT });
+        const updatedGitInfo = getGitInfo();
+        sendJSON(res, 200, {
+          success: true,
+          message: `Git push realizado com sucesso para origin/${branch}!`,
+          details: pushOut.trim() || 'Tudo atualizado no repositório remoto.',
+          gitInfo: updatedGitInfo
+        });
+      } catch (err: any) {
+        sendJSON(res, 200, {
+          success: false,
+          error: err.stderr || err.stdout || err.message || 'Erro ao executar git push'
         });
       }
       return;

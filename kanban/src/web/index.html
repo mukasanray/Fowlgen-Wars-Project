@@ -78,30 +78,40 @@
     </div>
 
     <div class="header-actions">
-      <button class="btn btn-secondary btn-sm" id="btn-toggle-sidebar-top"
-        title="Ocultar/Exibir Painel OpenSpec (Ctrl+B)">
-        ⚡ Painel
+      <!-- Workflow Primary Actions (com rótulos) -->
+      <button class="btn btn-save btn-sm" id="btn-commit-openspec"
+        title="Commitar alterações de tarefas no histórico do Git local">
+        💾 Commit Local
       </button>
-    <button class="btn btn-save btn-sm" id="btn-commit-openspec"
-      title="Salva todas as tarefas alteradas no histórico do Git">
-      💾 Salvar
-    </button>
-    <button class="btn btn-secondary btn-sm" id="btn-open-settings" title="Configurar GitHub Token e Repositório">
-      ⚙️ Config
-      <span class="status-indicator" id="token-status-dot"
-        style="width: 7px; height: 7px; background: #64748b; box-shadow: none;" title="GitHub Token"></span>
-    </button>
-    <button class="btn btn-secondary btn-sm btn-theme-toggle" id="btn-toggle-theme"
-      title="Alternar para tema Claro" aria-label="Alternar tema">
-      <span class="theme-icon" id="theme-toggle-icon">☀️</span>
-      <span class="theme-label" id="theme-toggle-label">Claro</span>
-    </button>
-    <button class="btn btn-secondary btn-sm" id="btn-refresh" title="Recarregar dados">
-      🔄 Atualizar
-    </button>
-    <button class="btn btn-primary btn-sm" id="btn-sync-top" title="Sincronizar com GitHub">
-      🚀 Sincronizar
-    </button>
+      <button class="btn btn-push btn-sm" id="btn-push-git"
+        title="Subir commits locais para o repositório remoto (git push)">
+        ⬆️ Subir ao Repo
+      </button>
+      <button class="btn btn-primary btn-sm" id="btn-sync-top" title="Sincronizar com GitHub Projects (Kanban)">
+        📋 Sync Kanban
+      </button>
+
+      <!-- Divisor sutil -->
+      <div class="header-actions-divider" title="Separador"></div>
+
+      <!-- Utility Actions (apenas ícones agrupados) -->
+      <button class="btn btn-secondary btn-sm btn-icon-only" id="btn-open-settings"
+        title="Configurar GitHub Token e Repositório" aria-label="Configurações">
+        ⚙️
+        <span class="status-indicator" id="token-status-dot" style="display: none;" title="GitHub Token"></span>
+      </button>
+      <button class="btn btn-secondary btn-sm btn-icon-only" id="btn-toggle-sidebar-top"
+        title="Ocultar/Exibir Painel OpenSpec (Ctrl+B)" aria-label="Ocultar/Exibir Painel OpenSpec">
+        ⚡
+      </button>
+      <button class="btn btn-secondary btn-sm btn-icon-only" id="btn-refresh"
+        title="Recarregar dados do Kanban" aria-label="Recarregar dados">
+        🔄
+      </button>
+      <button class="btn btn-secondary btn-sm btn-icon-only btn-theme-toggle" id="btn-toggle-theme"
+        title="Alternar tema (Claro / Escuro)" aria-label="Alternar tema">
+        <span class="theme-icon" id="theme-toggle-icon">☀️</span>
+      </button>
     </div>
   </header>
 
@@ -278,8 +288,8 @@
           </p>
 
           <div class="actions-grid">
-            <button class="btn btn-primary" id="btn-script-sync">
-              🚀 Sync GitHub Projects
+            <button class="btn btn-primary" id="btn-script-sync" title="Exportar tarefas para o GitHub Projects">
+              📋 Sync GitHub Projects
             </button>
             <button class="btn btn-success" id="btn-script-dashboard" title="Executar script de geração do Dashboard">
               📊 Gerar Dashboard

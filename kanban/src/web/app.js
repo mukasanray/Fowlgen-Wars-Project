@@ -204,6 +204,7 @@ const gitBranchBannerIcon = document.getElementById('git-branch-banner-icon');
 const gitBranchBannerText = document.getElementById('git-branch-banner-text');
 const gitBranchBannerActions = document.getElementById('git-branch-banner-actions');
 const btnCommitOpenspec = document.getElementById('btn-commit-openspec');
+const btnPushGit = document.getElementById('btn-push-git');
 
 // Board View State: 'tasks' (Tarefas da Sprint) vs 'ideas' (Funil de Ideias) vs 'analytics' (Analytics & Métricas)
 let currentBoardView = 'tasks';
@@ -389,9 +390,9 @@ function updateGitStatusPill(data) {
       gitStatusPill.title = `${count} arquivo(s) de tarefas alterados localmente. Clique em Salvar Alterações para registrar no Git.`;
     }
     if (btnCommitOpenspec) {
-      btnCommitOpenspec.innerHTML = `💾 Salvar (${count})`;
+      btnCommitOpenspec.innerHTML = `💾 Commit Local (${count})`;
       btnCommitOpenspec.className = 'btn btn-save btn-sm has-pending';
-      btnCommitOpenspec.title = `Salvar ${count} alteração(ões) pendente(s) no Git`;
+      btnCommitOpenspec.title = `Commitar ${count} alteração(ões) pendente(s) localmente no Git`;
     }
   } else {
     gitStatusDot.style.background = 'var(--accent-emerald)';
@@ -402,9 +403,22 @@ function updateGitStatusPill(data) {
       gitStatusPill.title = `Todas as tarefas estão salvas na branch ${data.currentBranch}`;
     }
     if (btnCommitOpenspec) {
-      btnCommitOpenspec.innerHTML = `💾 Salvar`;
+      btnCommitOpenspec.innerHTML = `💾 Commit Local`;
       btnCommitOpenspec.className = 'btn btn-save btn-sm';
-      btnCommitOpenspec.title = `Nenhuma alteração pendente de salvar`;
+      btnCommitOpenspec.title = `Nenhuma alteração pendente de commit local`;
+    }
+  }
+
+  // Atualiza estado do botão Git Push
+  if (btnPushGit) {
+    if (data.unpushedCommits && data.unpushedCommits > 0) {
+      btnPushGit.innerHTML = `⬆️ Subir ao Repo (${data.unpushedCommits})`;
+      btnPushGit.className = 'btn btn-push btn-sm has-unpushed';
+      btnPushGit.title = `${data.unpushedCommits} commit(s) pendente(s) para subir ao repositório remoto. Clique para enviar.`;
+    } else {
+      btnPushGit.innerHTML = `⬆️ Subir ao Repo`;
+      btnPushGit.className = 'btn btn-push btn-sm';
+      btnPushGit.title = `Subir commits locais para o repositório remoto (git push)`;
     }
   }
 }
@@ -527,6 +541,45 @@ async function commitOpenSpecChanges() {
 
 if (btnCommitOpenspec) {
   btnCommitOpenspec.addEventListener('click', commitOpenSpecChanges);
+}
+
+async function pushGitChanges() {
+  const originalHtml = btnPushGit ? btnPushGit.innerHTML : '⬆️ Subir ao Repo';
+  if (btnPushGit) {
+    btnPushGit.disabled = true;
+    btnPushGit.innerHTML = '⏳ Subindo...';
+  }
+
+  try {
+    showToast('Enviando commits locais para o repositório remoto...', 'info');
+    appendLog('Iniciando git push...');
+    const res = await fetch('/api/git/push', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message || 'Git push realizado com sucesso!', 'success');
+      appendLog(`Git push concluído: ${data.details || 'Tudo atualizado'}`);
+      fetchGitInfo();
+      fetchFeatures();
+    } else {
+      showToast(data.error || 'Erro ao realizar git push', 'error');
+      appendLog(`Falha no git push: ${data.error || 'Erro desconhecido'}`);
+    }
+  } catch (err) {
+    showToast('Erro ao conectar com o servidor para git push', 'error');
+    appendLog(`Erro no push: ${err.message}`);
+  } finally {
+    if (btnPushGit) {
+      btnPushGit.disabled = false;
+      btnPushGit.innerHTML = originalHtml;
+    }
+  }
+}
+
+if (btnPushGit) {
+  btnPushGit.addEventListener('click', pushGitChanges);
 }
 
 function setConnectionStatus(online) {
@@ -765,12 +818,12 @@ function renderAnalyticsDashboard(features) {
   let donutSvgContent = '';
   if (totalTasks === 0) {
     donutSvgContent = `
-      <circle cx="100" cy="100" r="${r}" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="20" />
-      <text x="100" y="105" text-anchor="middle" font-size="14" fill="#94a3b8" font-family="system-ui, sans-serif">Sem tarefas</text>
+      <circle cx="100" cy="100" r="${r}" fill="none" stroke="var(--border-color)" stroke-width="20" />
+      <text x="100" y="105" text-anchor="middle" font-size="14" fill="var(--text-muted)" font-family="Outfit, system-ui, sans-serif">Sem tarefas</text>
     `;
   } else {
     donutSvgContent = `
-      <circle cx="100" cy="100" r="${r}" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="20" />
+      <circle cx="100" cy="100" r="${r}" fill="none" stroke="var(--border-subtle)" stroke-width="20" />
       <circle cx="100" cy="100" r="${r}" fill="none" stroke="#10b981" stroke-width="20"
         stroke-dasharray="${lenDone.toFixed(2)} ${circumference.toFixed(2)}"
         stroke-dashoffset="${offDone.toFixed(2)}" transform="rotate(-90 100 100)" stroke-linecap="round" />
@@ -783,8 +836,8 @@ function renderAnalyticsDashboard(features) {
       <circle cx="100" cy="100" r="${r}" fill="none" stroke="#64748b" stroke-width="20"
         stroke-dasharray="${lenBack.toFixed(2)} ${circumference.toFixed(2)}"
         stroke-dashoffset="${offBack.toFixed(2)}" transform="rotate(-90 100 100)" stroke-linecap="round" />
-      <text x="100" y="94" text-anchor="middle" font-size="28" font-weight="800" fill="#ffffff" font-family="system-ui, sans-serif">${overallProgress}%</text>
-      <text x="100" y="112" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8" font-family="system-ui, sans-serif" letter-spacing="0.5">CONCLUÍDO</text>
+      <text class="donut-center-val" x="100" y="94" text-anchor="middle" font-size="28" font-weight="800" fill="var(--text-main)" font-family="Outfit, system-ui, sans-serif">${overallProgress}%</text>
+      <text class="donut-center-label" x="100" y="112" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-dim)" font-family="Outfit, system-ui, sans-serif" letter-spacing="0.5">CONCLUÍDO</text>
     `;
   }
 
@@ -803,13 +856,13 @@ function renderAnalyticsDashboard(features) {
               <div class="team-workload-name">${m.name}</div>
               <div class="team-workload-role">${m.role}</div>
             </div>
-            <span style="font-size: 11px; font-weight: 700; color: ${mPct === 100 && m.totalTasks > 0 ? '#10b981' : '#38bdf8'}; font-family: monospace;">${mPct}%</span>
+            <span style="font-size: 11px; font-weight: 700; color: ${mPct === 100 && m.totalTasks > 0 ? 'var(--accent-emerald)' : 'var(--accent-sky)'}; font-family: monospace;">${mPct}%</span>
           </div>
           <div class="team-workload-stats">
             <span>${m.doneTasks} de ${m.totalTasks} tarefas</span>
             <span style="color: var(--text-dim); font-size: 11px;">🔍 Filtrar</span>
           </div>
-          <div class="progress-bar-container" style="height: 5px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; margin: 0;">
+          <div class="progress-bar-container" style="height: 5px; background: var(--bg-pill); border: 1px solid var(--border-subtle); border-radius: 999px; overflow: hidden; margin: 0;">
             <div class="progress-fill" style="width: ${mPct}%; height: 100%; background: linear-gradient(90deg, #38bdf8, #10b981); border-radius: 999px;"></div>
           </div>
         </div>
@@ -841,24 +894,24 @@ function renderAnalyticsDashboard(features) {
       return `
         <tr data-feature-name="${f.name}">
           <td>
-            <div style="font-weight: 700; color: #fff; font-size: 13px;">${f.title || f.name}</div>
-            <code style="font-size: 10.5px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 1px 5px; border-radius: 4px;">${f.name}</code>
+            <div style="font-weight: 700; color: var(--text-main); font-size: 13px;">${f.title || f.name}</div>
+            <code style="font-size: 10.5px; color: var(--accent-sky); background: var(--bg-pill); border: 1px solid var(--border-subtle); padding: 1px 5px; border-radius: 4px;">${f.name}</code>
           </td>
           <td>${statusBadge}</td>
           <td>
-            <span style="font-size: 12px; color: #cbd5e1; display: inline-flex; align-items: center; gap: 4px;">
+            <span style="font-size: 12px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px;">
               <span>👤</span> ${displayAssignee}
             </span>
           </td>
           <td>
-            <span style="font-family: monospace; font-size: 12px; font-weight: 700; color: #fff;">${f.doneTasks || 0} / ${f.totalTasks || 0}</span>
+            <span style="font-family: monospace; font-size: 12px; font-weight: 700; color: var(--text-main);">${f.doneTasks || 0} / ${f.totalTasks || 0}</span>
           </td>
           <td>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <div class="progress-bar-container" style="flex: 1; min-width: 80px; height: 6px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; margin: 0;">
+              <div class="progress-bar-container" style="flex: 1; min-width: 80px; height: 6px; background: var(--bg-pill); border: 1px solid var(--border-subtle); border-radius: 999px; overflow: hidden; margin: 0;">
                 <div class="progress-fill" style="width: ${progressVal}%; height: 100%; background: linear-gradient(90deg, #38bdf8, #10b981); border-radius: 999px;"></div>
               </div>
-              <span style="font-size: 11px; font-weight: 700; font-family: monospace; color: #fff; width: 34px; text-align: right;">${progressVal}%</span>
+              <span style="font-size: 11px; font-weight: 700; font-family: monospace; color: var(--text-main); width: 34px; text-align: right;">${progressVal}%</span>
             </div>
           </td>
           <td style="text-align: right;">
@@ -878,8 +931,8 @@ function renderAnalyticsDashboard(features) {
       <div style="display: flex; align-items: center; gap: 12px;">
         <span style="font-size: 24px;">📊</span>
         <div>
-          <div style="font-size: 16px; font-weight: 800; color: #fff; letter-spacing: -0.2px;">Painel de Analytics & Métricas da Sprint</div>
-          <div style="font-size: 12px; color: var(--text-dim);">Acompanhamento em tempo real de tarefas OpenSpec, distribuição e equipe</div>
+          <div style="font-size: 16px; font-weight: 800; color: var(--text-main); letter-spacing: -0.2px;">Painel de Analytics & Métricas da Sprint</div>
+          <div style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Acompanhamento em tempo real de tarefas OpenSpec, distribuição e equipe</div>
         </div>
       </div>
       <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -902,7 +955,7 @@ function renderAnalyticsDashboard(features) {
           <span class="analytics-kpi-title">Conclusão da Sprint</span>
           <span class="analytics-kpi-icon">🎯</span>
         </div>
-        <div class="analytics-kpi-value" style="color: #34d399;">${overallProgress}%</div>
+        <div class="analytics-kpi-value" style="color: var(--accent-emerald);">${overallProgress}%</div>
         <div class="analytics-kpi-subtitle">${doneTasks} de ${totalTasks} tarefas finalizadas</div>
       </div>
 
@@ -929,7 +982,7 @@ function renderAnalyticsDashboard(features) {
           <span class="analytics-kpi-title">Taxa de Entrega</span>
           <span class="analytics-kpi-icon">⚡</span>
         </div>
-        <div class="analytics-kpi-value" style="color: #fbbf24;">${deliveryVelocity}%</div>
+        <div class="analytics-kpi-value" style="color: var(--accent-gold);">${deliveryVelocity}%</div>
         <div class="analytics-kpi-subtitle">${readyOrDone} features prontas ou em revisão</div>
       </div>
     </div>
@@ -3402,7 +3455,9 @@ function toggleSidebar(forceState) {
 function updateSidebarToggleButtons(isCollapsed) {
   const btnTop = document.getElementById('btn-toggle-sidebar-top');
   if (btnTop) {
-    btnTop.innerHTML = isCollapsed ? '⚡ Mostrar Painel' : '⚡ Ocultar Painel';
+    btnTop.innerHTML = '⚡';
+    btnTop.title = isCollapsed ? 'Mostrar Painel OpenSpec (Ctrl+B)' : 'Ocultar Painel OpenSpec (Ctrl+B)';
+    btnTop.setAttribute('aria-label', btnTop.title);
     btnTop.classList.toggle('active', !isCollapsed);
   }
   const btnKanban = document.getElementById('btn-toggle-sidebar-kanban');
@@ -3459,14 +3514,14 @@ function applyTheme(theme, notify = false) {
 
   if (currentTheme === 'dark') {
     if (themeIcon) themeIcon.textContent = '☀️';
-    if (themeLabel) themeLabel.textContent = 'Claro';
+    if (themeLabel) themeLabel.textContent = '';
     if (themeBtn) {
       themeBtn.title = 'Alternar para tema Claro';
       themeBtn.setAttribute('aria-label', 'Alternar para tema Claro');
     }
   } else {
     if (themeIcon) themeIcon.textContent = '🌙';
-    if (themeLabel) themeLabel.textContent = 'Escuro';
+    if (themeLabel) themeLabel.textContent = '';
     if (themeBtn) {
       themeBtn.title = 'Alternar para tema Escuro (Padrão: Escuro)';
       themeBtn.setAttribute('aria-label', 'Alternar para tema Escuro');
