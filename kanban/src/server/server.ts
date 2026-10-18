@@ -81,9 +81,20 @@ function saveMembers(members: Member[]) {
   fs.writeFileSync(MEMBERS_PATH, JSON.stringify(members, null, 2), 'utf8');
 }
 
-export function normalizeAssignee(raw?: string): string {
+export function formatAssigneeTag(assigneeStr?: string): string {
+  if (!assigneeStr || !assigneeStr.trim() || assigneeStr === 'Todos') return '';
+  const parts = assigneeStr
+    .split(/[,/]+/)
+    .map(p => p.trim().replace(/^@/, ''))
+    .filter(p => p.length > 0 && p !== 'Todos');
+  if (parts.length === 0) return '';
+  return ` (@${parts.join(', @')})`;
+}
+
+export function normalizeSingleAssignee(raw?: string): string {
   if (!raw) return '';
-  const clean = raw.replace(/^@/, '').trim().toLowerCase();
+  const trimmed = raw.trim();
+  const clean = trimmed.replace(/^@/, '').trim().toLowerCase();
   if (clean === 'jorge' || clean === 'jorge-espindola' || clean === 'jorge espindola' || clean === 'jpespindola') {
     return 'Jorge Espindola';
   }
@@ -117,15 +128,34 @@ export function normalizeAssignee(raw?: string): string {
   if (clean === 'dev-team') {
     return 'Todos';
   }
-  return raw.replace(/^@/, '').trim();
+  return trimmed.replace(/^@/, '').trim();
+}
+
+export function normalizeAssignee(raw?: string): string {
+  if (!raw) return '';
+  if (raw.includes(',') || raw.includes('/')) {
+    const parts = raw.split(/[,/]+/)
+      .map(p => normalizeSingleAssignee(p))
+      .filter(p => p.length > 0 && p !== 'Todos');
+    if (parts.length > 0) {
+      return parts.join(', ');
+    }
+  }
+  return normalizeSingleAssignee(raw);
 }
 
 export function isAssigneeActive(name: string, membersList?: Member[]): boolean {
   if (!name) return false;
+  if (name.includes(',') || name.includes('/')) {
+    const parts = name.split(/[,/]+/).map(p => p.trim()).filter(Boolean);
+    if (parts.length > 1) {
+      return parts.some(p => isAssigneeActive(p, membersList));
+    }
+  }
   const clean = name.trim().toLowerCase();
   if (clean === 'todos' || clean === 'dev-team') return true;
   const list = membersList || getMembers();
-  const normalized = normalizeAssignee(name).toLowerCase();
+  const normalized = normalizeSingleAssignee(name).toLowerCase();
   const found = list.find(m =>
     m.name.toLowerCase() === normalized ||
     m.id.toLowerCase() === normalized ||
@@ -230,6 +260,107 @@ function reassignMemberTasks(oldMember: Member, newMember: Member, scope: 'all' 
   return { modifiedFiles, count };
 }
 
+function createOpenSpecTask(
+  featureId: string,
+  taskNumber: string | undefined,
+  isCompleted: boolean,
+  status?: string,
+  assignee?: string,
+  text?: string
+): { success: boolean; taskId: string; error?: string } {
+  const cleanFeature = (featureId && featureId.trim()) ? featureId.trim().toLowerCase().replace(/\s+/g, '-') : 'tarefas-gerais';
+  const targetFeature = cleanFeature || 'tarefas-gerais';
+  const featureDir = path.join(OPEN_SPEC_DIR, targetFeature);
+
+  if (!fs.existsSync(featureDir)) {
+    fs.mkdirSync(featureDir, { recursive: true });
+    const title = targetFeature === 'tarefas-gerais' ? 'Tarefas Gerais & Avulsas' : targetFeature.replace(/-/g, ' ');
+    const proposalContent = `# Feature: ${targetFeature}\n\n## Title\n${title}\n\n## Summary\nTarefas gerais, avulsas e manutenções da equipe.\n\n## Status\n[APROVADO]\n`;
+    fs.writeFileSync(path.join(featureDir, 'proposal.md'), proposalContent, 'utf8');
+    fs.writeFileSync(path.join(featureDir, 'tasks.md'), `# Tasks for ${targetFeature}\n\n## 1. Backlog Geral\n`, 'utf8');
+  }
+
+  const tasksPath = path.join(featureDir, 'tasks.md');
+  if (!fs.existsSync(tasksPath)) {
+    fs.writeFileSync(tasksPath, `# Tasks for ${targetFeature}\n\n## 1. Backlog Geral\n`, 'utf8');
+  }
+
+  const content = fs.readFileSync(tasksPath, 'utf8');
+  const lines = content.split('\n');
+  const cleanTaskNum = taskNumber ? taskNumber.trim().replace(/^\*+|\*+$/g, '').trim() : '';
+
+  // 1. Prevenir colisão/sobrescrita acidental se taskId foi fornecido
+  if (cleanTaskNum) {
+    const escapedNum = cleanTaskNum.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const idRegex = new RegExp(`^\\s*[-*]?\\s*(\\[[ xX]\\])?\\s*\\*\\*\\s*${escapedNum}(?!\\d)[^*]*\\*\\*`, 'i');
+    for (const l of lines) {
+      if (l.includes(`**${cleanTaskNum}**`) || idRegex.test(l)) {
+        return {
+          success: false,
+          taskId: cleanTaskNum,
+          error: `Já existe uma tarefa com o ID "${cleanTaskNum}" na feature "${targetFeature}". Escolha outro ID ou utilize "Salvar Alterações".`
+        };
+      }
+    }
+  }
+
+  // 2. Determinar effectiveNumber caso não tenha sido fornecido
+  let effectiveNumber = cleanTaskNum;
+  if (!effectiveNumber) {
+    const taskNumRegex = /^\s*[-*]?\s*\[[ xX]\]\s*\*\*(\d+)\.(\d+)\*\*/;
+    let maxSection1Sub = 0;
+    for (const l of lines) {
+      const m = l.match(taskNumRegex);
+      if (m && parseInt(m[1]) === 1) {
+        const sub = parseInt(m[2]);
+        if (sub > maxSection1Sub) maxSection1Sub = sub;
+      }
+    }
+    effectiveNumber = `1.${maxSection1Sub + 1}`;
+  }
+
+  const finalAssigneeTag = formatAssigneeTag(assignee);
+
+  const rawLines = (text || '').split(/\r?\n/).map(l => l.trimEnd()).filter(l => l.trim().length > 0);
+  const firstLine = (rawLines[0] || '').trim();
+  const cleanFirstLine = firstLine.replace(/\s*(\((@[^)]+)\)|\[(@[^\]]+)\]|\((@?[^)]+)\)\s*$|\[(@?[^\]]+)\]\s*)/gi, '').trimEnd();
+
+  const mark = isCompleted ? '[x]' : '[ ]';
+  const newLinesToInsert: string[] = [
+    `- ${mark} **${effectiveNumber}** ${cleanFirstLine}${finalAssigneeTag}`
+  ];
+  for (let i = 1; i < rawLines.length; i++) {
+    newLinesToInsert.push(`    > ${rawLines[i].trim()}`);
+  }
+
+  // 3. Inserção ordenada na seção correta
+  const secParts = effectiveNumber.split('.');
+  const secNum = parseInt(secParts[0]);
+
+  let insertIndex = -1;
+  if (!isNaN(secNum)) {
+    const nextSecRegex = new RegExp(`^##\\s*(${secNum + 1})\\b`);
+    for (let i = 0; i < lines.length; i++) {
+      if (nextSecRegex.test(lines[i])) {
+        insertIndex = (i > 0 && lines[i - 1].trim() === '') ? i - 1 : i;
+        break;
+      }
+    }
+  }
+
+  if (insertIndex !== -1) {
+    lines.splice(insertIndex, 0, ...newLinesToInsert);
+  } else {
+    if (lines.length > 0 && lines[lines.length - 1].trim() !== '') {
+      lines.push('');
+    }
+    lines.push(...newLinesToInsert);
+  }
+
+  fs.writeFileSync(tasksPath, lines.join('\n'), 'utf8');
+  return { success: true, taskId: effectiveNumber };
+}
+
 function updateOpenSpecTask(
   featureId: string,
   taskNumber: string,
@@ -256,10 +387,10 @@ function updateOpenSpecTask(
 
   const content = fs.readFileSync(tasksPath, 'utf8');
   const lines = content.split('\n');
-  const cleanTaskNum = taskNumber ? taskNumber.trim() : '';
+  const cleanTaskNum = taskNumber ? taskNumber.trim().replace(/^\*+|\*+$/g, '').trim() : '';
 
   const escapedNum = cleanTaskNum.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const idRegex = cleanTaskNum ? new RegExp(`^\\s*[-*]?\\s*\\[[ xX]\\]\\s*\\*\\*(${escapedNum}(\\s+[^*]+)?|[^\\*]*?${escapedNum}[^\\*]*?)\\*\\*`, 'i') : null;
+  const idRegex = cleanTaskNum ? new RegExp(`^\\s*[-*]?\\s*(\\[[ xX]\\])?\\s*\\*\\*\\s*${escapedNum}(?!\\d)[^*]*\\*\\*`, 'i') : null;
 
   let foundIndex = -1;
   let matchedTaskId = cleanTaskNum;
@@ -268,7 +399,7 @@ function updateOpenSpecTask(
     const l = lines[i];
     if (cleanTaskNum && (l.includes(`**${cleanTaskNum}**`) || (idRegex && idRegex.test(l)))) {
       foundIndex = i;
-      const m = l.match(/^\s*[-*]?\s*\[[ xX]\]\s*\*\*(.+?)\*\*/);
+      const m = l.match(/\*\*(.+?)\*\*/);
       if (m) matchedTaskId = m[1].trim();
       break;
     }
@@ -276,7 +407,7 @@ function updateOpenSpecTask(
 
   const mark = isCompleted ? '[x]' : '[ ]';
   const cleanAssignee = (assignee !== undefined && assignee !== null) ? assignee.trim().replace(/^@/, '') : undefined;
-  const newTag = cleanAssignee && cleanAssignee !== 'Todos' ? `(@${cleanAssignee})` : '';
+  const newTag = cleanAssignee && cleanAssignee !== 'Todos' ? formatAssigneeTag(cleanAssignee).trim() : '';
 
   if (foundIndex !== -1) {
     // Tarefa existente encontrada!
@@ -331,7 +462,7 @@ function updateOpenSpecTask(
       const existingCount = lines.filter(l => l.match(/^\s*[-*]?\s*\[[ xX]\]/)).length;
       effectiveNumber = `1.${existingCount + 1}`;
     }
-    const finalAssigneeTag = cleanAssignee && cleanAssignee !== 'Todos' ? ` (@${cleanAssignee})` : '';
+    const finalAssigneeTag = formatAssigneeTag(cleanAssignee);
     const rawLines = text.split(/\r?\n/).map(l => l.trimEnd()).filter(l => l.trim().length > 0);
     if (rawLines.length <= 1) {
       lines.push(`- [${isCompleted ? 'x' : ' '}] **${effectiveNumber}** ${text.trim()}${finalAssigneeTag}`);
@@ -355,9 +486,9 @@ function deleteOpenSpecTask(featureId: string, taskNumber: string): boolean {
 
   const content = fs.readFileSync(tasksPath, 'utf8');
   const lines = content.split('\n');
-  const cleanTaskNum = taskNumber ? taskNumber.trim() : '';
+  const cleanTaskNum = taskNumber ? taskNumber.trim().replace(/^\*+|\*+$/g, '').trim() : '';
   const escapedNum = cleanTaskNum.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const idRegex = cleanTaskNum ? new RegExp(`^\\s*[-*]?\\s*\\[[ xX]\\]\\s*\\*\\*(${escapedNum}(\\s+[^*]+)?|[^\\*]*?${escapedNum}[^\\*]*?)\\*\\*`, 'i') : null;
+  const idRegex = cleanTaskNum ? new RegExp(`^\\s*[-*]?\\s*(\\[[ xX]\\])?\\s*\\*\\*\\s*${escapedNum}(?!\\d)[^*]*\\*\\*`, 'i') : null;
 
   let foundIndex = -1;
   for (let i = 0; i < lines.length; i++) {
@@ -425,8 +556,21 @@ function sendJSON(res: http.ServerResponse, statusCode: number, data: any) {
   res.end(JSON.stringify(data));
 }
 
-function getGitInfo() {
+let lastGitFetchTime = 0;
+function tryFetchRemote(force = false) {
+  const now = Date.now();
+  if (force || now - lastGitFetchTime > 30000) {
+    try {
+      execSync('git fetch --quiet', { encoding: 'utf8', cwd: REPO_ROOT, timeout: 6000 });
+      lastGitFetchTime = now;
+    } catch { }
+  }
+}
+
+function getGitInfo(forceFetch = false) {
   try {
+    tryFetchRemote(forceFetch);
+
     let currentBranch = 'main';
     try {
       currentBranch = execSync('git branch --show-current', { encoding: 'utf8', cwd: REPO_ROOT }).trim();
@@ -457,6 +601,12 @@ function getGitInfo() {
       unpushedCommits = parseInt(revOut, 10) || 0;
     } catch { }
 
+    let behindCommits = 0;
+    try {
+      const behindOut = execSync('git rev-list HEAD..@{u} --count', { encoding: 'utf8', cwd: REPO_ROOT }).trim();
+      behindCommits = parseInt(behindOut, 10) || 0;
+    } catch { }
+
     let lastCommit = '';
     try {
       lastCommit = execSync('git log -1 --format="%h - %s (%cr)"', { encoding: 'utf8', cwd: REPO_ROOT }).trim();
@@ -474,7 +624,7 @@ function getGitInfo() {
     let detectedMember: any = null;
 
     // 1. Prioridade 1: Arquivo local de identidade (.gitignore - 100% privado, só nesta máquina)
-    const localIdentityPath = path.join(__dirname, '../config/identity.local.json');
+    const localIdentityPath = path.join(KANBAN_ROOT, 'src/config/identity.local.json');
     if (fs.existsSync(localIdentityPath)) {
       try {
         const localData = JSON.parse(fs.readFileSync(localIdentityPath, 'utf8'));
@@ -517,6 +667,8 @@ function getGitInfo() {
       uncommittedChanges: modifiedFiles.length > 0,
       modifiedFiles,
       unpushedCommits,
+      behindCommits,
+      hasRemoteChanges: behindCommits > 0,
       lastCommit,
       gitUser,
       detectedMember,
@@ -529,6 +681,8 @@ function getGitInfo() {
       uncommittedChanges: false,
       modifiedFiles: [],
       unpushedCommits: 0,
+      behindCommits: 0,
+      hasRemoteChanges: false,
       lastCommit: ''
     };
   }
@@ -611,7 +765,12 @@ function getFeaturesFromGitBranch(branch: string) {
                 taskAssignee = ideaAssignee;
               }
               if (taskAssignee && isAssigneeActive(taskAssignee, membersList)) {
-                assigneesSet.add(taskAssignee);
+                const parts = taskAssignee.split(/[,/]+/).map(p => p.trim()).filter(Boolean);
+                parts.forEach(p => {
+                  if (isAssigneeActive(p, membersList)) {
+                    assigneesSet.add(p);
+                  }
+                });
               } else {
                 taskAssignee = '';
               }
@@ -771,7 +930,12 @@ function getFeaturesData() {
             taskAssignee = ideaAssignee;
           }
           if (taskAssignee && isAssigneeActive(taskAssignee, membersList)) {
-            assigneesSet.add(taskAssignee);
+            const parts = taskAssignee.split(/[,/]+/).map(p => p.trim()).filter(Boolean);
+            parts.forEach(p => {
+              if (isAssigneeActive(p, membersList)) {
+                assigneesSet.add(p);
+              }
+            });
           } else {
             taskAssignee = '';
           }
@@ -835,8 +999,13 @@ function getFeaturesData() {
   });
 }
 
-function generateSmartOpenSpec(featureId: string, title?: string, promptText?: string) {
-  const cleanId = featureId.trim().toLowerCase().replace(/\s+/g, '-');
+function generateSmartOpenSpec(featureId: string, title?: string, promptText?: string, team?: string) {
+  const cleanId = featureId
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\-]+/g, '-')
+    .replace(/^-+|-+$/g, '') || `feature-${Date.now()}`;
   const cleanTitle = title && title.trim() ? title.trim() : cleanId.replace(/-/g, ' ');
 
   const textToScan = `${cleanId} ${cleanTitle} ${promptText || ''}`.toLowerCase();
@@ -931,6 +1100,9 @@ function generateSmartOpenSpec(featureId: string, title?: string, promptText?: s
     ? `Features ativas no OpenSpec: ${existingFeatures.slice(0, 5).map(f => `\`${f}\``).join(', ')}${existingFeatures.length > 5 ? ` (+${existingFeatures.length - 5} outras)` : ''}. Esta proposta foi desenhada de forma isolada para não interferir nas tarefas em andamento.`
     : `Nenhuma feature conflitante detectada no workspace local do OpenSpec.`;
 
+  const author = (team && team.trim() && team !== 'Todos' && team !== 'dev-team') ? team.trim() : 'Todos';
+  const dateStr = new Date().toISOString().split('T')[0];
+
   const proposal = `# Feature: ${cleanId}
 
 ## Title
@@ -960,7 +1132,7 @@ ${conflictNotes.length > 0 ? `## Análise de Diretrizes & Guardrails (Claude.md)
 - [x] Compatível com pipeline gráfico URP Mobile e servidor FishNet
 
 ## Status
-[CRIADO]
+[CRIADO] por ${author} em ${dateStr}
 `;
 
   let tasksMd = `# Tasks for ${cleanId}\n\n`;
@@ -1259,7 +1431,7 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
-      const localIdentityPath = path.join(__dirname, '../config/identity.local.json');
+      const localIdentityPath = path.join(KANBAN_ROOT, 'src/config/identity.local.json');
       fs.writeFileSync(localIdentityPath, JSON.stringify({ memberId: targetMember.id }, null, 2), 'utf8');
 
       try {
@@ -1426,7 +1598,8 @@ const server = http.createServer(async (req, res) => {
 
     // API: Git info & branches
     if (req.method === 'GET' && pathname === '/api/git/info') {
-      const gitInfo = getGitInfo();
+      const forceFetch = parsedUrl.searchParams.get('fetch') === 'true' || parsedUrl.searchParams.get('fetch') === '1';
+      const gitInfo = getGitInfo(forceFetch);
       sendJSON(res, 200, { success: true, ...gitInfo });
       return;
     }
@@ -1454,13 +1627,45 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    // API: Push commits to remote Git repository
+    // API: Pull changes from remote Git repository (Baixar do Repo)
+    if (req.method === 'POST' && pathname === '/api/git/pull') {
+      try {
+        const gitInfo = getGitInfo(true);
+        const branch = gitInfo.currentBranch || 'main';
+        const pullOut = execSync(`git pull origin ${branch}`, { encoding: 'utf8', cwd: REPO_ROOT, timeout: 30000 });
+        const updatedGitInfo = getGitInfo(true);
+        sendJSON(res, 200, {
+          success: true,
+          message: `Repositório sincronizado com sucesso com origin/${branch}!`,
+          details: pullOut.trim() || 'Tudo atualizado a partir do repositório remoto.',
+          gitInfo: updatedGitInfo
+        });
+      } catch (err: any) {
+        sendJSON(res, 200, {
+          success: false,
+          error: err.stderr || err.stdout || err.message || 'Erro ao sincronizar com git pull'
+        });
+      }
+      return;
+    }
+
+    // API: Push commits to remote Git repository (Subir ao Repo)
     if (req.method === 'POST' && pathname === '/api/git/push') {
       try {
-        const gitInfo = getGitInfo();
+        const gitInfo = getGitInfo(true);
+        if (gitInfo.behindCommits && gitInfo.behindCommits > 0) {
+          sendJSON(res, 400, {
+            success: false,
+            needsPull: true,
+            behindCommits: gitInfo.behindCommits,
+            error: `O repositório remoto possui ${gitInfo.behindCommits} novo(s) commit(s). Clique em "Baixar do Repo" para sincronizar antes de subir.`
+          });
+          return;
+        }
+
         const branch = gitInfo.currentBranch || 'main';
-        const pushOut = execSync(`git push origin ${branch}`, { encoding: 'utf8', cwd: REPO_ROOT });
-        const updatedGitInfo = getGitInfo();
+        const pushOut = execSync(`git push origin ${branch}`, { encoding: 'utf8', cwd: REPO_ROOT, timeout: 30000 });
+        const updatedGitInfo = getGitInfo(true);
         sendJSON(res, 200, {
           success: true,
           message: `Git push realizado com sucesso para origin/${branch}!`,
@@ -1519,17 +1724,23 @@ const server = http.createServer(async (req, res) => {
       const markDone = status === 'Concluído';
       const cleanAssignee = (assignee && assignee.trim() && assignee !== 'Todos') ? assignee.trim() : undefined;
 
-      // Sincroniza diretamente no OpenSpec Markdown
-      updateOpenSpecTask(targetFeature, taskId || '', markDone, status || 'Backlog', cleanAssignee, text.trim());
+      // Cria a tarefa de forma segura no OpenSpec Markdown prevenindo sobrescrita
+      const result = createOpenSpecTask(targetFeature, taskId, markDone, status || 'Backlog', cleanAssignee, text.trim());
+      if (!result.success) {
+        sendJSON(res, 400, { success: false, error: result.error || 'Erro ao criar tarefa no OpenSpec.' });
+        return;
+      }
 
-      const idPrefix = taskId ? `**${taskId}** ` : '';
-      const assigneeSuffix = cleanAssignee ? ` (@${cleanAssignee})` : '';
+      const idPrefix = `**${result.taskId}** `;
+      const assigneeSuffix = formatAssigneeTag(cleanAssignee);
       const firstLine = text.trim().split(/\r?\n/)[0];
+      const cleanFirstLine = firstLine.replace(/\s*(\((@[^)]+)\)|\[(@[^\]]+)\]|\((@?[^)]+)\)\s*$|\[(@?[^\]]+)\]\s*)/gi, '').trimEnd();
       sendJSON(res, 200, {
         success: true,
-        message: `Tarefa criada em "${targetFeature}" (OpenSpec Git-Native)`,
+        taskId: result.taskId,
+        message: `Tarefa ${idPrefix.trim()} criada em "${targetFeature}" (OpenSpec Git-Native)`,
         feature: targetFeature,
-        command: `agent criar openspec/changes/${targetFeature}/tasks.md "${idPrefix}${firstLine}${assigneeSuffix}"`
+        command: `agent criar openspec/changes/${targetFeature}/tasks.md "${idPrefix}${cleanFirstLine}${assigneeSuffix}"`
       });
       return;
     }
@@ -1604,24 +1815,32 @@ const server = http.createServer(async (req, res) => {
 
     // API: Create new feature
     if (req.method === 'POST' && pathname === '/api/features/create') {
-      const { featureId, title, summary, tasks, prompt: promptText } = await parseJSONBody(req);
-      if (!featureId) {
-        sendJSON(res, 400, { success: false, error: 'ID da feature é obrigatório.' });
+      const { featureId, title, summary, tasks, prompt: promptText, team } = await parseJSONBody(req);
+      if (!featureId || !featureId.trim()) {
+        sendJSON(res, 400, { success: false, error: 'ID ou título da feature é obrigatório.' });
         return;
       }
 
-      const cleanId = featureId.trim().toLowerCase().replace(/\s+/g, '-');
+      const cleanId = featureId
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\-]+/g, '-')
+        .replace(/^-+|-+$/g, '') || `feature-${Date.now()}`;
+
       const featureDir = path.join(OPEN_SPEC_DIR, cleanId);
 
       if (fs.existsSync(featureDir)) {
-        sendJSON(res, 400, { success: false, error: `A feature "${cleanId}" já existe.` });
+        sendJSON(res, 400, { success: false, error: `A feature "${cleanId}" já existe no OpenSpec.` });
         return;
       }
 
       fs.mkdirSync(featureDir, { recursive: true });
 
-      const finalSummary = summary || promptText || 'Proposta de feature para Fowlgen Wars.';
-      const proposalContent = `# Feature: ${cleanId}\n\n## Title\n${title || cleanId}\n\n## Summary\n${finalSummary}\n\n## Motivation\n${promptText || 'Atender à evolução contínua do Fowlgen Wars.'}\n\n## Status\n[CRIADO]\n`;
+      const author = (team && team.trim() && team !== 'Todos' && team !== 'dev-team') ? team.trim() : 'Todos';
+      const dateStr = new Date().toISOString().split('T')[0];
+      const finalSummary = summary || promptText || `Proposta de feature para ${title || cleanId}.`;
+      const proposalContent = `# Feature: ${cleanId}\n\n## Title\n${title || cleanId}\n\n## Summary\n${finalSummary}\n\n## Motivation\n${promptText || 'Atender à evolução contínua do Fowlgen Wars.'}\n\n## Status\n[CRIADO] por ${author} em ${dateStr}\n`;
       fs.writeFileSync(path.join(featureDir, 'proposal.md'), proposalContent, 'utf8');
 
       const initialTasks = Array.isArray(tasks) && tasks.length > 0 ? tasks : ['Definir planejamento', 'Implementar requisitos'];
@@ -1633,7 +1852,8 @@ const server = http.createServer(async (req, res) => {
 
       sendJSON(res, 200, {
         success: true,
-        message: `Feature ${cleanId} criada com sucesso!`,
+        featureId: cleanId,
+        message: `Feature "${cleanId}" criada com sucesso!`,
         command: `agent criar openspec/changes/${cleanId}/proposal.md "# Feature: ${cleanId}"`
       });
       return;
@@ -1641,13 +1861,13 @@ const server = http.createServer(async (req, res) => {
 
     // API: AI Generate feature (Proposta estruturada e tarefas 100% locais)
     if (req.method === 'POST' && pathname === '/api/features/ai-generate') {
-      const { featureId, title, prompt: promptText } = await parseJSONBody(req);
-      if (!featureId) {
+      const { featureId, title, prompt: promptText, team } = await parseJSONBody(req);
+      if (!featureId || !featureId.trim()) {
         sendJSON(res, 400, { success: false, error: 'ID ou tema da feature é obrigatório.' });
         return;
       }
 
-      const generated = generateSmartOpenSpec(featureId, title, promptText);
+      const generated = generateSmartOpenSpec(featureId, title, promptText, team);
       const featureDir = path.join(OPEN_SPEC_DIR, generated.cleanId);
 
       if (fs.existsSync(featureDir)) {
@@ -1721,8 +1941,8 @@ const server = http.createServer(async (req, res) => {
 
       let proposalContent = fs.existsSync(proposalPath) ? fs.readFileSync(proposalPath, 'utf8') : `# Feature: ${feature}\n`;
 
-      // Clear previous status badges
-      proposalContent = proposalContent.replace(/\[(APROVADO|VALIDADO|REJEITADO|CRIADO)[^\]]*\]/g, '').trim();
+      // Clear previous status section completely to avoid orphan lines and duplicate headers
+      proposalContent = proposalContent.replace(/##\s*Status\s*[\s\S]*?(?=(?:\n##\s|$))/i, '').trim();
 
       if (action === 'approve') {
         const team = (assignee && assignee !== 'dev-team') ? assignee : 'Todos';

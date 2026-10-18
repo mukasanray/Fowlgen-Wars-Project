@@ -241,8 +241,59 @@ async function runAllTests() {
     assert(resDashboardHtml.status === 200, 'GET /dashboard serve HTML autônomo com 200 OK');
     assert(resDashboardHtml.data.includes('Fowlgen Wars'), 'HTML do dashboard contém cabeçalho Fowlgen Wars');
 
-    // 8. Clean Up Test Feature
-    console.log('\n--- 8. Limpeza do Ambiente de Teste ---');
+    // 8. Test Multi-Dropdown & Mandatory Assignee Validation
+    console.log('\n--- 8. Multi-Dropdown & Seleção Obrigatória de Responsável ---');
+    assert(resRoot.data.includes('multi-assignee-container'), 'index.html contém container multi-assignee-container');
+    assert(resRoot.data.includes('multi-assignee-trigger'), 'index.html contém trigger multi-assignee-trigger');
+    assert(resRoot.data.includes('multi-assignee-dropdown'), 'index.html contém menu multi-assignee-dropdown');
+    assert(resRoot.data.includes('Selecione o(s) responsável(is)... *'), 'index.html exibe placeholder de seleção obrigatória');
+    assert(resStyles.data.includes('.multi-select-container'), 'styles.css define regras para .multi-select-container');
+    assert(resStyles.data.includes('.multi-select-trigger.has-error'), 'styles.css define efeito de erro/shake para validação obrigatória');
+    assert(resAppJs.data.includes('selectedTaskAssignees'), 'app.js gerencia estado selectedTaskAssignees');
+    assert(resAppJs.data.includes('Selecione ao menos um Responsável para a tarefa'), 'app.js bloqueia criação sem responsável');
+
+    // Teste de criação de tarefa com múltiplos responsáveis
+    const resMultiTask = await request({
+      path: '/api/tasks/create',
+      method: 'POST'
+    }, {
+      feature: testFeatureId,
+      taskId: '2.1',
+      text: 'Tarefa com múltiplos responsáveis',
+      assignee: 'Marcos, Samuel',
+      status: 'Backlog'
+    });
+    assert(resMultiTask.status === 200 && resMultiTask.json && resMultiTask.json.success, 'POST /api/tasks/create cria tarefa com múltiplos responsáveis');
+
+    const resFeaturesMulti = await request({ path: '/api/features' });
+    const targetFeat = resFeaturesMulti.json.features.find(f => f.name === testFeatureId);
+    const multiTask = targetFeat?.tasks.find(t => t.id === '2.1');
+    assert(multiTask && multiTask.assignee === 'Marcos, Samuel', 'Tarefa criada possui ambos os responsáveis normalizados (Marcos, Samuel)');
+    assert(targetFeat.assignees.includes('Marcos') && targetFeat.assignees.includes('Samuel'), 'Feature lista ambos os responsáveis na coleção de assignees');
+
+    // 9. Test Reusable Confirmation Modal System
+    console.log('\n--- 9. Sistema de Modais de Confirmação Preventiva ---');
+    assert(resRoot.data.includes('modal-confirm-action'), 'index.html contém modal de confirmação modal-confirm-action');
+    assert(resRoot.data.includes('btn-confirm-modal-confirm'), 'index.html contém botão confirmar');
+    assert(resRoot.data.includes('btn-confirm-modal-cancel'), 'index.html contém botão cancelar');
+    assert(resAppJs.data.includes('function showConfirmModal'), 'app.js implementa showConfirmModal genérico com Promise');
+    assert(resAppJs.data.includes('Concluir Tarefa'), 'app.js vincula modal de confirmação ao checkbox de tarefas');
+    assert(resAppJs.data.includes('Sim, Excluir Tarefa') || resAppJs.data.includes('Sim, Excluir'), 'app.js vincula modal de confirmação à exclusão de tarefas');
+    assert(resAppJs.data.includes('Subir Commits para o Repositório') || resAppJs.data.includes('Baixar Alterações do Repositório'), 'app.js vincula modal de confirmação ao Git Push / Pull');
+    assert(resAppJs.data.includes('Limpar Logs de Execução'), 'app.js vincula modal de confirmação à limpeza de logs');
+
+    // 10. Test Input Clearing upon Task and Idea/Feature Registration
+    console.log('\n--- 10. Limpeza de Inputs após Cadastro (Tarefas e Ideias/Features) ---');
+    assert(resAppJs.data.includes('function clearTaskForm'), 'app.js implementa clearTaskForm para redefinir inputs de tarefas');
+    assert(resAppJs.data.includes('function clearIdeaForm'), 'app.js implementa clearIdeaForm para redefinir inputs de ideias/features');
+    assert(resAppJs.data.includes('clearTaskForm(true);'), 'btn-action-create-task invoca clearTaskForm após cadastro com sucesso');
+    assert(resAppJs.data.includes('clearIdeaForm(true);'), 'btn-action-new-feature invoca clearIdeaForm após cadastro com sucesso');
+    assert(resRoot.data.includes('Arte Designer 2D'), 'index.html contém opção Arte Designer 2D');
+    assert(resRoot.data.includes('Arte e Animador 3D'), 'index.html contém opção Arte e Animador 3D');
+    assert(!resRoot.data.includes('Arte 2D / 3D & VFX'), 'index.html não contém mais a opção combinada com VFX');
+
+    // 11. Clean Up Test Feature
+    console.log('\n--- 11. Limpeza do Ambiente de Teste ---');
     const repoRoot = path.resolve(__dirname, '..');
     const testFeatureDir = path.join(repoRoot, 'openspec', 'changes', testFeatureId);
     if (fs.existsSync(testFeatureDir)) {

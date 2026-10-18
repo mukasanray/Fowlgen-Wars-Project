@@ -7,6 +7,9 @@ let lastGeneratedCommand = '';
 
 function isMemberActive(name) {
   if (!name || name === 'Todos' || name === 'dev-team') return true;
+  if (typeof name === 'string' && (name.includes(',') || name.includes('/'))) {
+    return name.split(/[,/]+/).map(s => s.trim()).some(s => isMemberActive(s));
+  }
   const clean = String(name).replace(/^@/, '').trim().toLowerCase();
   const found = teamMembers.find(m =>
     m.name.toLowerCase() === clean ||
@@ -39,6 +42,250 @@ const btnCancelTaskEdit = document.getElementById('btn-cancel-task-edit');
 const btnActionDeleteTask = document.getElementById('btn-action-delete-task');
 let editingTaskInfo = null;
 
+// Multi-Select Assignee State & Elements
+let selectedTaskAssignees = [];
+const multiAssigneeContainer = document.getElementById('multi-assignee-container');
+const multiAssigneeTrigger = document.getElementById('multi-assignee-trigger');
+const multiAssigneeDropdown = document.getElementById('multi-assignee-dropdown');
+const multiAssigneeValues = document.getElementById('multi-assignee-values');
+const multiAssigneeOptions = document.getElementById('multi-assignee-options');
+const multiAssigneeSearch = document.getElementById('multi-assignee-search');
+const assigneeCountBadge = document.getElementById('assignee-count-badge');
+
+function updateMultiAssigneeTriggerDisplay() {
+  if (!multiAssigneeValues) return;
+  multiAssigneeValues.innerHTML = '';
+
+  if (selectedTaskAssignees.length === 0) {
+    const placeholder = document.createElement('span');
+    placeholder.className = 'multi-select-placeholder';
+    placeholder.textContent = '👤 Selecione o(s) responsável(is)... *';
+    multiAssigneeValues.appendChild(placeholder);
+    if (selectTaskAssignee) selectTaskAssignee.value = '';
+    if (assigneeCountBadge) assigneeCountBadge.style.display = 'none';
+  } else {
+    if (multiAssigneeTrigger) multiAssigneeTrigger.classList.remove('has-error');
+    if (selectTaskAssignee) selectTaskAssignee.value = selectedTaskAssignees.join(', ');
+    if (assigneeCountBadge) {
+      assigneeCountBadge.textContent = `${selectedTaskAssignees.length} selecionado(s)`;
+      assigneeCountBadge.style.display = 'inline';
+    }
+
+    selectedTaskAssignees.forEach(name => {
+      const member = teamMembers.find(m => m.name.toLowerCase() === name.toLowerCase());
+      const avatar = member?.avatar || '👤';
+      const chip = document.createElement('span');
+      chip.className = 'multi-select-chip';
+      chip.innerHTML = `<span>${avatar} ${escapeHtml(name)}</span><span class="chip-remove" title="Remover">&times;</span>`;
+      chip.querySelector('.chip-remove')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleTaskAssignee(name, false);
+      });
+      multiAssigneeValues.appendChild(chip);
+    });
+  }
+
+  updateCommandPreview();
+}
+
+function toggleTaskAssignee(name, forceState) {
+  const cleanName = (name || '').trim();
+  if (!cleanName) return;
+
+  const exists = selectedTaskAssignees.some(n => n.toLowerCase() === cleanName.toLowerCase());
+  const shouldSelect = (forceState !== undefined) ? forceState : !exists;
+
+  if (shouldSelect && !exists) {
+    selectedTaskAssignees.push(cleanName);
+  } else if (!shouldSelect && exists) {
+    selectedTaskAssignees = selectedTaskAssignees.filter(n => n.toLowerCase() !== cleanName.toLowerCase());
+  }
+
+  updateMultiAssigneeTriggerDisplay();
+  populateMultiAssigneeDropdown(multiAssigneeSearch ? multiAssigneeSearch.value.trim() : '');
+}
+
+function populateMultiAssigneeDropdown(filterText = '') {
+  if (!multiAssigneeOptions) return;
+  multiAssigneeOptions.innerHTML = '';
+
+  const activeMembers = teamMembers.filter(m => m.active !== false && m.status !== 'inactive');
+  const searchLower = filterText.toLowerCase();
+
+  const filteredMembers = activeMembers.filter(m => {
+    if (!searchLower) return true;
+    return m.name.toLowerCase().includes(searchLower) ||
+           (m.role && m.role.toLowerCase().includes(searchLower)) ||
+           (m.id && m.id.toLowerCase().includes(searchLower));
+  });
+
+  if (filteredMembers.length === 0) {
+    const emptyNotice = document.createElement('div');
+    emptyNotice.style.padding = '10px';
+    emptyNotice.style.fontSize = '12px';
+    emptyNotice.style.color = 'var(--text-dim)';
+    emptyNotice.style.textAlign = 'center';
+    emptyNotice.textContent = 'Nenhum membro encontrado';
+    multiAssigneeOptions.appendChild(emptyNotice);
+    return;
+  }
+
+  filteredMembers.forEach(m => {
+    const isSelected = selectedTaskAssignees.some(n => n.toLowerCase() === m.name.toLowerCase());
+    const opt = document.createElement('div');
+    opt.className = `multi-select-option ${isSelected ? 'selected' : ''}`;
+    opt.innerHTML = `
+      <input type="checkbox" ${isSelected ? 'checked' : ''}>
+      <span class="option-avatar">${m.avatar || '👤'}</span>
+      <span class="option-name">${escapeHtml(m.name)}</span>
+      <span class="option-role">${escapeHtml(m.role || 'Membro')}</span>
+    `;
+
+    opt.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleTaskAssignee(m.name);
+    });
+
+    const chk = opt.querySelector('input[type="checkbox"]');
+    if (chk) {
+      chk.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleTaskAssignee(m.name, chk.checked);
+      });
+    }
+
+    multiAssigneeOptions.appendChild(opt);
+  });
+}
+
+// =============================================================
+// Reusable Confirmation Modal System
+// =============================================================
+const modalConfirmAction = document.getElementById('modal-confirm-action');
+const confirmModalTitleText = document.getElementById('confirm-modal-title-text');
+const confirmModalIcon = document.getElementById('confirm-modal-icon');
+const confirmModalMessage = document.getElementById('confirm-modal-message');
+const confirmModalWarning = document.getElementById('confirm-modal-warning');
+const confirmModalInputContainer = document.getElementById('confirm-modal-input-container');
+const confirmModalInputLabel = document.getElementById('confirm-modal-input-label');
+const confirmModalInput = document.getElementById('confirm-modal-input');
+const btnConfirmModalCancel = document.getElementById('btn-confirm-modal-cancel');
+const btnConfirmModalConfirm = document.getElementById('btn-confirm-modal-confirm');
+const btnConfirmModalClose = document.getElementById('btn-confirm-modal-close');
+
+let confirmModalResolver = null;
+
+function showConfirmModal({
+  title = 'Confirmar Ação',
+  icon = '⚠️',
+  message = 'Tem certeza que deseja prosseguir com esta ação?',
+  warning = '',
+  confirmText = 'Confirmar',
+  cancelText = 'Cancelar',
+  confirmBtnClass = 'btn-primary',
+  withInput = false,
+  inputLabel = 'Motivo / Observação:',
+  inputPlaceholder = 'Digite aqui...',
+  inputDefault = ''
+} = {}) {
+  return new Promise((resolve) => {
+    confirmModalResolver = resolve;
+
+    if (confirmModalTitleText) confirmModalTitleText.textContent = title;
+    if (confirmModalIcon) confirmModalIcon.textContent = icon;
+    if (confirmModalMessage) {
+      const escaped = escapeHtml(message);
+      confirmModalMessage.innerHTML = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    }
+
+    if (confirmModalWarning) {
+      if (warning) {
+        confirmModalWarning.textContent = warning;
+        confirmModalWarning.style.display = 'block';
+      } else {
+        confirmModalWarning.style.display = 'none';
+      }
+    }
+
+    if (confirmModalInputContainer && confirmModalInput) {
+      if (withInput) {
+        if (confirmModalInputLabel) confirmModalInputLabel.textContent = inputLabel;
+        confirmModalInput.placeholder = inputPlaceholder;
+        confirmModalInput.value = inputDefault;
+        confirmModalInputContainer.style.display = 'block';
+      } else {
+        confirmModalInputContainer.style.display = 'none';
+      }
+    }
+
+    if (btnConfirmModalConfirm) {
+      btnConfirmModalConfirm.textContent = confirmText;
+      btnConfirmModalConfirm.className = `btn btn-sm ${confirmBtnClass}`;
+    }
+    if (btnConfirmModalCancel) {
+      btnConfirmModalCancel.textContent = cancelText;
+    }
+
+    if (modalConfirmAction) {
+      modalConfirmAction.classList.add('open');
+      if (withInput && confirmModalInput) {
+        setTimeout(() => confirmModalInput.focus(), 60);
+      } else {
+        setTimeout(() => btnConfirmModalConfirm?.focus(), 60);
+      }
+    }
+  });
+}
+
+function closeConfirmModal(result) {
+  if (modalConfirmAction) modalConfirmAction.classList.remove('open');
+  if (confirmModalResolver) {
+    const resolver = confirmModalResolver;
+    confirmModalResolver = null;
+    resolver(result);
+  }
+}
+
+if (btnConfirmModalConfirm) {
+  btnConfirmModalConfirm.addEventListener('click', () => {
+    if (confirmModalInputContainer && confirmModalInputContainer.style.display !== 'none' && confirmModalInput) {
+      const val = confirmModalInput.value.trim();
+      closeConfirmModal(val || true);
+    } else {
+      closeConfirmModal(true);
+    }
+  });
+}
+
+if (btnConfirmModalCancel) {
+  btnConfirmModalCancel.addEventListener('click', () => {
+    closeConfirmModal(false);
+  });
+}
+
+if (btnConfirmModalClose) {
+  btnConfirmModalClose.addEventListener('click', () => {
+    closeConfirmModal(false);
+  });
+}
+
+if (modalConfirmAction) {
+  modalConfirmAction.addEventListener('click', (e) => {
+    if (e.target === modalConfirmAction) {
+      closeConfirmModal(false);
+    }
+  });
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modalConfirmAction && modalConfirmAction.classList.contains('open')) {
+    closeConfirmModal(false);
+  }
+  if (e.key === 'Enter' && modalConfirmAction && modalConfirmAction.classList.contains('open') && e.target === confirmModalInput) {
+    btnConfirmModalConfirm?.click();
+  }
+});
+
 function startEditingTask(featureName, task) {
   if (!task) return;
   editingTaskInfo = { feature: featureName, taskId: task.id };
@@ -46,10 +293,19 @@ function startEditingTask(featureName, task) {
   if (selectFeatureTask) selectFeatureTask.value = featureName || 'tarefas-gerais';
   if (inputTaskId) inputTaskId.value = task.id || '';
   if (selectTaskStatus) selectTaskStatus.value = task.done ? 'Concluído' : 'Backlog';
-  if (selectTaskAssignee) {
-    const rawAss = (task.assignee || 'Todos').trim().replace(/^@/, '');
-    selectTaskAssignee.value = rawAss;
+  if (task.assignee) {
+    const rawAss = (task.assignee || '').trim().replace(/^@/, '');
+    if (rawAss && rawAss !== 'Todos') {
+      const parts = rawAss.split(/[,/]+/).map(s => s.trim().replace(/^@/, '')).filter(Boolean);
+      selectedTaskAssignees = parts;
+    } else {
+      selectedTaskAssignees = [];
+    }
+  } else {
+    selectedTaskAssignees = [];
   }
+  updateMultiAssigneeTriggerDisplay();
+  populateMultiAssigneeDropdown(multiAssigneeSearch ? multiAssigneeSearch.value.trim() : '');
 
   const cleanText = (task.text || '').replace(/\(([^)]+)\)|@([\w-]+)|\[([\w-]+)\]/g, '').trim();
   const fullContent = task.prompt ? `${cleanText}\n${task.prompt}` : cleanText;
@@ -80,12 +336,32 @@ function startEditingTask(featureName, task) {
   showToast(`Tarefa ${task.id} carregada no formulário para alteração!`, 'info');
 }
 
-function cancelEditingTask() {
+function clearTaskForm(silent = true) {
   editingTaskInfo = null;
   if (taskEditingBanner) taskEditingBanner.style.display = 'none';
   if (btnActionDeleteTask) btnActionDeleteTask.style.display = 'none';
   if (inputTaskId) inputTaskId.value = '';
   if (inputTaskText) inputTaskText.value = '';
+  if (selectTaskStatus) selectTaskStatus.value = 'Backlog';
+  selectedTaskAssignees = [];
+  if (selectTaskAssignee) selectTaskAssignee.value = '';
+  if (inputTaskAssignee) inputTaskAssignee.value = '';
+  if (multiAssigneeSearch) multiAssigneeSearch.value = '';
+  if (multiAssigneeTrigger) {
+    multiAssigneeTrigger.classList.remove('has-error');
+    multiAssigneeTrigger.classList.remove('active');
+  }
+  if (multiAssigneeDropdown) multiAssigneeDropdown.style.display = 'none';
+  updateMultiAssigneeTriggerDisplay();
+  populateMultiAssigneeDropdown(multiAssigneeSearch ? multiAssigneeSearch.value.trim() : '');
+  updateCommandPreview();
+  if (!silent) {
+    showToast('Formulário de tarefa limpo.', 'info');
+  }
+}
+
+function cancelEditingTask() {
+  clearTaskForm(true);
   showToast('Modo de alteração cancelado.', 'info');
 }
 
@@ -96,6 +372,20 @@ const selectIdeaTeam = document.getElementById('select-idea-team');
 const inputIdeaTeam = document.getElementById('input-idea-team') || selectIdeaTeam;
 const inputIdeaReason = document.getElementById('input-idea-reason');
 const btnSlugifyTitle = document.getElementById('btn-slugify-title');
+
+function clearIdeaForm(silent = true) {
+  if (inputIdeaTitle) inputIdeaTitle.value = '';
+  if (inputIdeaId) inputIdeaId.value = '';
+  if (inputIdeaPrompt) inputIdeaPrompt.value = '';
+  if (selectIdeaTeam) selectIdeaTeam.value = 'Todos';
+  if (inputIdeaTeam && inputIdeaTeam !== selectIdeaTeam) inputIdeaTeam.value = 'Todos';
+  if (inputIdeaReason) inputIdeaReason.value = '';
+  userManuallyEditedId = false;
+  updateCommandPreview();
+  if (!silent) {
+    showToast('Formulário de ideia limpo.', 'info');
+  }
+}
 
 const commandOutput = document.getElementById('command-output');
 const executionLog = document.getElementById('execution-log');
@@ -150,15 +440,18 @@ function slugify(text) {
     .replace(/^-+|-+$/g, '');
 }
 
-// Resolve o ID da ideia priorizando o campo ID, depois gerando do Título, depois do seletor
-function resolveTargetIdeaId() {
+// Resolve o ID da ideia priorizando o campo ID, depois gerando do Título, e opcionalmente do seletor
+function resolveTargetIdeaId(allowSelector = true) {
   let id = inputIdeaId ? inputIdeaId.value.trim() : '';
   if (!id && inputIdeaTitle && inputIdeaTitle.value.trim()) {
     id = slugify(inputIdeaTitle.value.trim());
     if (inputIdeaId) inputIdeaId.value = id;
   }
-  if (!id && selectFeatureTask && selectFeatureTask.value) {
-    id = selectFeatureTask.value.trim();
+  if (allowSelector && !id && selectFeatureTask && selectFeatureTask.value) {
+    const val = selectFeatureTask.value.trim();
+    if (val && val !== 'tarefas-gerais') {
+      id = val;
+    }
   }
   return id;
 }
@@ -272,7 +565,9 @@ function updateCommandPreview(customCmd = null) {
 
   const taskId = inputTaskId ? (inputTaskId.value.trim() || '2.1') : '2.1';
   const status = selectTaskStatus ? selectTaskStatus.value : 'Backlog';
-  const assignee = (selectTaskAssignee?.value || inputTaskAssignee?.value || 'Marcos').trim();
+  const assignee = selectedTaskAssignees.length > 0
+    ? selectedTaskAssignees.join(', ')
+    : (selectTaskAssignee?.value || '').trim();
 
   // Resolve ID e Título da Ideia
   let ideaId = inputIdeaId ? inputIdeaId.value.trim() : '';
@@ -310,6 +605,39 @@ function updateCommandPreview(customCmd = null) {
     }
   });
 
+// Multi-Select Assignee Event Listeners
+if (multiAssigneeTrigger) {
+  multiAssigneeTrigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isHidden = !multiAssigneeDropdown || multiAssigneeDropdown.style.display === 'none';
+    if (multiAssigneeDropdown) {
+      multiAssigneeDropdown.style.display = isHidden ? 'block' : 'none';
+    }
+    multiAssigneeTrigger.classList.toggle('active', isHidden);
+    if (isHidden && multiAssigneeSearch) {
+      multiAssigneeSearch.value = '';
+      populateMultiAssigneeDropdown('');
+      setTimeout(() => multiAssigneeSearch.focus(), 50);
+    }
+  });
+}
+
+if (multiAssigneeSearch) {
+  multiAssigneeSearch.addEventListener('input', () => {
+    populateMultiAssigneeDropdown(multiAssigneeSearch.value.trim());
+  });
+  multiAssigneeSearch.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+}
+
+document.addEventListener('click', (e) => {
+  if (multiAssigneeContainer && !multiAssigneeContainer.contains(e.target)) {
+    if (multiAssigneeDropdown) multiAssigneeDropdown.style.display = 'none';
+    if (multiAssigneeTrigger) multiAssigneeTrigger.classList.remove('active');
+  }
+});
+
 // Clipboard Copy com validação para nunca copiar placeholders
 document.getElementById('btn-copy-command')?.addEventListener('click', async () => {
   if (lastGeneratedCommand.includes('[informe-o-titulo-ou-id]') || lastGeneratedCommand.includes('<id>')) {
@@ -334,8 +662,19 @@ document.getElementById('btn-copy-command')?.addEventListener('click', async () 
 });
 
 // Clear Log
-document.getElementById('btn-clear-log')?.addEventListener('click', () => {
-  if (executionLog) executionLog.textContent = '';
+document.getElementById('btn-clear-log')?.addEventListener('click', async () => {
+  if (!executionLog || !executionLog.textContent.trim()) return;
+  const confirmed = await showConfirmModal({
+    title: 'Limpar Logs de Execução',
+    icon: '🧹',
+    message: 'Deseja realmente limpar todos os logs do terminal de execução desta sessão?',
+    confirmText: 'Sim, Limpar',
+    confirmBtnClass: 'btn-secondary'
+  });
+  if (confirmed) {
+    executionLog.textContent = '';
+    showToast('Logs de execução limpos.', 'info');
+  }
 });
 
 // Fetch Git Info & Branches
@@ -409,16 +748,23 @@ function updateGitStatusPill(data) {
     }
   }
 
-  // Atualiza estado do botão Git Push
+  // Atualiza estado do botão Git Push / Baixar do Repo
   if (btnPushGit) {
-    if (data.unpushedCommits && data.unpushedCommits > 0) {
+    if (data.behindCommits && data.behindCommits > 0) {
+      btnPushGit.innerHTML = `⬇️ Baixar do Repo (${data.behindCommits})`;
+      btnPushGit.className = 'btn btn-pull btn-sm';
+      btnPushGit.title = `O repositório remoto foi modificado com ${data.behindCommits} novo(s) commit(s). Clique para baixar e sincronizar (git pull) antes de subir.`;
+      btnPushGit.setAttribute('data-action', 'pull');
+    } else if (data.unpushedCommits && data.unpushedCommits > 0) {
       btnPushGit.innerHTML = `⬆️ Subir ao Repo (${data.unpushedCommits})`;
       btnPushGit.className = 'btn btn-push btn-sm has-unpushed';
-      btnPushGit.title = `${data.unpushedCommits} commit(s) pendente(s) para subir ao repositório remoto. Clique para enviar.`;
+      btnPushGit.title = `${data.unpushedCommits} commit(s) pendente(s) para subir ao repositório remoto. Clique para enviar (git push).`;
+      btnPushGit.setAttribute('data-action', 'push');
     } else {
       btnPushGit.innerHTML = `⬆️ Subir ao Repo`;
       btnPushGit.className = 'btn btn-push btn-sm';
       btnPushGit.title = `Subir commits locais para o repositório remoto (git push)`;
+      btnPushGit.setAttribute('data-action', 'push');
     }
   }
 }
@@ -516,8 +862,17 @@ function renderBranchBanner(data) {
 
 async function commitOpenSpecChanges() {
   const defaultMsg = `docs(openspec): atualiza status das tarefas no kanban`;
-  const msg = prompt(`Digite uma descrição para salvar as tarefas no histórico do Git:`, defaultMsg);
-  if (msg === null) return;
+  const msg = await showConfirmModal({
+    title: 'Salvar Alterações (Git Commit)',
+    icon: '💾',
+    message: 'Deseja criar um commit local com as alterações pendentes no OpenSpec?',
+    withInput: true,
+    inputLabel: 'Mensagem do commit:',
+    inputDefault: defaultMsg,
+    confirmText: 'Salvar Commit',
+    confirmBtnClass: 'btn-success'
+  });
+  if (!msg) return;
 
   try {
     const res = await fetch('/api/git/commit', {
@@ -543,13 +898,54 @@ if (btnCommitOpenspec) {
   btnCommitOpenspec.addEventListener('click', commitOpenSpecChanges);
 }
 
+async function pullGitChanges() {
+  const previousHtml = btnPushGit ? btnPushGit.innerHTML : '⬇️ Baixar do Repo';
+  if (btnPushGit) {
+    btnPushGit.disabled = true;
+    btnPushGit.innerHTML = '⏳ Baixando...';
+  }
+
+  let isSuccess = false;
+  try {
+    showToast('Baixando atualizações do repositório remoto (git pull)...', 'info');
+    appendLog('Iniciando git pull origin...');
+    const res = await fetch('/api/git/pull', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (data.success) {
+      isSuccess = true;
+      showToast(data.message || 'Repositório sincronizado com sucesso!', 'success');
+      appendLog(`Git pull concluído: ${data.details || 'Tudo atualizado'}`);
+      await fetchGitInfo();
+      await fetchFeatures();
+    } else {
+      showToast(data.error || 'Erro ao sincronizar com repositório remoto', 'error');
+      appendLog(`Falha no git pull: ${data.error || 'Erro desconhecido'}`);
+      await fetchGitInfo();
+    }
+  } catch (err) {
+    showToast('Erro ao conectar com o servidor para git pull', 'error');
+    appendLog(`Erro no pull: ${err.message}`);
+  } finally {
+    if (btnPushGit) {
+      btnPushGit.disabled = false;
+      if (!isSuccess && btnPushGit.innerHTML === '⏳ Baixando...') {
+        btnPushGit.innerHTML = previousHtml;
+      }
+    }
+  }
+}
+
 async function pushGitChanges() {
-  const originalHtml = btnPushGit ? btnPushGit.innerHTML : '⬆️ Subir ao Repo';
+  const previousHtml = btnPushGit ? btnPushGit.innerHTML : '⬆️ Subir ao Repo';
   if (btnPushGit) {
     btnPushGit.disabled = true;
     btnPushGit.innerHTML = '⏳ Subindo...';
   }
 
+  let isSuccess = false;
   try {
     showToast('Enviando commits locais para o repositório remoto...', 'info');
     appendLog('Iniciando git push...');
@@ -559,13 +955,17 @@ async function pushGitChanges() {
     });
     const data = await res.json();
     if (data.success) {
+      isSuccess = true;
       showToast(data.message || 'Git push realizado com sucesso!', 'success');
       appendLog(`Git push concluído: ${data.details || 'Tudo atualizado'}`);
-      fetchGitInfo();
-      fetchFeatures();
+      await fetchGitInfo();
+      await fetchFeatures();
     } else {
       showToast(data.error || 'Erro ao realizar git push', 'error');
       appendLog(`Falha no git push: ${data.error || 'Erro desconhecido'}`);
+      if (data.needsPull) {
+        await fetchGitInfo();
+      }
     }
   } catch (err) {
     showToast('Erro ao conectar com o servidor para git push', 'error');
@@ -573,13 +973,45 @@ async function pushGitChanges() {
   } finally {
     if (btnPushGit) {
       btnPushGit.disabled = false;
-      btnPushGit.innerHTML = originalHtml;
+      if (!isSuccess && btnPushGit.innerHTML === '⏳ Subindo...') {
+        btnPushGit.innerHTML = previousHtml;
+      }
     }
   }
 }
 
+async function handleGitSyncAction() {
+  const action = btnPushGit ? btnPushGit.getAttribute('data-action') : 'push';
+  if (action === 'pull') {
+    const confirmed = await showConfirmModal({
+      title: 'Baixar Alterações do Repositório',
+      icon: '⬇️',
+      message: 'O repositório remoto possui commits mais recentes. Deseja baixar e sincronizar as alterações (git pull)?',
+      warning: 'Os arquivos locais serão atualizados com a versão mais recente do GitHub.',
+      confirmText: 'Sim, Baixar e Sincronizar',
+      confirmBtnClass: 'btn-primary'
+    });
+    if (!confirmed) return;
+    await pullGitChanges();
+  } else {
+    const count = btnPushGit?.title?.match(/(\d+)\s*commit/)?.[1] || '';
+    const confirmed = await showConfirmModal({
+      title: 'Subir Commits para o Repositório',
+      icon: '⬆️',
+      message: count
+        ? `Deseja enviar **${count} commit(s)** locais para o repositório remoto (git push)?`
+        : 'Deseja enviar os commits locais para o repositório remoto (git push)?',
+      warning: 'As alterações serão disponibilizadas no GitHub para toda a equipe.',
+      confirmText: 'Sim, Subir ao Repo',
+      confirmBtnClass: 'btn-success'
+    });
+    if (!confirmed) return;
+    await pushGitChanges();
+  }
+}
+
 if (btnPushGit) {
-  btnPushGit.addEventListener('click', pushGitChanges);
+  btnPushGit.addEventListener('click', handleGitSyncAction);
 }
 
 function setConnectionStatus(online) {
@@ -626,8 +1058,8 @@ function updateStats(features) {
   let totalTasks = 0;
   let doneTasks = 0;
   features.forEach(f => {
-    totalTasks += f.totalTasks;
-    doneTasks += f.doneTasks;
+    totalTasks += (f.totalTasks || 0);
+    doneTasks += (f.doneTasks || 0);
   });
   statTotalTasks.textContent = totalTasks;
   statDoneTasks.textContent = doneTasks;
@@ -748,9 +1180,9 @@ function renderAnalyticsDashboard(features) {
           else backlogTasks++;
         }
 
-        const rawAssignee = t.assignee || f.ideaAssignee || '';
-        if (rawAssignee) {
-          const key = rawAssignee.toLowerCase().replace(/^@/, '').trim();
+        const rawAssignees = (t.assignee || f.ideaAssignee || '').split(/[,/]+/).map(s => s.trim().replace(/^@/, '')).filter(Boolean);
+        rawAssignees.forEach(keyRaw => {
+          const key = keyRaw.toLowerCase().trim();
           let foundMember = memberWorkload.get(key);
           if (!foundMember) {
             for (const [mId, mObj] of memberWorkload.entries()) {
@@ -774,7 +1206,7 @@ function renderAnalyticsDashboard(features) {
             foundMember.totalTasks++;
             if (t.done) foundMember.doneTasks++;
           }
-        }
+        });
       });
     } else {
       const pending = fTotal - fDone;
@@ -1271,7 +1703,8 @@ function createIdeaCard(feature) {
 
   const rawAssignee = (feature.ideaAssignee && isMemberActive(feature.ideaAssignee)) ? feature.ideaAssignee : 'Todos';
   const displayAssignee = (rawAssignee === 'dev-team' || !isMemberActive(rawAssignee)) ? 'Todos' : rawAssignee;
-  const assigneeBadge = `<span class="badge-tag" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); font-size: 10px;">👥 ${displayAssignee}</span>`;
+  const assigneeIcon = displayAssignee === 'Todos' ? '👥' : '👤';
+  const assigneeBadge = `<span class="badge-tag" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); font-size: 10px;">${assigneeIcon} ${escapeHtml(displayAssignee)}</span>`;
 
   const modifiedBadge = feature.isModifiedLocally
     ? `<span class="badge-modified-git" title="Alterações locais pendentes de salvar">⚡ Modificado</span>`
@@ -1346,25 +1779,62 @@ function createIdeaCard(feature) {
   // Action button clicks
   card.querySelector('.btn-val')?.addEventListener('click', async (e) => {
     e.stopPropagation();
+    const confirmed = await showConfirmModal({
+      title: 'Validar Ideia / Proposta',
+      icon: '🔍',
+      message: `Deseja validar tecnicamente a proposta **${feature.title || feature.name}**?`,
+      confirmText: 'Sim, Validar',
+      confirmBtnClass: 'btn-primary'
+    });
+    if (!confirmed) return;
     await triggerIdeaAction(feature.name, 'validate');
   });
 
   card.querySelector('.btn-app')?.addEventListener('click', async (e) => {
     e.stopPropagation();
     const assignee = currentAssigneeFilter !== 'all' ? currentAssigneeFilter : ((feature.ideaAssignee && feature.ideaAssignee !== 'dev-team') ? feature.ideaAssignee : 'Todos');
+    const confirmed = await showConfirmModal({
+      title: 'Aprovar Ideia para Sprint',
+      icon: '✅',
+      message: `Deseja aprovar a proposta **${feature.title || feature.name}** para desenvolvimento na Sprint?`,
+      warning: `A feature será atribuída à equipe/membro: "${assignee}".`,
+      confirmText: 'Sim, Aprovar para Sprint',
+      confirmBtnClass: 'btn-success'
+    });
+    if (!confirmed) return;
     await triggerIdeaAction(feature.name, 'approve', assignee);
   });
 
   card.querySelector('.btn-rej')?.addEventListener('click', async (e) => {
     e.stopPropagation();
-    const reason = prompt(`Motivo da rejeição da ideia "${feature.name}":`, 'Fora do escopo da sprint atual');
-    if (reason !== null) {
-      await triggerIdeaAction(feature.name, 'reject', undefined, reason);
+    const reason = await showConfirmModal({
+      title: 'Rejeitar Proposta',
+      icon: '❌',
+      message: `Deseja realmente rejeitar a proposta **${feature.title || feature.name}**?`,
+      warning: 'A proposta será movida para a coluna de Rejeitadas no Funil de Ideias.',
+      confirmText: 'Confirmar Rejeição',
+      confirmBtnClass: 'btn-danger',
+      withInput: true,
+      inputLabel: 'Motivo da rejeição:',
+      inputPlaceholder: 'Informe o motivo (ex: Fora do escopo da sprint atual)',
+      inputDefault: 'Fora do escopo da sprint atual'
+    });
+    if (reason) {
+      const reasonStr = typeof reason === 'string' ? reason : 'Fora do escopo da sprint atual';
+      await triggerIdeaAction(feature.name, 'reject', undefined, reasonStr);
     }
   });
 
   card.querySelector('.btn-reset')?.addEventListener('click', async (e) => {
     e.stopPropagation();
+    const confirmed = await showConfirmModal({
+      title: 'Resetar Ideia',
+      icon: '🔄',
+      message: `Deseja resetar o status da ideia **${feature.title || feature.name}** para "Criado"?`,
+      confirmText: 'Sim, Resetar',
+      confirmBtnClass: 'btn-warning'
+    });
+    if (!confirmed) return;
     await triggerIdeaAction(feature.name, 'reset');
   });
 
@@ -1431,7 +1901,7 @@ function createFeatureCard(feature) {
     <div class="task-item-row" style="display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 2px;">
       <label class="task-item ${t.done ? 'done' : ''}" style="margin-bottom: 0; flex: 1; min-width: 0; display: flex; align-items: center;">
         <input type="checkbox" ${t.done ? 'checked' : ''} ${feature.isFromGitBranch ? 'disabled title="Modo Histórico da branch (somente leitura)"' : ''} data-feature="${feature.name}" data-task-id="${t.id}" class="task-checkbox">
-        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><strong>${t.id ? '**' + t.id + '**' : ''}</strong> ${cleanText || t.text}</span>
+        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${t.id ? `<strong>${escapeHtml(t.id)}</strong> ` : ''}${escapeHtml(cleanText || t.text)}</span>
         ${promptBadge}
         ${showAssignee ? `<span style="font-size: 10px; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); padding: 1px 6px; border-radius: 10px; margin-left: 4px; white-space: nowrap;">👤 ${t.assignee}</span>` : ''}
       </label>
@@ -1477,13 +1947,30 @@ function createFeatureCard(feature) {
     }
   });
 
-  // Task Checkbox Toggle
+  // Task Checkbox Toggle com confirmação preventiva
   card.querySelectorAll('.task-checkbox').forEach(cb => {
-    cb.addEventListener('change', async (e) => {
-      const featName = e.target.getAttribute('data-feature');
-      const tId = e.target.getAttribute('data-task-id');
-      const isDone = e.target.checked;
-      await updateTaskStatusDirect(featName, tId, isDone);
+    cb.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const featName = cb.getAttribute('data-feature');
+      const tId = cb.getAttribute('data-task-id');
+      const targetState = !cb.checked;
+
+      const confirmed = await showConfirmModal({
+        title: targetState ? 'Concluir Tarefa' : 'Reabrir Tarefa',
+        icon: targetState ? '✅' : '🔄',
+        message: targetState
+          ? `Deseja marcar a tarefa **${tId}** da feature "${featName}" como Concluída?`
+          : `Deseja reabrir a tarefa **${tId}** da feature "${featName}" e retorná-la para pendente?`,
+        warning: 'Esta alteração será registrada no arquivo tasks.md do OpenSpec.',
+        confirmText: targetState ? 'Sim, Concluir' : 'Sim, Reabrir',
+        confirmBtnClass: targetState ? 'btn-success' : 'btn-primary'
+      });
+
+      if (confirmed) {
+        cb.checked = targetState;
+        await updateTaskStatusDirect(featName, tId, targetState);
+      }
     });
   });
 
@@ -1546,9 +2033,23 @@ document.getElementById('btn-action-create-task').addEventListener('click', asyn
     return;
   }
 
-  const assignee = (selectTaskAssignee?.value || inputTaskAssignee?.value || '').trim();
+  // Validação obrigatória: Responsável / Equipe é obrigatório e não pode estar vazio!
+  if (!selectedTaskAssignees || selectedTaskAssignees.length === 0) {
+    showToast('⚠️ Selecione ao menos um Responsável para a tarefa!', 'warning');
+    if (multiAssigneeTrigger) {
+      multiAssigneeTrigger.classList.add('has-error');
+      if (multiAssigneeDropdown) {
+        multiAssigneeDropdown.style.display = 'block';
+        multiAssigneeTrigger.classList.add('active');
+        if (multiAssigneeSearch) multiAssigneeSearch.focus();
+      }
+    }
+    return;
+  }
+
+  const assignee = selectedTaskAssignees.join(', ');
   const status = selectTaskStatus?.value || 'Backlog';
-  const assigneeTag = assignee && assignee !== 'Todos' ? ` (@${assignee})` : '';
+  const assigneeTag = ` (@${selectedTaskAssignees.join(', @')})`;
   const firstLine = text.split(/\r?\n/)[0].trim();
   const cmd = `agent criar openspec/changes/${feature}/tasks.md "${taskId ? '**' + taskId + '** ' : ''}${firstLine}${assigneeTag}"`;
   updateCommandPreview(cmd);
@@ -1561,7 +2062,7 @@ document.getElementById('btn-action-create-task').addEventListener('click', asyn
         feature,
         taskId,
         text,
-        assignee: assignee && assignee !== 'Todos' ? assignee : undefined,
+        assignee,
         status
       })
     });
@@ -1569,8 +2070,7 @@ document.getElementById('btn-action-create-task').addEventListener('click', asyn
     if (data.success) {
       showToast(data.message, 'success');
       appendLog(data.message);
-      inputTaskText.value = '';
-      if (inputTaskId) inputTaskId.value = '';
+      clearTaskForm(true);
       await fetchFeatures();
     } else {
       showToast(data.error || 'Erro ao criar tarefa', 'error');
@@ -1619,7 +2119,9 @@ document.getElementById('btn-action-update-task').addEventListener('click', asyn
 
   const text = inputTaskText ? inputTaskText.value.trim() : '';
   const status = selectTaskStatus.value;
-  const assignee = (selectTaskAssignee?.value || inputTaskAssignee?.value || '').trim();
+  const assignee = selectedTaskAssignees.length > 0
+    ? selectedTaskAssignees.join(', ')
+    : (selectTaskAssignee?.value || inputTaskAssignee?.value || '').trim();
   const isDone = status === 'Concluído';
 
   const cmd = `agent atualizar "**${newTaskId || taskId}**" "${status}" "${assignee || 'Todos'}"`;
@@ -1635,7 +2137,7 @@ document.getElementById('btn-action-update-task').addEventListener('click', asyn
         newTaskId: (newTaskId && newTaskId !== taskId) ? newTaskId : undefined,
         text,
         status,
-        assignee: (assignee && assignee !== 'Todos') ? assignee : undefined,
+        assignee: assignee || 'Todos',
         done: isDone
       })
     });
@@ -1667,9 +2169,16 @@ if (btnActionDeleteTask) {
       showToast('Nenhuma tarefa selecionada para exclusão', 'warning');
       return;
     }
-    if (!confirm(`Deseja realmente excluir a tarefa "${taskId}" do arquivo tasks.md?`)) {
-      return;
-    }
+    const confirmed = await showConfirmModal({
+      title: 'Excluir Tarefa',
+      icon: '🗑️',
+      message: `Deseja realmente excluir a tarefa **${taskId}** da feature "${feature}"?`,
+      warning: 'A tarefa será removida permanentemente do arquivo tasks.md no Git.',
+      confirmText: 'Sim, Excluir Tarefa',
+      confirmBtnClass: 'btn-danger'
+    });
+    if (!confirmed) return;
+
     try {
       const res = await fetch('/api/tasks/delete', {
         method: 'POST',
@@ -1695,7 +2204,19 @@ if (btnActionDeleteTask) {
 document.getElementById('btn-action-assign-task').addEventListener('click', async () => {
   const feature = (selectFeatureTask?.value || '').trim() || 'tarefas-gerais';
   const taskId = inputTaskId.value.trim() || '1.1';
-  const assignee = (selectTaskAssignee?.value || inputTaskAssignee?.value || 'Todos').trim();
+  if (!selectedTaskAssignees || selectedTaskAssignees.length === 0) {
+    showToast('⚠️ Selecione ao menos um Responsável para atribuir à tarefa!', 'warning');
+    if (multiAssigneeTrigger) {
+      multiAssigneeTrigger.classList.add('has-error');
+      if (multiAssigneeDropdown) {
+        multiAssigneeDropdown.style.display = 'block';
+        multiAssigneeTrigger.classList.add('active');
+        if (multiAssigneeSearch) multiAssigneeSearch.focus();
+      }
+    }
+    return;
+  }
+  const assignee = selectedTaskAssignees.join(', ');
   const cmd = `agent atribuir "**${taskId}**" "${assignee}"`;
   updateCommandPreview(cmd);
 
@@ -1729,9 +2250,10 @@ document.getElementById('btn-action-list-tasks')?.addEventListener('click', () =
 
 // 4.5. Gerar Proposta e Tarefas com IA Local
 document.getElementById('btn-action-generate-ai')?.addEventListener('click', async () => {
-  const featureId = resolveTargetIdeaId();
+  const featureId = resolveTargetIdeaId(false);
   const title = (inputIdeaTitle ? inputIdeaTitle.value.trim() : '') || (featureId ? featureId.replace(/-/g, ' ') : '');
   const promptText = inputIdeaPrompt ? inputIdeaPrompt.value.trim() : '';
+  const team = (selectIdeaTeam ? selectIdeaTeam.value : 'Todos') || 'Todos';
 
   if (!featureId) {
     showToast('⚠️ Informe o Título ou o ID da feature antes de gerar com IA!', 'warning');
@@ -1746,12 +2268,13 @@ document.getElementById('btn-action-generate-ai')?.addEventListener('click', asy
     const res = await fetch('/api/features/ai-generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ featureId, title, prompt: promptText })
+      body: JSON.stringify({ featureId, title, prompt: promptText, team })
     });
     const data = await res.json();
     if (data.success) {
       showToast(data.message, 'success');
       appendLog(data.message);
+      clearIdeaForm(true);
       updateCommandPreview(data.command);
       fetchFeatures();
       fetchGitInfo();
@@ -1765,9 +2288,10 @@ document.getElementById('btn-action-generate-ai')?.addEventListener('click', asy
 
 // 5. Nova Feature Completa: agent criar openspec/changes/<id>/proposal.md "# Feature: ..."
 document.getElementById('btn-action-new-feature')?.addEventListener('click', async () => {
-  const featureId = resolveTargetIdeaId();
+  const featureId = resolveTargetIdeaId(false);
   const title = (inputIdeaTitle ? inputIdeaTitle.value.trim() : '') || (featureId ? featureId.replace(/-/g, ' ') : '');
   const promptText = inputIdeaPrompt ? inputIdeaPrompt.value.trim() : '';
+  const team = (selectIdeaTeam ? selectIdeaTeam.value : 'Todos') || 'Todos';
 
   if (!featureId) {
     showToast('⚠️ Informe o Título ou o ID da nova feature antes de criar!', 'warning');
@@ -1787,6 +2311,7 @@ document.getElementById('btn-action-new-feature')?.addEventListener('click', asy
         title,
         summary: promptText || `Feature: ${title}`,
         prompt: promptText,
+        team,
         tasks: ['Planejamento', 'Implementação']
       })
     });
@@ -1794,6 +2319,7 @@ document.getElementById('btn-action-new-feature')?.addEventListener('click', asy
     if (data.success) {
       showToast(data.message, 'success');
       appendLog(data.message);
+      clearIdeaForm(true);
       fetchFeatures();
     } else {
       showToast(data.error, 'error');
@@ -1812,6 +2338,15 @@ document.getElementById('btn-action-validate-idea')?.addEventListener('click', a
     if (inputIdeaTitle) inputIdeaTitle.focus();
     return;
   }
+
+  const confirmed = await showConfirmModal({
+    title: 'Validar Ideia / Proposta',
+    icon: '🔍',
+    message: `Deseja validar tecnicamente a proposta **${ideaId}**?`,
+    confirmText: 'Sim, Validar',
+    confirmBtnClass: 'btn-primary'
+  });
+  if (!confirmed) return;
 
   const cmd = `agent validar ideia "${ideaId}"`;
   updateCommandPreview(cmd);
@@ -1846,6 +2381,16 @@ document.getElementById('btn-action-approve-idea')?.addEventListener('click', as
   }
 
   const team = (selectIdeaTeam ? selectIdeaTeam.value : (inputIdeaTeam?.value || 'Todos')).trim() || 'Todos';
+  const confirmed = await showConfirmModal({
+    title: 'Aprovar Ideia para Desenvolvimento',
+    icon: '✅',
+    message: `Deseja aprovar a proposta **${ideaId}** para desenvolvimento na Sprint?`,
+    warning: `A ideia será atribuída para: "${team}".`,
+    confirmText: 'Sim, Aprovar',
+    confirmBtnClass: 'btn-success'
+  });
+  if (!confirmed) return;
+
   const cmd = `agent aprovar ideia "${ideaId}" "${team}"`;
   updateCommandPreview(cmd);
 
@@ -1878,15 +2423,30 @@ document.getElementById('btn-action-reject-idea')?.addEventListener('click', asy
     return;
   }
 
-  const reason = inputIdeaReason ? (inputIdeaReason.value.trim() || 'Sem valor') : 'Sem valor';
-  const cmd = `agent rejeitar ideia "${ideaId}" "${reason}"`;
+  const reasonDefault = inputIdeaReason ? (inputIdeaReason.value.trim() || 'Fora do escopo da sprint atual') : 'Fora do escopo da sprint atual';
+  const reason = await showConfirmModal({
+    title: 'Rejeitar Proposta',
+    icon: '❌',
+    message: `Deseja rejeitar a proposta **${ideaId}**?`,
+    warning: 'A proposta será movida para Rejeitado no funil.',
+    confirmText: 'Confirmar Rejeição',
+    confirmBtnClass: 'btn-danger',
+    withInput: true,
+    inputLabel: 'Motivo da rejeição:',
+    inputPlaceholder: 'Informe o motivo...',
+    inputDefault: reasonDefault
+  });
+  if (!reason) return;
+
+  const reasonStr = typeof reason === 'string' ? reason : reasonDefault;
+  const cmd = `agent rejeitar ideia "${ideaId}" "${reasonStr}"`;
   updateCommandPreview(cmd);
 
   try {
     const res = await fetch('/api/features/action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ feature: ideaId, action: 'reject', reason })
+      body: JSON.stringify({ feature: ideaId, action: 'reject', reason: reasonStr })
     });
     const data = await res.json();
     if (data.success) {
@@ -2029,6 +2589,7 @@ document.getElementById('btn-script-verify')?.addEventListener('click', () => ru
 document.getElementById('btn-script-status')?.addEventListener('click', () => runScriptAPI('status'));
 document.getElementById('btn-refresh')?.addEventListener('click', () => {
   fetchFeatures();
+  fetchGitInfo();
   showToast('Quadro atualizado!', 'success');
 });
 
@@ -2051,14 +2612,14 @@ const btnOpenSettings = document.getElementById('btn-open-settings');
 const btnCloseSettings = document.getElementById('btn-close-settings');
 const btnModalCancel = document.getElementById('btn-modal-cancel');
 
-// Modal Tabs
-document.querySelectorAll('.modal-tab-btn').forEach(btn => {
+// Settings Modal Tabs (scoped strictly to #modal-settings to avoid cross-modal interference)
+document.querySelectorAll('#modal-settings .modal-tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#modal-settings .modal-tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
     const targetId = btn.getAttribute('data-target');
-    document.querySelectorAll('.modal-view-section').forEach(sec => {
+    document.querySelectorAll('#modal-settings .modal-view-section').forEach(sec => {
       sec.style.display = 'none';
     });
     const targetEl = document.getElementById(targetId);
@@ -2491,16 +3052,31 @@ function renderModalMembersList() {
     });
 
     card.querySelector('.btn-activate-member')?.addEventListener('click', async () => {
+      const confirmed = await showConfirmModal({
+        title: 'Reativar Integrante',
+        icon: '👤',
+        message: `Deseja reativar o integrante **${m.name}** na equipe?`,
+        confirmText: 'Sim, Reativar',
+        confirmBtnClass: 'btn-success'
+      });
+      if (!confirmed) return;
       await activateMember(m.id);
     });
 
     card.querySelector('.btn-delete-member')?.addEventListener('click', async () => {
-      if (confirm(`Deseja remover o integrante "${m.name}"?`)) {
-        if (inputMemberEditId && inputMemberEditId.value === m.id) {
-          cancelEditMember();
-        }
-        await deleteMember(m.id);
+      const confirmed = await showConfirmModal({
+        title: 'Remover Integrante',
+        icon: '🗑️',
+        message: `Deseja realmente remover o integrante **${m.name}** da equipe?`,
+        warning: 'O integrante será removido do arquivo members.json.',
+        confirmText: 'Sim, Remover',
+        confirmBtnClass: 'btn-danger'
+      });
+      if (!confirmed) return;
+      if (inputMemberEditId && inputMemberEditId.value === m.id) {
+        cancelEditMember();
       }
+      await deleteMember(m.id);
     });
 
     membersListCards.appendChild(card);
@@ -2854,29 +3430,13 @@ function populateTeamSelects() {
     }
   }
 
-  if (selectTaskAssignee) {
-    const curVal = selectTaskAssignee.value;
-    selectTaskAssignee.innerHTML = '';
-    activeMembers.forEach(m => {
-      const opt = document.createElement('option');
-      opt.value = m.name;
-      opt.textContent = `${m.avatar || '👤'} ${m.name} (${m.role || 'Membro'})`;
-      selectTaskAssignee.appendChild(opt);
-    });
-    const todosOpt = document.createElement('option');
-    todosOpt.value = 'Todos';
-    todosOpt.textContent = '👥 Todos';
-    selectTaskAssignee.appendChild(todosOpt);
-    if (curVal && curVal !== 'dev-team') {
-      selectTaskAssignee.value = curVal;
-    } else {
-      selectTaskAssignee.value = 'Todos';
-    }
-  }
+  // Multi-Dropdown de Responsáveis da Tarefa (Nenhum selecionado por padrão)
+  populateMultiAssigneeDropdown(multiAssigneeSearch ? multiAssigneeSearch.value.trim() : '');
+  updateMultiAssigneeTriggerDisplay();
 
   if (detailNewTaskAssignee) {
     const curVal = detailNewTaskAssignee.value;
-    detailNewTaskAssignee.innerHTML = '';
+    detailNewTaskAssignee.innerHTML = '<option value="">👤 Selecione o Responsável...</option>';
     activeMembers.forEach(m => {
       const opt = document.createElement('option');
       opt.value = m.name;
@@ -2889,8 +3449,6 @@ function populateTeamSelects() {
     detailNewTaskAssignee.appendChild(todosOpt);
     if (curVal && curVal !== 'dev-team') {
       detailNewTaskAssignee.value = curVal;
-    } else {
-      detailNewTaskAssignee.value = 'Todos';
     }
   }
 }
@@ -3064,7 +3622,7 @@ function renderDetailTasksList(feature) {
       <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
         <label class="detail-task-label" style="flex: 1;">
           <input type="checkbox" ${t.done ? 'checked' : ''} ${feature.isFromGitBranch ? 'disabled' : ''} class="detail-task-chk" data-task-id="${t.id}">
-          <span><strong>${t.id ? '**' + t.id + '**' : ''}</strong> ${cleanText || t.text}</span>
+          <span>${t.id ? `<strong>${escapeHtml(t.id)}</strong> ` : ''}${escapeHtml(cleanText || t.text)}</span>
         </label>
         <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
           ${assigneeHtml}
@@ -3155,7 +3713,7 @@ function renderDetailTasksList(feature) {
             taskId: t.id,
             newTaskId: newId !== t.id ? newId : undefined,
             text: newText,
-            assignee: (newAssignee && newAssignee !== 'Todos') ? newAssignee : undefined,
+            assignee: newAssignee || 'Todos',
             done: isDone
           })
         });
@@ -3179,7 +3737,16 @@ function renderDetailTasksList(feature) {
     // Delete task from modal
     card.querySelector('.btn-detail-del-task')?.addEventListener('click', async (e) => {
       e.stopPropagation();
-      if (!confirm(`Deseja realmente excluir a tarefa "${t.id}"?`)) return;
+      const confirmed = await showConfirmModal({
+        title: 'Excluir Tarefa',
+        icon: '🗑️',
+        message: `Deseja realmente excluir a tarefa **${t.id}**?`,
+        warning: 'Esta tarefa será removida permanentemente do arquivo tasks.md.',
+        confirmText: 'Sim, Excluir',
+        confirmBtnClass: 'btn-danger'
+      });
+      if (!confirmed) return;
+
       try {
         const res = await fetch('/api/tasks/delete', {
           method: 'POST',
@@ -3212,16 +3779,33 @@ function renderDetailTasksList(feature) {
       });
     });
 
-    card.querySelector('.detail-task-chk')?.addEventListener('change', async (e) => {
-      const isDone = e.target.checked;
-      await updateTaskStatusDirect(feature.name, t.id, isDone);
-      t.done = isDone;
-      card.classList.toggle('done', isDone);
-      const doneCount = feature.tasks.filter(x => x.done).length;
-      feature.doneTasks = doneCount;
-      feature.progress = Math.round((doneCount / feature.tasks.length) * 100);
-      if (detailProgressLabel) detailProgressLabel.textContent = `Progresso: ${feature.doneTasks}/${feature.totalTasks} (${feature.progress}%)`;
-      if (detailProgressBar) detailProgressBar.style.width = `${feature.progress}%`;
+    card.querySelector('.detail-task-chk')?.addEventListener('click', async (e) => {
+      const chk = e.target;
+      e.preventDefault();
+      const targetState = !chk.checked;
+
+      const confirmed = await showConfirmModal({
+        title: targetState ? 'Concluir Tarefa' : 'Reabrir Tarefa',
+        icon: targetState ? '✅' : '🔄',
+        message: targetState
+          ? `Deseja marcar a tarefa **${t.id}** como Concluída?`
+          : `Deseja reabrir a tarefa **${t.id}** e retorná-la para pendente?`,
+        warning: 'Esta alteração será salva no arquivo tasks.md do OpenSpec.',
+        confirmText: targetState ? 'Sim, Concluir' : 'Sim, Reabrir',
+        confirmBtnClass: targetState ? 'btn-success' : 'btn-primary'
+      });
+
+      if (confirmed) {
+        chk.checked = targetState;
+        await updateTaskStatusDirect(feature.name, t.id, targetState);
+        t.done = targetState;
+        card.classList.toggle('done', targetState);
+        const doneCount = feature.tasks.filter(x => x.done).length;
+        feature.doneTasks = doneCount;
+        feature.progress = feature.tasks.length > 0 ? Math.round((doneCount / feature.tasks.length) * 100) : 0;
+        if (detailProgressLabel) detailProgressLabel.textContent = `Progresso: ${feature.doneTasks}/${feature.totalTasks} (${feature.progress}%)`;
+        if (detailProgressBar) detailProgressBar.style.width = `${feature.progress}%`;
+      }
     });
 
     detailTasksList.appendChild(card);
@@ -3237,6 +3821,14 @@ function renderDetailFooterActions(feature) {
     btnVal.className = 'btn btn-secondary btn-sm';
     btnVal.innerHTML = '🔍 Validar Ideia';
     btnVal.onclick = async () => {
+      const confirmed = await showConfirmModal({
+        title: 'Validar Proposta',
+        icon: '🔍',
+        message: `Deseja marcar a proposta **${feature.title || feature.name}** como Validada?`,
+        confirmText: 'Sim, Validar',
+        confirmBtnClass: 'btn-primary'
+      });
+      if (!confirmed) return;
       await triggerIdeaAction(feature.name, 'validate');
       feature.ideaStatus = 'Validado';
       openFeatureDetailsModal(feature, 'proposal');
@@ -3249,6 +3841,15 @@ function renderDetailFooterActions(feature) {
     btnApp.onclick = async () => {
       const rawAssignee = feature.ideaAssignee || (selectIdeaTeam ? selectIdeaTeam.value : 'Todos');
       const assignee = (rawAssignee === 'dev-team') ? 'Todos' : rawAssignee;
+      const confirmed = await showConfirmModal({
+        title: 'Aprovar Proposta para Sprint',
+        icon: '✅',
+        message: `Deseja aprovar a proposta **${feature.title || feature.name}** para desenvolvimento na Sprint?`,
+        warning: `Responsável atribuído: "${assignee}".`,
+        confirmText: 'Sim, Aprovar',
+        confirmBtnClass: 'btn-success'
+      });
+      if (!confirmed) return;
       await triggerIdeaAction(feature.name, 'approve', assignee);
       feature.ideaStatus = 'Aprovado';
       openFeatureDetailsModal(feature, 'proposal');
@@ -3259,9 +3860,21 @@ function renderDetailFooterActions(feature) {
     btnRej.className = 'btn btn-danger btn-sm';
     btnRej.innerHTML = '❌ Rejeitar';
     btnRej.onclick = async () => {
-      const reason = prompt(`Motivo da rejeição da ideia "${feature.name}":`, 'Fora do escopo da sprint atual');
-      if (reason !== null) {
-        await triggerIdeaAction(feature.name, 'reject', undefined, reason);
+      const reason = await showConfirmModal({
+        title: 'Rejeitar Proposta',
+        icon: '❌',
+        message: `Deseja realmente rejeitar a proposta **${feature.title || feature.name}**?`,
+        warning: 'A proposta será movida para Rejeitado no funil.',
+        confirmText: 'Confirmar Rejeição',
+        confirmBtnClass: 'btn-danger',
+        withInput: true,
+        inputLabel: 'Motivo da rejeição:',
+        inputPlaceholder: 'Informe o motivo...',
+        inputDefault: 'Fora do escopo da sprint atual'
+      });
+      if (reason) {
+        const reasonStr = typeof reason === 'string' ? reason : 'Fora do escopo da sprint atual';
+        await triggerIdeaAction(feature.name, 'reject', undefined, reasonStr);
         feature.ideaStatus = 'Rejeitado';
         openFeatureDetailsModal(feature, 'proposal');
       }
@@ -3381,8 +3994,9 @@ btnDetailAddTask?.addEventListener('click', async () => {
       showToast(data.message, 'success');
       appendLog(data.message);
       if (!currentDetailFeature.tasks) currentDetailFeature.tasks = [];
+      const effectiveId = data.taskId || taskId;
       currentDetailFeature.tasks.push({
-        id: taskId,
+        id: effectiveId,
         text,
         done: false,
         status: 'Backlog',
@@ -3391,8 +4005,9 @@ btnDetailAddTask?.addEventListener('click', async () => {
       currentDetailFeature.totalTasks = currentDetailFeature.tasks.length;
       renderDetailTasksList(currentDetailFeature);
       if (detailNewTaskText) detailNewTaskText.value = '';
-      if (detailNewTaskId) {
-        const parts = taskId.split('.');
+      if (detailNewTaskAssignee) detailNewTaskAssignee.value = 'Todos';
+      if (detailNewTaskId && effectiveId) {
+        const parts = effectiveId.split('.');
         if (parts.length === 2 && !isNaN(parseInt(parts[1]))) {
           detailNewTaskId.value = `${parts[0]}.${parseInt(parts[1]) + 1}`;
         }

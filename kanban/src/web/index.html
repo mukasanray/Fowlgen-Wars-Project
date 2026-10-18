@@ -163,10 +163,27 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="select-task-assignee">Responsável / Equipe:</label>
-              <select class="form-select" id="select-task-assignee">
-                <option value="Marcos">Marcos</option>
-              </select>
+              <label for="multi-assignee-trigger" style="display: flex; align-items: center; justify-content: space-between;">
+                <span>Responsável / Equipe: <strong style="color: var(--accent-rose, #f43f5e); font-size: 13px;" title="Seleção obrigatória">*</strong></span>
+                <span id="assignee-count-badge" style="font-size: 10px; color: var(--accent-sky); font-weight: 600; display: none;">0 selecionado(s)</span>
+              </label>
+              <div class="multi-select-container" id="multi-assignee-container">
+                <button type="button" class="form-select multi-select-trigger" id="multi-assignee-trigger" aria-haspopup="listbox" aria-expanded="false">
+                  <div class="multi-select-values" id="multi-assignee-values">
+                    <span class="multi-select-placeholder">👤 Selecione o(s) responsável(is)... *</span>
+                  </div>
+                  <span class="multi-select-arrow">▾</span>
+                </button>
+                <div class="multi-select-dropdown" id="multi-assignee-dropdown" style="display: none;">
+                  <div class="multi-select-search-box" style="padding: 6px; border-bottom: 1px solid var(--border-subtle);">
+                    <input type="text" id="multi-assignee-search" class="form-input form-input-sm" placeholder="🔍 Buscar membro..." style="margin-bottom: 0;">
+                  </div>
+                  <div class="multi-select-options" id="multi-assignee-options">
+                    <!-- Preenchido dinamicamente via teamMembers -->
+                  </div>
+                </div>
+                <input type="hidden" id="select-task-assignee" value="">
+              </div>
             </div>
             <div class="form-group">
               <label for="select-task-status">Status da Tarefa:</label>
@@ -662,7 +679,8 @@
                   <option value="🌐">🌐 Dev Web / Frontend</option>
                   <option value="🧪">🧪 QA Funcional / UX</option>
                   <option value="📈">📈 Marketing / Pitch</option>
-                  <option value="🎨">🎨 Arte 2D / 3D & VFX</option>
+                  <option value="🎨">🎨 Arte Designer 2D</option>
+                  <option value="🎬">🎬 Arte e Animador 3D</option>
                   <option value="🎵">🎵 Áudio & Sound Design</option>
                   <option value="🦀">🦀 Solana / Smart Contracts</option>
                   <option value="🤖">🤖 Agente Autônomo / IA</option>
@@ -763,6 +781,31 @@
         <button type="button" class="btn btn-warning" id="btn-confirm-deactivate" style="font-weight: 700;">
           Confirmar e Repassar Tarefas
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Confirmação de Ações Críticas (Confirm / Cancel) -->
+  <div class="modal-backdrop" id="modal-confirm-action" style="z-index: 1200;">
+    <div class="modal-card" style="max-width: 460px; box-shadow: 0 16px 48px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.12);">
+      <div class="modal-header" style="padding: 14px 18px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between;">
+        <h3 id="confirm-modal-title" style="display: flex; align-items: center; gap: 8px; margin: 0; font-size: 15px; font-weight: 700; color: var(--text-main);">
+          <span id="confirm-modal-icon" style="font-size: 18px;">⚠️</span>
+          <span id="confirm-modal-title-text">Confirmar Ação</span>
+        </h3>
+        <button type="button" class="btn-close" id="btn-confirm-modal-close" style="font-size: 20px; line-height: 1;">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 16px 18px;">
+        <p id="confirm-modal-message" style="font-size: 13px; line-height: 1.5; color: var(--text-main); margin-bottom: 12px; margin-top: 0;"></p>
+        <div id="confirm-modal-warning" class="info-banner" style="display: none; margin-bottom: 12px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; font-size: 11.5px; padding: 8px 12px; border-radius: 6px;"></div>
+        <div id="confirm-modal-input-container" style="display: none; margin-top: 10px;">
+          <label id="confirm-modal-input-label" style="font-size: 11.5px; color: var(--text-label); margin-bottom: 5px; display: block; font-weight: 600;">Motivo / Observação:</label>
+          <input type="text" id="confirm-modal-input" class="form-input form-input-sm" placeholder="Digite aqui..." style="margin-bottom: 0;">
+        </div>
+      </div>
+      <div class="modal-footer" style="padding: 12px 18px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 8px; background: var(--bg-secondary);">
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-confirm-modal-cancel" style="padding: 6px 14px; font-size: 12px;">Cancelar</button>
+        <button type="button" class="btn btn-primary btn-sm" id="btn-confirm-modal-confirm" style="padding: 6px 16px; font-size: 12px; font-weight: 700;">Confirmar</button>
       </div>
     </div>
   </div>

@@ -5,3 +5,4 @@
 
 -**1.1  youtube** Criar canal de youtube (@Marcos)
 - [ ] **1.2** Criar tumbinails para videos do yutube (@Sthefany)
+
