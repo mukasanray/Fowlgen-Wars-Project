@@ -2880,7 +2880,10 @@ const server = http.createServer(async (req, res) => {
 
     // API: Run GitHub Projects / Issues API Synchronization
     if (req.method === 'POST' && (pathname === '/api/github/sync' || pathname === '/api/sync/github')) {
-      const config = getKanbanConfig();
+      let config: any = {};
+      if (fs.existsSync(CONFIG_PATH)) {
+        try { config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8')); } catch {}
+      }
       const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '';
 
       try {
