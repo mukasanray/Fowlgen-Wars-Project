@@ -16,4 +16,4 @@ Pacote com.mixamo.mcp integrado no projeto e modelos 3D Tripo3D com esqueleto Ar
 Criação dos controladores MiloAnimatorController, AxelAnimatorController e MinionAnimatorController com sincronização aos eventos de combate.
 
 ## Status
-[APROVADO] por Emanuel em 2026-10-14
+[APROVADO] por Marcos em 2026-10-14

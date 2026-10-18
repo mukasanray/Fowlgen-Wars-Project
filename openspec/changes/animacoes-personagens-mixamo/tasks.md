@@ -5,4 +5,4 @@
 - [x] **1.2** Instalação e integração do pacote Mixamo MCP na Unity (@Marcos)
 - [ ] **1.3** Configuração do MiloAnimatorController com estados Idle, Walk e Attack (@Vaguinhow)
 - [ ] **1.4** Configuração do AxelAnimatorController e MinionAnimatorController (@Vaguinhow)
-- [ ] **1.5** Vinculação dos triggers de animação aos scripts de combate (@Emanuel)
+- [ ] **1.5** Vinculação dos triggers de animação aos scripts de combate (@Marcos)

@@ -16,4 +16,4 @@ Diretório app/ com estrutura Web oficial (HTML/TS/CSS) desenvolvida por Vyctor 
 Deploy contínuo na Vercel Hobby, integração com Solana Wallet Adapter e esteira de prompts alinhada ao Claude.md.
 
 ## Status
-[APROVADO] por Vyctor Rodrigues em 2026-10-14
+[APROVADO] por Samuel em 2026-10-14
