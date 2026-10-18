@@ -476,9 +476,9 @@ async function runAllTests() {
     assert(fDir2 && fDir2.directory === 'unity', 'GET /api/features reflete novo diretório "unity"');
 
     // Validações de UI (HTML/CSS/JS) para rolagem de tarefas e botão de diretório no card
-    assert(resStylesCss.data.includes('.card-tasks {') && resStylesCss.data.includes('overflow-y: auto'), 'styles.css configura overflow-y: auto na lista de tarefas do card');
-    assert(resStylesCss.data.includes('.btn-card-directory'), 'styles.css define estilos para botão de projeto/diretório no card');
-    assert(resStylesCss.data.includes('.card-dir-dropdown-menu'), 'styles.css define menu suspenso de seleção de projeto');
+    assert(resStyles.data.includes('.card-tasks {') && resStyles.data.includes('overflow-y: auto'), 'styles.css configura overflow-y: auto na lista de tarefas do card');
+    assert(resStyles.data.includes('.btn-card-directory'), 'styles.css define estilos para botão de projeto/diretório no card');
+    assert(resStyles.data.includes('.card-dir-dropdown-menu'), 'styles.css define menu suspenso de seleção de projeto');
     assert(resAppJs.data.includes('openCardDirDropdown'), 'app.js implementa abertura de dropdown de projeto no card');
     assert(resAppJs.data.includes('changeFeatureDirectory'), 'app.js implementa alteração de projeto via API');
     assert(resAppJs.data.includes('card-tasks-header'), 'app.js inclui cabeçalho de tarefas com indicador de rolagem');
