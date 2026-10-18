@@ -195,6 +195,16 @@ async function runAllTests() {
     const resGit = await request({ path: '/api/git/info' });
     assert(resGit.status === 200 && resGit.json && resGit.json.success, 'GET /api/git/info retorna dados de branch e commit');
 
+    // Teste de Reset Repo Local (POST /api/git/reset e elementos de UI)
+    const resGitReset = await request({
+      path: '/api/git/reset',
+      method: 'POST'
+    });
+    assert(resGitReset.status === 200 && resGitReset.json && resGitReset.json.success, 'POST /api/git/reset restaura estado limpo do repositório');
+    assert(resRoot.data.includes('btn-reset-repo-local'), 'index.html contém botão btn-reset-repo-local (Reset Repo Local)');
+    assert(resStyles.data.includes('.btn-reset-repo'), 'styles.css contém estilos elegantes para .btn-reset-repo');
+    assert(resAppJs.data.includes('handleResetRepoLocalAction'), 'app.js implementa handleResetRepoLocalAction com confirmação preventiva');
+
     // 3. Test Feature Creation (OpenSpec Change)
     console.log('\n--- 3. Criação de Ideia / Feature OpenSpec ---');
     const testFeatureId = 'teste-arena-pvp';

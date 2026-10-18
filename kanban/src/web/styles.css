@@ -434,6 +434,39 @@ body {
   }
 }
 
+.btn-reset-repo {
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  color: #fb7185;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(244, 63, 94, 0.15);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-reset-repo:hover {
+  background: rgba(244, 63, 94, 0.22);
+  border-color: #fb7185;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(244, 63, 94, 0.35);
+}
+
+:root[data-theme="light"] .btn-reset-repo,
+body[data-theme="light"] .btn-reset-repo {
+  background: #ffe4e6;
+  border-color: #fca5a5;
+  color: #e11d48;
+  box-shadow: 0 2px 6px rgba(225, 29, 72, 0.12);
+}
+
+:root[data-theme="light"] .btn-reset-repo:hover,
+body[data-theme="light"] .btn-reset-repo:hover {
+  background: #fecdd3;
+  border-color: #f87171;
+  color: #be123c;
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.22);
+}
+
 .branch-alert-banner {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);

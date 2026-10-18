@@ -500,6 +500,7 @@ const gitBranchBannerText = document.getElementById('git-branch-banner-text');
 const gitBranchBannerActions = document.getElementById('git-branch-banner-actions');
 const btnCommitOpenspec = document.getElementById('btn-commit-openspec');
 const btnPushGit = document.getElementById('btn-push-git');
+const btnResetRepoLocal = document.getElementById('btn-reset-repo-local');
 
 // Board View State: 'tasks' (Tarefas da Sprint) vs 'ideas' (Funil de Ideias) vs 'analytics' (Analytics & Métricas)
 let currentBoardView = 'tasks';
@@ -1111,6 +1112,55 @@ async function handleGitSyncAction() {
 
 if (btnPushGit) {
   btnPushGit.addEventListener('click', handleGitSyncAction);
+}
+
+async function handleResetRepoLocalAction() {
+  const confirmed = await showConfirmModal({
+    title: 'Resetar Repositório Local',
+    icon: '↺',
+    message: 'Deseja realmente **descartar todas as alterações locais não salvas** e resetar o repositório para o estado do último commit?',
+    warning: 'ATENÇÃO: Todas as alterações locais em arquivos rastreados que ainda não foram commitadas serão permanentemente descartadas.',
+    confirmText: 'Sim, Resetar Repo Local',
+    confirmBtnClass: 'btn-danger'
+  });
+  if (!confirmed) return;
+
+  const prevHtml = btnResetRepoLocal ? btnResetRepoLocal.innerHTML : '↺ Reset Repo Local';
+  if (btnResetRepoLocal) {
+    btnResetRepoLocal.disabled = true;
+    btnResetRepoLocal.innerHTML = '⏳ Resetando...';
+  }
+
+  try {
+    showToast('Resetando alterações locais do repositório...', 'info');
+    appendLog('Executando Reset Repo Local (git checkout HEAD -- .)...');
+    const res = await fetch('/api/git/reset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message || 'Repositório resetado com sucesso para o estado limpo!', 'success');
+      appendLog(`Reset Repo Local concluído: ${data.details || 'Modificações descartadas.'}`);
+      await fetchGitInfo();
+      await fetchFeatures();
+    } else {
+      showToast(data.error || 'Erro ao resetar repositório local', 'error');
+      appendLog(`Falha no Reset Repo Local: ${data.error || 'Erro desconhecido'}`);
+    }
+  } catch (err) {
+    showToast('Erro de conexão ao executar reset do repositório', 'error');
+    appendLog(`Erro no reset: ${err.message}`);
+  } finally {
+    if (btnResetRepoLocal) {
+      btnResetRepoLocal.disabled = false;
+      btnResetRepoLocal.innerHTML = prevHtml;
+    }
+  }
+}
+
+if (btnResetRepoLocal) {
+  btnResetRepoLocal.addEventListener('click', handleResetRepoLocalAction);
 }
 
 function setConnectionStatus(online) {

@@ -1830,6 +1830,30 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // API: Reset uncommitted local changes (Reset Repo Local)
+    if (req.method === 'POST' && pathname === '/api/git/reset') {
+      try {
+        const checkoutOut = execSync('git checkout HEAD -- .', { encoding: 'utf8', cwd: REPO_ROOT });
+        let cleanOut = '';
+        try {
+          cleanOut = execSync('git clean -fd -e ".env" -e "*.local.json" -e "node_modules"', { encoding: 'utf8', cwd: REPO_ROOT });
+        } catch { }
+        const updatedGitInfo = getGitInfo(true);
+        sendJSON(res, 200, {
+          success: true,
+          message: 'Repositório local resetado com sucesso para o estado limpo do commit atual!',
+          details: (checkoutOut + (cleanOut ? '\n' + cleanOut : '')).trim() || 'Modificações locais descartadas com sucesso.',
+          gitInfo: updatedGitInfo
+        });
+      } catch (err: any) {
+        sendJSON(res, 200, {
+          success: false,
+          error: err.stderr || err.stdout || err.message || 'Erro ao resetar repositório local'
+        });
+      }
+      return;
+    }
+
     // API: List features (Workspace local ou Git branch selecionada)
     if (req.method === 'GET' && pathname === '/api/features') {
       const selectedBranch = parsedUrl.searchParams.get('branch') || 'local';

@@ -14,6 +14,6 @@
 ## 2. Filtros por Diretório/Projeto e Próximas Entregas (Em Andamento)
 - [x] **2.1** Filtro e Seletor dinâmico por Diretório/Projeto no Kanban (Site: app, Game: Unity, Skills: prompt, etc.) (@Marcos)
 - [x] **2.2** Modal para cadastrar e customizar novos diretórios de projeto com persistência (@Marcos)
-- [ ] **2.3** Sincronização automatizada com GitHub Projects / Issues API (@Junior)
+- [ ] **2.3** Sincronização automatizada com GitHub Projects / Issues API (@Marcos)
 - [ ] **2.4** Exportação de relatórios da Sprint em formato PDF e planilha CSV (@Samuel)
 - [ ] **2.5** Notificações sonoras/toast para atualizações de status de tarefas na equipe (@Jorge Espindola)
