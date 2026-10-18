@@ -10,6 +10,8 @@
 - [x] **1.7** Separação das opções de Avatar em "Arte Designer 2D" e "Arte e Animador 3D" com remoção de VFX (@Marcos)
 - [x] **1.8** Limpeza automática dos inputs dos formulários após cadastrar tarefas e ideias/features (@Marcos)
 - [x] **1.9** Sistema de Busca e Filtragem Reativa de Tarefas e Ideias no Kanban com atalhos de teclado (@Marcos)
+- [x] **1.10** Botão e Endpoint de "Reset Repo Local" com modal preventivo para descartar alterações com erro (@Marcos)
+- [x] **1.11** Central Git (Changes & History - Estilo GitHub Desktop) com visualizador de diff, commits unpushed e setinha ⬆️ (@Marcos)
 
 ## 2. Filtros por Diretório/Projeto e Próximas Entregas (Em Andamento)
 - [x] **2.1** Filtro e Seletor dinâmico por Diretório/Projeto no Kanban (Site: app, Game: Unity, Skills: prompt, etc.) (@Marcos)

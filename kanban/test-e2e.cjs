@@ -205,6 +205,27 @@ async function runAllTests() {
     assert(resStyles.data.includes('.btn-reset-repo'), 'styles.css contém estilos elegantes para .btn-reset-repo');
     assert(resAppJs.data.includes('handleResetRepoLocalAction'), 'app.js implementa handleResetRepoLocalAction com confirmação preventiva');
 
+    // Testes Central Git - Changes & History (Estilo GitHub Desktop)
+    console.log('\n--- 2.5 Central Git (Changes & History - Estilo GitHub Desktop) ---');
+    const resGitChanges = await request({ path: '/api/git/changes' });
+    assert(resGitChanges.status === 200 && resGitChanges.json && resGitChanges.json.success, 'GET /api/git/changes retorna 200 com lista de arquivos');
+    assert(Array.isArray(resGitChanges.json.files), 'GET /api/git/changes retorna array de arquivos');
+
+    const resGitHistory = await request({ path: '/api/git/history' });
+    assert(resGitHistory.status === 200 && resGitHistory.json && resGitHistory.json.success, 'GET /api/git/history retorna 200 com commits');
+    assert(Array.isArray(resGitHistory.json.commits), 'GET /api/git/history retorna lista de commits');
+    assert(typeof resGitHistory.json.unpushedCount === 'number', 'GET /api/git/history calcula commits pendentes de push');
+
+    assert(resRoot.data.includes('btn-open-git-desktop'), 'index.html contém botão btn-open-git-desktop no cabeçalho');
+    assert(resRoot.data.includes('modal-git-desktop'), 'index.html contém modal de tela cheia modal-git-desktop');
+    assert(resRoot.data.includes('tab-btn-git-changes'), 'index.html contém aba Changes estilo GitHub Desktop');
+    assert(resRoot.data.includes('tab-btn-git-history'), 'index.html contém aba History estilo GitHub Desktop');
+    assert(resStyles.data.includes('.git-desktop-modal'), 'styles.css define estilos para .git-desktop-modal');
+    assert(resStyles.data.includes('.git-commit-unpushed-indicator'), 'styles.css define setinha pra cima elegante para commits unpushed');
+    assert(resAppJs.data.includes('openGitDesktopModal'), 'app.js implementa openGitDesktopModal');
+    assert(resAppJs.data.includes('fetchGitChanges'), 'app.js implementa fetchGitChanges');
+    assert(resAppJs.data.includes('fetchGitHistory'), 'app.js implementa fetchGitHistory');
+
     // 3. Test Feature Creation (OpenSpec Change)
     console.log('\n--- 3. Criação de Ideia / Feature OpenSpec ---');
     const testFeatureId = 'teste-arena-pvp';

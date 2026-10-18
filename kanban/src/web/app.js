@@ -4679,6 +4679,694 @@ function initTheme() {
   btnToggleTheme?.addEventListener('click', toggleTheme);
 }
 
+// ============================================================
+// CENTRAL GIT - ESTILO GITHUB DESKTOP (CHANGES & HISTORY)
+// ============================================================
+const modalGitDesktop = document.getElementById('modal-git-desktop');
+const btnOpenGitDesktop = document.getElementById('btn-open-git-desktop');
+const btnCloseGitDesktop = document.getElementById('btn-close-git-desktop');
+const btnGitDesktopRefresh = document.getElementById('btn-git-desktop-refresh');
+const btnGitDesktopPush = document.getElementById('btn-git-desktop-push');
+const gitDesktopBranchPill = document.getElementById('git-desktop-branch-pill');
+const tabBtnGitChanges = document.getElementById('tab-btn-git-changes');
+const tabBtnGitHistory = document.getElementById('tab-btn-git-history');
+const gitPaneChanges = document.getElementById('git-pane-changes');
+const gitPaneHistory = document.getElementById('git-pane-history');
+const badgeGitChangesCount = document.getElementById('badge-git-changes-count');
+const badgeGitUnpushedCount = document.getElementById('badge-git-unpushed-count');
+
+// Changes Tab Elements
+const gitFilterChangesInput = document.getElementById('git-filter-changes-input');
+const chkGitSelectAll = document.getElementById('chk-git-select-all');
+const labelGitChangedCount = document.getElementById('label-git-changed-count');
+const btnGitDiscardAll = document.getElementById('btn-git-discard-all');
+const gitChangesFilesList = document.getElementById('git-changes-files-list');
+const gitDiffFilePath = document.getElementById('git-diff-file-path');
+const gitDiffHeaderActions = document.getElementById('git-diff-header-actions');
+const btnCopyDiffPath = document.getElementById('btn-copy-diff-path');
+const btnDiscardSingleFile = document.getElementById('btn-discard-single-file');
+const gitDiffBody = document.getElementById('git-diff-body');
+const inputGitCommitMsg = document.getElementById('input-git-commit-msg');
+const textareaGitCommitDesc = document.getElementById('textarea-git-commit-desc');
+const btnGitCommitSubmit = document.getElementById('btn-git-commit-submit');
+const labelCommitBranch = document.getElementById('label-commit-branch');
+const gitCommitUserName = document.getElementById('git-commit-user-name');
+const gitCommitUserAvatar = document.getElementById('git-commit-user-avatar');
+
+// History Tab Elements
+const gitFilterHistoryInput = document.getElementById('git-filter-history-input');
+const gitUnpushedBanner = document.getElementById('git-unpushed-banner');
+const gitUnpushedBannerMsg = document.getElementById('git-unpushed-banner-msg');
+const btnUnpushedBannerPush = document.getElementById('btn-unpushed-banner-push');
+const gitHistoryCommitsList = document.getElementById('git-history-commits-list');
+const gitCommitFullTitle = document.getElementById('git-commit-full-title');
+const gitCommitUnpushedTag = document.getElementById('git-commit-unpushed-tag');
+const gitCommitMetaRow = document.getElementById('git-commit-meta-row');
+const gitCommitMetaAvatar = document.getElementById('git-commit-meta-avatar');
+const gitCommitAuthorName = document.getElementById('git-commit-author-name');
+const gitCommitAuthorEmail = document.getElementById('git-commit-author-email');
+const gitCommitFullDate = document.getElementById('git-commit-full-date');
+const gitCommitHashCode = document.getElementById('git-commit-hash-code');
+const gitCommitDetailsBody = document.getElementById('git-commit-details-body');
+
+// State
+let gitDesktopActiveTab = 'changes';
+let gitChangesList = [];
+let gitSelectedFilePaths = new Set();
+let gitActiveDiffFile = null;
+let gitHistoryList = [];
+let gitActiveCommitHash = null;
+let gitFilterChangesQuery = '';
+let gitFilterHistoryQuery = '';
+
+function openGitDesktopModal(defaultTab = 'changes') {
+  if (!modalGitDesktop) return;
+  modalGitDesktop.classList.add('open');
+  setGitDesktopTab(defaultTab);
+  refreshGitDesktop();
+}
+
+function closeGitDesktopModal() {
+  if (modalGitDesktop) {
+    modalGitDesktop.classList.remove('open');
+  }
+}
+
+function setGitDesktopTab(tab) {
+  gitDesktopActiveTab = tab;
+  if (tab === 'changes') {
+    tabBtnGitChanges?.classList.add('active');
+    tabBtnGitHistory?.classList.remove('active');
+    if (tabBtnGitChanges) tabBtnGitChanges.setAttribute('aria-selected', 'true');
+    if (tabBtnGitHistory) tabBtnGitHistory.setAttribute('aria-selected', 'false');
+    if (gitPaneChanges) gitPaneChanges.style.display = 'flex';
+    if (gitPaneHistory) gitPaneHistory.style.display = 'none';
+    fetchGitChanges();
+  } else {
+    tabBtnGitHistory?.classList.add('active');
+    tabBtnGitChanges?.classList.remove('active');
+    if (tabBtnGitHistory) tabBtnGitHistory.setAttribute('aria-selected', 'true');
+    if (tabBtnGitChanges) tabBtnGitChanges.setAttribute('aria-selected', 'false');
+    if (gitPaneHistory) gitPaneHistory.style.display = 'flex';
+    if (gitPaneChanges) gitPaneChanges.style.display = 'none';
+    fetchGitHistory();
+  }
+}
+
+async function refreshGitDesktop() {
+  if (gitDesktopActiveTab === 'changes') {
+    await fetchGitChanges();
+  } else {
+    await fetchGitHistory();
+  }
+  fetchGitInfo();
+}
+
+// -------------------------------------------------------------
+// Changes Tab Logic
+// -------------------------------------------------------------
+async function fetchGitChanges() {
+  try {
+    const res = await fetch('/api/git/changes');
+    const data = await res.json();
+    if (data.success) {
+      gitChangesList = data.files || [];
+      if (gitDesktopBranchPill) {
+        gitDesktopBranchPill.textContent = `🌿 ${data.branch || 'main'}`;
+      }
+      if (labelCommitBranch) {
+        labelCommitBranch.textContent = data.branch || 'main';
+      }
+      if (badgeGitChangesCount) {
+        badgeGitChangesCount.textContent = gitChangesList.length;
+      }
+      if (labelGitChangedCount) {
+        labelGitChangedCount.textContent = `${gitChangesList.length} changed files`;
+      }
+
+      // Atualiza identidade no commit box
+      if (detectedDevMember) {
+        if (gitCommitUserName) gitCommitUserName.textContent = detectedDevMember.name;
+        if (gitCommitUserAvatar) gitCommitUserAvatar.textContent = detectedDevMember.avatar || '👤';
+      } else if (gitUserLocal?.name) {
+        if (gitCommitUserName) gitCommitUserName.textContent = gitUserLocal.name;
+      }
+
+      // Marca todos por padrão
+      gitSelectedFilePaths = new Set(gitChangesList.map(f => f.path));
+      if (chkGitSelectAll) {
+        chkGitSelectAll.checked = gitChangesList.length > 0;
+        chkGitSelectAll.indeterminate = false;
+      }
+
+      renderGitChangesList();
+
+      // Se havia um arquivo ativo, recarrega o diff dele, ou o primeiro
+      if (gitActiveDiffFile && gitChangesList.some(f => f.path === gitActiveDiffFile)) {
+        loadGitDiff(gitActiveDiffFile);
+      } else if (gitChangesList.length > 0) {
+        loadGitDiff(gitChangesList[0].path);
+      } else {
+        renderEmptyDiff();
+      }
+    }
+  } catch (err) {
+    console.error('Erro ao buscar alterações locais:', err);
+    showToast('Erro ao carregar alterações do Git', 'error');
+  }
+}
+
+function renderGitChangesList() {
+  if (!gitChangesFilesList) return;
+  gitChangesFilesList.innerHTML = '';
+
+  const filterText = gitFilterChangesQuery.toLowerCase();
+  const filtered = gitChangesList.filter(f => {
+    if (!filterText) return true;
+    return f.path.toLowerCase().includes(filterText) || f.name.toLowerCase().includes(filterText);
+  });
+
+  if (filtered.length === 0) {
+    gitChangesFilesList.innerHTML = `
+      <div class="git-empty-state-small">
+        ${gitChangesList.length === 0 ? 'Nenhuma alteração pendente no repositório local.' : 'Nenhum arquivo encontrado com o filtro atual.'}
+      </div>
+    `;
+    return;
+  }
+
+  filtered.forEach(file => {
+    const isSelected = file.path === gitActiveDiffFile;
+    const isChecked = gitSelectedFilePaths.has(file.path);
+
+    const item = document.createElement('div');
+    item.className = `git-file-item ${isSelected ? 'selected' : ''}`;
+    item.dataset.path = file.path;
+
+    // Ícone de status: Amarelo para Modified (M), Verde para Added (+), Vermelho para Deleted (-)
+    let iconClass = 'modified';
+    let iconSymbol = '●';
+    if (file.status === 'added' || file.status === 'untracked') {
+      iconClass = 'added';
+      iconSymbol = '+';
+    } else if (file.status === 'deleted') {
+      iconClass = 'deleted';
+      iconSymbol = '−';
+    } else if (file.status === 'renamed') {
+      iconClass = 'renamed';
+      iconSymbol = '→';
+    }
+
+    item.innerHTML = `
+      <div class="git-file-item-left">
+        <input type="checkbox" class="chk-git-file" ${isChecked ? 'checked' : ''} data-path="${escapeHtml(file.path)}">
+        <div class="git-file-item-text" title="${escapeHtml(file.path)}">
+          <span class="git-file-name">${escapeHtml(file.name)}</span>
+          ${file.directory ? `<span class="git-file-dir">${escapeHtml(file.directory)}</span>` : ''}
+        </div>
+      </div>
+      <span class="git-status-icon-badge ${iconClass}" title="${escapeHtml(file.statusLabel)}: ${file.statusCode}">
+        ${iconSymbol}
+      </span>
+    `;
+
+    // Click item para abrir diff
+    item.addEventListener('click', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      loadGitDiff(file.path);
+    });
+
+    // Checkbox toggle
+    const chk = item.querySelector('.chk-git-file');
+    chk?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (chk.checked) {
+        gitSelectedFilePaths.add(file.path);
+      } else {
+        gitSelectedFilePaths.delete(file.path);
+      }
+      updateSelectAllCheckboxState();
+    });
+
+    gitChangesFilesList.appendChild(item);
+  });
+}
+
+function updateSelectAllCheckboxState() {
+  if (!chkGitSelectAll) return;
+  const total = gitChangesList.length;
+  const selected = gitSelectedFilePaths.size;
+
+  if (selected === 0) {
+    chkGitSelectAll.checked = false;
+    chkGitSelectAll.indeterminate = false;
+  } else if (selected === total) {
+    chkGitSelectAll.checked = true;
+    chkGitSelectAll.indeterminate = false;
+  } else {
+    chkGitSelectAll.checked = false;
+    chkGitSelectAll.indeterminate = true;
+  }
+}
+
+async function loadGitDiff(filePath) {
+  gitActiveDiffFile = filePath;
+
+  // Atualiza classe selecionada na lista
+  document.querySelectorAll('.git-file-item').forEach(item => {
+    item.classList.toggle('selected', item.dataset.path === filePath);
+  });
+
+  if (gitDiffFilePath) gitDiffFilePath.textContent = filePath;
+  if (gitDiffHeaderActions) gitDiffHeaderActions.style.display = 'flex';
+
+  if (gitDiffBody) {
+    gitDiffBody.innerHTML = '<div style="padding: 20px; color: var(--text-dim);">Carregando diff...</div>';
+  }
+
+  try {
+    const res = await fetch(`/api/git/diff?file=${encodeURIComponent(filePath)}`);
+    const data = await res.json();
+    if (data.success && gitDiffBody) {
+      renderDiffContent(data.diff, data.isUntracked);
+    } else if (gitDiffBody) {
+      gitDiffBody.innerHTML = `<div style="padding: 20px; color: var(--accent-rose);">${escapeHtml(data.error || 'Erro ao carregar diff')}</div>`;
+    }
+  } catch (err) {
+    if (gitDiffBody) {
+      gitDiffBody.innerHTML = `<div style="padding: 20px; color: var(--accent-rose);">Erro de conexão ao buscar diff.</div>`;
+    }
+  }
+}
+
+function renderDiffContent(rawDiff, isUntracked = false) {
+  if (!gitDiffBody) return;
+  gitDiffBody.innerHTML = '';
+
+  if (!rawDiff || rawDiff === '(Nenhuma alteração de texto detectada)') {
+    gitDiffBody.innerHTML = `<div style="padding: 20px; color: var(--text-dim); text-align: center;">Nenhuma alteração de texto detectada neste arquivo.</div>`;
+    return;
+  }
+
+  const lines = rawDiff.split(/\r?\n/);
+  const container = document.createElement('div');
+  container.className = 'diff-lines-container';
+
+  lines.forEach(line => {
+    const lineEl = document.createElement('div');
+    lineEl.className = 'diff-line';
+
+    if (line.startsWith('+') && !line.startsWith('+++')) {
+      lineEl.classList.add('added');
+    } else if (line.startsWith('-') && !line.startsWith('---')) {
+      lineEl.classList.add('removed');
+    } else if (line.startsWith('@@') || line.startsWith('diff --git')) {
+      lineEl.classList.add('header');
+    }
+
+    lineEl.textContent = line;
+    container.appendChild(lineEl);
+  });
+
+  gitDiffBody.appendChild(container);
+}
+
+function renderEmptyDiff() {
+  gitActiveDiffFile = null;
+  if (gitDiffFilePath) gitDiffFilePath.textContent = 'Nenhum arquivo selecionado';
+  if (gitDiffHeaderActions) gitDiffHeaderActions.style.display = 'none';
+  if (gitDiffBody) {
+    gitDiffBody.innerHTML = `
+      <div class="git-diff-placeholder">
+        <span style="font-size: 32px; margin-bottom: 8px;">📑</span>
+        <strong>Nenhum arquivo selecionado</strong>
+        <p>Clique em um arquivo alterado na lista ao lado para inspecionar o diff antes de commitar ou enviar.</p>
+      </div>
+    `;
+  }
+}
+
+// -------------------------------------------------------------
+// History Tab Logic (Commits & Unpushed Arrow)
+// -------------------------------------------------------------
+async function fetchGitHistory() {
+  try {
+    const res = await fetch('/api/git/history');
+    const data = await res.json();
+    if (data.success) {
+      gitHistoryList = data.commits || [];
+      const unpushedCount = data.unpushedCount || 0;
+
+      // Atualiza badges e banners de unpushed commits
+      if (badgeGitUnpushedCount) {
+        if (unpushedCount > 0) {
+          badgeGitUnpushedCount.textContent = `⬆️ ${unpushedCount}`;
+          badgeGitUnpushedCount.style.display = 'inline-block';
+        } else {
+          badgeGitUnpushedCount.style.display = 'none';
+        }
+      }
+
+      if (gitUnpushedBanner) {
+        if (unpushedCount > 0) {
+          gitUnpushedBanner.style.display = 'flex';
+          if (gitUnpushedBannerMsg) {
+            gitUnpushedBannerMsg.innerHTML = `<strong>${unpushedCount} commit(s)</strong> prontos para subir ao repositório remoto`;
+          }
+        } else {
+          gitUnpushedBanner.style.display = 'none';
+        }
+      }
+
+      if (btnGitDesktopPush) {
+        btnGitDesktopPush.style.display = unpushedCount > 0 ? 'inline-flex' : 'none';
+        btnGitDesktopPush.innerHTML = `⬆️ Subir ao Repo (${unpushedCount})`;
+      }
+
+      renderGitHistoryList();
+
+      // Seleciona o primeiro commit
+      if (gitActiveCommitHash && gitHistoryList.some(c => c.hash === gitActiveCommitHash)) {
+        loadGitCommitDetails(gitActiveCommitHash);
+      } else if (gitHistoryList.length > 0) {
+        loadGitCommitDetails(gitHistoryList[0].hash);
+      }
+    }
+  } catch (err) {
+    console.error('Erro ao buscar histórico do Git:', err);
+    showToast('Erro ao carregar histórico de commits', 'error');
+  }
+}
+
+function renderGitHistoryList() {
+  if (!gitHistoryCommitsList) return;
+  gitHistoryCommitsList.innerHTML = '';
+
+  const query = gitFilterHistoryQuery.toLowerCase();
+  const filtered = gitHistoryList.filter(c => {
+    if (!query) return true;
+    return c.subject.toLowerCase().includes(query) ||
+      c.author.toLowerCase().includes(query) ||
+      c.shortHash.toLowerCase().includes(query);
+  });
+
+  if (filtered.length === 0) {
+    gitHistoryCommitsList.innerHTML = `
+      <div class="git-empty-state-small">Nenhum commit encontrado no histórico.</div>
+    `;
+    return;
+  }
+
+  filtered.forEach(commit => {
+    const isSelected = commit.hash === gitActiveCommitHash;
+    const item = document.createElement('div');
+    item.className = `git-commit-item ${isSelected ? 'selected' : ''}`;
+    item.dataset.hash = commit.hash;
+
+    // SE O COMMIT PRECISAR SUBIR AO REPO: SETINHA PRA CIMA NO LADO DIREITO
+    const unpushedIndicatorHtml = commit.isUnpushed
+      ? `<div class="git-commit-unpushed-indicator" title="Commit pendente de push: pronto para subir ao repositório!">⬆️</div>`
+      : '';
+
+    item.innerHTML = `
+      <div class="git-commit-item-left">
+        <div class="git-commit-subject" title="${escapeHtml(commit.subject)}">${escapeHtml(commit.subject)}</div>
+        <div class="git-commit-sub-meta">
+          <span class="git-commit-short-hash">${escapeHtml(commit.shortHash)}</span>
+          <span>👤 ${escapeHtml(commit.author)}</span>
+          <span>• ${escapeHtml(commit.relativeDate)}</span>
+        </div>
+      </div>
+      ${unpushedIndicatorHtml}
+    `;
+
+    item.addEventListener('click', () => {
+      loadGitCommitDetails(commit.hash);
+    });
+
+    gitHistoryCommitsList.appendChild(item);
+  });
+}
+
+async function loadGitCommitDetails(hash) {
+  gitActiveCommitHash = hash;
+
+  document.querySelectorAll('.git-commit-item').forEach(item => {
+    item.classList.toggle('selected', item.dataset.hash === hash);
+  });
+
+  const commit = gitHistoryList.find(c => c.hash === hash);
+  if (commit) {
+    if (gitCommitFullTitle) gitCommitFullTitle.textContent = commit.subject;
+    if (gitCommitAuthorName) gitCommitAuthorName.textContent = commit.author;
+    if (gitCommitAuthorEmail) gitCommitAuthorEmail.textContent = commit.email;
+    if (gitCommitFullDate) gitCommitFullDate.textContent = `${commit.fullDate} (${commit.relativeDate})`;
+    if (gitCommitHashCode) gitCommitHashCode.textContent = commit.hash;
+    if (gitCommitMetaRow) gitCommitMetaRow.style.display = 'flex';
+
+    if (gitCommitUnpushedTag) {
+      gitCommitUnpushedTag.style.display = commit.isUnpushed ? 'inline-flex' : 'none';
+    }
+  }
+
+  if (gitCommitDetailsBody) {
+    gitCommitDetailsBody.innerHTML = '<div style="padding: 20px; color: var(--text-dim);">Carregando detalhes e diff do commit...</div>';
+  }
+
+  try {
+    const res = await fetch(`/api/git/commit-details?hash=${encodeURIComponent(hash)}`);
+    const data = await res.json();
+    if (data.success && gitCommitDetailsBody) {
+      gitCommitDetailsBody.innerHTML = '';
+
+      if (data.stat) {
+        const statBox = document.createElement('div');
+        statBox.style.padding = '8px 12px';
+        statBox.style.marginBottom = '12px';
+        statBox.style.background = 'var(--bg-pill)';
+        statBox.style.borderRadius = 'var(--radius-sm)';
+        statBox.style.border = '1px solid var(--border-subtle)';
+        statBox.style.whiteSpace = 'pre-wrap';
+        statBox.style.fontSize = '11.5px';
+        statBox.textContent = data.stat;
+        gitCommitDetailsBody.appendChild(statBox);
+      }
+
+      if (data.diff) {
+        const diffCont = document.createElement('div');
+        diffCont.className = 'diff-lines-container';
+        const lines = data.diff.split(/\r?\n/);
+        lines.forEach(line => {
+          const lEl = document.createElement('div');
+          lEl.className = 'diff-line';
+          if (line.startsWith('+') && !line.startsWith('+++')) lEl.classList.add('added');
+          else if (line.startsWith('-') && !line.startsWith('---')) lEl.classList.add('removed');
+          else if (line.startsWith('@@') || line.startsWith('diff --git')) lEl.classList.add('header');
+          lEl.textContent = line;
+          diffCont.appendChild(lEl);
+        });
+        gitCommitDetailsBody.appendChild(diffCont);
+      }
+    }
+  } catch (err) {
+    if (gitCommitDetailsBody) {
+      gitCommitDetailsBody.innerHTML = '<div style="padding: 20px; color: var(--accent-rose);">Erro ao carregar detalhes do commit.</div>';
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// Git Desktop Action Listeners
+// -------------------------------------------------------------
+btnOpenGitDesktop?.addEventListener('click', () => openGitDesktopModal('changes'));
+gitStatusPill?.addEventListener('click', () => openGitDesktopModal('changes'));
+btnCloseGitDesktop?.addEventListener('click', closeGitDesktopModal);
+
+modalGitDesktop?.addEventListener('click', (e) => {
+  if (e.target === modalGitDesktop) closeGitDesktopModal();
+});
+
+btnGitDesktopRefresh?.addEventListener('click', () => {
+  showToast('Atualizando status do Git...', 'info');
+  refreshGitDesktop();
+});
+
+tabBtnGitChanges?.addEventListener('click', () => setGitDesktopTab('changes'));
+tabBtnGitHistory?.addEventListener('click', () => setGitDesktopTab('history'));
+
+// Filtro de alterações em tempo real
+gitFilterChangesInput?.addEventListener('input', (e) => {
+  gitFilterChangesQuery = e.target.value.trim();
+  renderGitChangesList();
+});
+
+// Filtro de commits do histórico em tempo real
+gitFilterHistoryInput?.addEventListener('input', (e) => {
+  gitFilterHistoryQuery = e.target.value.trim();
+  renderGitHistoryList();
+});
+
+// Checkbox global selecionar tudo
+chkGitSelectAll?.addEventListener('change', () => {
+  const isChecked = chkGitSelectAll.checked;
+  if (isChecked) {
+    gitChangesList.forEach(f => gitSelectedFilePaths.add(f.path));
+  } else {
+    gitSelectedFilePaths.clear();
+  }
+  document.querySelectorAll('.chk-git-file').forEach(chk => {
+    chk.checked = isChecked;
+  });
+});
+
+// Copiar caminho relativo do arquivo ativo
+btnCopyDiffPath?.addEventListener('click', async () => {
+  if (!gitActiveDiffFile) return;
+  try {
+    await navigator.clipboard.writeText(gitActiveDiffFile);
+    showToast('Caminho copiado para a área de transferência!', 'success');
+  } catch {
+    showToast('Não foi possível copiar o caminho', 'warning');
+  }
+});
+
+// Descartar alterações de arquivo individual
+btnDiscardSingleFile?.addEventListener('click', async () => {
+  if (!gitActiveDiffFile) return;
+  const confirmed = await showConfirmModal({
+    title: 'Descartar Alterações',
+    icon: '↺',
+    message: `Deseja realmente descartar todas as alterações locais em **${gitActiveDiffFile}**?`,
+    warning: 'Esta ação não poderá ser desfeita. O arquivo retornará ao estado do último commit.',
+    confirmText: 'Sim, Descartar',
+    confirmBtnClass: 'btn-danger'
+  });
+  if (!confirmed) return;
+
+  try {
+    const res = await fetch('/api/git/discard-file', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ file: gitActiveDiffFile })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message || 'Arquivo restaurado!', 'success');
+      appendLog(`Arquivo descartado: ${gitActiveDiffFile}`);
+      await fetchGitChanges();
+      fetchGitInfo();
+    } else {
+      showToast(data.error || 'Erro ao descartar alterações', 'error');
+    }
+  } catch {
+    showToast('Erro de conexão ao descartar arquivo', 'error');
+  }
+});
+
+// Descartar alterações de todos os arquivos selecionados
+btnGitDiscardAll?.addEventListener('click', async () => {
+  if (gitSelectedFilePaths.size === 0) {
+    showToast('Selecione ao menos um arquivo para descartar', 'warning');
+    return;
+  }
+
+  const count = gitSelectedFilePaths.size;
+  const confirmed = await showConfirmModal({
+    title: 'Descartar Arquivos Selecionados',
+    icon: '↺',
+    message: `Deseja realmente descartar as alterações de **${count} arquivo(s)** selecionado(s)?`,
+    warning: 'As alterações locais não salvas nestes arquivos serão descartadas permanentemente.',
+    confirmText: `Sim, Descartar ${count} Arquivo(s)`,
+    confirmBtnClass: 'btn-danger'
+  });
+  if (!confirmed) return;
+
+  for (const filePath of gitSelectedFilePaths) {
+    try {
+      await fetch('/api/git/discard-file', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file: filePath })
+      });
+    } catch { }
+  }
+
+  showToast(`${count} arquivo(s) restaurado(s) com sucesso!`, 'success');
+  appendLog(`Descartadas alterações de ${count} arquivo(s)`);
+  await fetchGitChanges();
+  fetchGitInfo();
+});
+
+// Commitar arquivos selecionados diretamente pela interface
+btnGitCommitSubmit?.addEventListener('click', async () => {
+  const summary = inputGitCommitMsg ? inputGitCommitMsg.value.trim() : '';
+  const desc = textareaGitCommitDesc ? textareaGitCommitDesc.value.trim() : '';
+
+  if (!summary) {
+    showToast('Informe o resumo do commit (Summary)', 'warning');
+    inputGitCommitMsg?.focus();
+    return;
+  }
+
+  const selectedFiles = Array.from(gitSelectedFilePaths);
+  if (selectedFiles.length === 0) {
+    showToast('Selecione ao menos um arquivo para commitar', 'warning');
+    return;
+  }
+
+  const fullMsg = desc ? `${summary}\n\n${desc}` : summary;
+
+  if (btnGitCommitSubmit) {
+    btnGitCommitSubmit.disabled = true;
+    btnGitCommitSubmit.innerHTML = '⏳ Commitando...';
+  }
+
+  try {
+    const res = await fetch('/api/git/commit-files', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ files: selectedFiles, message: fullMsg })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message || 'Commit realizado com sucesso!', 'success');
+      appendLog(`Git commit: "${summary}" (${selectedFiles.length} arquivos)`);
+      if (inputGitCommitMsg) inputGitCommitMsg.value = '';
+      if (textareaGitCommitDesc) textareaGitCommitDesc.value = '';
+      await fetchGitChanges();
+      fetchGitInfo();
+    } else {
+      showToast(data.error || 'Erro ao realizar commit', 'error');
+    }
+  } catch (err) {
+    showToast('Erro de conexão ao realizar commit', 'error');
+  } finally {
+    if (btnGitCommitSubmit) {
+      btnGitCommitSubmit.disabled = false;
+      const curBranch = gitDesktopBranchPill?.textContent?.replace('🌿', '').trim() || 'main';
+      btnGitCommitSubmit.innerHTML = `💾 Commit to ${curBranch}`;
+    }
+  }
+});
+
+// Ação de Push integrada na Central Git
+btnGitDesktopPush?.addEventListener('click', async () => {
+  closeGitDesktopModal();
+  handleGitSyncAction();
+});
+
+btnUnpushedBannerPush?.addEventListener('click', async () => {
+  closeGitDesktopModal();
+  handleGitSyncAction();
+});
+
+// Escape fecha o modal Git Desktop
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modalGitDesktop && modalGitDesktop.classList.contains('open')) {
+    closeGitDesktopModal();
+  }
+});
+
 // Initialize on Load
 function initApp() {
   initTheme();

@@ -94,6 +94,10 @@
       <button class="btn btn-primary btn-sm" id="btn-sync-top" title="Sincronizar com GitHub Projects (Kanban)">
         📋 Sync Kanban
       </button>
+      <button class="btn btn-secondary btn-sm" id="btn-open-git-desktop"
+        title="Abrir Central Git (Changes & History - Estilo GitHub Desktop)">
+        🖥️ Changes & History
+      </button>
 
       <!-- Divisor sutil -->
       <div class="header-actions-divider" title="Separador"></div>
@@ -1075,7 +1079,168 @@
     </div>
   </div>
 
-  <!-- Toast Notifications -->
+  <!-- ============================================================
+       MODAL CENTRAL GIT - ESTILO GITHUB DESKTOP (CHANGES & HISTORY)
+       ============================================================ -->
+  <div class="modal-overlay" id="modal-git-desktop" role="dialog" aria-modal="true" aria-labelledby="git-desktop-title">
+    <div class="modal-card git-desktop-modal">
+      <!-- Header Estilo GitHub Desktop -->
+      <div class="git-desktop-header">
+        <div class="git-desktop-brand">
+          <span class="git-desktop-icon">🖥️</span>
+          <div class="git-desktop-title-wrap">
+            <span class="git-desktop-sub">Current repository</span>
+            <div class="git-desktop-repo-line">
+              <strong class="git-desktop-repo-name" id="git-desktop-title">Fowlgen-Wars-Project</strong>
+              <span class="git-desktop-branch-badge" id="git-desktop-branch-pill">🌿 main</span>
+              <button type="button" class="btn-git-header-refresh" id="btn-git-desktop-refresh" title="Atualizar status do Git">🔄</button>
+            </div>
+          </div>
+        </div>
+        <div class="git-desktop-header-right">
+          <button type="button" class="btn btn-push btn-sm" id="btn-git-desktop-push" style="display: none;" title="Subir commits pendentes ao repositório">
+            ⬆️ Subir ao Repo
+          </button>
+          <button type="button" class="modal-close" id="btn-close-git-desktop" aria-label="Fechar">&times;</button>
+        </div>
+      </div>
+
+      <!-- Barra de Abas Estilo GitHub Desktop -->
+      <div class="git-desktop-tab-bar" role="tablist">
+        <button type="button" class="git-desktop-tab-btn active" id="tab-btn-git-changes" role="tab" aria-selected="true">
+          <span class="tab-label">Changes</span>
+          <span class="git-tab-badge" id="badge-git-changes-count">0</span>
+        </button>
+        <button type="button" class="git-desktop-tab-btn" id="tab-btn-git-history" role="tab" aria-selected="false">
+          <span class="tab-label">History</span>
+          <span class="git-tab-badge unpushed-badge" id="badge-git-unpushed-count" style="display: none;" title="Commits prontos para subir ao repo">⬆️ 0</span>
+        </button>
+      </div>
+
+      <!-- Conteúdo da Aba Changes -->
+      <div class="git-desktop-view-pane active" id="git-pane-changes">
+        <div class="git-split-container">
+          <!-- Coluna Esquerda: Lista de Arquivos Alterados -->
+          <div class="git-split-sidebar">
+            <div class="git-filter-bar">
+              <span class="git-filter-icon">≡</span>
+              <input type="text" id="git-filter-changes-input" class="git-filter-input" placeholder="Filter" autocomplete="off" spellcheck="false">
+            </div>
+
+            <div class="git-changes-summary-bar">
+              <label class="git-checkbox-label">
+                <input type="checkbox" id="chk-git-select-all" checked>
+                <span id="label-git-changed-count">0 changed files</span>
+              </label>
+              <button type="button" class="btn-subtle-action" id="btn-git-discard-all" title="Descartar alterações dos arquivos selecionados">
+                ↺ Descartar
+              </button>
+            </div>
+
+            <!-- Lista de Arquivos com Ícone Status (M = Amarelo, A = Verde, D = Vermelho) -->
+            <div class="git-files-list" id="git-changes-files-list">
+              <div class="git-empty-state-small">Nenhuma alteração detectada no repositório local.</div>
+            </div>
+
+            <!-- Painel Inferior de Commit -->
+            <div class="git-commit-box">
+              <div class="git-commit-box-header">
+                <span class="git-commit-avatar" id="git-commit-user-avatar">👤</span>
+                <span class="git-commit-user-name" id="git-commit-user-name">Commit local</span>
+              </div>
+              <input type="text" id="input-git-commit-msg" class="git-commit-input" placeholder="Summary (required)" autocomplete="off">
+              <textarea id="textarea-git-commit-desc" class="git-commit-textarea" rows="2" placeholder="Description"></textarea>
+              <button type="button" class="btn btn-primary btn-commit-desktop" id="btn-git-commit-submit">
+                💾 Commit to <span id="label-commit-branch">main</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: Visualizador de Diff -->
+          <div class="git-split-main">
+            <div class="git-diff-header" id="git-diff-header">
+              <div class="git-diff-header-info">
+                <span class="git-diff-file-icon" id="git-diff-file-icon">📄</span>
+                <span class="git-diff-file-path" id="git-diff-file-path">Selecione um arquivo para ver o diff</span>
+              </div>
+              <div class="git-diff-header-actions" id="git-diff-header-actions" style="display: none;">
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-copy-diff-path" title="Copiar caminho relativo">📋 Copiar Caminho</button>
+                <button type="button" class="btn btn-danger btn-sm" id="btn-discard-single-file" title="Descartar alterações deste arquivo">↺ Descartar Alterações</button>
+              </div>
+            </div>
+            <div class="git-diff-body" id="git-diff-body">
+              <div class="git-diff-placeholder">
+                <span style="font-size: 32px; margin-bottom: 8px;">📑</span>
+                <strong>Nenhum arquivo selecionado</strong>
+                <p>Clique em um arquivo alterado na lista ao lado para inspecionar o diff antes de commitar ou enviar.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conteúdo da Aba History -->
+      <div class="git-desktop-view-pane" id="git-pane-history" style="display: none;">
+        <div class="git-split-container">
+          <!-- Coluna Esquerda: Lista de Commits com Setinha pra Cima -->
+          <div class="git-split-sidebar">
+            <div class="git-filter-bar">
+              <span class="git-filter-icon">🔍</span>
+              <input type="text" id="git-filter-history-input" class="git-filter-input" placeholder="Filter commits" autocomplete="off" spellcheck="false">
+            </div>
+
+            <!-- Banner Informativo de Commits Unpushed -->
+            <div class="git-unpushed-banner" id="git-unpushed-banner" style="display: none;">
+              <div class="git-unpushed-banner-text">
+                <span class="unpushed-arrow-icon">⬆️</span>
+                <span id="git-unpushed-banner-msg"><strong>2 commits</strong> prontos para subir ao repo</span>
+              </div>
+              <button type="button" class="btn btn-push btn-sm" id="btn-unpushed-banner-push">Subir ao Repo</button>
+            </div>
+
+            <div class="git-commits-list" id="git-history-commits-list">
+              <div class="git-empty-state-small">Carregando histórico de commits...</div>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: Detalhes do Commit Selecionado -->
+          <div class="git-split-main">
+            <div class="git-commit-details-header" id="git-commit-details-header">
+              <div class="git-commit-details-top">
+                <div class="git-commit-title-wrap">
+                  <h3 class="git-commit-full-title" id="git-commit-full-title">Selecione um commit para ver os detalhes</h3>
+                  <div class="git-commit-unpushed-badge" id="git-commit-unpushed-tag" style="display: none;">
+                    ⬆️ PENDENTE DE ENVIO AO REPOSITÓRIO REMOTO
+                  </div>
+                </div>
+              </div>
+              <div class="git-commit-meta-row" id="git-commit-meta-row" style="display: none;">
+                <div class="git-commit-author-box">
+                  <span class="git-commit-meta-avatar" id="git-commit-meta-avatar">👤</span>
+                  <div class="git-commit-author-text">
+                    <span class="author-name" id="git-commit-author-name">Autor</span>
+                    <span class="author-email" id="git-commit-author-email">email@exemplo.com</span>
+                  </div>
+                </div>
+                <div class="git-commit-date-box">
+                  <span id="git-commit-full-date">Data</span>
+                  <code class="git-commit-hash-code" id="git-commit-hash-code">hash</code>
+                </div>
+              </div>
+            </div>
+
+            <div class="git-commit-details-body" id="git-commit-details-body">
+              <div class="git-diff-placeholder">
+                <span style="font-size: 32px; margin-bottom: 8px;">📜</span>
+                <strong>Histórico de Commits</strong>
+                <p>Selecione um commit na lista para visualizar autor, data, hash e o diff completo.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="toast-container" id="toast-container"></div>
 
   <script src="app.js"></script>

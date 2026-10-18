@@ -1854,6 +1854,361 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // API: Get all changed files in local repository (Changes screen - GitHub Desktop style)
+    if (req.method === 'GET' && pathname === '/api/git/changes') {
+      try {
+        let currentBranch = 'main';
+        try {
+          currentBranch = execSync('git branch --show-current', { encoding: 'utf8', cwd: REPO_ROOT }).trim();
+        } catch { }
+
+        let statusOut = '';
+        try {
+          statusOut = execSync('git status --porcelain=v1 -uall', { encoding: 'utf8', cwd: REPO_ROOT });
+        } catch { }
+
+        const files: Array<{
+          path: string;
+          name: string;
+          directory: string;
+          statusCode: string;
+          status: 'modified' | 'added' | 'deleted' | 'untracked' | 'renamed';
+          statusLabel: string;
+          statusIcon: string;
+        }> = [];
+
+        if (statusOut && statusOut.trim()) {
+          const lines = statusOut.split('\n');
+          for (const rawLine of lines) {
+            const line = rawLine.trimEnd();
+            if (!line || line.length < 3) continue;
+
+            const code = line.substring(0, 2);
+            let filePath = line.substring(3).trim();
+            if (filePath.startsWith('"') && filePath.endsWith('"')) {
+              filePath = filePath.substring(1, filePath.length - 1);
+            }
+
+            // Normaliza caminhos com barras padrão
+            const normalizedPath = filePath.replace(/\\/g, '/');
+            const fileName = path.basename(normalizedPath);
+            const dirName = path.dirname(normalizedPath);
+
+            let statusType: 'modified' | 'added' | 'deleted' | 'untracked' | 'renamed' = 'modified';
+            let statusLabel = 'Modificado';
+            let statusIcon = '●';
+
+            if (code.includes('?')) {
+              statusType = 'untracked';
+              statusLabel = 'Não rastreado';
+              statusIcon = '+';
+            } else if (code.includes('A')) {
+              statusType = 'added';
+              statusLabel = 'Adicionado';
+              statusIcon = '+';
+            } else if (code.includes('D')) {
+              statusType = 'deleted';
+              statusLabel = 'Excluído';
+              statusIcon = '−';
+            } else if (code.includes('R')) {
+              statusType = 'renamed';
+              statusLabel = 'Renomeado';
+              statusIcon = '→';
+            } else {
+              statusType = 'modified';
+              statusLabel = 'Modificado';
+              statusIcon = '●';
+            }
+
+            files.push({
+              path: normalizedPath,
+              name: fileName,
+              directory: dirName === '.' ? '' : dirName,
+              statusCode: code.trim(),
+              status: statusType,
+              statusLabel,
+              statusIcon
+            });
+          }
+        }
+
+        sendJSON(res, 200, {
+          success: true,
+          branch: currentBranch,
+          total: files.length,
+          files
+        });
+      } catch (err: any) {
+        sendJSON(res, 500, {
+          success: false,
+          error: err.message || 'Erro ao listar alterações locais do Git'
+        });
+      }
+      return;
+    }
+
+    // API: Get unified diff for a specific file
+    if (req.method === 'GET' && pathname === '/api/git/diff') {
+      const targetFile = parsedUrl.searchParams.get('file');
+      if (!targetFile || !targetFile.trim()) {
+        sendJSON(res, 400, { success: false, error: 'Parâmetro file é obrigatório.' });
+        return;
+      }
+
+      // Previne path traversal
+      const safeRelativePath = path.normalize(targetFile.trim()).replace(/^(\.\.[\/\\])+/, '');
+      const fullPath = path.join(REPO_ROOT, safeRelativePath);
+
+      try {
+        let diffContent = '';
+        let isUntracked = false;
+
+        try {
+          diffContent = execSync(`git diff HEAD -- "${safeRelativePath}"`, { encoding: 'utf8', cwd: REPO_ROOT });
+        } catch { }
+
+        if (!diffContent && fs.existsSync(fullPath)) {
+          // Arquivo untracked ou recém-adicionado
+          isUntracked = true;
+          try {
+            const rawContent = fs.readFileSync(fullPath, 'utf8');
+            const lines = rawContent.split(/\r?\n/);
+            diffContent = `--- /dev/null\n+++ b/${safeRelativePath}\n@@ -0,0 +1,${lines.length} @@\n` +
+              lines.slice(0, 1000).map(l => `+${l}`).join('\n');
+            if (lines.length > 1000) {
+              diffContent += `\n... (+ ${lines.length - 1000} linhas omitidas)`;
+            }
+          } catch {
+            diffContent = '[Arquivo binário ou não legível]';
+          }
+        }
+
+        sendJSON(res, 200, {
+          success: true,
+          file: safeRelativePath,
+          diff: diffContent || '(Nenhuma alteração de texto detectada)',
+          isUntracked
+        });
+      } catch (err: any) {
+        sendJSON(res, 500, {
+          success: false,
+          error: err.message || 'Erro ao gerar diff do arquivo'
+        });
+      }
+      return;
+    }
+
+    // API: Get Git history of commits (History screen - GitHub Desktop style com setinha para unpushed)
+    if (req.method === 'GET' && pathname === '/api/git/history') {
+      try {
+        let currentBranch = 'main';
+        try {
+          currentBranch = execSync('git branch --show-current', { encoding: 'utf8', cwd: REPO_ROOT }).trim();
+        } catch { }
+
+        // Identifica commits unpushed (que precisam subir ao repositório)
+        const unpushedHashes = new Set<string>();
+        try {
+          const unpushedOut = execSync('git rev-list "@{u}..HEAD"', { encoding: 'utf8', cwd: REPO_ROOT });
+          if (unpushedOut && unpushedOut.trim()) {
+            unpushedOut.trim().split('\n').forEach(h => {
+              if (h.trim()) unpushedHashes.add(h.trim());
+            });
+          }
+        } catch {
+          try {
+            const fallbackOut = execSync('git rev-list "origin/main..HEAD"', { encoding: 'utf8', cwd: REPO_ROOT });
+            if (fallbackOut && fallbackOut.trim()) {
+              fallbackOut.trim().split('\n').forEach(h => {
+                if (h.trim()) unpushedHashes.add(h.trim());
+              });
+            }
+          } catch { }
+        }
+
+        const limit = parseInt(parsedUrl.searchParams.get('limit') || '60', 10) || 60;
+        const logOut = execSync(`git log -n ${limit} --format="%H|%h|%an|%ae|%ar|%ad|%s"`, { encoding: 'utf8', cwd: REPO_ROOT });
+
+        const commits: Array<{
+          hash: string;
+          shortHash: string;
+          author: string;
+          email: string;
+          relativeDate: string;
+          fullDate: string;
+          subject: string;
+          isUnpushed: boolean;
+        }> = [];
+
+        if (logOut && logOut.trim()) {
+          const lines = logOut.trim().split('\n');
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            const parts = line.split('|');
+            const hash = (parts[0] || '').trim();
+            const shortHash = (parts[1] || '').trim() || hash.substring(0, 7);
+            const author = (parts[2] || '').trim();
+            const email = (parts[3] || '').trim();
+            const relativeDate = (parts[4] || '').trim();
+            const fullDate = (parts[5] || '').trim();
+            const subject = parts.slice(6).join('|').trim();
+
+            const isUnpushed = unpushedHashes.has(hash);
+
+            commits.push({
+              hash,
+              shortHash,
+              author,
+              email,
+              relativeDate,
+              fullDate,
+              subject,
+              isUnpushed
+            });
+          }
+        }
+
+        sendJSON(res, 200, {
+          success: true,
+          currentBranch,
+          unpushedCount: unpushedHashes.size,
+          total: commits.length,
+          commits
+        });
+      } catch (err: any) {
+        sendJSON(res, 500, {
+          success: false,
+          error: err.message || 'Erro ao carregar histórico de commits do Git'
+        });
+      }
+      return;
+    }
+
+    // API: Get details and stat of a single commit
+    if (req.method === 'GET' && pathname === '/api/git/commit-details') {
+      const commitHash = parsedUrl.searchParams.get('hash');
+      if (!commitHash || !commitHash.trim()) {
+        sendJSON(res, 400, { success: false, error: 'Parâmetro hash é obrigatório.' });
+        return;
+      }
+
+      const safeHash = commitHash.trim().replace(/[^a-f0-9]/gi, '');
+      if (safeHash.length < 4) {
+        sendJSON(res, 400, { success: false, error: 'Hash de commit inválido.' });
+        return;
+      }
+
+      try {
+        const statOut = execSync(`git show --stat --format="%H|%h|%an|%ae|%ar|%ad|%s" "${safeHash}"`, { encoding: 'utf8', cwd: REPO_ROOT });
+        const diffOut = execSync(`git show --format="" "${safeHash}"`, { encoding: 'utf8', cwd: REPO_ROOT });
+
+        const firstLineEnd = statOut.indexOf('\n');
+        const headerLine = firstLineEnd !== -1 ? statOut.substring(0, firstLineEnd) : statOut;
+        const statBody = firstLineEnd !== -1 ? statOut.substring(firstLineEnd + 1).trim() : '';
+
+        const parts = headerLine.split('|');
+        const commitInfo = {
+          hash: (parts[0] || safeHash).trim(),
+          shortHash: (parts[1] || safeHash.substring(0, 7)).trim(),
+          author: (parts[2] || '').trim(),
+          email: (parts[3] || '').trim(),
+          relativeDate: (parts[4] || '').trim(),
+          fullDate: (parts[5] || '').trim(),
+          subject: parts.slice(6).join('|').trim()
+        };
+
+        sendJSON(res, 200, {
+          success: true,
+          commit: commitInfo,
+          stat: statBody,
+          diff: diffOut.substring(0, 150000)
+        });
+      } catch (err: any) {
+        sendJSON(res, 500, {
+          success: false,
+          error: err.message || 'Erro ao carregar detalhes do commit'
+        });
+      }
+      return;
+    }
+
+    // API: Commit specific selected files
+    if (req.method === 'POST' && pathname === '/api/git/commit-files') {
+      const { files, message } = await parseJSONBody(req);
+      if (!message || !message.trim()) {
+        sendJSON(res, 400, { success: false, error: 'A mensagem do commit é obrigatória.' });
+        return;
+      }
+
+      if (!Array.isArray(files) || files.length === 0) {
+        sendJSON(res, 400, { success: false, error: 'Selecione ao menos um arquivo para commitar.' });
+        return;
+      }
+
+      try {
+        // Sanitiza caminhos
+        const safePaths = files.map((f: string) => `"${f.replace(/"/g, '').replace(/\\/g, '/')}"`);
+        execSync(`git add ${safePaths.join(' ')}`, { encoding: 'utf8', cwd: REPO_ROOT });
+        const commitOut = execSync(`git commit -m "${message.trim().replace(/"/g, '\\"')}"`, { encoding: 'utf8', cwd: REPO_ROOT });
+
+        const updatedGitInfo = getGitInfo(true);
+        sendJSON(res, 200, {
+          success: true,
+          message: `Commit realizado com sucesso para ${files.length} arquivo(s)!`,
+          details: commitOut.trim(),
+          gitInfo: updatedGitInfo
+        });
+      } catch (err: any) {
+        sendJSON(res, 200, {
+          success: false,
+          error: err.stderr || err.stdout || err.message || 'Erro ao executar commit dos arquivos selecionados'
+        });
+      }
+      return;
+    }
+
+    // API: Discard local changes for a specific file
+    if (req.method === 'POST' && pathname === '/api/git/discard-file') {
+      const { file } = await parseJSONBody(req);
+      if (!file || !file.trim()) {
+        sendJSON(res, 400, { success: false, error: 'Parâmetro file é obrigatório.' });
+        return;
+      }
+
+      const safeRelativePath = path.normalize(file.trim()).replace(/^(\.\.[\/\\])+/, '');
+      const fullPath = path.join(REPO_ROOT, safeRelativePath);
+
+      try {
+        let discarded = false;
+        try {
+          execSync(`git checkout HEAD -- "${safeRelativePath}"`, { encoding: 'utf8', cwd: REPO_ROOT });
+          discarded = true;
+        } catch { }
+
+        // Se o arquivo for untracked e ainda existir, remove
+        if (!discarded && fs.existsSync(fullPath)) {
+          if (fs.statSync(fullPath).isDirectory()) {
+            fs.rmSync(fullPath, { recursive: true, force: true });
+          } else {
+            fs.unlinkSync(fullPath);
+          }
+        }
+
+        const updatedGitInfo = getGitInfo(true);
+        sendJSON(res, 200, {
+          success: true,
+          message: `Alterações de "${safeRelativePath}" descartadas com sucesso!`,
+          gitInfo: updatedGitInfo
+        });
+      } catch (err: any) {
+        sendJSON(res, 500, {
+          success: false,
+          error: err.message || 'Erro ao descartar alterações do arquivo'
+        });
+      }
+      return;
+    }
+
     // API: List features (Workspace local ou Git branch selecionada)
     if (req.method === 'GET' && pathname === '/api/features') {
       const selectedBranch = parsedUrl.searchParams.get('branch') || 'local';
