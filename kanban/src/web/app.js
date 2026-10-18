@@ -975,18 +975,21 @@ function renderBranchBanner(data) {
 }
 
 async function commitOpenSpecChanges() {
-  const defaultMsg = `docs(openspec): atualiza status das tarefas no kanban`;
-  const msg = await showConfirmModal({
+  const placeholderMsg = 'docs(openspec): atualiza status das tarefas no kanban';
+  const inputResult = await showConfirmModal({
     title: 'Salvar Alterações (Git Commit)',
     icon: '💾',
     message: 'Deseja criar um commit local com as alterações pendentes no OpenSpec?',
     withInput: true,
     inputLabel: 'Mensagem do commit:',
-    inputDefault: defaultMsg,
+    inputPlaceholder: placeholderMsg,
+    inputDefault: '',
     confirmText: 'Salvar Commit',
     confirmBtnClass: 'btn-success'
   });
-  if (!msg) return;
+  if (!inputResult) return;
+
+  const msg = (typeof inputResult === 'string' && inputResult.trim()) ? inputResult.trim() : placeholderMsg;
 
   try {
     const res = await fetch('/api/git/commit', {
