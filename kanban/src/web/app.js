@@ -31,6 +31,7 @@ function escapeHtml(str) {
 
 // DOM Elements
 const selectFeatureTask = document.getElementById('select-feature-task');
+const selectTaskDirectory = document.getElementById('select-task-directory');
 const inputTaskId = document.getElementById('input-task-id');
 const selectTaskStatus = document.getElementById('select-task-status');
 const selectTaskAssignee = document.getElementById('select-task-assignee');
@@ -293,6 +294,9 @@ function startEditingTask(featureName, task) {
   editingTaskInfo = { feature: featureName, taskId: task.id };
 
   if (selectFeatureTask) selectFeatureTask.value = featureName || 'tarefas-gerais';
+  if (selectTaskDirectory) {
+    selectTaskDirectory.value = (task.directory && task.directory !== 'geral') ? task.directory : '';
+  }
   if (inputTaskId) inputTaskId.value = task.id || '';
   if (selectTaskStatus) selectTaskStatus.value = task.done ? 'Concluído' : 'Backlog';
   if (task.assignee) {
@@ -345,6 +349,8 @@ function clearTaskForm(silent = true) {
   if (inputTaskId) inputTaskId.value = '';
   if (inputTaskText) inputTaskText.value = '';
   if (selectTaskStatus) selectTaskStatus.value = 'Backlog';
+  if (selectTaskDirectory) selectTaskDirectory.value = '';
+  updateTaskDirectoryPlaceholder();
   selectedTaskAssignees = [];
   if (selectTaskAssignee) selectTaskAssignee.value = '';
   if (inputTaskAssignee) inputTaskAssignee.value = '';
@@ -370,6 +376,7 @@ function cancelEditingTask() {
 const inputIdeaTitle = document.getElementById('input-idea-title');
 const inputIdeaId = document.getElementById('input-idea-id');
 const inputIdeaPrompt = document.getElementById('input-idea-prompt');
+const selectIdeaDirectory = document.getElementById('select-idea-directory');
 const selectIdeaTeam = document.getElementById('select-idea-team');
 const inputIdeaTeam = document.getElementById('input-idea-team') || selectIdeaTeam;
 const inputIdeaReason = document.getElementById('input-idea-reason');
@@ -379,6 +386,7 @@ function clearIdeaForm(silent = true) {
   if (inputIdeaTitle) inputIdeaTitle.value = '';
   if (inputIdeaId) inputIdeaId.value = '';
   if (inputIdeaPrompt) inputIdeaPrompt.value = '';
+  if (selectIdeaDirectory) selectIdeaDirectory.value = 'geral';
   if (selectIdeaTeam) selectIdeaTeam.value = 'Todos';
   if (inputIdeaTeam && inputIdeaTeam !== selectIdeaTeam) inputIdeaTeam.value = 'Todos';
   if (inputIdeaReason) inputIdeaReason.value = '';
@@ -420,6 +428,7 @@ const btnSaveProposalContent = document.getElementById('btn-save-proposal-conten
 const detailTasksList = document.getElementById('detail-tasks-list');
 const detailNewTaskId = document.getElementById('detail-new-task-id');
 const detailNewTaskAssignee = document.getElementById('detail-new-task-assignee');
+const detailNewTaskDirectory = document.getElementById('detail-new-task-directory');
 const detailNewTaskText = document.getElementById('detail-new-task-text');
 const btnDetailAddTask = document.getElementById('btn-detail-add-task');
 const detailFooterActions = document.getElementById('detail-footer-actions');
@@ -702,8 +711,8 @@ function updateCommandPreview(customCmd = null) {
 }
 
 // Input change listeners
-[selectFeatureTask, inputTaskId, selectTaskStatus, selectTaskAssignee, inputTaskAssignee, inputTaskText,
-  inputIdeaId, inputIdeaTitle, inputIdeaPrompt, selectIdeaTeam, inputIdeaTeam, inputIdeaReason].forEach(input => {
+[selectFeatureTask, selectTaskDirectory, inputTaskId, selectTaskStatus, selectTaskAssignee, inputTaskAssignee, inputTaskText,
+  selectIdeaDirectory, inputIdeaId, inputIdeaTitle, inputIdeaPrompt, selectIdeaTeam, inputIdeaTeam, inputIdeaReason].forEach(input => {
     if (input) {
       input.addEventListener('input', () => updateCommandPreview());
       input.addEventListener('change', () => updateCommandPreview());
@@ -1205,7 +1214,27 @@ function updateFeatureSelect(features) {
   } else {
     selectFeatureTask.value = 'tarefas-gerais';
   }
+  updateTaskDirectoryPlaceholder();
 }
+
+function updateTaskDirectoryPlaceholder() {
+  if (!selectTaskDirectory || !selectTaskDirectory.options || selectTaskDirectory.options.length === 0) return;
+  const featName = selectFeatureTask?.value || 'tarefas-gerais';
+  const feat = currentFeatures?.find(f => f.name === featName);
+  const firstOpt = selectTaskDirectory.options[0];
+  if (firstOpt) {
+    if (feat && feat.directory && feat.directory !== 'geral') {
+      const dirObj = projectDirectories?.find(d => d.id === feat.directory);
+      firstOpt.textContent = `📂 Automático (Herdar da Feature: ${dirObj ? dirObj.name : feat.directory})`;
+    } else {
+      firstOpt.textContent = '📂 Automático (Herdar da Feature)';
+    }
+  }
+}
+
+selectFeatureTask?.addEventListener('change', () => {
+  updateTaskDirectoryPlaceholder();
+});
 
 function updateStats(features) {
   statTotalFeatures.textContent = features.length;
@@ -2460,9 +2489,11 @@ document.getElementById('btn-action-create-task').addEventListener('click', asyn
 
   const assignee = selectedTaskAssignees.join(', ');
   const status = selectTaskStatus?.value || 'Backlog';
+  const directory = selectTaskDirectory?.value || '';
+  const dirTag = directory ? `(${directory}/) ` : '';
   const assigneeTag = ` (@${selectedTaskAssignees.join(', @')})`;
-  const firstLine = text.split(/\r?\n/)[0].trim();
-  const cmd = `agent criar openspec/changes/${feature}/tasks.md "${taskId ? '**' + taskId + '** ' : ''}${firstLine}${assigneeTag}"`;
+  const firstLine = text.split(/\r?\n/)[0].trim().replace(/^\s*\([^)]+\/\)\s*/i, '');
+  const cmd = `agent criar openspec/changes/${feature}/tasks.md "${taskId ? '**' + taskId + '** ' : ''}${dirTag}${firstLine}${assigneeTag}"`;
   updateCommandPreview(cmd);
 
   try {
@@ -2474,7 +2505,8 @@ document.getElementById('btn-action-create-task').addEventListener('click', asyn
         taskId,
         text,
         assignee,
-        status
+        status,
+        directory
       })
     });
     const data = await res.json();
@@ -2530,6 +2562,7 @@ document.getElementById('btn-action-update-task').addEventListener('click', asyn
 
   const text = inputTaskText ? inputTaskText.value.trim() : '';
   const status = selectTaskStatus.value;
+  const directory = selectTaskDirectory ? selectTaskDirectory.value : undefined;
   const assignee = selectedTaskAssignees.length > 0
     ? selectedTaskAssignees.join(', ')
     : (selectTaskAssignee?.value || inputTaskAssignee?.value || '').trim();
@@ -2549,7 +2582,8 @@ document.getElementById('btn-action-update-task').addEventListener('click', asyn
         text,
         status,
         assignee: assignee || 'Todos',
-        done: isDone
+        done: isDone,
+        directory
       })
     });
     const data = await res.json();
@@ -2665,6 +2699,7 @@ document.getElementById('btn-action-generate-ai')?.addEventListener('click', asy
   const title = (inputIdeaTitle ? inputIdeaTitle.value.trim() : '') || (featureId ? featureId.replace(/-/g, ' ') : '');
   const promptText = inputIdeaPrompt ? inputIdeaPrompt.value.trim() : '';
   const team = (selectIdeaTeam ? selectIdeaTeam.value : 'Todos') || 'Todos';
+  const directory = (selectIdeaDirectory ? selectIdeaDirectory.value : 'geral') || 'geral';
 
   if (!featureId) {
     showToast('⚠️ Informe o Título ou o ID da feature antes de gerar com IA!', 'warning');
@@ -2679,7 +2714,7 @@ document.getElementById('btn-action-generate-ai')?.addEventListener('click', asy
     const res = await fetch('/api/features/ai-generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ featureId, title, prompt: promptText, team })
+      body: JSON.stringify({ featureId, title, prompt: promptText, team, directory })
     });
     const data = await res.json();
     if (data.success) {
@@ -2703,6 +2738,7 @@ document.getElementById('btn-action-new-feature')?.addEventListener('click', asy
   const title = (inputIdeaTitle ? inputIdeaTitle.value.trim() : '') || (featureId ? featureId.replace(/-/g, ' ') : '');
   const promptText = inputIdeaPrompt ? inputIdeaPrompt.value.trim() : '';
   const team = (selectIdeaTeam ? selectIdeaTeam.value : 'Todos') || 'Todos';
+  const directory = (selectIdeaDirectory ? selectIdeaDirectory.value : 'geral') || 'geral';
 
   if (!featureId) {
     showToast('⚠️ Informe o Título ou o ID da nova feature antes de criar!', 'warning');
@@ -2723,6 +2759,7 @@ document.getElementById('btn-action-new-feature')?.addEventListener('click', asy
         summary: promptText || `Feature: ${title}`,
         prompt: promptText,
         team,
+        directory,
         tasks: ['Planejamento', 'Implementação']
       })
     });
@@ -3416,9 +3453,49 @@ async function fetchDirectories() {
       projectDirectories = data.directories;
       renderDirectoryFilterPills();
       renderModalDirectoriesList();
+      populateDirectorySelects();
     }
   } catch (err) {
     console.warn('Erro ao carregar diretórios:', err);
+  }
+}
+
+function populateDirectorySelects() {
+  if (selectTaskDirectory) {
+    const curVal = selectTaskDirectory.value;
+    selectTaskDirectory.innerHTML = '<option value="">📂 Automático (Herdar da Feature)</option>';
+    projectDirectories.forEach(dir => {
+      const opt = document.createElement('option');
+      opt.value = dir.id;
+      opt.textContent = `${dir.icon || '📁'} ${dir.name}`;
+      selectTaskDirectory.appendChild(opt);
+    });
+    if (curVal) selectTaskDirectory.value = curVal;
+    updateTaskDirectoryPlaceholder();
+  }
+
+  if (selectIdeaDirectory) {
+    const curVal = selectIdeaDirectory.value || 'geral';
+    selectIdeaDirectory.innerHTML = '<option value="geral">📂 Geral (Raiz do Projeto)</option>';
+    projectDirectories.forEach(dir => {
+      const opt = document.createElement('option');
+      opt.value = dir.id;
+      opt.textContent = `${dir.icon || '📁'} ${dir.name}`;
+      selectIdeaDirectory.appendChild(opt);
+    });
+    selectIdeaDirectory.value = curVal;
+  }
+
+  if (detailNewTaskDirectory) {
+    const curVal = detailNewTaskDirectory.value;
+    detailNewTaskDirectory.innerHTML = '<option value="">📂 Herdar da Feature</option>';
+    projectDirectories.forEach(dir => {
+      const opt = document.createElement('option');
+      opt.value = dir.id;
+      opt.textContent = `${dir.icon || '📁'} ${dir.name}`;
+      detailNewTaskDirectory.appendChild(opt);
+    });
+    if (curVal) detailNewTaskDirectory.value = curVal;
   }
 }
 
@@ -4327,6 +4404,9 @@ function openFeatureDetailsModal(feature, defaultTab = 'proposal') {
     detailNewTaskId.value = `1.${nextIdx}`;
   }
   if (detailNewTaskText) detailNewTaskText.value = '';
+  if (detailNewTaskDirectory) {
+    detailNewTaskDirectory.value = (feature.directory && feature.directory !== 'geral') ? feature.directory : '';
+  }
 
   const aprAssignee = (feature.ideaAssignee === 'dev-team' || !feature.ideaAssignee) ? 'Todos' : feature.ideaAssignee;
   if (detailCmdValidate) detailCmdValidate.textContent = `agent validar ideia "${feature.name}"`;
@@ -4733,6 +4813,7 @@ btnDetailAddTask?.addEventListener('click', async () => {
   const taskId = detailNewTaskId ? detailNewTaskId.value.trim() : '';
   const text = detailNewTaskText ? detailNewTaskText.value.trim() : '';
   const assignee = detailNewTaskAssignee ? (detailNewTaskAssignee.value || 'Todos') : 'Todos';
+  const directory = detailNewTaskDirectory ? detailNewTaskDirectory.value : '';
 
   if (!text) {
     showToast('Informe a descrição da nova tarefa', 'warning');
@@ -4748,7 +4829,8 @@ btnDetailAddTask?.addEventListener('click', async () => {
         feature: currentDetailFeature.name,
         taskId: taskId || '',
         text: text,
-        assignee: assignee !== 'Todos' ? assignee : undefined
+        assignee: assignee !== 'Todos' ? assignee : undefined,
+        directory: directory || undefined
       })
     });
     const data = await res.json();

@@ -486,8 +486,71 @@ async function runAllTests() {
     assert(resAppJs.data.includes('changeFeatureDirectory'), 'app.js implementa alteração de projeto via API');
     assert(resAppJs.data.includes('card-tasks-header'), 'app.js inclui cabeçalho de tarefas com indicador de rolagem');
 
-    // 16. Clean Up Test Feature
-    console.log('\n--- 16. Limpeza do Ambiente de Teste ---');
+    // 16. Test Directory / Project Selection on Task and Feature Registration
+    console.log('\n--- 16. Seleção de Projeto / Diretório no Cadastro de Tarefas e Features ---');
+    // Criar tarefa vinculada explicitamente a 'app'
+    const resCreateTaskApp = await request({
+      path: '/api/tasks/create',
+      method: 'POST'
+    }, {
+      feature: testFeatureId,
+      text: 'Tarefa criada especificando diretório app',
+      assignee: 'Marcos',
+      directory: 'app'
+    });
+    assert(resCreateTaskApp.status === 200 && resCreateTaskApp.json && resCreateTaskApp.json.success, 'POST /api/tasks/create cria tarefa especificando directory="app"');
+
+    // Criar tarefa vinculada explicitamente a 'unity'
+    const resCreateTaskUnity = await request({
+      path: '/api/tasks/create',
+      method: 'POST'
+    }, {
+      feature: testFeatureId,
+      text: 'Tarefa criada especificando diretório unity',
+      assignee: 'Marcos',
+      directory: 'unity'
+    });
+    assert(resCreateTaskUnity.status === 200 && resCreateTaskUnity.json && resCreateTaskUnity.json.success, 'POST /api/tasks/create cria tarefa especificando directory="unity"');
+
+    // Verificar se as tarefas refletem os respectivos diretórios em GET /api/features
+    const resFeatCheck = await request({ path: '/api/features' });
+    const fCheck = resFeatCheck.json.features.find(f => f.name === testFeatureId);
+    const taskApp = fCheck && fCheck.tasks ? fCheck.tasks.find(t => t.text.includes('diretório app')) : null;
+    const taskUnity = fCheck && fCheck.tasks ? fCheck.tasks.find(t => t.text.includes('diretório unity')) : null;
+    assert(taskApp && taskApp.directory === 'app', 'GET /api/features confirma que a tarefa tem directory="app"');
+    assert(taskUnity && taskUnity.directory === 'unity', 'GET /api/features confirma que a tarefa tem directory="unity"');
+
+    // Criar feature selecionando diretório inicial 'program'
+    const testFeatDirId = 'test-feat-dir-program';
+    const resCreateFeatDir = await request({
+      path: '/api/features/create',
+      method: 'POST'
+    }, {
+      featureId: testFeatDirId,
+      title: 'Feature com Diretório Inicial Program',
+      directory: 'program'
+    });
+    assert(resCreateFeatDir.status === 200 && resCreateFeatDir.json && resCreateFeatDir.json.success, 'POST /api/features/create aceita e persiste directory="program"');
+
+    const resFeatDirCheck = await request({ path: '/api/features' });
+    const fDirProgram = resFeatDirCheck.json.features.find(f => f.name === testFeatDirId);
+    assert(fDirProgram && fDirProgram.directory === 'program', 'GET /api/features reflete diretório inicial selecionado na criação da feature');
+
+    // Limpeza da feature secundária de teste
+    const testFeatDirSecondary = path.join(path.resolve(__dirname, '..'), 'openspec', 'changes', testFeatDirId);
+    if (fs.existsSync(testFeatDirSecondary)) {
+      fs.rmSync(testFeatDirSecondary, { recursive: true, force: true });
+    }
+
+    // Validações de UI (HTML/JS) para seletores de diretório no cadastro
+    assert(resHtml.data.includes('id="select-task-directory"'), 'index.html contém select-task-directory no formulário de Nova Tarefa');
+    assert(resHtml.data.includes('id="select-idea-directory"'), 'index.html contém select-idea-directory no formulário de Nova Feature');
+    assert(resHtml.data.includes('id="detail-new-task-directory"'), 'index.html contém detail-new-task-directory no modal de detalhes');
+    assert(resAppJs.data.includes('populateDirectorySelects'), 'app.js implementa populateDirectorySelects para preenchimento dinâmico');
+    assert(resAppJs.data.includes('updateTaskDirectoryPlaceholder'), 'app.js implementa herança e placeholder informativo de diretório');
+
+    // 17. Clean Up Test Feature
+    console.log('\n--- 17. Limpeza do Ambiente de Teste ---');
     const repoRoot = path.resolve(__dirname, '..');
     const testFeatureDir = path.join(repoRoot, 'openspec', 'changes', testFeatureId);
     if (fs.existsSync(testFeatureDir)) {

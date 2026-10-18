@@ -173,6 +173,15 @@ function setFeatureDirectory(featureId: string, directory: string): boolean {
 
 function detectTaskDirectory(taskText: string, defaultDir: string): string {
   const text = taskText.toLowerCase();
+  const dirs = getDirectories();
+  for (const d of dirs) {
+    const id = d.id.toLowerCase();
+    const p = (d.path || d.id).toLowerCase();
+    const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedP = p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(`\\((${escapedId}|${escapedP})\\/|\\[(${escapedId}|${escapedP})\\]|\\b(${escapedId}|${escapedP}):`, 'i');
+    if (re.test(text)) return d.id;
+  }
   if (/\(app\/|\bapp\/|site:|\[app\]/i.test(text)) return 'app';
   if (/\(unity\/|\bunity\/|game:|\[unity\]|arena_clean/i.test(text)) return 'unity';
   if (/\(prompt\/|\bprompt\/|skills?:|\[prompt\]/i.test(text)) return 'prompt';
@@ -368,7 +377,8 @@ function createOpenSpecTask(
   isCompleted: boolean,
   status?: string,
   assignee?: string,
-  text?: string
+  text?: string,
+  directory?: string
 ): { success: boolean; taskId: string; error?: string } {
   const cleanFeature = (featureId && featureId.trim()) ? featureId.trim().toLowerCase().replace(/\s+/g, '-') : 'tarefas-gerais';
   const targetFeature = cleanFeature || 'tarefas-gerais';
@@ -425,7 +435,16 @@ function createOpenSpecTask(
 
   const rawLines = (text || '').split(/\r?\n/).map(l => l.trimEnd()).filter(l => l.trim().length > 0);
   const firstLine = (rawLines[0] || '').trim();
-  const cleanFirstLine = firstLine.replace(/\s*(\((@[^)]+)\)|\[(@[^\]]+)\]|\((@?[^)]+)\)\s*$|\[(@?[^\]]+)\]\s*)/gi, '').trimEnd();
+  let cleanFirstLine = firstLine.replace(/\s*(\((@[^)]+)\)|\[(@[^\]]+)\]|\((@?[^)]+)\)\s*$|\[(@?[^\]]+)\]\s*)/gi, '').trimEnd();
+
+  const cleanDir = (directory && directory.trim() && directory.trim().toLowerCase() !== 'auto' && directory.trim().toLowerCase() !== 'geral')
+    ? directory.trim().toLowerCase()
+    : '';
+
+  if (cleanDir) {
+    cleanFirstLine = cleanFirstLine.replace(/^\s*\([^)]+\/\)\s*/i, '').replace(/^\s*\[[^\]]+\]\s*/i, '').trim();
+    cleanFirstLine = `(${cleanDir}/) ${cleanFirstLine}`;
+  }
 
   const mark = isCompleted ? '[x]' : '[ ]';
   const newLinesToInsert: string[] = [
@@ -470,7 +489,8 @@ function updateOpenSpecTask(
   status?: string,
   assignee?: string,
   text?: string,
-  newTaskId?: string
+  newTaskId?: string,
+  directory?: string
 ): boolean {
   const cleanFeature = (featureId && featureId.trim()) ? featureId.trim().toLowerCase().replace(/\s+/g, '-') : 'tarefas-gerais';
   const targetFeature = cleanFeature || 'tarefas-gerais';
@@ -511,6 +531,10 @@ function updateOpenSpecTask(
   const cleanAssignee = (assignee !== undefined && assignee !== null) ? assignee.trim().replace(/^@/, '') : undefined;
   const newTag = cleanAssignee && cleanAssignee !== 'Todos' ? formatAssigneeTag(cleanAssignee).trim() : '';
 
+  const cleanDir = (directory !== undefined && directory !== null)
+    ? ((directory.trim() && directory.trim().toLowerCase() !== 'auto' && directory.trim().toLowerCase() !== 'geral') ? directory.trim().toLowerCase() : (directory === 'auto' || directory === 'geral' ? 'auto' : ''))
+    : null;
+
   if (foundIndex !== -1) {
     // Tarefa existente encontrada!
     const effectiveId = (newTaskId && newTaskId.trim()) ? newTaskId.trim() : matchedTaskId;
@@ -519,7 +543,17 @@ function updateOpenSpecTask(
       // Usuário está alterando texto/prompt
       const rawLines = text.split(/\r?\n/).map(l => l.trimEnd()).filter(l => l.trim().length > 0);
       const firstLine = rawLines[0].trim();
-      const cleanFirstLine = firstLine.replace(/\s*(\((@[^)]+)\)|\[(@[^\]]+)\]|\((@?[^)]+)\)\s*$|\[(@?[^\]]+)\]\s*)/gi, '').trimEnd();
+      let cleanFirstLine = firstLine.replace(/\s*(\((@[^)]+)\)|\[(@[^\]]+)\]|\((@?[^)]+)\)\s*$|\[(@?[^\]]+)\]\s*)/gi, '').trimEnd();
+
+      if (cleanDir !== null) {
+        if (cleanDir && cleanDir !== 'auto') {
+          cleanFirstLine = cleanFirstLine.replace(/^\s*\([^)]+\/\)\s*/i, '').replace(/^\s*\[[^\]]+\]\s*/i, '').trim();
+          cleanFirstLine = `(${cleanDir}/) ${cleanFirstLine}`;
+        } else if (cleanDir === 'auto') {
+          cleanFirstLine = cleanFirstLine.replace(/^\s*\([^)]+\/\)\s*/i, '').replace(/^\s*\[[^\]]+\]\s*/i, '').trim();
+        }
+      }
+
       const updatedFirstLine = `- ${mark} **${effectiveId}** ${cleanFirstLine}${newTag ? ' ' + newTag : ''}`;
 
       const replacementLines = [updatedFirstLine];
@@ -540,7 +574,7 @@ function updateOpenSpecTask(
 
       lines.splice(foundIndex, 1 + continuationCount, ...replacementLines);
     } else {
-      // Apenas status, assignee ou novo ID
+      // Apenas status, assignee, novo ID ou diretório
       let targetLine = lines[foundIndex];
       targetLine = targetLine.replace(/\[[ xX]\]/, mark);
 
@@ -552,6 +586,16 @@ function updateOpenSpecTask(
         const withoutAssignees = targetLine.replace(/\s*(\((@[^)]+)\)|\[(@[^\]]+)\]|\((@?[^)]+)\)\s*$|\[(@?[^\]]+)\]\s*)/gi, '').trimEnd();
         targetLine = newTag ? `${withoutAssignees} ${newTag}` : withoutAssignees;
       }
+
+      if (cleanDir !== null) {
+        const escapedId = effectiveId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        if (cleanDir && cleanDir !== 'auto') {
+          targetLine = targetLine.replace(new RegExp(`(\\*\\*${escapedId}\\*\\*\\s*)(?:\\([^)]+\\/\\)\\s*)?`, 'i'), `$1(${cleanDir}/) `);
+        } else if (cleanDir === 'auto') {
+          targetLine = targetLine.replace(new RegExp(`(\\*\\*${escapedId}\\*\\*\\s*)(?:\\([^)]+\\/\\)\\s*)`, 'i'), '$1');
+        }
+      }
+
       lines[foundIndex] = targetLine;
     }
 
@@ -566,10 +610,13 @@ function updateOpenSpecTask(
     }
     const finalAssigneeTag = formatAssigneeTag(cleanAssignee);
     const rawLines = text.split(/\r?\n/).map(l => l.trimEnd()).filter(l => l.trim().length > 0);
+    let firstLine = (rawLines[0] || '').trim();
+    if (cleanDir !== null && cleanDir && cleanDir !== 'auto') {
+      firstLine = `(${cleanDir}/) ${firstLine.replace(/^\s*\([^)]+\/\)\s*/i, '')}`;
+    }
     if (rawLines.length <= 1) {
-      lines.push(`- [${isCompleted ? 'x' : ' '}] **${effectiveNumber}** ${text.trim()}${finalAssigneeTag}`);
+      lines.push(`- [${isCompleted ? 'x' : ' '}] **${effectiveNumber}** ${firstLine}${finalAssigneeTag}`);
     } else {
-      const firstLine = rawLines[0].trim();
       lines.push(`- [${isCompleted ? 'x' : ' '}] **${effectiveNumber}** ${firstLine}${finalAssigneeTag}`);
       for (let i = 1; i < rawLines.length; i++) {
         lines.push(`    > ${rawLines[i].trim()}`);
@@ -1109,7 +1156,7 @@ function getFeaturesData() {
   });
 }
 
-function generateSmartOpenSpec(featureId: string, title?: string, promptText?: string, team?: string) {
+function generateSmartOpenSpec(featureId: string, title?: string, promptText?: string, team?: string, directory?: string) {
   const cleanId = featureId
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -1213,6 +1260,9 @@ function generateSmartOpenSpec(featureId: string, title?: string, promptText?: s
   const author = (team && team.trim() && team !== 'Todos' && team !== 'dev-team') ? team.trim() : 'Todos';
   const dateStr = new Date().toISOString().split('T')[0];
 
+  const cleanDir = (directory && directory.trim() && directory.trim().toLowerCase() !== 'geral') ? directory.trim().toLowerCase() : '';
+  const dirSection = cleanDir ? `\n\n## Directory\n${cleanDir}` : '';
+
   const proposal = `# Feature: ${cleanId}
 
 ## Title
@@ -1222,7 +1272,7 @@ ${cleanTitle}
 Implementação da funcionalidade "${cleanTitle}" para o Fowlgen Wars com escopo delimitado, componentes modulares e verificação em Arena_Clean.
 
 ## Motivation
-${motivation}
+${motivation}${dirSection}
 
 ## Context & Existing Implementations
 ${existingComparison}
@@ -2684,7 +2734,7 @@ const server = http.createServer(async (req, res) => {
 
     // API: Create new task
     if (req.method === 'POST' && pathname === '/api/tasks/create') {
-      const { feature, taskId, text, assignee, status } = await parseJSONBody(req);
+      const { feature, taskId, text, assignee, status, directory } = await parseJSONBody(req);
       if (!text || !text.trim()) {
         sendJSON(res, 400, { success: false, error: 'O texto da tarefa é obrigatório.' });
         return;
@@ -2695,29 +2745,32 @@ const server = http.createServer(async (req, res) => {
       const cleanAssignee = (assignee && assignee.trim() && assignee !== 'Todos') ? assignee.trim() : undefined;
 
       // Cria a tarefa de forma segura no OpenSpec Markdown prevenindo sobrescrita
-      const result = createOpenSpecTask(targetFeature, taskId, markDone, status || 'Backlog', cleanAssignee, text.trim());
+      const result = createOpenSpecTask(targetFeature, taskId, markDone, status || 'Backlog', cleanAssignee, text.trim(), directory);
       if (!result.success) {
         sendJSON(res, 400, { success: false, error: result.error || 'Erro ao criar tarefa no OpenSpec.' });
         return;
       }
 
+      const cleanDir = (directory && directory.trim() && directory.trim().toLowerCase() !== 'auto' && directory.trim().toLowerCase() !== 'geral') ? directory.trim().toLowerCase() : '';
+      const dirTag = cleanDir ? `(${cleanDir}/) ` : '';
       const idPrefix = `**${result.taskId}** `;
       const assigneeSuffix = formatAssigneeTag(cleanAssignee);
       const firstLine = text.trim().split(/\r?\n/)[0];
-      const cleanFirstLine = firstLine.replace(/\s*(\((@[^)]+)\)|\[(@[^\]]+)\]|\((@?[^)]+)\)\s*$|\[(@?[^\]]+)\]\s*)/gi, '').trimEnd();
+      const cleanFirstLine = firstLine.replace(/\s*(\((@[^)]+)\)|\[(@[^\]]+)\]|\((@?[^)]+)\)\s*$|\[(@?[^\]]+)\]\s*)/gi, '').trimEnd().replace(/^\s*\([^)]+\/\)\s*/i, '');
       sendJSON(res, 200, {
         success: true,
         taskId: result.taskId,
+        directory: cleanDir || undefined,
         message: `Tarefa ${idPrefix.trim()} criada em "${targetFeature}" (OpenSpec Git-Native)`,
         feature: targetFeature,
-        command: `agent criar openspec/changes/${targetFeature}/tasks.md "${idPrefix}${cleanFirstLine}${assigneeSuffix}"`
+        command: `agent criar openspec/changes/${targetFeature}/tasks.md "${idPrefix}${dirTag}${cleanFirstLine}${assigneeSuffix}"`
       });
       return;
     }
 
     // API: Update / Alter task
     if (req.method === 'POST' && pathname === '/api/tasks/update') {
-      const { feature, taskId, newTaskId, text, done, isCompleted, status, assignee } = await parseJSONBody(req);
+      const { feature, taskId, newTaskId, text, done, isCompleted, status, assignee, directory } = await parseJSONBody(req);
       if (!taskId) {
         sendJSON(res, 400, { success: false, error: 'taskId é obrigatório.' });
         return;
@@ -2727,8 +2780,8 @@ const server = http.createServer(async (req, res) => {
       const markDone = done !== undefined ? Boolean(done) : (status === 'Concluído' || Boolean(isCompleted));
       const cleanAssignee = (assignee !== undefined && assignee !== null && assignee !== 'Todos' && assignee !== 'Equipe') ? assignee.trim() : (assignee === 'Todos' ? '' : undefined);
 
-      // Sincroniza diretamente no OpenSpec Markdown (altera texto, prompt, status, assignee, id)
-      updateOpenSpecTask(targetFeature, taskId, markDone, status, cleanAssignee, text, newTaskId);
+      // Sincroniza diretamente no OpenSpec Markdown (altera texto, prompt, status, assignee, id, directory)
+      updateOpenSpecTask(targetFeature, taskId, markDone, status, cleanAssignee, text, newTaskId, directory);
 
       const effectiveId = (newTaskId && newTaskId.trim()) ? newTaskId.trim() : taskId;
       const displayStatus = markDone ? 'Concluído' : (status || 'Em Andamento');
@@ -2785,7 +2838,7 @@ const server = http.createServer(async (req, res) => {
 
     // API: Create new feature
     if (req.method === 'POST' && pathname === '/api/features/create') {
-      const { featureId, title, summary, tasks, prompt: promptText, team } = await parseJSONBody(req);
+      const { featureId, title, summary, tasks, prompt: promptText, team, directory } = await parseJSONBody(req);
       if (!featureId || !featureId.trim()) {
         sendJSON(res, 400, { success: false, error: 'ID ou título da feature é obrigatório.' });
         return;
@@ -2810,7 +2863,9 @@ const server = http.createServer(async (req, res) => {
       const author = (team && team.trim() && team !== 'Todos' && team !== 'dev-team') ? team.trim() : 'Todos';
       const dateStr = new Date().toISOString().split('T')[0];
       const finalSummary = summary || promptText || `Proposta de feature para ${title || cleanId}.`;
-      const proposalContent = `# Feature: ${cleanId}\n\n## Title\n${title || cleanId}\n\n## Summary\n${finalSummary}\n\n## Motivation\n${promptText || 'Atender à evolução contínua do Fowlgen Wars.'}\n\n## Status\n[CRIADO] por ${author} em ${dateStr}\n`;
+      const cleanDir = (directory && directory.trim() && directory.trim().toLowerCase() !== 'geral') ? directory.trim().toLowerCase() : '';
+      const dirSection = cleanDir ? `\n\n## Directory\n${cleanDir}` : '';
+      const proposalContent = `# Feature: ${cleanId}\n\n## Title\n${title || cleanId}\n\n## Summary\n${finalSummary}\n\n## Motivation\n${promptText || 'Atender à evolução contínua do Fowlgen Wars.'}${dirSection}\n\n## Status\n[CRIADO] por ${author} em ${dateStr}\n`;
       fs.writeFileSync(path.join(featureDir, 'proposal.md'), proposalContent, 'utf8');
 
       const initialTasks = Array.isArray(tasks) && tasks.length > 0 ? tasks : ['Definir planejamento', 'Implementar requisitos'];
@@ -2823,6 +2878,7 @@ const server = http.createServer(async (req, res) => {
       sendJSON(res, 200, {
         success: true,
         featureId: cleanId,
+        directory: cleanDir || 'geral',
         message: `Feature "${cleanId}" criada com sucesso!`,
         command: `agent criar openspec/changes/${cleanId}/proposal.md "# Feature: ${cleanId}"`
       });
@@ -2831,13 +2887,13 @@ const server = http.createServer(async (req, res) => {
 
     // API: AI Generate feature (Proposta estruturada e tarefas 100% locais)
     if (req.method === 'POST' && pathname === '/api/features/ai-generate') {
-      const { featureId, title, prompt: promptText, team } = await parseJSONBody(req);
+      const { featureId, title, prompt: promptText, team, directory } = await parseJSONBody(req);
       if (!featureId || !featureId.trim()) {
         sendJSON(res, 400, { success: false, error: 'ID ou tema da feature é obrigatório.' });
         return;
       }
 
-      const generated = generateSmartOpenSpec(featureId, title, promptText, team);
+      const generated = generateSmartOpenSpec(featureId, title, promptText, team, directory);
       const featureDir = path.join(OPEN_SPEC_DIR, generated.cleanId);
 
       if (fs.existsSync(featureDir)) {
