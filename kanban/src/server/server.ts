@@ -2878,6 +2878,32 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // API: Run GitHub Projects / Issues API Synchronization
+    if (req.method === 'POST' && (pathname === '/api/github/sync' || pathname === '/api/sync/github')) {
+      const config = getKanbanConfig();
+      const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '';
+
+      try {
+        const cmd = `npm.cmd run sync`;
+        const output = execSync(cmd, { cwd: KANBAN_ROOT, encoding: 'utf8', timeout: 35000 });
+        sendJSON(res, 200, {
+          success: true,
+          message: 'Sincronização com GitHub Projects / Issues API executada com sucesso!',
+          hasToken: Boolean(token),
+          repo: config.github?.repo || 'mukasanray/Fowlgen-Wars-Project',
+          projectId: config.projectId || null,
+          output
+        });
+      } catch (err: any) {
+        sendJSON(res, 200, {
+          success: false,
+          error: err.message,
+          output: err.stdout || err.stderr
+        });
+      }
+      return;
+    }
+
     // API: Run script (dashboard, sync, verify, status)
     if (req.method === 'POST' && pathname === '/api/scripts/run') {
       const { script } = await parseJSONBody(req);

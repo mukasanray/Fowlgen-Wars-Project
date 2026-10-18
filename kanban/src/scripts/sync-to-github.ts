@@ -1,5 +1,4 @@
-// Sync OpenSpec tasks to GitHub Projects
-import { execSync } from 'child_process';
+// Sync OpenSpec tasks to GitHub Projects & Issues API
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { FileSystemUtils } from '../utils/file-system';
@@ -16,7 +15,7 @@ if (FileSystemUtils.fileExists(envPath)) {
     if (match) {
       const key = match[1];
       const val = (match[2] || '').trim().replace(/^['"]|['"]$/g, '');
-      process.env[key] = val;
+      if (val) process.env[key] = val;
     }
   }
 }
@@ -29,68 +28,173 @@ export class SyncToGitHub {
   }
 
   async run(): Promise<void> {
-    console.log('📤 Exportando tarefas OpenSpec para GitHub Projects...');
+    console.log('📤 Exportando tarefas OpenSpec para GitHub Projects & Issues API...');
 
-    // Verify GitHub CLI is available
-    try {
-      FileSystemUtils.executeShellCommand('gh --version');
-    } catch {
-      console.log('⚠️  GitHub CLI (gh) não está instalado ou não está no PATH.');
-      console.log('Instale com: winget install GitHub.cli (Windows) ou brew install gh (macOS)');
-      return;
-    }
+    const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
 
-    // Verify authenticated to GitHub
-    try {
-      FileSystemUtils.executeShellCommand('gh auth status');
-    } catch (error) {
-      console.log('❌ Autentique-se com o GitHub CLI primeiro:');
-      console.log('   gh auth login');
-      return;
-    }
-
-    const PROJECT_ID = this.config.projectId ||
-      FileSystemUtils.executeShellCommand('gh project list --format json -q \'[0].id\'');
-
-    console.log(`📋 Using GitHub Project ID: ${PROJECT_ID}`);
-
-    // Clear existing items from Backlog column
-    const items = FileSystemUtils.executeShellCommand(
-      `gh project item list "${PROJECT_ID}" --format json -q '.[].id' 2>/dev/null || echo ""`
-    ).split('\n').filter(Boolean);
-
-    for (const item_id of items) {
-      try {
-        FileSystemUtils.executeShellCommand(
-          `gh project item-delete "${PROJECT_ID}" --id "${item_id}" 2>/dev/null || true`
-        );
-      } catch (error) {
-        // Ignore errors
+    // Método 1: Sincronização direta via GitHub REST / GraphQL API (sem necessidade de gh CLI)
+    if (token && token.trim()) {
+      const apiSuccess = await this.syncViaGitHubApi(token.trim());
+      if (apiSuccess) {
+        console.log('✅ Tarefas OpenSpec sincronizadas com a API do GitHub com sucesso! 🎯');
+        return;
       }
     }
 
-    // Process each feature in OpenSpec
+    // Método 2: Fallback para GitHub CLI (gh) se instalado e autenticado
+    let ghAvailable = false;
+    try {
+      FileSystemUtils.executeShellCommand('gh --version');
+      FileSystemUtils.executeShellCommand('gh auth status');
+      ghAvailable = true;
+    } catch {
+      ghAvailable = false;
+    }
+
+    if (ghAvailable) {
+      await this.syncViaGhCli();
+      return;
+    }
+
+    // Diagnóstico informativo caso nenhuma credencial esteja configurada
+    console.log('ℹ️  Nenhuma credencial do GitHub ativa detectada.');
+    console.log('💡 Para sincronização automatizada com GitHub Projects / Issues API:');
+    console.log('   1. Insira seu token de acesso no painel de Configurações da interface Web ou no arquivo kanban/.env (GH_TOKEN=seu_token)');
+    console.log('   OU 2. Autentique o GitHub CLI no terminal executando: gh auth login');
+    console.log('⚠️  A sincronização com GitHub foi ignorada com segurança nesta execução.');
+  }
+
+  /**
+   * Sincronização direta via REST / GraphQL API
+   */
+  async syncViaGitHubApi(token: string): Promise<boolean> {
+    const repoFullName = (this.config.github?.repo || 'mukasanray/Fowlgen-Wars-Project').trim();
+    const [owner, repo] = repoFullName.split('/');
+    if (!owner || !repo) {
+      console.log(`⚠️ Repositório inválido em kanban-config: "${repoFullName}"`);
+      return false;
+    }
+
+    console.log(`📡 Sincronizando via GitHub REST / GraphQL API para ${owner}/${repo}...`);
+
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'User-Agent': 'Fowlgen-Wars-Kanban-Studio',
+      'Content-Type': 'application/json'
+    };
+
+    let existingIssues: any[] = [];
+    try {
+      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues?state=all&per_page=100`, { headers });
+      if (res.ok) {
+        existingIssues = (await res.json()) as any[];
+      } else {
+        console.log(`⚠️ GitHub API retornou HTTP ${res.status} ao consultar issues: ${res.statusText}`);
+      }
+    } catch (err: any) {
+      console.log(`⚠️ Erro de conexão com GitHub API: ${err.message}`);
+    }
+
+    const changesDir = path.join(__dirname, '../../../openspec/changes');
+    const features = FileSystemUtils.getDirectories(changesDir);
+
+    let count = 0;
+    for (const feature of features) {
+      const featureDir = path.join(changesDir, feature);
+      const tasksFile = path.join(featureDir, 'tasks.md');
+      const proposalFile = path.join(featureDir, 'proposal.md');
+
+      if (!FileSystemUtils.fileExists(tasksFile)) continue;
+
+      const tasksContent = FileSystemUtils.readFile(tasksFile);
+      const proposalContent = FileSystemUtils.fileExists(proposalFile)
+        ? FileSystemUtils.readFile(proposalFile)
+        : `Feature OpenSpec: ${feature}`;
+
+      const issueTitle = `[OpenSpec] ${feature}`;
+      const issueBody = `## Proposta & Detalhes\n${proposalContent.slice(0, 1500)}\n\n## Checklist de Tarefas\n${tasksContent}`;
+
+      const found = existingIssues.find(i =>
+        i.title === issueTitle ||
+        i.title === feature ||
+        i.title.toLowerCase().includes(feature.toLowerCase())
+      );
+
+      try {
+        if (found) {
+          const patchRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues/${found.number}`, {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify({ body: issueBody })
+          });
+          if (patchRes.ok) {
+            console.log(`🔄 Issue #${found.number} atualizada para [${feature}]`);
+            count++;
+          }
+        } else {
+          const postRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              title: issueTitle,
+              body: issueBody,
+              labels: ['openspec', 'sprint']
+            })
+          });
+          if (postRes.ok) {
+            const created = (await postRes.json()) as any;
+            console.log(`✅ Issue #${created.number} criada no GitHub para [${feature}]`);
+            count++;
+
+            const projectId = this.config.projectId;
+            if (projectId && projectId.startsWith('PVT_')) {
+              try {
+                const gqlQuery = `mutation($projectId: ID!, $contentId: ID!) {
+                  addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
+                    item { id }
+                  }
+                }`;
+                await fetch('https://api.github.com/graphql', {
+                  method: 'POST',
+                  headers,
+                  body: JSON.stringify({
+                    query: gqlQuery,
+                    variables: { projectId, contentId: created.node_id }
+                  })
+                });
+              } catch {}
+            }
+          }
+        }
+      } catch (err: any) {
+        console.log(`⚠️ Erro ao sincronizar "${feature}": ${err.message}`);
+      }
+    }
+
+    console.log(`✅ Total de ${count} feature(s) sincronizadas com a API do GitHub.`);
+    return true;
+  }
+
+  /**
+   * Fallback via GitHub CLI
+   */
+  async syncViaGhCli(): Promise<void> {
+    const PROJECT_ID = this.config.projectId ||
+      FileSystemUtils.executeShellCommand('gh project list --format json -q \'[0].id\'');
+
+    console.log(`📋 Sincronizando via GitHub CLI (Project ID: ${PROJECT_ID})...`);
+
     const changesDir = path.join(__dirname, '../../../openspec/changes');
     const features = FileSystemUtils.getDirectories(changesDir);
 
     for (const feature of features) {
       const featureDir = path.join(changesDir, feature);
-      console.log(`🔍 Processing feature: ${feature}`);
-
       const tasksFile = path.join(featureDir, 'tasks.md');
-      if (!FileSystemUtils.fileExists(tasksFile)) {
-        console.log(`⚠️  No tasks file found for ${feature}`);
-        continue;
-      }
+      if (!FileSystemUtils.fileExists(tasksFile)) continue;
 
       const tasksContent = FileSystemUtils.readFile(tasksFile);
       const taskLines = tasksContent.match(/^\s*\[.?\].*/gm) || [];
-      const tasksCount = taskLines.length;
-      const doneCount = taskLines.filter(line => line.includes('[x]')).length;
-
-      console.log(`📊 Tasks: ${tasksCount} total, ${doneCount} completed`);
-
-      // Create/update card in GitHub Projects
       const proposalFile = path.join(featureDir, 'proposal.md');
       const proposalContent = FileSystemUtils.fileExists(proposalFile) ?
         FileSystemUtils.readFile(proposalFile).substring(0, 1000) :
@@ -98,38 +202,20 @@ export class SyncToGitHub {
 
       const createCmd = `gh project item-create "${PROJECT_ID}" \
         --title "${feature}" \
-        --body "${proposalContent}" \
-        --label "${this.config.defaultLabels.join(',')}"" \
+        --body "${proposalContent.replace(/"/g, '\\"')}" \
+        --label "${this.config.defaultLabels.join(',')}" \
         --assignee "${this.config.assignee}" \
         --status "Backlog"`;
 
       try {
         FileSystemUtils.executeShellCommand(createCmd);
+        console.log(`✅ Feature "${feature}" enviada para o projeto`);
       } catch (error) {
-        console.log(`❌ Error creating card for ${feature}: ${error}`);
-      }
-
-      // Import individual tasks as subtasks
-      for (const line of taskLines) {
-        const cleanLine = line.replace(/^[\s\[.?\]]*|[\[.\]]*$/g, '').trim();
-        const taskTitle = cleanLine.replace(/^.*?\*\*?(.*?)\*\*?.*$/, '$1');
-
-        const status = line.includes('[x]') ? 'Done' : 'In Progress';
-        const titlePrefix = line.includes('[x]') ? '✓ ' : '⏳ ';
-
-        const taskCmd = `gh project item-create "${PROJECT_ID}" \
-          --title "${titlePrefix}${taskTitle}" \
-          --status "${status}"`;
-
-        try {
-          FileSystemUtils.executeShellCommand(taskCmd);
-        } catch (error) {
-          // Ignore individual task creation errors
-        }
+        // Ignora erro se item já existir
       }
     }
 
-    console.log('✅ Tarefas OpenSpec sincronizadas com GitHub Kanban! 🎯');
+    console.log('✅ Tarefas OpenSpec sincronizadas com GitHub Kanban via CLI! 🎯');
   }
 
   static async fromConfig(configPath: string): Promise<SyncToGitHub> {

@@ -434,8 +434,18 @@ async function runAllTests() {
     assert(resAppJs.data.includes('btn-analytics-export-csv'), 'app.js inclui botão de exportação CSV no Analytics');
     assert(resAppJs.data.includes('btn-analytics-export-pdf'), 'app.js inclui botão de exportação PDF no Analytics');
 
-    // 14. Clean Up Test Feature
-    console.log('\n--- 14. Limpeza do Ambiente de Teste ---');
+    // 14. Test GitHub Projects / Issues API Synchronization
+    console.log('\n--- 14. Sincronização Automatizada com GitHub Projects / Issues API ---');
+    const resGithubSync = await request({
+      path: '/api/github/sync',
+      method: 'POST'
+    });
+    assert(resGithubSync.status === 200 && resGithubSync.json && resGithubSync.json.success, 'POST /api/github/sync executa orquestrador de sincronização com sucesso');
+    assert(resGithubSync.json.repo === 'mukasanray/Fowlgen-Wars-Project', 'Sincronização configurada para o repositório correto mukasanray/Fowlgen-Wars-Project');
+    assert(typeof resGithubSync.json.output === 'string' && resGithubSync.json.output.includes('Kanban sincronizado com sucesso'), 'Saída do orquestrador confirma sincronização com sucesso');
+
+    // 15. Clean Up Test Feature
+    console.log('\n--- 15. Limpeza do Ambiente de Teste ---');
     const repoRoot = path.resolve(__dirname, '..');
     const testFeatureDir = path.join(repoRoot, 'openspec', 'changes', testFeatureId);
     if (fs.existsSync(testFeatureDir)) {

@@ -1,5 +1,4 @@
-// Update GitHub Kanban columns based on OpenSpec status
-import { execSync } from 'child_process';
+// Update GitHub Kanban columns based on OpenSpec status (API & CLI)
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { FileSystemUtils } from '../utils/file-system';
@@ -16,7 +15,7 @@ if (FileSystemUtils.fileExists(envPath)) {
     if (match) {
       const key = match[1];
       const val = (match[2] || '').trim().replace(/^['"]|['"]$/g, '');
-      process.env[key] = val;
+      if (val) process.env[key] = val;
     }
   }
 }
@@ -31,76 +30,138 @@ export class UpdateColumns {
   async run(): Promise<void> {
     console.log('🔄 Atualizando colunas Kanban baseado em OpenSpec...');
 
-    // Verify GitHub CLI is available
-    try {
-      FileSystemUtils.executeShellCommand('gh --version');
-    } catch {
-      console.log('⚠️  GitHub CLI (gh) não está instalado ou não está no PATH.');
+    const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
+
+    // Método 1: GitHub API
+    if (token && token.trim()) {
+      await this.updateViaGitHubApi(token.trim());
+      console.log('✅ Colunas Kanban atualizadas via GitHub API! 🎯');
       return;
     }
 
-    const PROJECT_ID = this.config.projectId || 
-      FileSystemUtils.executeShellCommand('gh project list --format json -q \'[0].id\'');
+    // Método 2: Fallback para gh CLI se disponível
+    let ghAvailable = false;
+    try {
+      FileSystemUtils.executeShellCommand('gh --version');
+      FileSystemUtils.executeShellCommand('gh auth status');
+      ghAvailable = true;
+    } catch {
+      ghAvailable = false;
+    }
 
-    console.log(`📋 Using GitHub Project ID: ${PROJECT_ID}`);
+    if (ghAvailable) {
+      await this.updateViaGhCli();
+      console.log('✅ Colunas Kanban atualizadas via GitHub CLI! 🎯');
+      return;
+    }
 
-    // Process each feature in OpenSpec
+    console.log('ℹ️  Nenhuma credencial GitHub detectada para atualização de colunas (ignorado com segurança).');
+  }
+
+  async updateViaGitHubApi(token: string): Promise<void> {
+    const repoFullName = (this.config.github?.repo || 'mukasanray/Fowlgen-Wars-Project').trim();
+    const [owner, repo] = repoFullName.split('/');
+    if (!owner || !repo) return;
+
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'User-Agent': 'Fowlgen-Wars-Kanban-Studio',
+      'Content-Type': 'application/json'
+    };
+
+    let existingIssues: any[] = [];
+    try {
+      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues?state=all&per_page=100`, { headers });
+      if (res.ok) existingIssues = (await res.json()) as any[];
+    } catch {}
+
     const changesDir = path.join(__dirname, '../../../openspec/changes');
     const features = FileSystemUtils.getDirectories(changesDir);
 
     for (const feature of features) {
       const featureDir = path.join(changesDir, feature);
-      console.log(`🔍 Processing feature: ${feature}`);
-
       const tasksFile = path.join(featureDir, 'tasks.md');
-      if (!FileSystemUtils.fileExists(tasksFile)) {
-        continue;
-      }
+      if (!FileSystemUtils.fileExists(tasksFile)) continue;
 
       const tasksContent = FileSystemUtils.readFile(tasksFile);
-      const statusMatch = tasksContent.match(/## \d+\.\s*([^*\n]+)/);
-      let status = 'Backlog'; // default
+      const taskLines = tasksContent.match(/^\s*\[.?\].*/gm) || [];
+      const total = taskLines.length;
+      const done = taskLines.filter(l => l.includes('[x]')).length;
 
-      if (statusMatch) {
-        const rawStatus = statusMatch[1].trim();
-        
-        // Map OpenSpec status to GitHub column
-        if (rawStatus.includes('Em Andamento') || rawStatus.includes('Implementando') || rawStatus.includes('Em Progresso')) {
-          status = 'In Progress';
-        } else if (rawStatus.includes('Testando') || rawStatus.includes('Verificação')) {
-          status = 'Review';
-        } else if (rawStatus.includes('Concluído') || rawStatus.includes('Done') || rawStatus.includes('Completo')) {
-          status = 'Done';
-        } else {
-          status = 'Backlog';
-        }
+      let column = 'Backlog';
+      if (total > 0 && done === total) {
+        column = 'Done';
+      } else if (done > 0) {
+        column = 'In Progress';
+      }
 
-        // Find the issue in GitHub with this title
+      const issue = existingIssues.find(i =>
+        i.title === `[OpenSpec] ${feature}` ||
+        i.title === feature ||
+        i.title.toLowerCase().includes(feature.toLowerCase())
+      );
+
+      if (issue) {
         try {
-          const issueList = FileSystemUtils.executeShellCommand(
-            `gh issue list --format json --jq "[.[] | select(.title == \"${feature}\")]"`
-          );
-          
-          if (issueList && issueList !== 'null' && issueList !== '') {
-            const issues = JSON.parse(issueList);
-            if (issues.length > 0) {
-              const issue = issues[0];
-              const issueId = issue.id;
-
-              // Update GitHub status based on OpenSpec
-              FileSystemUtils.executeShellCommand(
-                `gh project item-update "${PROJECT_ID}" --id "${issueId}" --status "${status}"`
-              );
-              console.log(`🔄 Updated ${feature} to ${status}`);
-            }
-          }
-        } catch (error) {
-          // Ignore issue list errors if not authenticated
-        }
+          const isDone = column === 'Done';
+          await fetch(`https://api.github.com/repos/${owner}/${repo}/issues/${issue.number}`, {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify({
+              state: isDone ? 'closed' : 'open',
+              state_reason: isDone ? 'completed' : 'reopened'
+            })
+          });
+          console.log(`🔄 Status da Issue #${issue.number} atualizado para ${column}`);
+        } catch {}
       }
     }
+  }
 
-    console.log('✅ Colunas Kanban atualizadas! 🎯');
+  async updateViaGhCli(): Promise<void> {
+    const PROJECT_ID = this.config.projectId ||
+      FileSystemUtils.executeShellCommand('gh project list --format json -q \'[0].id\'');
+
+    const changesDir = path.join(__dirname, '../../../openspec/changes');
+    const features = FileSystemUtils.getDirectories(changesDir);
+
+    for (const feature of features) {
+      const featureDir = path.join(changesDir, feature);
+      const tasksFile = path.join(featureDir, 'tasks.md');
+      if (!FileSystemUtils.fileExists(tasksFile)) continue;
+
+      const tasksContent = FileSystemUtils.readFile(tasksFile);
+      const taskLines = tasksContent.match(/^\s*\[.?\].*/gm) || [];
+      const total = taskLines.length;
+      const done = taskLines.filter(l => l.includes('[x]')).length;
+
+      let status = 'Backlog';
+      if (total > 0 && done === total) {
+        status = 'Done';
+      } else if (done > 0) {
+        status = 'In Progress';
+      }
+
+      try {
+        const issueList = FileSystemUtils.executeShellCommand(
+          `gh issue list --format json --jq "[.[] | select(.title == \\"${feature}\\" or .title == \\"[OpenSpec] ${feature}\\")]"`
+        );
+
+        if (issueList && issueList !== 'null' && issueList !== '') {
+          const issues = JSON.parse(issueList);
+          if (issues.length > 0) {
+            const issueId = issues[0].id;
+            FileSystemUtils.executeShellCommand(
+              `gh project item-update "${PROJECT_ID}" --id "${issueId}" --status "${status}"`
+            );
+            console.log(`🔄 Updated ${feature} to ${status}`);
+          }
+        }
+      } catch (error) {
+        // Ignore issue list errors
+      }
+    }
   }
 
   static async fromConfig(configPath: string): Promise<UpdateColumns> {
@@ -112,13 +173,13 @@ export class UpdateColumns {
 
 // Entrypoint CLI
 const isMain = process.argv[1] && (
-  process.argv[1].endsWith('update-columns.ts') || 
+  process.argv[1].endsWith('update-columns.ts') ||
   process.argv[1].endsWith('update-columns.js')
 );
 
 if (isMain) {
   const configPath = path.join(__dirname, '../config/kanban-config.json');
-  UpdateColumns.fromConfig(configPath).then(updater => updater.run()).catch((error) => {
+  UpdateColumns.fromConfig(configPath).then(u => u.run()).catch((error) => {
     console.error('Fatal error updating columns:', error);
     process.exit(1);
   });
