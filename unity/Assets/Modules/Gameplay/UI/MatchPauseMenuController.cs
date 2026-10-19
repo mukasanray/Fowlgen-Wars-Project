@@ -83,7 +83,7 @@ namespace FowlgenWars.Gameplay.UI
         public void RestartMatch()
         {
             Time.timeScale = 1f;
-            SceneManager.LoadScene("Arena_Clean");
+            SceneManager.LoadScene("BattleArena");
         }
 
         public void QuitToPlay()

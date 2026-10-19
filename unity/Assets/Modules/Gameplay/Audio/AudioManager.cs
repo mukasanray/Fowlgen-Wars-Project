@@ -47,7 +47,7 @@ namespace FowlgenWars.Gameplay.Audio
         [Range(0f, 1f)] [SerializeField] private float sfxVolume = 0.9f;
         [Range(0f, 1f)] [SerializeField] private float bgmVolume = 0.65f;
 
-        [Header("BGM Persistente (Login/Play/Arena_Clean)")]
+        [Header("BGM Persistente (Login/Play/BattleArena)")]
         [SerializeField] private AudioClip defaultBgm;
         [SerializeField] private string defaultBgmResourcePath = "Audio/music-fowlGenwars_001";
 

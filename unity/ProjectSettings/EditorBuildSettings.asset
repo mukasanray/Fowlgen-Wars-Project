@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Game/Play.unity
     guid: 49bae5b8bacb65e4183221b43c1376c3
   - enabled: 1
-    path: Assets/Scenes/Game/Arena_Clean.unity
+    path: Assets/Scenes/Game/BattleArena.unity
     guid: ba9a10f411aa7664f97ebc7f679b8273
   - enabled: 1
     path: Assets/Scenes/Game/Vitoria.unity

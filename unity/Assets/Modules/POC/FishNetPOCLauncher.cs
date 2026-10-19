@@ -2,7 +2,7 @@ using UnityEngine;
 using FishNet.Managing;
 
 /// <summary>
-/// HUD simples para testar FishNet POC na Arena_Clean (Host/Client).
+/// HUD simples para testar FishNet POC na BattleArena (Host/Client).
 /// Requer NetworkManager na cena. Mostra SyncVars do FishNetMultiplayer.
 /// Fora do MVP - apenas para validacao local com 2 instancias.
 /// </summary>

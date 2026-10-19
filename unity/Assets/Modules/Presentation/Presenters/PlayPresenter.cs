@@ -149,7 +149,7 @@ namespace FowlgenWars.Architecture.Presenters
             view?.SetStatus("Carregando Arena de Combate...");
             string sceneName = navigation != null && !string.IsNullOrEmpty(navigation.ArenaScene)
                 ? navigation.ArenaScene
-                : "Arena_Clean";
+                : "BattleArena";
 
             navigationService.Load(sceneName);
         }

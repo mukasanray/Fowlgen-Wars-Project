@@ -35,7 +35,7 @@ namespace FowlgenWars.UI
             if (GetComponent<AuthPresenter>() == null)
                 gameObject.AddComponent<AuthPresenter>();
 
-            // 5. BGM persistente (Login/Play/Arena_Clean = mesma musica sem restart)
+            // 5. BGM persistente (Login/Play/BattleArena = mesma musica sem restart)
             EnsureFowlgenBgm();
         }
 

@@ -7,4 +7,4 @@ Este repositório usa OpenSpec para propostas e tasks.
 - Rodar openspec validate antes de aprovar.
 
 ## Fontes Claude.md
-Ler prompt/Claude.md antes de codar. Seguir menor mudança, preservar conflitos, validar em Arena_Clean.
+Ler prompt/Claude.md antes de codar. Seguir menor mudança, preservar conflitos, validar em BattleArena.

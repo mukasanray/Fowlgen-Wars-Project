@@ -1,6 +1,6 @@
-// Integrado na Arena_Clean - testar com 2 instancias (Host + Client)
+// Integrado na BattleArena - testar com 2 instancias (Host + Client)
 // Requer NetworkObject neste GO + NetworkManager+Tugboat na cena
-// Arena_Clean refs: Base-Amarela (Player) (0.32,10.5,20.65) | Base-Roxa-Inimiga (Enemy) (-0.10,10.5,-20.23)
+// BattleArena refs: Base-Amarela (Player) (0.32,10.5,20.65) | Base-Roxa-Inimiga (Enemy) (-0.10,10.5,-20.23)
 // SpawnPlayer (0.32,10.5,17.5) | SpawnEnemy (-0.10,10.5,-17.5) | Paths Top/Mid/Bot em SetupMobaArenaComplete.cs
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
@@ -9,15 +9,15 @@ using FowlgenWars.Gameplay;
 
 public class FishNetMultiplayer : NetworkBehaviour
 {
-    [Header("Arena_Clean - vincule as bases da cena (ou auto-find no Server)")]
+    [Header("BattleArena - vincule as bases da cena (ou auto-find no Server)")]
     [SerializeField] private StructureGalinheiro playerGalinheiro;
     [SerializeField] private StructureGalinheiro enemyGalinheiro;
 
-    // SyncVars espelham HP das bases da Arena_Clean (maxHealth 1000 em StructureGalinheiro)
+    // SyncVars espelham HP das bases da BattleArena (maxHealth 1000 em StructureGalinheiro)
     public readonly SyncVar<int> HostCoreHealth = new SyncVar<int>();   // Player base
     public readonly SyncVar<int> ClientCoreHealth = new SyncVar<int>(); // Enemy base
 
-    // ponytail: 1000 hardcoded espelha StructureGalinheiro.maxHealth da Arena_Clean; parametrizar via SO se maxHealth mudar.
+    // ponytail: 1000 hardcoded espelha StructureGalinheiro.maxHealth da BattleArena; parametrizar via SO se maxHealth mudar.
     public override void OnStartServer()
     {
         base.OnStartServer();
@@ -76,7 +76,7 @@ public class FishNetMultiplayer : NetworkBehaviour
         CheckWin();
     }
 
-    // overload por Team para uso direto com Lane/StructureGalinheiro da Arena_Clean
+    // overload por Team para uso direto com Lane/StructureGalinheiro da BattleArena
     // ponytail: 2 ServerRpc com RequireOwnership=false; consolidar em 1 quando regra de autor for definida (POC 95+).
     [ServerRpc(RequireOwnership = false)]
     public void CmdTakeDamageTeam(int teamInt, int damage)

@@ -7,13 +7,13 @@ namespace FowlgenWars.Architecture.Models
     {
         [SerializeField] private string authScene = "Auth";
         [SerializeField] private string playScene = "Play";
-        [SerializeField] private string arenaScene = "Arena_Clean";
+        [SerializeField] private string arenaScene = "BattleArena";
         [SerializeField] private string vitoriaScene = "Vitoria";
         [SerializeField] private string derrotaScene = "Derrota";
 
         public string AuthScene => authScene;
         public string PlayScene => playScene;
-        public string ArenaScene => !string.IsNullOrEmpty(arenaScene) ? arenaScene : "Arena_Clean";
+        public string ArenaScene => !string.IsNullOrEmpty(arenaScene) ? arenaScene : "BattleArena";
         public string VitoriaScene => vitoriaScene;
         public string DerrotaScene => derrotaScene;
     }

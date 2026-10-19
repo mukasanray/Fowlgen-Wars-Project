@@ -18,7 +18,7 @@ namespace FowlgenWars.Editor
         {
             "Assets/Scenes/Game/Auth.unity",
             "Assets/Scenes/Game/Play.unity",
-            "Assets/Scenes/Game/Arena_Clean.unity",
+            "Assets/Scenes/Game/BattleArena.unity",
             "Assets/Scenes/Game/Vitoria.unity",
             "Assets/Scenes/Game/Derrota.unity"
         };

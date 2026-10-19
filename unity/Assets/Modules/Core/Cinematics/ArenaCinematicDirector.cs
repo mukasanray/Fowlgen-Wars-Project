@@ -437,7 +437,7 @@ namespace FowlgenWars.Cinematic
 
         /// <summary>
         /// Preenche a lista de shots com a sequência padrão de apresentação da arena.
-        /// Baseado nas coordenadas de mundo da Arena_Clean:
+        /// Baseado nas coordenadas de mundo da BattleArena:
         ///   Centro (0,0,0) | Ilha raio ≈24 | Base Vermelha (16.5,0,0.5) | Base Azul (-16.5,0,0.5)
         ///   Estátua galo vermelho (13.3,4,-1.3) | Estátua galo azul (-13.3,4,-1.3)
         ///   Rio S-curve ao longo do eixo Z perto de x≈0 | Pontes: Top(-0.5,0.4,-9) Bottom(-2,0.4,10)

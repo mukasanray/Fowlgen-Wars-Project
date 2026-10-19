@@ -1,7 +1,7 @@
 # Especificação: Combate, Dano e Estruturas do Mini-MOBA
 
 ## Contexto
-O combate do Mini-MOBA de Fowlgen Wars ocorre na cena `Arena_Clean.unity` em partidas com duração máxima de 3 minutos (180 segundos).
+O combate do Mini-MOBA de Fowlgen Wars ocorre na cena `BattleArena.unity` em partidas com duração máxima de 3 minutos (180 segundos).
 
 ## Especificação Técnica
 1. **Unidades de Combate:**

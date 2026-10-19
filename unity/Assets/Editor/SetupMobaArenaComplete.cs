@@ -14,7 +14,7 @@ namespace FowlgenWars.EditorScripts
 {
     public static class SetupMobaArenaComplete
     {
-        private const string ScenePath = "Assets/Scenes/Game/Arena_Clean.unity";
+        private const string ScenePath = "Assets/Scenes/Game/BattleArena.unity";
         private const string MinionPlayerPrefabPath = "Assets/Prefabs/Minion_Caipira_Player.prefab";
         private const string MinionEnemyPrefabPath = "Assets/Prefabs/Minion_Rodilan_Enemy.prefab";
         private const string ResourcesArchPath = "Assets/Resources/Architecture";
@@ -40,9 +40,9 @@ namespace FowlgenWars.EditorScripts
         public static void Run()
         {
             if (Application.isBatchMode) return;
-            Debug.Log("[Setup MOBA] 1. Abrindo cena Arena_Clean...");
+            Debug.Log("[Setup MOBA] 1. Abrindo cena BattleArena...");
             Scene scene = SceneManager.GetActiveScene();
-            if (scene.name != "Arena_Clean")
+            if (scene.name != "BattleArena")
             {
                 scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             }
@@ -508,7 +508,7 @@ namespace FowlgenWars.EditorScripts
                 Debug.LogWarning("[Setup MOBA] AVISO: Não salvou porque está em Play Mode!");
             }
 
-            Debug.Log("[Setup MOBA Completo] Sucesso absoluto! Milo, Axel, Joystick Pack, Poderes LoL, Minions 3D, Bases, 3 Rotas, GameMatchManager e Cinemática perfeitamente integrados em Arena_Clean!");
+            Debug.Log("[Setup MOBA Completo] Sucesso absoluto! Milo, Axel, Joystick Pack, Poderes LoL, Minions 3D, Bases, 3 Rotas, GameMatchManager e Cinemática perfeitamente integrados em BattleArena!");
         }
 
         private static GameObject CreateOrUpdateSpecificMinionPrefab(

@@ -6,7 +6,7 @@ O multiplayer em tempo real do Fowlgen Wars utiliza a arquitetura FishNet desaco
 ## Especificação Técnica
 1. **Topologia:**
    - Modo 1v1 Local: Host & Client com transporte Tugboat.
-   - Modo Batalha Rápida (Solo vs IA): Jogo local offline na Arena_Clean para garantir experiência aos jurados sem depender de pareamento.
+   - Modo Batalha Rápida (Solo vs IA): Jogo local offline na BattleArena para garantir experiência aos jurados sem depender de pareamento.
 2. **Sincronização de Estado:**
    - HP e dano sincronizados através de `SyncVar` e chamadas `CmdTakeDamage` -> `TakeDamage`.
    - Evento `OnStructureDestroyed` sincronizado ao destruir o Galinheiro adversário.

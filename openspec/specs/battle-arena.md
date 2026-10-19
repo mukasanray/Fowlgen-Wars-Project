@@ -1,7 +1,7 @@
-# Especificação: Arena_Clean (Canônica)
+# Especificação: BattleArena (Canônica)
 
 ## Contexto
-A cena `Assets/Scenes/Game/Arena_Clean.unity` é a arena canônica única do MVP de Fowlgen Wars, consolidando o layout de 3 rotas e eliminando cenas de teste legadas.
+A cena `Assets/Scenes/Game/BattleArena.unity` é a arena canônica única do MVP de Fowlgen Wars, consolidando o layout de 3 rotas e eliminando cenas de teste legadas.
 
 ## Especificação Técnica
 1. **Layout de 3 Rotas:**
