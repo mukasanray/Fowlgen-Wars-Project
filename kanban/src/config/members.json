@@ -29,8 +29,10 @@
     "avatar": "🕹️",
     "color": "#10b981",
     "email": "",
-    "status": "active",
-    "active": true
+    "status": "inactive",
+    "active": false,
+    "deactivatedAt": "2026-10-19T00:07:53.208Z",
+    "transferredTo": "Marcos"
   },
   {
     "id": "jorge",
@@ -106,7 +108,9 @@
     "avatar": "🌐",
     "color": "#0ea5e9",
     "email": "",
-    "status": "active",
-    "active": true
+    "status": "inactive",
+    "active": false,
+    "deactivatedAt": "2026-10-19T00:07:40.945Z",
+    "transferredTo": "Junior"
   }
 ]
