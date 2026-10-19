@@ -54,15 +54,18 @@ namespace FowlgenWars.Architecture.Presenters
                     {
                         lastTxSignature = txOrError;
                         string shortTx = FormatSignature(lastTxSignature);
-                        view?.SetStatus($"Vitória registrada on-chain! Tx: {shortTx} - Retornando ao Play...");
+                        view?.ShowExplorerButton(true);
+                        view?.SetStatus($"Vitória registrada on-chain! Tx: {shortTx} - Ver no Explorer ou retornar ao Play.");
+                        StartCoroutine(ReturnToPlayDelayedRoutine(4.0f));
                     }
                     else
                     {
                         lastTxSignature = "simulated_" + System.Guid.NewGuid().ToString("N").Substring(0, 16);
+                        view?.ShowExplorerButton(true);
                         view?.SetStatus($"Recompensa creditada: +120 XP, +50 FOWL (+0.05 SOL) - Retornando ao Play...");
+                        StartCoroutine(ReturnToPlayDelayedRoutine(2.5f));
                     }
                     isProcessingReward = false;
-                    StartCoroutine(ReturnToPlayDelayedRoutine(1.8f));
                 });
             }
             else
