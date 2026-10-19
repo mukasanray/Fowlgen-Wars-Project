@@ -13,6 +13,8 @@ Execute Unity tests and return detailed results. Supports filtering by test mode
 
 - `testMode` (default `EditMode`) — `EditMode` or `PlayMode`. EditMode is faster; prefer it during iteration.
 - `testAssembly` / `testNamespace` / `testClass` / `testMethod` — optional, layered filters. Namespace and class filters become regex `groupNames` so the validation count and Unity's execution stay in sync. `testMethod` must be fully qualified (`Namespace.FixtureName.TestName`).
+- `query` — RQL over the `tests` source instead of the four filters: any selection, run as ONE Test Runner run, e.g. `tests | where fixture == "PlayerTests" or categories contains "Smoke"`. One mode per run; the mode comes from the selected tests. Explore first with rql-query: `tests | where fullName contains "Spline" | select fullName mode`.
+- `result` — RQL stages applied to the results (source `testResults`: name status durationMs message stackTrace), e.g. `where status == "Failed" | select name message`; the answer is then a summary line plus compact RQL text.
 
 ## Response toggles
 
@@ -36,6 +38,8 @@ unity-mcp-cli run-tool tests-run --input '{
   "testNamespace": "string_value",
   "testClass": "string_value",
   "testMethod": "string_value",
+  "query": "string_value",
+  "result": "string_value",
   "includePassingTests": false,
   "includeMessages": false,
   "includeStacktrace": false,
@@ -72,6 +76,8 @@ Read the /unity-initial-setup skill for detailed installation instructions.
 | `testNamespace` | `string` | No | Specific test namespace to run (optional). Example: 'MyTestNamespace' |
 | `testClass` | `string` | No | Specific test class name to run (optional). Example: 'MyTestClass' |
 | `testMethod` | `string` | No | Specific fully qualified test method to run (optional). Example: 'MyTestNamespace.FixtureName.TestName' |
+| `query` | `string` | No | RQL over the 'tests' source selecting the tests (instead of the filters above), run as one run. Example: tests | where fullName contains "Player" and mode == "EditMode" |
+| `result` | `string` | No | RQL stages applied to the results (source 'testResults': name status durationMs message stackTrace); the answer is a summary line plus compact text. Example: where status == "Failed" | select name message |
 | `includePassingTests` | `boolean` | No | Include details for all tests, both passing and failing (default: false). If you just need details for failing tests, set to false. |
 | `includeMessages` | `boolean` | No | Include test result messages in the test results (default: true). If you just need pass/fail status, set to false. |
 | `includeStacktrace` | `boolean` | No | Include stack traces in the test results (default: false). |
@@ -102,6 +108,12 @@ Read the /unity-initial-setup skill for detailed installation instructions.
       "type": "string"
     },
     "testMethod": {
+      "type": "string"
+    },
+    "query": {
+      "type": "string"
+    },
+    "result": {
       "type": "string"
     },
     "includePassingTests": {
@@ -135,147 +147,5 @@ Read the /unity-initial-setup skill for detailed installation instructions.
 
 ## Output
 
-### Output JSON Schema
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "result": {
-      "$ref": "#/$defs/com.IvanMurzak.Unity.MCP.Editor.API.TestRunner.TestRunResponse"
-    }
-  },
-  "$defs": {
-    "com.IvanMurzak.Unity.MCP.Editor.API.TestRunner.TestSummaryData": {
-      "type": "object",
-      "properties": {
-        "Status": {
-          "type": "string",
-          "enum": [
-            "Unknown",
-            "Passed",
-            "Failed"
-          ]
-        },
-        "TotalTests": {
-          "type": "integer"
-        },
-        "PassedTests": {
-          "type": "integer"
-        },
-        "FailedTests": {
-          "type": "integer"
-        },
-        "SkippedTests": {
-          "type": "integer"
-        },
-        "Duration": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "Status",
-        "TotalTests",
-        "PassedTests",
-        "FailedTests",
-        "SkippedTests",
-        "Duration"
-      ]
-    },
-    "System.Collections.Generic.List(com.IvanMurzak.Unity.MCP.Editor.API.TestRunner.TestResultData)": {
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/com.IvanMurzak.Unity.MCP.Editor.API.TestRunner.TestResultData"
-      }
-    },
-    "com.IvanMurzak.Unity.MCP.Editor.API.TestRunner.TestResultData": {
-      "type": "object",
-      "properties": {
-        "Name": {
-          "type": "string"
-        },
-        "Status": {
-          "type": "string",
-          "enum": [
-            "Passed",
-            "Failed",
-            "Skipped"
-          ]
-        },
-        "Duration": {
-          "type": "string"
-        },
-        "Message": {
-          "type": "string"
-        },
-        "StackTrace": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "Status",
-        "Duration"
-      ]
-    },
-    "System.Collections.Generic.List(com.IvanMurzak.Unity.MCP.Editor.API.TestRunner.TestLogEntry)": {
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/com.IvanMurzak.Unity.MCP.Editor.API.TestRunner.TestLogEntry"
-      }
-    },
-    "com.IvanMurzak.Unity.MCP.Editor.API.TestRunner.TestLogEntry": {
-      "type": "object",
-      "properties": {
-        "Condition": {
-          "type": "string"
-        },
-        "StackTrace": {
-          "type": "string"
-        },
-        "Type": {
-          "type": "string",
-          "enum": [
-            "Error",
-            "Assert",
-            "Warning",
-            "Log",
-            "Exception"
-          ]
-        },
-        "Timestamp": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "LogLevel": {
-          "type": "integer"
-        }
-      },
-      "required": [
-        "Type",
-        "Timestamp"
-      ]
-    },
-    "com.IvanMurzak.Unity.MCP.Editor.API.TestRunner.TestRunResponse": {
-      "type": "object",
-      "properties": {
-        "Summary": {
-          "$ref": "#/$defs/com.IvanMurzak.Unity.MCP.Editor.API.TestRunner.TestSummaryData",
-          "description": "Summary of the test run including total, passed, failed, and skipped counts."
-        },
-        "Results": {
-          "$ref": "#/$defs/System.Collections.Generic.List(com.IvanMurzak.Unity.MCP.Editor.API.TestRunner.TestResultData)",
-          "description": "List of individual test results with details about each test."
-        },
-        "Logs": {
-          "$ref": "#/$defs/System.Collections.Generic.List(com.IvanMurzak.Unity.MCP.Editor.API.TestRunner.TestLogEntry)",
-          "description": "Log entries captured during test execution."
-        }
-      }
-    }
-  },
-  "required": [
-    "result"
-  ]
-}
-```
+This tool does not return structured output.
 

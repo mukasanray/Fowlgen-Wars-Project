@@ -32,17 +32,17 @@ Isolation temporarily activates inactive child GameObjects so their renderers pa
 ```bash
 unity-mcp-cli run-tool screenshot-isolated --input '{
   "gameObjectRef": "string_value",
-  "includeChildren": "string_value",
-  "isolated": "string_value",
+  "includeChildren": false,
+  "isolated": false,
   "backgroundMode": "string_value",
   "backgroundColor": "string_value",
   "cameraView": "string_value",
-  "fieldOfView": "string_value",
-  "nearClipPlane": "string_value",
-  "farClipPlane": "string_value",
-  "padding": "string_value",
+  "fieldOfView": 0,
+  "nearClipPlane": 0,
+  "farClipPlane": 0,
+  "padding": 0,
   "lights": "string_value",
-  "resolution": "string_value"
+  "resolution": 0
 }'
 ```
 
@@ -68,18 +68,18 @@ Read the /unity-initial-setup skill for detailed installation instructions.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `gameObjectRef` | `any` | Yes | Reference to the target GameObject (by instanceId, path, or name). |
-| `includeChildren` | `any` | No | Include child GameObjects in the render. Default: true. |
-| `isolated` | `any` | No | When true, renders only the target object using layer-based culling. When false, renders the full scene from the computed camera position. Default: true. |
-| `backgroundMode` | `any` | No | Background mode. Default: SolidColor. |
+| `gameObjectRef` | `string` | Yes | Reference to the target GameObject (by instanceId, path, or name). RQL: GameObjectRef |
+| `includeChildren` | `boolean` | No | Include child GameObjects in the render. Default: true. |
+| `isolated` | `boolean` | No | When true, renders only the target object using layer-based culling. When false, renders the full scene from the computed camera position. Default: true. |
+| `backgroundMode` | `string` | No | Background mode. Default: SolidColor. |
 | `backgroundColor` | `string` | No | Hex background color (e.g. '#404040'). Only used when backgroundMode is SolidColor. |
-| `cameraView` | `any` | No | Camera angle relative to the target object's bounding box. Default: Front. |
-| `fieldOfView` | `any` | No | Camera vertical field of view in degrees. Default: 60. |
-| `nearClipPlane` | `any` | No | Camera near clip plane distance. Default: 0.01. |
-| `farClipPlane` | `any` | No | Camera far clip plane distance. Default: 1000. |
-| `padding` | `any` | No | Framing multiplier around the object. 1.0 = tight fit, 1.5 = 50% extra space. Default: 1.2. |
+| `cameraView` | `string` | No | Camera angle relative to the target object's bounding box. Default: Front. |
+| `fieldOfView` | `number` | No | Camera vertical field of view in degrees. Default: 60. |
+| `nearClipPlane` | `number` | No | Camera near clip plane distance. Default: 0.01. |
+| `farClipPlane` | `number` | No | Camera far clip plane distance. Default: 1000. |
+| `padding` | `number` | No | Framing multiplier around the object. 1.0 = tight fit, 1.5 = 50% extra space. Default: 1.2. |
 | `lights` | `string` | No | JSON array of light configurations. Each object defines type, color, intensity, rotation, position, range, spotAngle, shadows, etc. When null, a default white directional light at rotation (50,-30,0) is used. Example: [{"type":"Directional","color":"#FFF4E5","intensity":1.2,"rotation":[45,-45,0]}] |
-| `resolution` | `any` | No | Output image resolution in pixels (width = height). Default: 512. |
+| `resolution` | `integer` | No | Output image resolution in pixels (width = height). Default: 512. |
 
 ### Input JSON Schema
 
@@ -88,87 +88,15 @@ Read the /unity-initial-setup skill for detailed installation instructions.
   "type": "object",
   "properties": {
     "gameObjectRef": {
-      "$ref": "#/$defs/AIGD.GameObjectRef"
+      "type": "string"
     },
     "includeChildren": {
-      "$ref": "#/$defs/System.Boolean"
-    },
-    "isolated": {
-      "$ref": "#/$defs/System.Boolean"
-    },
-    "backgroundMode": {
-      "$ref": "#/$defs/com.IvanMurzak.Unity.MCP.Editor.API.Tool_Screenshot-BackgroundMode"
-    },
-    "backgroundColor": {
-      "type": "string"
-    },
-    "cameraView": {
-      "$ref": "#/$defs/com.IvanMurzak.Unity.MCP.Editor.API.Tool_Screenshot-CameraView"
-    },
-    "fieldOfView": {
-      "$ref": "#/$defs/System.Single"
-    },
-    "nearClipPlane": {
-      "$ref": "#/$defs/System.Single"
-    },
-    "farClipPlane": {
-      "$ref": "#/$defs/System.Single"
-    },
-    "padding": {
-      "$ref": "#/$defs/System.Single"
-    },
-    "lights": {
-      "type": "string"
-    },
-    "resolution": {
-      "$ref": "#/$defs/System.Int32"
-    }
-  },
-  "$defs": {
-    "UnityEngine.EntityId": {
-      "type": "string",
-      "pattern": "^[0-9]+$"
-    },
-    "System.Type": {
-      "type": "string"
-    },
-    "AIGD.GameObjectRef": {
-      "type": "object",
-      "properties": {
-        "instanceID": {
-          "$ref": "#/$defs/UnityEngine.EntityId",
-          "description": "instanceID of the UnityEngine.Object. If it is '0' and 'path', 'name', 'assetPath' and 'assetGuid' is not provided, empty or null, then it will be used as 'null'. Priority: 1 (Recommended)"
-        },
-        "path": {
-          "type": "string",
-          "description": "Path of a GameObject in the hierarchy Sample 'character/hand/finger/particle'. Priority: 2."
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of a GameObject in hierarchy. Priority: 3."
-        },
-        "assetType": {
-          "$ref": "#/$defs/System.Type",
-          "description": "Type of the asset."
-        },
-        "assetPath": {
-          "type": "string",
-          "description": "Path to the asset within the project. Starts with 'Assets/'"
-        },
-        "assetGuid": {
-          "type": "string",
-          "description": "Unique identifier for the asset."
-        }
-      },
-      "required": [
-        "instanceID"
-      ],
-      "description": "Find GameObject in opened Prefab or in the active Scene."
-    },
-    "System.Boolean": {
       "type": "boolean"
     },
-    "com.IvanMurzak.Unity.MCP.Editor.API.Tool_Screenshot-BackgroundMode": {
+    "isolated": {
+      "type": "boolean"
+    },
+    "backgroundMode": {
       "type": "string",
       "enum": [
         "SolidColor",
@@ -176,7 +104,10 @@ Read the /unity-initial-setup skill for detailed installation instructions.
         "Transparent"
       ]
     },
-    "com.IvanMurzak.Unity.MCP.Editor.API.Tool_Screenshot-CameraView": {
+    "backgroundColor": {
+      "type": "string"
+    },
+    "cameraView": {
       "type": "string",
       "enum": [
         "Front",
@@ -188,10 +119,22 @@ Read the /unity-initial-setup skill for detailed installation instructions.
         "Composite"
       ]
     },
-    "System.Single": {
+    "fieldOfView": {
       "type": "number"
     },
-    "System.Int32": {
+    "nearClipPlane": {
+      "type": "number"
+    },
+    "farClipPlane": {
+      "type": "number"
+    },
+    "padding": {
+      "type": "number"
+    },
+    "lights": {
+      "type": "string"
+    },
+    "resolution": {
       "type": "integer"
     }
   },
