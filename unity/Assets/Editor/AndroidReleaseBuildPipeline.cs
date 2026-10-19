@@ -81,7 +81,7 @@ namespace FowlgenWars.Editor
                 Directory.CreateDirectory(outputDir);
             }
 
-            string apkPath = Path.Combine(outputDir, "FowlgenWars_MVP_v1.0.apk");
+            string apkPath = Path.Combine(outputDir, "FowlgenWars_MVP_Colosseum2026.apk");
             Debug.Log($"[AndroidReleaseBuild] Iniciando compilação do APK em: {apkPath} ...");
 
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions
