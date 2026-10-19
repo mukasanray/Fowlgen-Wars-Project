@@ -4,7 +4,8 @@
     "references": [
         "FowlgenWars.Modules.Presentation",
         "FowlgenWars.Modules.Gameplay",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.Cinemachine"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

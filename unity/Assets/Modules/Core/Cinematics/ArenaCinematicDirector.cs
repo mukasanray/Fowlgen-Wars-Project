@@ -1,217 +1,129 @@
 // ============================================================================
-//  ArenaCinematicDirector.cs – Fowlgen Wars
-//  Sistema cinemático de câmera para gravação de vídeo de apresentação.
+//  ArenaCinematicDirector.cs – Fowlgen Wars (Cinemachine 3 Native)
+//  Sequenciador profissional de apresentação cinemática baseado em 
+//  CinemachineCameras e CinemachineBrain do Unity 6.
 //
-//  Controles de teclado (New Input System):
-//    C     – Reproduzir / Reiniciar a sequência
-//    Esc   – Parar e restaurar câmera original
+//  Controles em Play Mode:
+//    C     – Iniciar / Reiniciar a sequência cinemática
 //    Space – Pausar / Retomar
-//    H     – Esconder / Mostrar overlay (letterbox, título, fade)
-//
-//  Frame Capture:
-//    Ative captureFrames, defina captureFps e execute a sequência.
-//    Os frames são salvos em: <projeto>/Recordings/<timestamp>/frame_00000.png
-//
-//    Montar vídeo com ffmpeg:
-//    ffmpeg -framerate 30 -i "frame_%05d.png" -c:v libx264 -pix_fmt yuv420p -crf 18 output.mp4
-//
-//    Comando completo com pasta (substitua o caminho):
-//    ffmpeg -framerate 30 -start_number 0 -i "/caminho/Recordings/YYYYMMDD_HHMMSS/frame_%05d.png"
-//           -c:v libx264 -pix_fmt yuv420p -crf 18 -movflags +faststart fowlgen_wars_trailer.mp4
+//    Esc   – Parar e retornar imediatamente para a câmera de combate
+//    H     – Ocultar / Exibir barras e títulos (letterbox)
 // ============================================================================
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
+using Unity.Cinemachine;
 
 namespace FowlgenWars.Cinematic
 {
-    /// <summary>
-    /// Dirige uma câmera por uma sequência de <see cref="CinematicShot"/> com easing,
-    /// crossfade, letterbox 2.35:1, títulos (lower-third) e captura de frames.
-    /// </summary>
-    [AddComponentMenu("FowlgenWars/Cinematic/Arena Cinematic Director")]
+    [System.Serializable]
+    public class CinemachineShotStep
+    {
+        public string shotName = "Shot";
+        public CinemachineCamera virtualCamera;
+        [Tooltip("Tempo em segundos que a câmera permanece ativa antes de transicionar.")]
+        public float holdDuration = 5f;
+        [Tooltip("Título exibido no lower-third.")]
+        public string titleText = "";
+        [Tooltip("Subtítulo exibido no lower-third.")]
+        public string subtitleText = "";
+    }
+
+    [AddComponentMenu("FowlgenWars/Cinematic/Arena Cinematic Director (Cinemachine)")]
     public class ArenaCinematicDirector : MonoBehaviour
     {
-        // ── Camera ────────────────────────────────────────────────────────────
-        [Header("Camera")]
-        [Tooltip("Câmera controlada pela sequência. Se null, usa Camera.main.")]
-        [SerializeField] private Camera _targetCamera;
+        [Header("Cinemachine Brain")]
+        [SerializeField] private CinemachineBrain _brain;
 
-        // ── Sequence ──────────────────────────────────────────────────────────
-        [Header("Sequência de Shots")]
-        [SerializeField] private List<CinematicShot> _shots = new List<CinematicShot>();
+        [Header("Sequência de Câmeras Cinemachine")]
+        [SerializeField] private List<CinemachineShotStep> _steps = new List<CinemachineShotStep>();
 
-        [Tooltip("Reproduz automaticamente ao iniciar o jogo.")]
-        [SerializeField] private bool _playOnStart;
-
-        [Tooltip("Reinicia a sequência ao chegar no fim.")]
-        [SerializeField] private bool _loop;
-
-        // ── Crossfade ─────────────────────────────────────────────────────────
-        [Header("Crossfade")]
-        [Tooltip("Duração do fade-in e fade-out em segundos.")]
-        [SerializeField] private float _fadeDuration = 0.6f;
-
-        // ── Overlay ───────────────────────────────────────────────────────────
-        [Header("Overlay")]
-        [Tooltip("Exibe barras pretas letterbox (proporção 2.35:1).")]
+        [Header("Configurações")]
+        [SerializeField] private bool _playOnStart = false;
+        [SerializeField] private bool _loop = false;
         [SerializeField] private bool _showLetterbox = true;
-
-        [Tooltip("Exibe texto de título no lower-third.")]
         [SerializeField] private bool _showTitles = true;
 
-        // ── Frame Capture ─────────────────────────────────────────────────────
-        [Header("Frame Capture")]
-        [Tooltip("Quando ativo, salva cada frame como PNG para montagem de vídeo.")]
-        [SerializeField] private bool _captureFrames;
+        [Header("Câmera Final de Gameplay")]
+        [SerializeField] private CinemachineCamera _gameplayCamera;
 
-        [Tooltip("FPS alvo para captura (define Time.captureFramerate).")]
-        [SerializeField] private int _captureFps = 30;
-
-        // ── Events ────────────────────────────────────────────────────────────
-        /// <summary>Disparado quando a sequência completa sem loop.</summary>
-        public event Action OnSequenceFinished;
-
-        // ── Private state ─────────────────────────────────────────────────────
+        // Estado runtime
         private bool _isPlaying;
         private bool _isPaused;
         private bool _overlayHidden;
+        private int _currentStepIndex = -1;
+        private string _currentTitle = "";
+        private string _currentSubtitle = "";
         private Coroutine _sequenceCoroutine;
 
-        private float _fadeAlpha;
-        private string _currentTitle = "";
-        private int _currentShotIndex = -1;
-
-        // Original camera state (para restaurar ao parar)
-        private Vector3 _originalPosition;
-        private Quaternion _originalRotation;
-        private float _originalFov;
-
-        // Frame capture state
-        private string _captureFolder;
-        private int _captureFrameIndex;
-
-        // OnGUI style cache
+        // GUI Styles
         private GUIStyle _titleStyle;
+        private GUIStyle _subStyle;
 
-        // ── Unity Lifecycle ───────────────────────────────────────────────────
+        public event Action OnSequenceFinished;
 
         private void Awake()
         {
-            if (_targetCamera == null)
-                _targetCamera = Camera.main;
-
-            if (_targetCamera != null)
+            if (_brain == null && Camera.main != null)
             {
-                _originalPosition = _targetCamera.transform.position;
-                _originalRotation = _targetCamera.transform.rotation;
-                _originalFov = _targetCamera.fieldOfView;
+                _brain = Camera.main.GetComponent<CinemachineBrain>();
+                if (_brain == null)
+                    _brain = Camera.main.gameObject.AddComponent<CinemachineBrain>();
             }
         }
 
         private void Start()
         {
+            if (_steps == null || _steps.Count == 0)
+            {
+                BuildDefaultCinemachineRigs();
+            }
+
             if (_playOnStart)
+            {
                 Play();
+            }
+            else
+            {
+                SetOnlyActiveCamera(_gameplayCamera);
+            }
         }
 
         private void Update()
         {
-            HandleKeyboard();
+#if ENABLE_INPUT_SYSTEM
+            var kb = UnityEngine.InputSystem.Keyboard.current;
+            if (kb != null)
+            {
+                if (kb.cKey.wasPressedThisFrame) Play();
+                if (kb.escapeKey.wasPressedThisFrame) Stop();
+                if (kb.spaceKey.wasPressedThisFrame) _isPaused = !_isPaused;
+                if (kb.hKey.wasPressedThisFrame) _overlayHidden = !_overlayHidden;
+            }
+#else
+            if (Input.GetKeyDown(KeyCode.C)) Play();
+            if (Input.GetKeyDown(KeyCode.Escape)) Stop();
+            if (Input.GetKeyDown(KeyCode.Space)) _isPaused = !_isPaused;
+            if (Input.GetKeyDown(KeyCode.H)) _overlayHidden = !_overlayHidden;
+#endif
         }
 
-        private void LateUpdate()
-        {
-            if (_captureFrames && _isPlaying && !string.IsNullOrEmpty(_captureFolder))
-            {
-                string framePath = Path.Combine(_captureFolder, $"frame_{_captureFrameIndex:D5}.png");
-                ScreenCapture.CaptureScreenshot(framePath);
-                _captureFrameIndex++;
-            }
-        }
-
-        private void OnGUI()
-        {
-            if (_overlayHidden) return;
-
-            Event e = Event.current;
-            if (e.type != EventType.Repaint) return;
-
-            // ── Letterbox ─────────────────────────────────────────────────────
-            float barH = 0f;
-            if (_showLetterbox && _isPlaying)
-            {
-                const float targetAspect = 2.35f;
-                float currentAspect = (float)Screen.width / Screen.height;
-                if (currentAspect < targetAspect)
-                {
-                    float contentH = Screen.width / targetAspect;
-                    barH = (Screen.height - contentH) * 0.5f;
-                    if (barH > 0.5f)
-                    {
-                        GUI.color = Color.black;
-                        GUI.DrawTexture(new Rect(0f, 0f, Screen.width, barH), Texture2D.whiteTexture);
-                        GUI.DrawTexture(new Rect(0f, Screen.height - barH, Screen.width, barH), Texture2D.whiteTexture);
-                        GUI.color = Color.white;
-                    }
-                }
-            }
-
-            // ── Shot title (lower-third) ──────────────────────────────────────
-            if (_showTitles && _isPlaying && !string.IsNullOrEmpty(_currentTitle))
-            {
-                EnsureTitleStyle();
-                float titleH = Mathf.Max(32f, Screen.height * 0.06f);
-                float baseY = Screen.height - barH - titleH - Screen.height * 0.015f;
-
-                // Background strip
-                GUI.color = new Color(0f, 0f, 0f, 0.72f);
-                GUI.DrawTexture(new Rect(0f, baseY - 4f, Screen.width, titleH + 8f), Texture2D.whiteTexture);
-                GUI.color = Color.white;
-
-                // Text
-                _titleStyle.fontSize = Mathf.RoundToInt(Screen.height * 0.036f);
-                GUI.Label(new Rect(0f, baseY, Screen.width, titleH), _currentTitle, _titleStyle);
-            }
-
-            // ── Fade overlay (always on top) ──────────────────────────────────
-            if (_fadeAlpha > 0.002f)
-            {
-                GUI.color = new Color(0f, 0f, 0f, _fadeAlpha);
-                GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), Texture2D.whiteTexture);
-                GUI.color = Color.white;
-            }
-        }
-
-        // ── Public API ────────────────────────────────────────────────────────
-
-        /// <summary>Inicia (ou reinicia) a sequência desde o shot 0.</summary>
         public void Play()
         {
-            if (_targetCamera == null)
+            if (_steps == null || _steps.Count == 0)
             {
-                Debug.LogError("[ArenaCinematicDirector] Nenhuma câmera atribuída.");
+                Debug.LogWarning("[ArenaCinematicDirector] Nenhuma câmera configurada.");
                 return;
             }
 
             Stop();
-
             _isPlaying = true;
             _isPaused = false;
-            _fadeAlpha = 0f;
-            _currentTitle = "";
-            _currentShotIndex = 0;
-
-            if (_captureFrames)
-                StartCapture();
-
-            _sequenceCoroutine = StartCoroutine(RunSequence());
+            _sequenceCoroutine = StartCoroutine(RunCinemachineSequence());
         }
 
-        /// <summary>Para a reprodução e restaura a câmera ao estado original.</summary>
         public void Stop()
         {
             if (_sequenceCoroutine != null)
@@ -222,504 +134,275 @@ namespace FowlgenWars.Cinematic
 
             _isPlaying = false;
             _isPaused = false;
-            _fadeAlpha = 0f;
             _currentTitle = "";
-            _currentShotIndex = -1;
+            _currentSubtitle = "";
+            _currentStepIndex = -1;
 
-            if (_captureFrames)
-                EndCapture();
-
-            RestoreCamera();
-        }
-
-        /// <summary>Pausa ou retoma a reprodução.</summary>
-        public void TogglePause()
-        {
-            if (!_isPlaying) return;
-            _isPaused = !_isPaused;
-        }
-
-        // ── Keyboard ──────────────────────────────────────────────────────────
-
-        private void HandleKeyboard()
-        {
-#if ENABLE_INPUT_SYSTEM
-            var kb = UnityEngine.InputSystem.Keyboard.current;
-            if (kb != null)
+            if (_gameplayCamera != null)
             {
-                if (kb.cKey.wasPressedThisFrame) Play();
-                if (kb.escapeKey.wasPressedThisFrame) Stop();
-                if (kb.spaceKey.wasPressedThisFrame) TogglePause();
-                if (kb.hKey.wasPressedThisFrame) _overlayHidden = !_overlayHidden;
+                SetOnlyActiveCamera(_gameplayCamera);
             }
-#elif ENABLE_LEGACY_INPUT_MANAGER
-            if (Input.GetKeyDown(KeyCode.C)) Play();
-            if (Input.GetKeyDown(KeyCode.Escape)) Stop();
-            if (Input.GetKeyDown(KeyCode.Space)) TogglePause();
-            if (Input.GetKeyDown(KeyCode.H)) _overlayHidden = !_overlayHidden;
-#endif
         }
 
-        // ── Coroutines ────────────────────────────────────────────────────────
-
-        private IEnumerator RunSequence()
+        private IEnumerator RunCinemachineSequence()
         {
-            if (_shots == null || _shots.Count == 0)
-            {
-                Debug.LogWarning("[ArenaCinematicDirector] Nenhum shot configurado. Use BuildDefaultArenaShots.");
-                _isPlaying = false;
-                yield break;
-            }
+            Debug.Log("[ArenaCinematicDirector] Iniciando apresentação cinemática de pitch...");
 
-            do
+            for (int i = 0; i < _steps.Count; i++)
             {
-                for (int i = 0; i < _shots.Count; i++)
+                _currentStepIndex = i;
+                var step = _steps[i];
+                if (step == null || step.virtualCamera == null) continue;
+
+                _currentTitle = step.titleText;
+                _currentSubtitle = step.subtitleText;
+
+                SetOnlyActiveCamera(step.virtualCamera);
+
+                float timer = 0f;
+                while (timer < step.holdDuration)
                 {
-                    if (!_isPlaying) yield break;
-                    _currentShotIndex = i;
-                    var shot = _shots[i];
-                    if (shot == null) continue;
-                    yield return StartCoroutine(RunShot(shot));
-                }
-            }
-            while (_loop && _isPlaying);
-
-            _isPlaying = false;
-            _currentTitle = "";
-            OnSequenceFinished?.Invoke();
-            Debug.Log("[ArenaCinematicDirector] Sequência concluída.");
-        }
-
-        private IEnumerator RunShot(CinematicShot shot)
-        {
-            // Snap câmera para posição inicial ANTES de revelar via fade
-            if (shot.fadeInAtStart)
-            {
-                _fadeAlpha = 1f;
-                ApplyShotAt(shot, 0f);
-                yield return StartCoroutine(AnimateFade(1f, 0f, _fadeDuration));
-            }
-
-            _currentTitle = shot.titleText;
-            float elapsed = 0f;
-            float totalDuration = Mathf.Max(0.001f, shot.duration);
-
-            while (elapsed < totalDuration)
-            {
-                // Aguarda enquanto pausado
-                while (_isPaused && _isPlaying)
+                    if (!_isPaused)
+                    {
+                        timer += Time.deltaTime;
+                    }
                     yield return null;
-
-                if (!_isPlaying) yield break;
-
-                float t = elapsed / totalDuration;
-                float easedT = shot.easing != null ? shot.easing.Evaluate(t) : t;
-                ApplyShotAt(shot, easedT);
-
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
-
-            // Garante posição exata no fim
-            ApplyShotAt(shot, 1f);
-
-            // Fade out antes do próximo shot
-            if (shot.fadeOutAtEnd)
-                yield return StartCoroutine(AnimateFade(0f, 1f, _fadeDuration));
-        }
-
-        private IEnumerator AnimateFade(float from, float to, float duration)
-        {
-            float elapsed = 0f;
-            float d = Mathf.Max(0.001f, duration);
-            while (elapsed < d)
-            {
-                _fadeAlpha = Mathf.Lerp(from, to, elapsed / d);
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
-            _fadeAlpha = to;
-        }
-
-        // ── Shot Evaluation ───────────────────────────────────────────────────
-
-        private void ApplyShotAt(CinematicShot shot, float t)
-        {
-            if (_targetCamera == null) return;
-
-            Vector3 camPos = GetShotPosition(shot, t);
-            Vector3 lookPos = GetLookAtPosition(shot, t);
-
-            _targetCamera.transform.position = camPos;
-
-            // Evita LookAt degenerado se câmera == alvo
-            if ((lookPos - camPos).sqrMagnitude > 0.0001f)
-                _targetCamera.transform.LookAt(lookPos, Vector3.up);
-
-            _targetCamera.fieldOfView = Mathf.Lerp(shot.fovStart, shot.fovEnd, t);
-        }
-
-        private Vector3 GetShotPosition(CinematicShot shot, float t)
-        {
-            switch (shot.moveType)
-            {
-                case ShotMoveType.Dolly:
-                    return Vector3.Lerp(shot.startPosition, shot.endPosition, t);
-
-                case ShotMoveType.Orbit:
-                {
-                    float angleDeg = Mathf.Lerp(shot.orbitStartAngleDeg, shot.orbitEndAngleDeg, t);
-                    float angleRad = angleDeg * Mathf.Deg2Rad;
-                    float height = Mathf.Lerp(shot.orbitHeight, shot.orbitHeightEnd, t);
-                    return shot.orbitCenter + new Vector3(
-                        Mathf.Cos(angleRad) * shot.orbitRadius,
-                        height,
-                        Mathf.Sin(angleRad) * shot.orbitRadius);
                 }
+            }
 
-                case ShotMoveType.Static:
-                default:
-                    return shot.startPosition;
+            // Transição final para a câmera de combate
+            _currentTitle = "Fowlgen Wars";
+            _currentSubtitle = "Batalha Iniciada!";
+            if (_gameplayCamera != null)
+            {
+                SetOnlyActiveCamera(_gameplayCamera);
+            }
+
+            yield return new WaitForSeconds(2.5f);
+
+            _currentTitle = "";
+            _currentSubtitle = "";
+            _isPlaying = false;
+            _sequenceCoroutine = null;
+
+            Debug.Log("[ArenaCinematicDirector] Sequência concluída com sucesso. Câmera de combate ativa.");
+            OnSequenceFinished?.Invoke();
+
+            if (_loop)
+            {
+                Play();
             }
         }
 
-        private Vector3 GetLookAtPosition(CinematicShot shot, float t)
+        private void SetOnlyActiveCamera(CinemachineCamera activeCam)
         {
-            Vector3 start = shot.lookAtTransform != null
-                ? shot.lookAtTransform.position
-                : shot.lookAtPosition;
+            if (activeCam == null) return;
 
-            if (!shot.useLookAtEnd)
-                return start;
+            // Define prioridade alta para a ativa e baixa para todas as outras
+            if (_steps != null)
+            {
+                foreach (var s in _steps)
+                {
+                    if (s != null && s.virtualCamera != null)
+                    {
+                        bool isTarget = s.virtualCamera == activeCam;
+                        s.virtualCamera.Priority = new PrioritySettings { Value = isTarget ? 20 : 10 };
+                    }
+                }
+            }
 
-            return Vector3.Lerp(start, shot.lookAtEndPosition, t);
+            if (_gameplayCamera != null)
+            {
+                bool isTarget = _gameplayCamera == activeCam;
+                _gameplayCamera.Priority = new PrioritySettings { Value = isTarget ? 20 : 10 };
+            }
         }
 
-        // ── Camera Restore ────────────────────────────────────────────────────
-
-        private void RestoreCamera()
+        [ContextMenu("Rebuild Default Cinemachine Rigs")]
+        public void BuildDefaultCinemachineRigs()
         {
-            if (_targetCamera == null) return;
-            _targetCamera.transform.position = _originalPosition;
-            _targetCamera.transform.rotation = _originalRotation;
-            _targetCamera.fieldOfView = _originalFov;
-        }
-
-        // ── Frame Capture ─────────────────────────────────────────────────────
-
-        private void StartCapture()
-        {
-            string projectRoot = Path.GetDirectoryName(Application.dataPath);
-            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-            _captureFolder = Path.Combine(projectRoot, "Recordings", timestamp);
-            Directory.CreateDirectory(_captureFolder);
-            _captureFrameIndex = 0;
-
-            Time.captureFramerate = _captureFps;
-
-            Debug.Log($"[ArenaCinematicDirector] Capturando frames em: {_captureFolder}");
-            Debug.Log($"[ArenaCinematicDirector] Montar vídeo com:\n" +
-                      $"ffmpeg -framerate {_captureFps} -start_number 0 " +
-                      $"-i \"{Path.Combine(_captureFolder, "frame_%05d.png")}\" " +
-                      $"-c:v libx264 -pix_fmt yuv420p -crf 18 -movflags +faststart fowlgen_wars_trailer.mp4");
-        }
-
-        private void EndCapture()
-        {
-            if (!_captureFrames) return;
-            Time.captureFramerate = 0;
-            if (!string.IsNullOrEmpty(_captureFolder))
-                Debug.Log($"[ArenaCinematicDirector] Captura concluída. {_captureFrameIndex} frames em: {_captureFolder}");
-            _captureFolder = "";
-        }
-
-        // ── Default Arena Shots ───────────────────────────────────────────────
-
-        /// <summary>
-        /// Preenche a lista de shots com a sequência padrão de apresentação da arena.
-        /// Baseado nas coordenadas de mundo da BattleArena:
-        ///   Centro (0,0,0) | Ilha raio ≈24 | Base Vermelha (16.5,0,0.5) | Base Azul (-16.5,0,0.5)
-        ///   Estátua galo vermelho (13.3,4,-1.3) | Estátua galo azul (-13.3,4,-1.3)
-        ///   Rio S-curve ao longo do eixo Z perto de x≈0 | Pontes: Top(-0.5,0.4,-9) Bottom(-2,0.4,10)
-        ///   Torretas vermelhas (7.5,0,-9.5) e (7.8,0,9.8) | Torretas azuis (-8.2,0,-9.5) e (-8.5,0,9.8)
-        ///   Câmera gameplay: pos(0,42,34) olhando (0,0,-1) FOV 42
-        /// </summary>
-        [ContextMenu("Build Default Arena Shots")]
-        public void BuildDefaultArenaShots()
-        {
-            _shots = new List<CinematicShot>();
-
-            // ── Shot 1: Wide Establishing Orbit (underbelly → overview) ─────
-            // A câmera começa abaixo da ilha flutuante, mostrando a barriga,
-            // e sobe em arco de 250° ao redor da arena.
-            _shots.Add(new CinematicShot
+            Transform rigsParent = transform.Find("Cinematic_Cinemachine_Rigs");
+            if (rigsParent == null)
             {
-                shotName = "01 – Órbita Revelação (debaixo → cima)",
-                duration = 10f,
-                easing = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f),
-                moveType = ShotMoveType.Orbit,
-                orbitCenter = new Vector3(0f, 0f, 0f),
-                orbitStartAngleDeg = 30f,
-                orbitEndAngleDeg = 280f,
-                orbitRadius = 40f,
-                orbitHeight = -16f,       // começa abaixo (mostra barriga da ilha)
-                orbitHeightEnd = 20f,     // sobe para visão panorâmica
-                lookAtPosition = new Vector3(0f, -2f, 0f),
-                fovStart = 55f,
-                fovEnd = 50f,
-                fadeInAtStart = true,
-                fadeOutAtEnd = true,
-            });
+                var go = new GameObject("Cinematic_Cinemachine_Rigs");
+                go.transform.SetParent(transform);
+                rigsParent = go.transform;
+            }
 
-            // ── Shot 2: Descida ao Rio ───────────────────────────────────────
-            // Dolly desce de altitude de visão até nível do rio, voando ao longo do vale.
-            _shots.Add(new CinematicShot
+            // Garante CinemachineBrain
+            if (_brain == null && Camera.main != null)
             {
-                shotName = "02 – Descida ao Rio",
-                duration = 6f,
-                easing = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f),
-                moveType = ShotMoveType.Dolly,
-                startPosition = new Vector3(0f, 22f, -30f),
-                endPosition = new Vector3(1.5f, 3.5f, -18f),
-                lookAtPosition = new Vector3(0f, 1f, -8f),
-                useLookAtEnd = true,
-                lookAtEndPosition = new Vector3(0f, 1f, 0f),
-                fovStart = 50f,
-                fovEnd = 62f,
-                fadeInAtStart = true,
-                fadeOutAtEnd = false,
-            });
+                _brain = Camera.main.GetComponent<CinemachineBrain>();
+                if (_brain == null)
+                    _brain = Camera.main.gameObject.AddComponent<CinemachineBrain>();
+            }
 
-            // ── Shot 3: Passagem pela TopBridge ─────────────────────────────
-            // Câmera voa por cima da ponte superior, mostrando o rio abaixo.
-            _shots.Add(new CinematicShot
+            if (_brain != null)
             {
-                shotName = "03 – Passagem pela Ponte Superior",
-                duration = 5f,
-                easing = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f),
-                moveType = ShotMoveType.Dolly,
-                startPosition = new Vector3(4f, 8f, -18f),
-                endPosition = new Vector3(-3f, 4.5f, -4f),
-                lookAtPosition = new Vector3(-0.5f, 0.4f, -9f),   // TopBridge
-                fovStart = 62f,
-                fovEnd = 55f,
-                fadeInAtStart = false,
-                fadeOutAtEnd = true,
-            });
+                _brain.DefaultBlend = new CinemachineBlendDefinition(CinemachineBlendDefinition.Styles.EaseInOut, 1.8f);
+            }
 
-            // ── Shot 4: Órbita da Estátua do Galo Vermelho ──────────────────
-            _shots.Add(new CinematicShot
-            {
-                shotName = "04 – Base Vermelha (estátua do galo)",
-                duration = 8f,
-                easing = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f),
-                moveType = ShotMoveType.Orbit,
-                orbitCenter = new Vector3(13.3f, 4f, -1.3f),
-                orbitStartAngleDeg = 200f,
-                orbitEndAngleDeg = 340f,
-                orbitRadius = 8f,
-                orbitHeight = 4f,
-                orbitHeightEnd = 7f,
-                lookAtPosition = new Vector3(13.3f, 3.5f, -1.3f),
-                fovStart = 52f,
-                fovEnd = 44f,
-                titleText = "Base Vermelha",
-                fadeInAtStart = true,
-                fadeOutAtEnd = true,
-            });
+            // 1. Cam 1: Sobrevoo Panorâmico
+            var cam1 = CreateOrGetVirtualCam(rigsParent, "CM_Cam1_Sobrevoo", 
+                new Vector3(-14f, 35f, -34f), 
+                new Vector3(0f, 10.5f, 0f), 
+                52f);
 
-            // ── Shot 5: Travessia para a Base Azul ──────────────────────────
-            // Dolly lateral atravessa o mapa, pan de câmera revelando a base azul.
-            _shots.Add(new CinematicShot
-            {
-                shotName = "05 – Base Azul (travessia)",
-                duration = 7f,
-                easing = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f),
-                moveType = ShotMoveType.Dolly,
-                startPosition = new Vector3(8f, 6f, 0f),
-                endPosition = new Vector3(-11f, 6f, -1f),
-                lookAtPosition = new Vector3(0f, 2f, 0f),
-                useLookAtEnd = true,
-                lookAtEndPosition = new Vector3(-13.3f, 4f, -1.3f),
-                fovStart = 50f,
-                fovEnd = 48f,
-                titleText = "Base Azul",
-                fadeInAtStart = true,
-                fadeOutAtEnd = true,
-            });
+            // 2. Cam 2: Base Aliada & Galinheiro Dourado
+            var cam2 = CreateOrGetVirtualCam(rigsParent, "CM_Cam2_BaseAliada", 
+                new Vector3(0f, 18f, 28f), 
+                new Vector3(0.32f, 10.51f, 20.65f), 
+                46f);
 
-            // ── Shot 6: Push baixo ângulo na Torreta ─────────────────────────
-            // Câmera rente ao chão empurra em direção à torreta vermelha (7.5,0,-9.5),
-            // revelando seu tamanho e presença dramática.
-            _shots.Add(new CinematicShot
-            {
-                shotName = "06 – Torreta (low-angle push)",
-                duration = 5f,
-                easing = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f),
-                moveType = ShotMoveType.Dolly,
-                startPosition = new Vector3(3.5f, 2.5f, -14f),
-                endPosition = new Vector3(6.2f, 0.8f, -11f),
-                lookAtPosition = new Vector3(7.5f, 3.5f, -9.5f),
-                fovStart = 68f,
-                fovEnd = 50f,
-                fadeInAtStart = true,
-                fadeOutAtEnd = true,
-            });
+            // 3. Cam 3: Herói Milo de Frente (Close Épico)
+            var cam3 = CreateOrGetVirtualCam(rigsParent, "CM_Cam3_HeroiMilo", 
+                new Vector3(1.8f, 13.2f, 10.0f), 
+                new Vector3(0f, 12.2f, 15.41f), 
+                44f);
 
-            // ── Shot 7: Crane Final para câmera de gameplay ──────────────────
-            // Grua épica: câmera sobe até a posição de overview usada no gameplay,
-            // revelando o campo de batalha completo com o título do jogo.
-            _shots.Add(new CinematicShot
+            // 4. Cam 4: Câmera Oficial de Gameplay
+            var cam4 = CreateOrGetVirtualCam(rigsParent, "CM_Cam4_GameplayBlend", 
+                new Vector3(-22.0f, 28.5f, -1.5f), 
+                Quaternion.Euler(40.8f, 88.2f, 0f), 
+                50f);
+
+            _gameplayCamera = cam4;
+
+            _steps = new List<CinemachineShotStep>
             {
-                shotName = "07 – Fowlgen Wars (crane overview)",
-                duration = 9f,
-                easing = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f),
-                moveType = ShotMoveType.Dolly,
-                startPosition = new Vector3(6f, 2f, -9f),
-                endPosition = new Vector3(0f, 42f, 34f),           // gameplay overview pose
-                lookAtPosition = new Vector3(0f, 0f, 0f),
-                useLookAtEnd = true,
-                lookAtEndPosition = new Vector3(0f, 0f, -1f),      // gameplay look-at
-                fovStart = 50f,
-                fovEnd = 42f,                                       // gameplay FOV
-                titleText = "Fowlgen Wars",
-                fadeInAtStart = true,
-                fadeOutAtEnd = true,
-            });
+                new CinemachineShotStep
+                {
+                    shotName = "01 – Sobrevoo Panorâmico",
+                    virtualCamera = cam1,
+                    holdDuration = 5.5f,
+                    titleText = "FOWLGEN WARS",
+                    subtitleText = "O Primeiro Mini-MOBA na Solana"
+                },
+                new CinemachineShotStep
+                {
+                    shotName = "02 – Base Aliada & Galinheiro",
+                    virtualCamera = cam2,
+                    holdDuration = 4.5f,
+                    titleText = "Defenda seu Galinheiro",
+                    subtitleText = "Estratégia e Combate nas 3 Rotas"
+                },
+                new CinemachineShotStep
+                {
+                    shotName = "03 – Herói Milo Atirador",
+                    virtualCamera = cam3,
+                    holdDuration = 5.0f,
+                    titleText = "Milo – O Galo Paladino",
+                    subtitleText = "Habilidades Ágeis & Dano à Distância"
+                },
+                new CinemachineShotStep
+                {
+                    shotName = "04 – Blend para Combate Real",
+                    virtualCamera = cam4,
+                    holdDuration = 4.0f,
+                    titleText = "Batalha Iniciada!",
+                    subtitleText = "Partidas Rápidas de 3 Minutos"
+                }
+            };
+
+            SetOnlyActiveCamera(_gameplayCamera);
 
 #if UNITY_EDITOR
             UnityEditor.EditorUtility.SetDirty(this);
 #endif
-            Debug.Log($"[ArenaCinematicDirector] {_shots.Count} shots criados. " +
-                      $"Duração total estimada: ~{EstimateTotalDuration():F0}s");
+            Debug.Log("[ArenaCinematicDirector] 4 Câmeras Cinemachine criadas com blends suaves profissionais!");
         }
 
-        private float EstimateTotalDuration()
+        private CinemachineCamera CreateOrGetVirtualCam(Transform parent, string name, Vector3 pos, Vector3 lookAtPos, float fov)
         {
-            float total = 0f;
-            if (_shots == null) return 0f;
-            foreach (var s in _shots)
-            {
-                if (s == null) continue;
-                total += s.duration;
-                if (s.fadeInAtStart) total += _fadeDuration;
-                if (s.fadeOutAtEnd)  total += _fadeDuration;
-            }
-            return total;
+            Transform existing = parent.Find(name);
+            GameObject go = existing != null ? existing.gameObject : new GameObject(name);
+            go.transform.SetParent(parent);
+            go.transform.position = pos;
+            go.transform.LookAt(lookAtPos);
+
+            var cam = go.GetComponent<CinemachineCamera>();
+            if (cam == null) cam = go.AddComponent<CinemachineCamera>();
+
+            cam.Lens.FieldOfView = fov;
+            cam.Priority = new PrioritySettings { Value = 10 };
+            return cam;
         }
 
-        // ── Gizmos ────────────────────────────────────────────────────────────
-
-        private void OnDrawGizmosSelected()
+        private CinemachineCamera CreateOrGetVirtualCam(Transform parent, string name, Vector3 pos, Quaternion rot, float fov)
         {
-            if (_shots == null) return;
+            Transform existing = parent.Find(name);
+            GameObject go = existing != null ? existing.gameObject : new GameObject(name);
+            go.transform.SetParent(parent);
+            go.transform.position = pos;
+            go.transform.rotation = rot;
 
-            for (int i = 0; i < _shots.Count; i++)
+            var cam = go.GetComponent<CinemachineCamera>();
+            if (cam == null) cam = go.AddComponent<CinemachineCamera>();
+
+            cam.Lens.FieldOfView = fov;
+            cam.Priority = new PrioritySettings { Value = 10 };
+            return cam;
+        }
+
+        // ── Interface de Cinema (OnGUI) ───────────────────────────────────────
+        private void OnGUI()
+        {
+            if (!_isPlaying || _overlayHidden) return;
+
+            InitStyles();
+
+            float sw = Screen.width;
+            float sh = Screen.height;
+
+            // Letterbox 2.35:1
+            if (_showLetterbox)
             {
-                var shot = _shots[i];
-                if (shot == null) continue;
-
-                // Cor por índice para distinguir os shots
-                float hue = (float)i / Mathf.Max(1, _shots.Count);
-                Color shotColor = Color.HSVToRGB(hue, 0.85f, 1f);
-                shotColor.a = 0.9f;
-
-                switch (shot.moveType)
+                float targetH = sw / 2.35f;
+                float barH = Mathf.Max(0f, (sh - targetH) * 0.5f);
+                if (barH > 0f)
                 {
-                    case ShotMoveType.Dolly:
-                        DrawDollyGizmo(shot, shotColor);
-                        break;
-                    case ShotMoveType.Orbit:
-                        DrawOrbitGizmo(shot, shotColor);
-                        break;
-                    case ShotMoveType.Static:
-                        Gizmos.color = shotColor;
-                        Gizmos.DrawWireSphere(shot.startPosition, 0.5f);
-                        DrawLookAtLine(shot.startPosition, shot, 0f, shotColor);
-                        break;
+                    Color prev = GUI.color;
+                    GUI.color = Color.black;
+                    GUI.DrawTexture(new Rect(0, 0, sw, barH), Texture2D.whiteTexture);
+                    GUI.DrawTexture(new Rect(0, sh - barH, sw, barH), Texture2D.whiteTexture);
+                    GUI.color = prev;
                 }
-
-                // Rótulo do shot (apenas se Handles estiver disponível em editor)
-#if UNITY_EDITOR
-                Vector3 labelPos = GetShotPosition(shot, 0f) + Vector3.up * 1f;
-                UnityEditor.Handles.color = shotColor;
-                UnityEditor.Handles.Label(labelPos, $"[{i}] {shot.shotName}");
-#endif
             }
-        }
 
-        private void DrawDollyGizmo(CinematicShot shot, Color color)
-        {
-            Gizmos.color = color;
-            Gizmos.DrawLine(shot.startPosition, shot.endPosition);
-            Gizmos.DrawWireSphere(shot.startPosition, 0.35f);
-            Gizmos.DrawWireSphere(shot.endPosition, 0.5f);
-
-            // Seta de direção
-            Vector3 dir = (shot.endPosition - shot.startPosition).normalized;
-            Vector3 mid = Vector3.Lerp(shot.startPosition, shot.endPosition, 0.5f);
-            Gizmos.DrawRay(mid, dir * 1.5f);
-
-            DrawLookAtLine(shot.endPosition, shot, 1f, color);
-        }
-
-        private void DrawOrbitGizmo(CinematicShot shot, Color color)
-        {
-            const int segments = 48;
-            Gizmos.color = new Color(color.r, color.g, color.b, 0.35f);
-
-            // Desenha o círculo de órbita (altura média)
-            float midHeight = (shot.orbitHeight + shot.orbitHeightEnd) * 0.5f;
-            Vector3 prev = Vector3.zero;
-            for (int s = 0; s <= segments; s++)
+            // Lower-third title
+            if (_showTitles && !string.IsNullOrEmpty(_currentTitle))
             {
-                float a = s * 360f / segments * Mathf.Deg2Rad;
-                Vector3 p = shot.orbitCenter + new Vector3(
-                    Mathf.Cos(a) * shot.orbitRadius, midHeight, Mathf.Sin(a) * shot.orbitRadius);
-                if (s > 0) Gizmos.DrawLine(prev, p);
-                prev = p;
+                float panelW = Mathf.Min(sw * 0.7f, 700f);
+                float panelH = 75f;
+                float x = (sw - panelW) * 0.5f;
+                float y = sh - (sh * 0.16f);
+
+                GUI.Label(new Rect(x, y, panelW, 35f), _currentTitle, _titleStyle);
+                if (!string.IsNullOrEmpty(_currentSubtitle))
+                {
+                    GUI.Label(new Rect(x, y + 36f, panelW, 26f), _currentSubtitle, _subStyle);
+                }
             }
-
-            // Marcadores de início e fim
-            float startRad = shot.orbitStartAngleDeg * Mathf.Deg2Rad;
-            float endRad   = shot.orbitEndAngleDeg   * Mathf.Deg2Rad;
-
-            Vector3 startCamPos = shot.orbitCenter + new Vector3(
-                Mathf.Cos(startRad) * shot.orbitRadius, shot.orbitHeight, Mathf.Sin(startRad) * shot.orbitRadius);
-            Vector3 endCamPos = shot.orbitCenter + new Vector3(
-                Mathf.Cos(endRad) * shot.orbitRadius, shot.orbitHeightEnd, Mathf.Sin(endRad) * shot.orbitRadius);
-
-            Gizmos.color = color;
-            Gizmos.DrawWireSphere(startCamPos, 0.35f);
-            Gizmos.DrawWireSphere(endCamPos, 0.55f);
-            Gizmos.DrawLine(shot.orbitCenter + Vector3.up * midHeight, startCamPos);
-
-            // Linha de subida (se houver diferença de altura)
-            if (Mathf.Abs(shot.orbitHeightEnd - shot.orbitHeight) > 0.1f)
-                Gizmos.DrawLine(startCamPos, endCamPos);
-
-            DrawLookAtLine(endCamPos, shot, 1f, color);
         }
 
-        private void DrawLookAtLine(Vector3 from, CinematicShot shot, float t, Color color)
-        {
-            Color lookatColor = new Color(color.r * 0.6f, color.g, color.b * 0.6f, 0.5f);
-            Gizmos.color = lookatColor;
-            Vector3 lookTarget = GetLookAtPosition(shot, t);
-            Gizmos.DrawLine(from, lookTarget);
-            Gizmos.DrawWireSphere(lookTarget, 0.25f);
-        }
-
-        // ── Helpers ───────────────────────────────────────────────────────────
-
-        private void EnsureTitleStyle()
+        private void InitStyles()
         {
             if (_titleStyle != null) return;
+
             _titleStyle = new GUIStyle
             {
                 alignment = TextAnchor.MiddleCenter,
+                fontSize = Mathf.Clamp(Mathf.RoundToInt(Screen.height * 0.042f), 18, 38),
                 fontStyle = FontStyle.Bold,
-                normal = { textColor = Color.white }
+                normal = { textColor = new Color(1f, 0.92f, 0.4f, 1f) } // Dourado épico
+            };
+
+            _subStyle = new GUIStyle
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = Mathf.Clamp(Mathf.RoundToInt(Screen.height * 0.026f), 12, 22),
+                fontStyle = FontStyle.Normal,
+                normal = { textColor = new Color(0.95f, 0.95f, 0.95f, 0.9f) } // Branco suave
             };
         }
     }

@@ -44,28 +44,8 @@ public static class ArenaCinematicMenu
 
         var director = go.AddComponent<ArenaCinematicDirector>();
 
-        // Tenta atribuir Camera.main
-        Camera mainCam = Camera.main;
-        if (mainCam != null)
-        {
-            // Usa SerializedObject para setar o campo privado serializado via Reflection
-            var so = new SerializedObject(director);
-            var camProp = so.FindProperty("_targetCamera");
-            if (camProp != null)
-            {
-                camProp.objectReferenceValue = mainCam;
-                so.ApplyModifiedPropertiesWithoutUndo();
-            }
-            Debug.Log($"[ArenaCinematicMenu] Camera atribuída: {mainCam.name}");
-        }
-        else
-        {
-            Debug.LogWarning("[ArenaCinematicMenu] Camera.main não encontrada. " +
-                             "Atribua a câmera manualmente no Inspector.");
-        }
-
-        // Preenche os shots padrão
-        director.BuildDefaultArenaShots();
+        // Configura os rigs nativos do Cinemachine 3
+        director.BuildDefaultCinemachineRigs();
 
         // Marca a cena como modificada
         EditorSceneManager.MarkSceneDirty(scene);
@@ -81,7 +61,26 @@ public static class ArenaCinematicMenu
     [MenuItem(MenuPath, true)]
     public static bool ValidateAddDirectorToOpenScene()
     {
-        // O item fica habilitado apenas se houver uma cena válida aberta
         return EditorSceneManager.GetActiveScene().IsValid();
+    }
+
+    [MenuItem("Fowlgen/Cinematic/Recalibrar Rigs Cinemachine da BattleArena", false, 20)]
+    public static void RecalibrateBattleArenaShots()
+    {
+        var director = Object.FindAnyObjectByType<ArenaCinematicDirector>();
+        if (director == null)
+        {
+            EditorUtility.DisplayDialog("Fowlgen Cinematic", "ArenaCinematicDirector não encontrado na cena atual.", "OK");
+            return;
+        }
+
+        director.BuildDefaultCinemachineRigs();
+        EditorUtility.SetDirty(director);
+        EditorSceneManager.MarkSceneDirty(director.gameObject.scene);
+        EditorSceneManager.SaveScene(director.gameObject.scene);
+        AssetDatabase.SaveAssets();
+
+        Debug.Log("[ArenaCinematicMenu] Rigs Cinemachine recalibrados com sucesso para BattleArena!");
+        EditorUtility.DisplayDialog("Fowlgen Cinematic", "Rigs Cinemachine recalibrados com sucesso para BattleArena!", "OK");
     }
 }

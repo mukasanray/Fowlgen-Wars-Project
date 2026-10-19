@@ -10,7 +10,7 @@ Sequência cinematográfica in-engine na Unity utilizando Cinemachine e Animator
 Atender à regra estrita de submissão do Colosseum Hackathon (vídeo obrigatório com duração estritamente ≤ 180 segundos).
 
 ## Context & Existing Implementations
-ArenaCinematicDirector.cs acoplado na Arena_Clean e roteiro cronometrado segundo a segundo.
+ArenaCinematicDirector.cs acoplado na BattleArena.unity e roteiro cronometrado segundo a segundo.
 
 ## Proposed Solution
 Sequência de 4 câmeras virtuais (sobrevoo, base, herói, blend), gravação a 1080p60 e narração com apresentação da tese.

@@ -466,19 +466,13 @@ namespace FowlgenWars.EditorScripts
             {
                 directorObj = new GameObject("ArenaCinematicDirector");
                 ArenaCinematicDirector director = directorObj.AddComponent<ArenaCinematicDirector>();
-                if (mainCam != null)
-                {
-                    SerializedObject soDir = new SerializedObject(director);
-                    soDir.FindProperty("_targetCamera").objectReferenceValue = mainCam;
-                    soDir.ApplyModifiedProperties();
-                }
-                director.BuildDefaultArenaShots();
+                director.BuildDefaultCinemachineRigs();
             }
 
             // 12. Fase 8: Gerar e Vincular Animator Controllers para Milo, Axel e Minions
             CreateMobaAnimatorControllers.GenerateAllControllers();
 
-            // 13. Garantir BuildSettings com Arena_Clean
+            // 13. Garantir BuildSettings com BattleArena
             EnsureSceneInBuildSettings(ScenePath);
 
             // 14. Fase 9: Travar PlayerSettings em Landscape (AutoRotation apenas horizontal)

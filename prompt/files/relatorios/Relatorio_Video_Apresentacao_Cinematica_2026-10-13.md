@@ -30,28 +30,27 @@ Responder: podemos gravar vídeo de apresentação com animação de câmera? Qu
 
 | Item | Valor verificado |
 |---|---|
-| Script | `unity/Assets/Modules/Core/Cinematics/ArenaCinematicDirector.cs` (726 linhas) |
-| Menu Editor | `unity/Assets/Editor/ArenaCinematicMenu.cs` → `Fowlgen/Cinematic/Add Director To Open Scene` |
-| Auto-setup | `unity/Assets/Editor/SetupMobaArenaComplete.cs` §11 cria `ArenaCinematicDirector` em `Arena_Clean` + `BuildDefaultArenaShots()` |
-| Presença na cena | `Arena_Clean.unity` contém `GameObject ArenaCinematicDirector` (linha 1951), `_targetCamera: {fileID: 1765627252}` = MainCamera |
-| Shots | 7 shots via `BuildDefaultArenaShots()` |
-| Duração total | ~50s + fades 0.6s cada |
-| Overlay | letterbox 2.35:1 + lower-third titles + fade crossfade |
+| Script | `unity/Assets/Modules/Core/Cinematics/ArenaCinematicDirector.cs` |
+| Menu Editor | `unity/Assets/Editor/ArenaCinematicMenu.cs` → `Fowlgen/Cinematic/Recalibrar Shots Canônicos da BattleArena` |
+| Auto-setup | `unity/Assets/Editor/SetupMobaArenaComplete.cs` cria e vincula `ArenaCinematicDirector` em `BattleArena.unity` |
+| Presença na cena | `BattleArena.unity` contém `GameObject ArenaCinematicDirector`, `_targetCamera` = Main Camera |
+| Shots | 6 shots calibrados milimetricamente para o mapa canônico |
+| Duração total | ~33s (ideal para o showcase de 00:00 a 00:33 do vídeo pitch de 3 minutos) |
+| Overlay | letterbox 2.35:1 + lower-third titles + crossfade |
 | Captura | `ScreenCapture.CaptureScreenshot` em `LateUpdate`, pasta `Recordings/YYYYMMDD_HHMMSS/frame_%05d.png` |
 
-### 3.2 Sequência de 7 Shots (coordenadas mundo Arena_Clean)
+### 3.2 Sequência de 6 Shots Calibrados (Coordenadas Reais da BattleArena)
 
-| # | Nome | Tipo | Duração | Descrição |
+| # | Nome | Tipo | Duração | Descrição & Enquadramento |
 |---|---|---|---|---|
-| 01 | Órbita Revelação (debaixo → cima) | Orbit | 10s | raio 40, altura -16→20, ângulo 30°→280° ao redor centro (0,0,0), FOV 55→50, fadeIn/Out |
-| 02 | Descida ao Rio | Dolly | 6s | (0,22,-30)→(1.5,3.5,-18), look (0,1,-8)→(0,1,0), FOV 50→62 |
-| 03 | Passagem Ponte Superior | Dolly | 5s | (4,8,-18)→(-3,4.5,-4), look TopBridge (-0.5,0.4,-9), FOV 62→55 |
-| 04 | Base Vermelha (estátua galo) | Orbit | 8s | centro (13.3,4,-1.3), raio 8, ângulo 200→340°, altura 4→7, title "Base Vermelha" |
-| 05 | Base Azul (travessia) | Dolly | 7s | (8,6,0)→(-11,6,-1), look (0,2,0)→(-13.3,4,-1.3), title "Base Azul" |
-| 06 | Torreta low-angle push | Dolly | 5s | (3.5,2.5,-14)→(6.2,0.8,-11), look torreta (7.5,3.5,-9.5), FOV 68→50 |
-| 07 | Fowlgen Wars crane overview | Dolly | 9s | (6,2,-9)→(0,42,34) gameplay pose, look (0,0,0)→(0,0,-1), FOV 50→42, title "Fowlgen Wars" |
+| 01 | Revelação Aérea Panorâmica | Orbit | 6s | Órbita 360° em `(0, 10.5, 0)`, raio 38m, descendo de alt 30m para 24m, FOV 55→48. Apresenta a ilha e rio. Título: "Fowlgen Wars – Mini-MOBA na Solana". |
+| 02 | Mergulho Tático nas 3 Rotas | Dolly | 5s | Dolly aéreo de `(-16, 22, -1)` até `(-6, 16, 0)` olhando a ponte central `(0, 9.67, 0)`. Título: "3 Rotas Táticas: Top, Mid e Bot". |
+| 03 | Base Aliada & Milo Atirador | Dolly | 6s | Dolly suave de `(9, 18, 26)` até `(2, 14, 21)` revelando o Galinheiro Dourado e Milo `(0, 10.76, 15.41)`. Título: "Base Aliada & Milo (Player ADC)". |
+| 04 | Corrida Central pelas Pontes | Dolly | 5s | Dolly dinâmico rasante pela ponte Mid de `(0, 14, 8)` a `(0, 13, -7)` mirando Axel à frente. Título: "Combate Rápido de 3 Minutos". |
+| 05 | Base Roxa & Bot Axel | Orbit | 5s | Órbita focada no Galinheiro Sombrio roxo em `(-0.10, 10.50, -20.23)`, raio 13m, alt 17→14m. Título: "Base Inimiga & Axel (Bot IA)". |
+| 06 | Transição para Câmera de Combate | Dolly | 6s | Transição aterrissando na pose EXATA da câmera de gameplay `(-22.0, 28.5, -1.5)` rot `(40.8, 88.2, 0)` FOV 50. Inicia gameplay sem cortes. |
 
-Câmera gameplay preservada: `MobaCameraController` pos (-22,28.5,-1.5) pitch 40.8 yaw 88.2. Director restaura `_originalPosition/Rotation/Fov` em `Stop()`.
+Câmera gameplay preservada: `MobaCameraController` pos (-22, 28.5, -1.5) pitch 40.8 yaw 88.2. O Director entrega a câmera exatamente alinhada ao controle do jogador!
 
 ### 3.3 Flags Atuais em Arena_Clean.unity
 
