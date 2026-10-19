@@ -8,14 +8,12 @@
 
 ## 🎯 Visão Geral da Sequência de Execução
 
-```mermaid
-graph TD
-    A[1. Regra de Desempate e Timer] --> B[2. Sincronização Galinheiros FishNet]
-    B --> C[3. Integração Transação On-Chain Solana]
-    C --> D[4. Tomadas Cinemachine Pitch]
-    D --> E[5. Configuração e Build APK Android]
-    E --> F[6. Atualização OpenSpec e Kanban]
-```
+- [x] **1. Regra de Desempate e Timer (1.2 e 1.3)** — *Concluído no commit `324c0fe` (Testes NUnit 114/114).*
+- [x] **2. Sincronização Galinheiros FishNet (1.3 e 1.4)** — *Concluído no commit `a00d69f` (LAN/Wi-Fi e RpcGameOver).*
+- [x] **3. Integração Transação On-Chain Solana (1.2)** — *Concluído no commit `06b1a2c` (Explorer link e increment).*
+- [x] **4. Tomadas Cinemachine Pitch (1.1)** — *Concluído no commit `0ebc4f0` (ArenaCinematicDirector).*
+- [x] **5. Configuração Build APK Android (1.1)** — *Concluído no commit `0ebc4f0` (PlayerSettings Landscape e pipeline).*
+- [ ] **5.2. Compilação do Binário APK Final (1.2)** — *Pronto para exportar no Android NDK/SDK.*
 
 ---
 
