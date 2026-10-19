@@ -2619,11 +2619,18 @@ body[data-theme="light"] .btn-reset-repo:hover {
 
 /* Git Identity Card in Modal */
 .git-identity-card {
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   padding: 14px;
   margin-bottom: 16px;
+  transition: all 0.2s ease;
+}
+
+:root[data-theme="light"] .git-identity-card,
+body[data-theme="light"] .git-identity-card {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
 }
 
 .git-identity-header {
@@ -2649,10 +2656,59 @@ body[data-theme="light"] .btn-reset-repo:hover {
   border-color: rgba(16, 185, 129, 0.3);
 }
 
+:root[data-theme="light"] .git-identity-badge.ok,
+body[data-theme="light"] .git-identity-badge.ok {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
 .git-identity-badge.warning {
   background: rgba(245, 158, 11, 0.15);
   color: #fbbf24;
   border-color: rgba(245, 158, 11, 0.3);
+}
+
+:root[data-theme="light"] .git-identity-badge.warning,
+body[data-theme="light"] .git-identity-badge.warning {
+  background: rgba(245, 158, 11, 0.12);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+/* Member Form Card in Modal */
+.member-form-card {
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-subtle);
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
+}
+
+:root[data-theme="light"] .member-form-card,
+body[data-theme="light"] .member-form-card {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* Modal Body & Member List Scrollbars */
+.modal-body::-webkit-scrollbar,
+#members-list-cards::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-body::-webkit-scrollbar-track,
+#members-list-cards::-webkit-scrollbar-track {
+  background: transparent;
+}
+.modal-body::-webkit-scrollbar-thumb,
+#members-list-cards::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: var(--radius-full);
+}
+.modal-body::-webkit-scrollbar-thumb:hover,
+#members-list-cards::-webkit-scrollbar-thumb:hover {
+  background: var(--text-dim);
 }
 
 /* Large Details Modal ("Outra Tela") */
