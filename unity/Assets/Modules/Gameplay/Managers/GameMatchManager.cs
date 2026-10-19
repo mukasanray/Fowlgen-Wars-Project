@@ -249,16 +249,73 @@ namespace FowlgenWars.Gameplay
 
         private void EndMatchByTimeout()
         {
-            int playerHp = playerGalinheiro != null ? playerGalinheiro.CurrentHealth : 0;
-            int enemyHp = enemyGalinheiro != null ? enemyGalinheiro.CurrentHealth : 0;
+            if (!isMatchActive) return;
+            isMatchActive = false;
 
-            if (playerHp >= enemyHp)
+            StartCoroutine(EndMatchByTimeoutRoutine());
+        }
+
+        private System.Collections.IEnumerator EndMatchByTimeoutRoutine()
+        {
+            int playerHp = playerGalinheiro != null ? playerGalinheiro.CurrentHealth : 0;
+            int playerMaxHp = playerGalinheiro != null && playerGalinheiro.MaxHealth > 0 ? playerGalinheiro.MaxHealth : 1000;
+            float playerPct = (float)playerHp / playerMaxHp;
+
+            int enemyHp = enemyGalinheiro != null ? enemyGalinheiro.CurrentHealth : 0;
+            int enemyMaxHp = enemyGalinheiro != null && enemyGalinheiro.MaxHealth > 0 ? enemyGalinheiro.MaxHealth : 1000;
+            float enemyPct = (float)enemyHp / enemyMaxHp;
+
+            MatchState finalState;
+
+            // Critério 1: Porcentagem de vida dos Galinheiros
+            if (Mathf.Abs(playerPct - enemyPct) > 0.001f)
             {
-                TriggerMatchEnd(MatchState.Victory);
+                finalState = playerPct > enemyPct ? MatchState.Victory : MatchState.Defeat;
+                Debug.Log($"[GameMatchManager] Desempate por % HP do Galinheiro: Player={playerPct:P1} ({playerHp}/{playerMaxHp}) vs Enemy={enemyPct:P1} ({enemyHp}/{enemyMaxHp}) => {finalState}");
             }
             else
             {
-                TriggerMatchEnd(MatchState.Defeat);
+                // Critério 2: Contagem de tropas (minions) vivas no campo
+                int playerMinions = 0;
+                int enemyMinions = 0;
+                var minions = MinionAgent.ActiveMinions;
+                for (int i = 0; i < minions.Count; i++)
+                {
+                    if (minions[i] != null && minions[i].IsAlive)
+                    {
+                        if (minions[i].UnitTeam == Team.Player) playerMinions++;
+                        else if (minions[i].UnitTeam == Team.Enemy) enemyMinions++;
+                    }
+                }
+
+                if (playerMinions != enemyMinions)
+                {
+                    finalState = playerMinions > enemyMinions ? MatchState.Victory : MatchState.Defeat;
+                    Debug.Log($"[GameMatchManager] Desempate por Tropas Vivas: Player={playerMinions} vs Enemy={enemyMinions} => {finalState}");
+                }
+                else
+                {
+                    // Critério 3: Empate perfeito em HP e tropas => Vitória do Defensor/Player
+                    finalState = MatchState.Victory;
+                    Debug.Log($"[GameMatchManager] Empate absoluto nos critérios (% HP e Tropas). Vitória atribuída ao Player.");
+                }
+            }
+
+            if (runtimeState != null)
+            {
+                runtimeState.SetState(finalState);
+            }
+
+            // Aguarda 2 segundos em tempo real para o jogador absorver o feedback visual
+            yield return new WaitForSecondsRealtime(2.0f);
+
+            if (finalState == MatchState.Victory)
+            {
+                SceneManager.LoadScene("Vitoria");
+            }
+            else
+            {
+                SceneManager.LoadScene("Derrota");
             }
         }
 

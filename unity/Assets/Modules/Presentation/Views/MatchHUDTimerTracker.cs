@@ -45,9 +45,11 @@ namespace FowlgenWars.Architecture.Views
             runtimeState.OnTimerUpdated -= HandleTimerUpdated;
             runtimeState.OnPlayerHpUpdated -= HandlePlayerHpUpdated;
             runtimeState.OnEnemyHpUpdated -= HandleEnemyHpUpdated;
+            runtimeState.OnStateChanged -= HandleStateChanged;
             runtimeState.OnTimerUpdated += HandleTimerUpdated;
             runtimeState.OnPlayerHpUpdated += HandlePlayerHpUpdated;
             runtimeState.OnEnemyHpUpdated += HandleEnemyHpUpdated;
+            runtimeState.OnStateChanged += HandleStateChanged;
         }
 
         private void UnbindRuntimeState()
@@ -56,6 +58,7 @@ namespace FowlgenWars.Architecture.Views
             runtimeState.OnTimerUpdated -= HandleTimerUpdated;
             runtimeState.OnPlayerHpUpdated -= HandlePlayerHpUpdated;
             runtimeState.OnEnemyHpUpdated -= HandleEnemyHpUpdated;
+            runtimeState.OnStateChanged -= HandleStateChanged;
         }
 
         private void RefreshFromState()
@@ -68,6 +71,11 @@ namespace FowlgenWars.Architecture.Views
         private void HandleTimerUpdated(float remainingSeconds)
         {
             if (timerText == null) return;
+            if (remainingSeconds <= 0f)
+            {
+                timerText.text = "<color=#FF4444>00:00</color>";
+                return;
+            }
             int minutes = Mathf.FloorToInt(remainingSeconds / 60f);
             int seconds = Mathf.FloorToInt(remainingSeconds % 60f);
             timerText.text = $"{minutes:00}:{seconds:00}";
@@ -83,9 +91,23 @@ namespace FowlgenWars.Architecture.Views
             UpdateBaseStatus();
         }
 
+        private void HandleStateChanged(MatchState state)
+        {
+            if (baseStatusText == null) return;
+            if (state == MatchState.Victory)
+            {
+                baseStatusText.text = "<color=#4CD3A8><b>★ FIM DE TEMPO: VITÓRIA! ★</b></color>";
+            }
+            else if (state == MatchState.Defeat)
+            {
+                baseStatusText.text = "<color=#FF5555><b>✖ FIM DE TEMPO: DERROTA! ✖</b></color>";
+            }
+        }
+
         private void UpdateBaseStatus()
         {
             if (baseStatusText == null || runtimeState == null) return;
+            if (runtimeState.CurrentState != MatchState.Playing) return;
             baseStatusText.text = $"<color=#4CD3A8>Base: {runtimeState.PlayerGalinheiroHp}</color>  |  <color=#FF5555>Inimiga: {runtimeState.EnemyGalinheiroHp}</color>";
         }
     }

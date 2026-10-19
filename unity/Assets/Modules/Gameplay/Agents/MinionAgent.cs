@@ -32,6 +32,23 @@ namespace FowlgenWars.Gameplay
         // Buffer fixo para evitar alocação de lixo de memória na detecção de colisão (GC Alloc = 0)
         private static readonly Collider[] HitBuffer = new Collider[16];
 
+        // Rastreamento estático de tropas ativas em campo para desempate determinístico (zero alocação em combate)
+        private static readonly System.Collections.Generic.List<MinionAgent> ActiveMinionsList = new System.Collections.Generic.List<MinionAgent>();
+        public static System.Collections.Generic.IReadOnlyList<MinionAgent> ActiveMinions => ActiveMinionsList;
+
+        private void OnEnable()
+        {
+            if (!ActiveMinionsList.Contains(this))
+            {
+                ActiveMinionsList.Add(this);
+            }
+        }
+
+        private void OnDisable()
+        {
+            ActiveMinionsList.Remove(this);
+        }
+
         public Team UnitTeam => team;
         public Transform TargetTransform => transform;
         public bool IsAlive => currentHealth > 0;
