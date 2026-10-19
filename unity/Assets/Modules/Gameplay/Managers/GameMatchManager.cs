@@ -49,6 +49,8 @@ namespace FowlgenWars.Gameplay
             { LaneType.Bot, 0f }
         };
 
+        public MatchRuntimeStateSO RuntimeState => runtimeState;
+
         private void Start()
         {
             Time.timeScale = 1f;

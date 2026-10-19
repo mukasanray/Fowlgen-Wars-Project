@@ -10,12 +10,32 @@ public class FishNetPOCLauncher : MonoBehaviour
 {
     private NetworkManager _netManager;
     private FishNetMultiplayer _poc;
+    private string _serverIp = "127.0.0.1";
+    private string _localIp = "127.0.0.1";
 
     private void Awake()
     {
         _netManager = FindAnyObjectByType<NetworkManager>();
         _poc = FindAnyObjectByType<FishNetMultiplayer>();
         if (_poc == null) _poc = GetComponent<FishNetMultiplayer>();
+        _localIp = GetLocalIPAddress();
+    }
+
+    private string GetLocalIPAddress()
+    {
+        try
+        {
+            var host = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork && !ip.ToString().StartsWith("127."))
+                {
+                    return ip.ToString();
+                }
+            }
+        }
+        catch { }
+        return "127.0.0.1";
     }
 
     private void OnGUI()
@@ -26,18 +46,26 @@ public class FishNetPOCLauncher : MonoBehaviour
         bool isServer = _netManager.ServerManager.Started;
         bool isClient = _netManager.ClientManager.Started;
 
-        GUILayout.BeginArea(new Rect(10, 10, 260, 260));
+        GUILayout.BeginArea(new Rect(10, 10, 280, 320));
         GUILayout.Label($"FishNet POC - {(isServer ? "Server " : "")}{(isClient ? "Client" : isServer ? "" : "Offline")}", GUI.skin.box);
 
         if (!isServer && !isClient)
         {
+            GUILayout.Label($"Seu IP LAN: {_localIp}");
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("IP Host:", GUILayout.Width(55));
+            _serverIp = GUILayout.TextField(_serverIp);
+            GUILayout.EndHorizontal();
+
             if (GUILayout.Button("Host (Server + Client)", GUILayout.Height(36)))
             {
                 _netManager.ServerManager.StartConnection();
                 _netManager.ClientManager.StartConnection("127.0.0.1", 7770);
             }
-            if (GUILayout.Button("Client", GUILayout.Height(36)))
-                _netManager.ClientManager.StartConnection("127.0.0.1", 7770);
+            if (GUILayout.Button($"Conectar em {_serverIp}", GUILayout.Height(36)))
+            {
+                _netManager.ClientManager.StartConnection(_serverIp.Trim(), 7770);
+            }
         }
         else
         {

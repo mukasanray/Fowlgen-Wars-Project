@@ -34,6 +34,29 @@ public class FishNetMultiplayer : NetworkBehaviour
         int eHp = enemyGalinheiro != null && enemyGalinheiro.CurrentHealth > 0 ? enemyGalinheiro.CurrentHealth : 1000;
         HostCoreHealth.Value = pHp;
         ClientCoreHealth.Value = eHp;
+
+        if (playerGalinheiro != null)
+        {
+            playerGalinheiro.OnStructureDestroyed -= HandleGalinheiroDestroyed;
+            playerGalinheiro.OnStructureDestroyed += HandleGalinheiroDestroyed;
+        }
+        if (enemyGalinheiro != null)
+        {
+            enemyGalinheiro.OnStructureDestroyed -= HandleGalinheiroDestroyed;
+            enemyGalinheiro.OnStructureDestroyed += HandleGalinheiroDestroyed;
+        }
+    }
+
+    public override void OnStopServer()
+    {
+        base.OnStopServer();
+        if (playerGalinheiro != null) playerGalinheiro.OnStructureDestroyed -= HandleGalinheiroDestroyed;
+        if (enemyGalinheiro != null) enemyGalinheiro.OnStructureDestroyed -= HandleGalinheiroDestroyed;
+    }
+
+    private void HandleGalinheiroDestroyed(Team destroyedTeam)
+    {
+        RpcGameOver(destroyedTeam == Team.Enemy);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -71,9 +94,22 @@ public class FishNetMultiplayer : NetworkBehaviour
     private void RpcGameOver(bool hostWon)
     {
         bool isWinner = (IsServerInitialized && hostWon) || (!IsServerInitialized && !hostWon);
+        Debug.Log($"[FishNetMultiplayer] Fim de jogo em rede! HostVenceu={hostWon}, SouServer={IsServerInitialized}, Vencedor={isWinner}");
+
+        var matchManager = FindAnyObjectByType<GameMatchManager>();
+        if (matchManager != null && matchManager.RuntimeState != null)
+        {
+            matchManager.RuntimeState.SetState(isWinner ? MatchState.Victory : MatchState.Defeat);
+        }
+
         if (isWinner)
         {
             FindAnyObjectByType<SolanaReward>()?.ClaimVictory();
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Vitoria");
+        }
+        else
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Derrota");
         }
     }
 }
