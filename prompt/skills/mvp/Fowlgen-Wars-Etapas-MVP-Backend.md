@@ -62,3 +62,15 @@
 3. **Deploy Android Oficial (Responsável: Jorge):**
    - Assumir a conta de desenvolvedor na Google Play.
    - Configurar a trilha de Teste Interno efetuando o upload do arquivo **`.aab` (Android App Bundle)** assinado.
+
+---
+
+## Próximas Tarefas — API Backend para o Site (Responsável: Marcos)
+- [ ] **3.1** Implementação no módulo Core e Acesso dos Value Objects (`Senha` e `Salt` com hashing criptográfico seguro PBKDF2/SHA512 e validações de domínio).
+- [ ] **3.2** Modelagem das entidades de domínio de Acesso: `Perfil` com as seeds de produção oficiais (`Admin`, `Staff`, `Moderador`, `Suporte`, `Player`), `Permissao`, `PerfilPermissao` e relacionamento com `Usuario`.
+- [ ] **3.3** Implementação de persistência EF Core (mapeamentos Fluent API, `DbSet` no `AcessosDbContext` e migrations).
+- [ ] **3.4** Desenvolvimento do CRUD completo com paginação (`pageIndex`, `pageSize`) e alteração de status para `Usuario` (`GET`, `POST`, `PUT`, `PATCH /status`, `DELETE`).
+- [ ] **3.5** Desenvolvimento dos endpoints CRUD paginados e gestão de status para `Perfil` e `Permissao` (`PerfisController` e `PermissoesController`).
+- [ ] **3.6** Criação do `SupportersController.cs` com catálogo completo para o site: `GET /api/supporters` (mural público), `GET /api/supporters/admin` (auditoria), `GET /api/supporters/{id}`, `POST /api/supporters` (registro de apoio), `PUT /api/supporters/{id}` (atualização cadastral), `PATCH /api/supporters/{id}/status` (moderação de status: Pendente, Aprovado, Oculto) e `DELETE /api/supporters/{id}`.
+- [ ] **3.7** Configuração de segurança RBAC por Roles/Policies (`AdminOnly`, `StaffOnly`, `ModOnly`, `PlayerOnly`) no `ApiConfig.cs`, endpoints de autenticação corporativa e Web3 (`/api/auth`), Swagger unificado e endpoint `GET /api/health`.
+

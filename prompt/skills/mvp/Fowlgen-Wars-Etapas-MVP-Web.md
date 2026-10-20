@@ -55,3 +55,22 @@ Neste fluxo, o site funciona como um "Hub" do jogador, hospedando a versão do j
    - O Junior adicionará a build ao projeto da Vercel (geralmente usando bibliotecas como `react-unity-webgl` ou um `<iframe/>` estático).
 3. **Conexão Bridge e Server (Responsáveis: Junior e Marcos):**
    - Através de um *hook* em JavaScript, o site passa a ID do usuário logado para a Unity. O WebGL então utiliza o FishNet via WebSockets para conectar-se de forma invisível ao Servidor mantido pelo backend, validando a partida autenticada.
+
+---
+
+## Próximas Tarefas — Site Oficial do Game (Responsável: Junior)
+- [ ] **2.1** Página de vitrine do MVP com botão de download do APK Android.
+- [ ] **2.2** Preparação do container de apresentação para embutir o jogo Unity WebGL.
+- [x] **2.3** Validação cruzada dos textos e prompts do site contra Claude.md.
+- [ ] **2.4** Atualização dos links da comunidade e redes sociais no rodapé.
+- [x] **2.5** Organização do acervo de referências conceituais e READMEs históricos em prompt/files/referencias/.
+- [ ] **2.6** Refatorar o sistema de cadastro e nickname: substituir o `prompt()` local por formulário/modal real conectado a `POST /api/users`.
+- [ ] **2.7** Refatorar o fluxo de autenticação Web3: conectar assinatura de mensagem da carteira ao endpoint `POST /api/auth/login-web3` e gerenciar JWT.
+- [ ] **2.8** Refatorar o modelo de dados do jogador no frontend para os campos oficiais da API: `id_usuario`, `nickname_jogo`, `email` e `wallet_address`.
+- [ ] **2.9** Refatorar e modernizar o estilo visual do site (CSS/Tailwind, botões 3D táteis, tipografia e responsividade mobile).
+- [ ] **2.10** Criar a página/seção "Apoie-nos" com apresentação dos Tiers de Apoio, opções de contribuição e formulário para enviar mensagem de apoio.
+- [ ] **2.11** Criar a página/seção "Apoiadores" com mural público dinâmico consumindo `GET /api/supporters`.
+- [ ] **2.12** Atualizar links de navegação na Navbar e no Footer direcionando para "Apoiadores" e "Apoie-nos".
+- [ ] **2.13** Implementação de componente/lógica de paginação no client HTTP do site para consumir as listagens paginadas da API.
+- [ ] **2.14** Tratamento e exibição de badges visuais de status da conta do jogador (`Ativo`, `Inativo`, `Bloqueado`) nos componentes de perfil.
+

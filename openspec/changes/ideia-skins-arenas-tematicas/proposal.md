@@ -15,5 +15,8 @@ A arena canônica Arena_Clean.unity opera como o tema nativo Fazenda (milharais,
 ## Proposed Solution
 Variação puramente de materiais URP, iluminação, skybox e props decorativos nas bordas do mapa, sem alterar a malha de colisões ou waypoints das rotas.
 
+## Projeto
+unity
+
 ## Status
 [CRIADO] por Samuel em 2026-10-16

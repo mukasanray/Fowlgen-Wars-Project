@@ -99,8 +99,10 @@ Considere os seguintes arquivos como fontes de design, planejamento, processo ou
 - [`Catalogo_Assets_Audio_VFX_Free.md`](files/relatorios/Catalogo_Assets_Audio_VFX_Free.md): catálogo de pacotes gratuitos de áudio (SFX/BGM) e VFX recomendados da Unity Asset Store para o ecossistema URP mobile.
 - [`Relatorio_Consolidacao_Arena_Clean_MVP.md`](files/relatorios/Relatorio_Consolidacao_Arena_Clean_MVP.md): relatório técnico da consolidação da arena única e canônica `Arena_Clean.unity` e saneamento de cenas legadas.
 - [`Relatorio_Consolidacao_Audio_VFX_Mixamo_Orientacao.md`](files/relatorios/Relatorio_Consolidacao_Audio_VFX_Mixamo_Orientacao.md): relatório técnico de consolidação de texturas dos minions, áudio/VFX procedurais, fix de 180° de orientação de tela e integração do Mixamo MCP.
+- [`Relatorio_Alinhamento_Site_API_Apoiadores_Junior_Marcos.md`](files/relatorios/Relatorio_Alinhamento_Site_API_Apoiadores_Junior_Marcos.md): relatório técnico de alinhamento das tarefas do site Web (Junior) com a API REST backend .NET 9 (Marcos), incluindo refatorações obrigatórias e módulo de Apoiadores.
 
 ### Documentos de Referência, Apresentações e PDFs (`files/pdf/` e `files/referencias/`)
+- [`Relatorio_Alinhamento_Site_API_Apoiadores_Junior_Marcos.pdf`](files/pdf/Relatorio_Alinhamento_Site_API_Apoiadores_Junior_Marcos.pdf): versão diagramada em PDF do relatório de alinhamento das tarefas do site (Junior), API backend (Marcos) e páginas de Apoiadores.
 - [`Site Fowlgenwars.pdf`](files/pdf/Site%20Fowlgenwars.pdf): layout e referência visual do site oficial.
 - [`Bibliotecas-efeitos sonoros.pdf`](files/pdf/Bibliotecas-efeitos%20sonoros.pdf): compilação de repositórios e recomendações de bibliotecas SFX para Unity.
 - [`Estudo-Cores.pdf`](files/pdf/Estudo-Cores.pdf): estudo aprofundado de contraste e paleta cromática para MOBAs mobile.
