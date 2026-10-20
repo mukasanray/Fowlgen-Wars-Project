@@ -121,7 +121,27 @@
 
 ---
 
-## 📋 Etapa 6: Atualização de Governança (OpenSpec e Kanban Studio)
+## 🎨 Etapa 6: Polimento Visual dos Botões nas Telas do Game (Unity)
+* **Épico OpenSpec:** `openspec/changes/ideia-economia-micro-recompensas/` (Tarefa `1.5`)
+* **Responsável:** Marcos (@Marcos)
+* **Telas Impactadas:** `Auth.unity` (Conexão Carteira Web3), `Play.unity`, `Vitoria.unity` e `Derrota.unity`
+* **Arquivos-Chave:**
+  - `unity/Assets/UI/Styles/` (USS e temas UI Toolkit / uGUI)
+  - `unity/Assets/Scenes/Game/Auth.unity`
+  - `unity/Assets/Scenes/Game/Play.unity`
+  - `unity/Assets/Scenes/Game/Vitoria.unity`
+  - `unity/Assets/Scenes/Game/Derrota.unity`
+
+### Passo a Passo:
+1. **Substituição de Botões Genéricos por Imagens/Sprites Estilizadas:**
+   - Adicionar sprites temáticas de alta qualidade nos botões das telas do jogo (ex: bordas em relevo, efeito cartoon/madeira/dourado, ícones expressivos).
+   - Aplicar estados visuais elegantes (Normal, Hover/Pressed e Disabled) evitando botões planos/cinzas padrão.
+2. **Validação das Resoluções e Safe Area:**
+   - Conferir proporções e aspect ratio em landscape mobile (16:9, 19.5:9, 20:9) para evitar distorção das imagens dos botões.
+
+---
+
+## 📋 Etapa 7: Atualização de Governança (OpenSpec e Kanban Studio)
 
 Ao finalizar cada etapa:
 1. Atualizar o arquivo correspondente em `openspec/changes/<change-id>/tasks.md` marcando `- [x]`.

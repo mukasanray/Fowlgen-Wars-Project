@@ -9,13 +9,16 @@ Neste fluxo, o site funciona como um "Hub" do jogador, hospedando a versão do j
 ---
 
 ## Fase 1 - Fundação Web na Vercel e Antigravity IDE
-**Objetivo:** Colocar o portal online de forma rápida.
+**Objetivo:** Colocar o portal online de forma rápida com os mocks de telas da plataforma.
+
+> **Nota de Alinhamento:** As telas do jogo dentro da Unity já foram construídas pelo **Marcos**: `Auth.unity` (onde o usuário entra conectando sua carteira Web3), `Play.unity`, `Vitoria.unity` e `Derrota.unity` (não existe tela "Login" convencional nem "MainMenu", a entrada é via carteira Web3 em `Auth.unity` seguida pela tela `Play.unity`). O escopo do **Junior** no site refere-se exclusivamente à construção dos **mocks visuais no Site/Web Hub** (front-end isolado), para depois conectar com a API/Backend do Marcos.
 
 1. **Setup do Projeto `app/` (Responsável: Junior):**
    - Utilizar a Antigravity IDE para inicializar o site com Next.js ou Vite.
    - Configurar *Continuous Deployment* na **Vercel Hobby**.
-2. **Estrutura de Páginas (Responsável: Junior):**
+2. **Estrutura de Páginas e Mocks Visuais (Responsável: Junior):**
    - Criar a *Home* (Pitch do Jogo), *Dashboard* (Perfil) e a **Arena Web** (Página reservada para embutir o jogo).
+   - Desenvolver **mocks visuais de telas e recompensas** (ex: tela pós-partida com distribuição de gemas/recompensas no Web Hub) isolados, prontos para plugar futuramente na API REST / DTOs do backend.
 
 ---
 
