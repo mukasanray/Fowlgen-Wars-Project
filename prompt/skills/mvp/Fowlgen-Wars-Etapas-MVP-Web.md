@@ -18,7 +18,7 @@ Neste fluxo, o site funciona como um "Hub" do jogador, hospedando a versão do j
    - Configurar *Continuous Deployment* na **Vercel Hobby**.
 2. **Estrutura de Páginas e Mocks Visuais (Responsável: Junior):**
    - Criar a *Home* (Pitch do Jogo), *Dashboard* (Perfil) e a **Arena Web** (Página reservada para embutir o jogo).
-   - Desenvolver **mocks visuais de telas e recompensas** (ex: tela pós-partida com distribuição de gemas/recompensas no Web Hub) isolados, prontos para plugar futuramente na API REST / DTOs do backend.
+   - Desenvolver **mocks visuais no site** para futura integração com API, lidando com os campos definidos pelo backend: `id_usuario`, `nickname_jogo`, `email` e `wallet_address`.
 
 ---
 
