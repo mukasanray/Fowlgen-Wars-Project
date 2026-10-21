@@ -12,7 +12,7 @@
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="play-panel" class="panel">
-            <ui:Button name="play-button" text="BATALHAR AGORA" class="primary-button"/>
+            <ui:Button name="play-button" class="primary-button"/>
             <ui:Label name="play-status" class="status"/>
         </ui:VisualElement>
     </ui:VisualElement>

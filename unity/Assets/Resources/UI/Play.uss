@@ -4,7 +4,7 @@
     height: 100%;
     align-items: center;
     justify-content: flex-end;
-    padding-bottom: 56px;
+    padding-bottom: 40px;
     background-image: resource("Image/Play/bg-play");
     -unity-background-scale-mode: stretch-to-fill;
     background-color: rgba(0, 0, 0, 0);
@@ -157,43 +157,43 @@
 }
 
 .primary-button {
-    width: 700px;
-    height: 100px;
-    font-size: 35px;
-    -unity-font-style: bold;
-    color: rgb(255, 255, 255);
-    background-color: rgb(52, 195, 38);
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    border-left-width: 3px;
-    border-right-width: 3px;
-    border-top-width: 3px;
-    border-bottom-width: 3px;
-    border-left-color: rgba(255, 230, 80, 0.6);
-    border-right-color: rgba(255, 230, 80, 0.6);
-    border-top-color: rgba(255, 230, 80, 0.6);
-    border-bottom-color: rgba(255, 230, 80, 0.6);
-    margin-bottom: 16px;
-    -unity-text-align: middle-center;
-    transition-property: scale, background-color, border-color;
-    transition-duration: 0.15s;
-    transition-timing-function: ease-out;
+    width: 480px;
+    height: 240px;
+    background-image: resource("Image/Play/button_play");
+    -unity-background-scale-mode: scale-to-fit;
+    background-color: rgba(0, 0, 0, 0);
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    margin-bottom: 4px;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out-back;
 }
 
 .primary-button:hover {
-    background-color: rgb(78, 226, 62);
-    border-left-color: rgb(255, 245, 110);
-    border-right-color: rgb(255, 245, 110);
-    border-top-color: rgb(255, 245, 110);
-    border-bottom-color: rgb(255, 245, 110);
-    scale: 1.05 1.05;
+    background-color: rgba(0, 0, 0, 0);
+    scale: 1.08 1.08;
+    -unity-background-image-tint-color: rgb(255, 255, 225);
 }
 
 .primary-button:active {
-    background-color: rgb(32, 145, 22);
-    scale: 0.96 0.96;
+    background-color: rgba(0, 0, 0, 0);
+    scale: 0.94 0.94;
+    -unity-background-image-tint-color: rgb(210, 210, 210);
+    transition-duration: 0.08s;
+}
+
+.primary-button:focus {
+    background-color: rgba(0, 0, 0, 0);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
 }
 
 .status {
