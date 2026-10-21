@@ -1366,6 +1366,56 @@ function exportSprintPdf() {
 }
 
 // =============================================================
+// Exportação de Relatório Técnico Oficial em PDF (Padrão Executivo)
+// =============================================================
+function generateOfficialPdf(download = false) {
+  const selectMember = document.getElementById('select-official-report-member');
+  const memberId = selectMember ? selectMember.value : 'all';
+  const memberLabel = selectMember && selectMember.selectedOptions && selectMember.selectedOptions[0]
+    ? selectMember.selectedOptions[0].text
+    : memberId;
+
+  const titleMsg = memberId === 'all'
+    ? 'Toda a Equipe (Consolidado)'
+    : memberLabel.replace(/^[^\w\s]+/, '').trim();
+
+  showToast(`Gerando Relatório Oficial em PDF (${titleMsg})...`, 'info');
+  appendLog(`Gerando Relatório Técnico Oficial em PDF para: ${titleMsg}`);
+
+  const url = `/api/reports/official-pdf?member=${encodeURIComponent(memberId)}${download ? '&download=true' : ''}&t=${Date.now()}`;
+
+  if (download) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = memberId === 'all'
+      ? 'Relatorio_Oficial_Equipe_Fowlgen_Wars.pdf'
+      : `Relatorio_Oficial_${memberId.charAt(0).toUpperCase() + memberId.slice(1)}_Fowlgen_Wars.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } else {
+    window.open(url, '_blank');
+  }
+}
+
+function populateOfficialReportMembers() {
+  const sel = document.getElementById('select-official-report-member');
+  if (!sel || !teamMembers || teamMembers.length === 0) return;
+  const currentVal = sel.value || 'all';
+
+  sel.innerHTML = '<option value="all">👥 Toda a Equipe (Relatório Consolidado)</option>';
+  const activeMembers = teamMembers.filter(m => m.active !== false && m.status !== 'inactive');
+  activeMembers.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.id;
+    opt.textContent = `${m.avatar || '👤'} ${m.name} (${m.role || 'Membro da Equipe'})`;
+    sel.appendChild(opt);
+  });
+
+  if (currentVal) sel.value = currentVal;
+}
+
+// =============================================================
 // 3ª ABA: ANALYTICS & MÉTRICAS (Dashboard Integrado)
 // =============================================================
 function renderAnalyticsDashboard(features) {
@@ -3107,6 +3157,8 @@ document.getElementById('btn-script-dashboard')?.addEventListener('click', async
 });
 document.getElementById('btn-export-sprint-csv')?.addEventListener('click', exportSprintCsv);
 document.getElementById('btn-export-sprint-pdf')?.addEventListener('click', exportSprintPdf);
+document.getElementById('btn-generate-official-pdf')?.addEventListener('click', () => generateOfficialPdf(false));
+document.getElementById('btn-download-official-pdf')?.addEventListener('click', () => generateOfficialPdf(true));
 document.getElementById('btn-script-verify')?.addEventListener('click', () => runScriptAPI('verify'));
 document.getElementById('btn-script-status')?.addEventListener('click', () => runScriptAPI('status'));
 document.getElementById('btn-refresh')?.addEventListener('click', () => {
@@ -3447,6 +3499,7 @@ async function fetchMembers() {
       renderModalMembersList();
       populateQuickGitSelect();
       populateTeamSelects();
+      populateOfficialReportMembers();
       if (data.gitUser || data.detectedMember !== undefined) {
         updateDeveloperIdentity(data);
       }

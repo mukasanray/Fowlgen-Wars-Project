@@ -3101,6 +3101,51 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // API: Export Official Executive PDF Report (padrão Relatorio_Alinhamento_Site_API_Apoiadores_Junior_Marcos.pdf)
+    if (req.method === 'GET' && pathname === '/api/reports/official-pdf') {
+      const member = parsedUrl.searchParams.get('member') || 'all';
+      const isDownload = parsedUrl.searchParams.get('download') === 'true';
+      const docsDir = path.join(KANBAN_ROOT, 'docs');
+      if (!fs.existsSync(docsDir)) {
+        try { fs.mkdirSync(docsDir, { recursive: true }); } catch {}
+      }
+      const tempPdfName = `relatorio-oficial-${member.replace(/[^a-zA-Z0-9_-]/g, '_')}-${Date.now()}.pdf`;
+      const tempOut = path.join(docsDir, tempPdfName);
+      const scriptPath = path.join(KANBAN_ROOT, 'src/scripts/generate_official_report_pdf.py');
+
+      try {
+        const cmd = `python "${scriptPath}" --member "${member}" --output "${tempOut}"`;
+        execSync(cmd, { cwd: REPO_ROOT, encoding: 'utf8', timeout: 35000 });
+
+        if (fs.existsSync(tempOut)) {
+          const pdfData = fs.readFileSync(tempOut);
+          try { fs.unlinkSync(tempOut); } catch {}
+
+          const filename = member === 'all'
+            ? 'Relatorio_Oficial_Equipe_Fowlgen_Wars.pdf'
+            : `Relatorio_Oficial_${member.charAt(0).toUpperCase() + member.slice(1)}_Fowlgen_Wars.pdf`;
+
+          res.writeHead(200, {
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `${isDownload ? 'attachment' : 'inline'}; filename="${filename}"`
+          });
+          res.end(pdfData);
+          return;
+        } else {
+          sendJSON(res, 500, { success: false, error: 'O arquivo PDF não foi gerado pelo script Python.' });
+          return;
+        }
+      } catch (err: any) {
+        console.error('Erro ao gerar PDF oficial:', err);
+        sendJSON(res, 500, {
+          success: false,
+          error: 'Falha ao executar o script Python do relatório oficial.',
+          details: err.stdout || err.stderr || err.message
+        });
+        return;
+      }
+    }
+
     // API: Get dashboard data and html/markdown
     if (req.method === 'GET' && (pathname === '/api/dashboard' || pathname === '/api/dashboard/data')) {
       const htmlPath = path.join(KANBAN_ROOT, 'docs/kanban-dashboard.html');

@@ -348,6 +348,49 @@
               📋 Ver Status & Logs
             </button>
           </div>
+
+          <!-- Card Exclusivo: Relatório Oficial em PDF (Padrão Executivo / Alinhamento) -->
+          <div class="official-report-panel" style="margin-top: 18px; padding: 14px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 18px;">📄</span>
+                <strong style="font-size: 13px; color: #93c5fd; letter-spacing: 0.2px;">Relatório Oficial em PDF (Padrão Executivo)</strong>
+              </div>
+              <span style="font-size: 10px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; padding: 2px 8px;">
+                Fowlgen Wars
+              </span>
+            </div>
+
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.45;">
+              Gera relatórios oficiais idênticos ao padrão executivo institucional de alinhamento técnico (A4, métricas da sprint, tabelas de tarefas concluídas e pendentes).
+            </p>
+
+            <div style="margin-bottom: 12px;">
+              <label for="select-official-report-member" style="display: block; font-size: 11px; font-weight: 600; color: #cbd5e1; margin-bottom: 5px;">
+                👤 Integrante / Escopo do Relatório:
+              </label>
+              <select id="select-official-report-member" class="form-select" style="width: 100%; padding: 7px 10px; font-size: 12px; background: #0b1120; border: 1px solid #334155; border-radius: 6px; color: #f8fafc;">
+                <option value="all">👥 Toda a Equipe (Relatório Consolidado)</option>
+                <option value="marcos">💻 Marcos (Líder Técnico • Core Unity & Web3)</option>
+                <option value="junior">🌐 Junior (Dev Web React/Node • Docs)</option>
+                <option value="samuel">👑 Samuel (Product Owner • Game Design)</option>
+                <option value="jorge">🎨 Jorge (Game Designer • 3D/VFX)</option>
+                <option value="maria-clara">🎶 Maria Clara (Sound Designer)</option>
+                <option value="ramiro">🛡️ Ramiro (Dev Unity Combat/IA)</option>
+                <option value="sthefany">📊 Sthefany (QA & Balanceamento)</option>
+                <option value="vaguinhow">⚙️ Vaguinhow (Dev Gameplay & Shaders)</option>
+              </select>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-primary" id="btn-generate-official-pdf" style="flex: 1.2; padding: 7px 10px; font-size: 12px; font-weight: 600;" title="Gerar e abrir o PDF oficial em nova aba">
+                📄 Gerar & Visualizar PDF
+              </button>
+              <button class="btn btn-secondary" id="btn-download-official-pdf" style="flex: 1; padding: 7px 10px; font-size: 12px;" title="Baixar arquivo PDF diretamente">
+                💾 Baixar PDF
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
