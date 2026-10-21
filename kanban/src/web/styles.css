@@ -4290,3 +4290,82 @@ body:not([data-theme="light"]) .btn-card-pdf:hover {
   border-color: #38bdf8;
   color: #7dd3fc;
 }
+
+/* Chave Seletora de Modo de Relatório */
+.report-toggle-container {
+  display: flex;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.report-toggle-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted, #94a3b8);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.report-toggle-btn:hover:not(.active) {
+  color: var(--text-main, #f8fafc);
+  background: rgba(124, 58, 237, 0.08);
+}
+
+.report-toggle-btn.active {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.45);
+}
+
+.report-mode-hint {
+  font-size: 11px;
+  color: var(--text-dim, #94a3b8);
+  margin-bottom: 12px;
+  line-height: 1.35;
+}
+
+/* Modo Light da Chave Seletora */
+:root[data-theme="light"] .report-toggle-container,
+body[data-theme="light"] .report-toggle-container {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+}
+
+:root[data-theme="light"] .report-toggle-btn,
+body[data-theme="light"] .report-toggle-btn {
+  color: #475569;
+}
+
+:root[data-theme="light"] .report-toggle-btn:hover:not(.active),
+body[data-theme="light"] .report-toggle-btn:hover:not(.active) {
+  color: #0f172a;
+  background: rgba(124, 58, 237, 0.08);
+}
+
+:root[data-theme="light"] .report-toggle-btn.active,
+body[data-theme="light"] .report-toggle-btn.active {
+  background: #7c3aed;
+  color: #ffffff !important;
+  border-color: #6d28d9;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35);
+}
+
+:root[data-theme="light"] .report-mode-hint,
+body[data-theme="light"] .report-mode-hint {
+  color: #475569;
+}

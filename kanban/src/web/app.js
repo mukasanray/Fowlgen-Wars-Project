@@ -3237,6 +3237,8 @@ btnModeMember?.addEventListener('click', () => {
   btnModeCard.classList.remove('active');
   if (wrapperMember) wrapperMember.style.display = 'block';
   if (wrapperFeature) wrapperFeature.style.display = 'none';
+  const hint = document.getElementById('report-mode-hint');
+  if (hint) hint.innerHTML = '📌 Filtra e consolida tarefas pelo integrante responsável ou equipe inteira.';
 });
 
 btnModeCard?.addEventListener('click', () => {
@@ -3246,6 +3248,8 @@ btnModeCard?.addEventListener('click', () => {
   if (wrapperMember) wrapperMember.style.display = 'none';
   if (wrapperFeature) wrapperFeature.style.display = 'block';
   populateOfficialReportFeatures(currentFeatures);
+  const hint = document.getElementById('report-mode-hint');
+  if (hint) hint.innerHTML = '📌 Gera o relatório técnico e checklist específico de um único Card/Feature.';
 });
 
 // Botão de Exportar PDF no Modal de Detalhes do Card

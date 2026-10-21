@@ -385,9 +385,18 @@
               Gera relatórios oficiais idênticos ao padrão executivo institucional de alinhamento técnico (A4, métricas da sprint, tabelas de tarefas concluídas e pendentes).
             </p>
 
-            <div style="display: flex; gap: 6px; margin-bottom: 10px;">
-              <button type="button" class="btn btn-sm btn-secondary active" id="btn-official-report-mode-member" style="flex: 1; font-size: 11px; padding: 5px 8px; font-weight: 600;">👤 Por Integrante</button>
-              <button type="button" class="btn btn-sm btn-secondary" id="btn-official-report-mode-card" style="flex: 1; font-size: 11px; padding: 5px 8px; font-weight: 600;">📋 Por Card de Tarefa</button>
+            <div class="report-toggle-container">
+              <button type="button" class="report-toggle-btn active" id="btn-official-report-mode-member">
+                <span class="report-toggle-icon">👤</span>
+                <span class="report-toggle-text">Por Integrante</span>
+              </button>
+              <button type="button" class="report-toggle-btn" id="btn-official-report-mode-card">
+                <span class="report-toggle-icon">📋</span>
+                <span class="report-toggle-text">Por Card de Tarefa</span>
+              </button>
+            </div>
+            <div id="report-mode-hint" class="report-mode-hint">
+              📌 Filtra e consolida tarefas pelo integrante responsável ou equipe inteira.
             </div>
 
             <div id="wrapper-official-report-member" style="margin-bottom: 12px;">
