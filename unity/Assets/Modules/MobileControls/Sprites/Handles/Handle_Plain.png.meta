@@ -1,17 +1,10 @@
 fileFormatVersion: 2
-guid: ffa70b6724434a34903276d52d8fb281
-AssetOrigin:
-  serializedVersion: 1
-  productId: 107631
-  packageName: Joystick Pack
-  packageVersion: 2.1
-  assetPath: Assets/Joystick Pack/Sprites/All Axis Backgrounds/AllAxis_Outline.png
-  uploadId: 301683
+guid: 8d391e1f17191f2478f1549ffee71e19
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8028227043547206383
-    second: AllAxis_Outline_0
+      213: -5284777366770912303
+    second: Handle_Plain_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -148,13 +141,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: AllAxis_Outline_0
+      name: Handle_Plain_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 512
-        height: 512
+        width: 257
+        height: 256
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -163,8 +156,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 11d2f2d0a02069090800000000000000
-      internalID: -8028227043547206383
+      spriteID: 1d378902cf2b8a6b0800000000000000
+      internalID: -5284777366770912303
       vertices: []
       indices: 
       edges: []

@@ -6,6 +6,7 @@ namespace FowlgenWars.Modules.MobileControls.Runtime
     /// <summary>
     /// Leitor universal de input para mobile e editor.
     /// Combina IJoystickInput (Touch) com Teclado/Gamepad de forma transparente.
+    /// Expositor central de MoveVector, Horizontal, Vertical e estado de toque.
     /// </summary>
     public class MobileInputReader : MonoBehaviour
     {
@@ -14,6 +15,10 @@ namespace FowlgenWars.Modules.MobileControls.Runtime
         private IJoystickInput joystick;
 
         public Vector2 MoveVector { get; private set; }
+        public float Horizontal => MoveVector.x;
+        public float Vertical => MoveVector.y;
+        public bool IsPressed => joystick != null && joystick.IsPressed;
+        public IJoystickInput Joystick => joystick;
 
         private void Awake()
         {
@@ -33,7 +38,7 @@ namespace FowlgenWars.Modules.MobileControls.Runtime
             Vector2 input = Vector2.zero;
 
             // 1. Prioridade para joystick touch mobile
-            if (joystick != null && joystick.InputDirection.sqrMagnitude > 0.01f)
+            if (joystick != null && joystick.InputDirection.sqrMagnitude > 0.001f)
             {
                 input = joystick.InputDirection;
             }

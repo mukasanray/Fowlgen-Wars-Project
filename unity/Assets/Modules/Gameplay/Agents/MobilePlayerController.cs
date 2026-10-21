@@ -32,7 +32,13 @@ namespace FowlgenWars.Gameplay
 
         public IJoystickInput Joystick => joystick;
         public JoystickMode CurrentJoystickMode => joystick != null ? joystick.CurrentMode : joystickMode;
+        public AxisOptions CurrentAxisOption => joystick != null ? joystick.CurrentAxisOption : AxisOptions.Both;
+        public float Horizontal => joystick != null ? joystick.Horizontal : 0f;
+        public float Vertical => joystick != null ? joystick.Vertical : 0f;
         public float MoveSpeed { get => moveSpeed; set => moveSpeed = value; }
+
+        public void SetAxisOptions(AxisOptions axisOptions) => joystick?.SetAxisOptions(axisOptions);
+        public void SetSnapping(bool snapX, bool snapY) => joystick?.SetSnapping(snapX, snapY);
 
         private void Awake()
         {

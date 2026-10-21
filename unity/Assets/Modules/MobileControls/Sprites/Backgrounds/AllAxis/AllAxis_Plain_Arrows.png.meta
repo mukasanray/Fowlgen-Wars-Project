@@ -1,17 +1,10 @@
 fileFormatVersion: 2
-guid: 73bd8bf9d63f4c3d9de9d6faf38a9564
-AssetOrigin:
-  serializedVersion: 1
-  productId: 107631
-  packageName: Joystick Pack
-  packageVersion: 2.1
-  assetPath: Assets/Joystick Pack/Sprites/All Axis Backgrounds/AllAxis_Plain.png
-  uploadId: 301683
+guid: c0fdfa98b477c3c41b72fa49b9e340e9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4113013575358422424
-    second: AllAxis_Plain_0
+      213: -1430525669187199603
+    second: AllAxis_Plain_Arrows_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -148,7 +141,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: AllAxis_Plain_0
+      name: AllAxis_Plain_Arrows_0
       rect:
         serializedVersion: 2
         x: 0
@@ -163,8 +156,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 862e664e1f3abe6c0800000000000000
-      internalID: -4113013575358422424
+      spriteID: d8dd40eab70c52ce0800000000000000
+      internalID: -1430525669187199603
       vertices: []
       indices: 
       edges: []

@@ -1,17 +1,10 @@
 fileFormatVersion: 2
-guid: ecc89723f79f4cb8a713d2ff7bcaf156
-AssetOrigin:
-  serializedVersion: 1
-  productId: 107631
-  packageName: Joystick Pack
-  packageVersion: 2.1
-  assetPath: Assets/Joystick Pack/Sprites/Handles/Handle_Outline.png
-  uploadId: 301683
+guid: 81128d07ae5ccd74ead76a0073410dcc
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6542792748471333908
-    second: Handle_Outline_0
+      213: 7147328449146521884
+    second: Handle_Plain_Arrows_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -148,7 +141,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Handle_Outline_0
+      name: Handle_Plain_Arrows_0
       rect:
         serializedVersion: 2
         x: 0
@@ -163,8 +156,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 414b2abe65bacca50800000000000000
-      internalID: 6542792748471333908
+      spriteID: c190c683b59603360800000000000000
+      internalID: 7147328449146521884
       vertices: []
       indices: 
       edges: []

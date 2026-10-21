@@ -227,9 +227,9 @@ namespace FowlgenWars.EditorScripts
 
             canvasObj.AddComponent<GraphicRaycaster>();
 
-            Sprite circleSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Modules/MobileControls/Sprites/Handle_Plain.png");
-            Sprite outlineSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Modules/MobileControls/Sprites/Handle_Outline.png");
-            Sprite ringSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Modules/MobileControls/Sprites/AllAxis_Outline.png");
+            Sprite circleSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Modules/MobileControls/Sprites/Handles/Handle_Plain.png");
+            Sprite outlineSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Modules/MobileControls/Sprites/Handles/Handle_Outline.png");
+            Sprite ringSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Modules/MobileControls/Sprites/Backgrounds/AllAxis/AllAxis_Outline.png");
             Font defaultFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (defaultFont == null) defaultFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
 

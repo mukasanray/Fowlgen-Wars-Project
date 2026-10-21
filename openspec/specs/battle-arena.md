@@ -12,7 +12,7 @@ A cena `Assets/Scenes/Game/BattleArena.unity` é a arena canônica única do MVP
    - Script `MobaCameraController.cs` calibrado em Pitch 40.8°, Yaw 88.2°, Offset (-22, 26, 0).
    - Orientação móvel travada em Landscape horizontal com `AutoRotation` (suporte a LandscapeLeft e LandscapeRight).
 3. **Controles Táteis & Habilidades:**
-   - Lado Esquerdo: Joystick Virtual desacoplado via módulo DDD `MobileControls` (`VirtualJoystickView` com suporte a Fixed, Floating e Dynamic).
+   - Lado Esquerdo: Joystick Virtual desacoplado via módulo DDD `MobileControls` (`VirtualJoystickView` com suporte a Fixed, Floating e Dynamic, bloqueio de eixos AxisOptions e Snapping).
    - Lado Direito: Ataque básico central + 4 habilidades: Q (Investida), W (Baluarte), E (Disparo Sagrado) e R (Ultimate Fúria Aviária).
 4. **Bases e Estruturas:**
    - Base Aliada: `Base-Amarela` (Galinheiro Aliado) com 1000 HP.
