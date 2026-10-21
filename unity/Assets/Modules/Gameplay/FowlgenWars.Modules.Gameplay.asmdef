@@ -3,8 +3,7 @@
     "rootNamespace": "FowlgenWars.Modules.Gameplay",
     "references": [
         "FowlgenWars.Modules.MobileControls",
-        "Unity.InputSystem",
-        "JoystickPack"
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

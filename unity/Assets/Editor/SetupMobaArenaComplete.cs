@@ -9,6 +9,8 @@ using UnityEngine.EventSystems;
 using FowlgenWars.Gameplay;
 using FowlgenWars.Architecture.Views;
 using FowlgenWars.Cinematic;
+using FowlgenWars.Modules.MobileControls.Domain.Contracts;
+using FowlgenWars.Modules.MobileControls.Presentation.Views;
 
 namespace FowlgenWars.EditorScripts
 {
@@ -210,6 +212,8 @@ namespace FowlgenWars.EditorScripts
             // 6. Configurar Canvas do HUD (Controles Mobile + Duelo + Timer)
             GameObject oldCanvas = GameObject.Find("Canvas_MOBA_HUD");
             if (oldCanvas != null) UnityEngine.Object.DestroyImmediate(oldCanvas);
+            GameObject oldVj = GameObject.Find("Variable Joystick");
+            if (oldVj != null) UnityEngine.Object.DestroyImmediate(oldVj);
 
             GameObject canvasObj = new GameObject("Canvas_MOBA_HUD");
             Canvas canvas = canvasObj.AddComponent<Canvas>();
@@ -223,19 +227,20 @@ namespace FowlgenWars.EditorScripts
 
             canvasObj.AddComponent<GraphicRaycaster>();
 
-            Sprite circleSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Joystick Pack/Sprites/Handles/Handle_Plain.png");
-            Sprite outlineSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Joystick Pack/Sprites/Handles/Handle_Outline.png");
-            Sprite ringSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Joystick Pack/Sprites/All Axis Backgrounds/AllAxis_Outline.png");
+            Sprite circleSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Modules/MobileControls/Sprites/Handle_Plain.png");
+            Sprite outlineSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Modules/MobileControls/Sprites/Handle_Outline.png");
+            Sprite ringSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Modules/MobileControls/Sprites/AllAxis_Outline.png");
             Font defaultFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (defaultFont == null) defaultFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
 
-            // 6.1 Lado Esquerdo: Joystick Pack (Variable Joystick)
-            GameObject joystickPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Joystick Pack/Prefabs/Variable Joystick.prefab");
-            VariableJoystick variableJoystick = null;
+            // 6.1 Lado Esquerdo: MobileControls (Virtual Joystick)
+            GameObject joystickPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Modules/MobileControls/Prefabs/Virtual Joystick.prefab");
+            Debug.Log($"[Setup MOBA] Carregando joystickPrefab: {joystickPrefab}");
+            VirtualJoystickView virtualJoystick = null;
             if (joystickPrefab != null)
             {
                 GameObject vjObj = (GameObject)PrefabUtility.InstantiatePrefab(joystickPrefab, canvasObj.transform);
-                vjObj.name = "Variable Joystick";
+                vjObj.name = "Virtual Joystick";
                 RectTransform vjRect = vjObj.GetComponent<RectTransform>();
                 vjRect.anchorMin = new Vector2(0, 0);
                 vjRect.anchorMax = new Vector2(0.5f, 0.85f);
@@ -253,14 +258,22 @@ namespace FowlgenWars.EditorScripts
                     bgRect.sizeDelta = new Vector2(240, 240);
                 }
 
-                variableJoystick = vjObj.GetComponent<VariableJoystick>();
-                if (variableJoystick != null)
+                virtualJoystick = vjObj.GetComponent<VirtualJoystickView>();
+                if (virtualJoystick != null)
                 {
-                    variableJoystick.SetMode(JoystickType.Floating);
+                    virtualJoystick.SetMode(JoystickMode.Floating);
                 }
 
-                miloMove.BindJoystickPack(variableJoystick);
-                miloMove.SetJoystickMode(MobilePlayerController.JoystickMode.Floating);
+                miloMove.BindJoystick(virtualJoystick);
+                miloMove.SetJoystickMode(JoystickMode.Floating);
+
+                SerializedObject soMiloMove = new SerializedObject(miloMove);
+                var propJs = soMiloMove.FindProperty("joystickSource");
+                if (propJs != null)
+                {
+                    propJs.objectReferenceValue = virtualJoystick;
+                    soMiloMove.ApplyModifiedProperties();
+                }
             }
 
             // 6.2 Botão Alternador de Modo do Joystick

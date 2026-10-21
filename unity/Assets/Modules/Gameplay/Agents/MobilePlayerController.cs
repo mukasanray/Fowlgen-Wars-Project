@@ -1,11 +1,12 @@
 using UnityEngine;
 using FowlgenWars.Modules.MobileControls.Domain.Contracts;
+using FowlgenWars.Modules.MobileControls.Presentation.Views;
 
 namespace FowlgenWars.Gameplay
 {
     /// <summary>
     /// POC-UNI-01: Controle do personagem via Joystick Virtual Touch (MobileControls) ou Teclado (Editor).
-    /// Compatível com CharacterController.
+    /// Compatível com CharacterController. Desacoplado de packages de terceiros.
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
     public class MobilePlayerController : MonoBehaviour
@@ -16,7 +17,6 @@ namespace FowlgenWars.Gameplay
         [SerializeField] private float gravity = 9.81f;
 
         [Header("Referência da View (Joystick)")]
-        [SerializeField] private Joystick joystickPack;
         [SerializeField] private MonoBehaviour joystickSource;
 
         [Header("Modo do Joystick")]
@@ -25,20 +25,13 @@ namespace FowlgenWars.Gameplay
         [Header("Animação")]
         [SerializeField] private Animator animator;
 
-        public enum JoystickMode
-        {
-            Fixed,
-            Floating,
-            Dynamic
-        }
-
         private IJoystickInput joystick;
         private CharacterController characterController;
         private Camera mainCamera;
         private Vector3 verticalVelocity;
 
-        public Joystick JoystickPack => joystickPack;
-        public JoystickMode CurrentJoystickMode => joystickMode;
+        public IJoystickInput Joystick => joystick;
+        public JoystickMode CurrentJoystickMode => joystick != null ? joystick.CurrentMode : joystickMode;
         public float MoveSpeed { get => moveSpeed; set => moveSpeed = value; }
 
         private void Awake()
@@ -51,49 +44,49 @@ namespace FowlgenWars.Gameplay
             {
                 joystick = input;
             }
+            else
+            {
+#if UNITY_2023_1_OR_NEWER
+                joystick = FindAnyObjectByType<VirtualJoystickView>();
+#else
+                joystick = FindObjectOfType<VirtualJoystickView>();
+#endif
+            }
 
-            ApplyJoystickMode();
+            if (joystick != null)
+            {
+                joystick.SetMode(joystickMode);
+            }
         }
 
         public void BindJoystick(IJoystickInput joystickInput)
         {
             joystick = joystickInput;
-        }
-
-        public void BindJoystickPack(Joystick js)
-        {
-            joystickPack = js;
-            ApplyJoystickMode();
+            if (joystick != null)
+            {
+                joystick.SetMode(joystickMode);
+            }
         }
 
         public void SetJoystickMode(JoystickMode mode)
         {
             joystickMode = mode;
-            ApplyJoystickMode();
+            if (joystick != null)
+            {
+                joystick.SetMode(mode);
+            }
         }
 
         public void CycleJoystickMode()
         {
-            joystickMode = (JoystickMode)(((int)joystickMode + 1) % 3);
-            ApplyJoystickMode();
-        }
-
-        private void ApplyJoystickMode()
-        {
-            if (joystickPack is VariableJoystick vj)
+            if (joystick != null)
             {
-                switch (joystickMode)
-                {
-                    case JoystickMode.Fixed:
-                        vj.SetMode(JoystickType.Fixed);
-                        break;
-                    case JoystickMode.Floating:
-                        vj.SetMode(JoystickType.Floating);
-                        break;
-                    case JoystickMode.Dynamic:
-                        vj.SetMode(JoystickType.Dynamic);
-                        break;
-                }
+                joystick.CycleMode();
+                joystickMode = joystick.CurrentMode;
+            }
+            else
+            {
+                joystickMode = (JoystickMode)(((int)joystickMode + 1) % 3);
             }
         }
 
@@ -101,16 +94,13 @@ namespace FowlgenWars.Gameplay
         {
             if (characterController == null || !characterController.enabled || !characterController.gameObject.activeInHierarchy) return;
 
-            // 1. Obter entrada (Joystick Pack, IJoystickInput ou Teclado no Editor)
+            // 1. Obter entrada (IJoystickInput touch mobile ou Teclado no Editor)
             Vector2 input = Vector2.zero;
-            if (joystickPack != null && joystickPack.Direction.sqrMagnitude > 0.01f)
-            {
-                input = joystickPack.Direction;
-            }
-            else if (joystick != null && joystick.InputDirection.sqrMagnitude > 0.01f)
+            if (joystick != null && joystick.InputDirection.sqrMagnitude > 0.01f)
             {
                 input = joystick.InputDirection;
             }
+
             // 2. Fallback de teclado para teste no Editor
             if (input.sqrMagnitude < 0.01f)
             {
@@ -139,7 +129,7 @@ namespace FowlgenWars.Gameplay
 #endif
             }
 
-            // 2. Converter direção relativa à câmera isométrica / terceira pessoa
+            // 3. Converter direção relativa à câmera isométrica / terceira pessoa
             Vector3 moveDirection = Vector3.zero;
             if (mainCamera != null)
             {
@@ -157,14 +147,14 @@ namespace FowlgenWars.Gameplay
                 moveDirection = new Vector3(input.x, 0, input.y);
             }
 
-            // 3. Rotação suave do personagem
+            // 4. Rotação suave do personagem
             if (moveDirection.sqrMagnitude > 0.001f)
             {
                 Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             }
 
-            // 4. Aplicação de gravidade simples para manter colisão no chão
+            // 5. Aplicação de gravidade simples para manter colisão no chão
             if (characterController.isGrounded)
             {
                 verticalVelocity.y = -0.5f;
@@ -174,11 +164,11 @@ namespace FowlgenWars.Gameplay
                 verticalVelocity.y -= gravity * Time.deltaTime;
             }
 
-            // 5. Mover CharacterController
+            // 6. Mover CharacterController
             Vector3 finalMotion = (moveDirection * moveSpeed + verticalVelocity) * Time.deltaTime;
             characterController.Move(finalMotion);
 
-            // 6. Atualizar parâmetro de locomoção no Animator
+            // 7. Atualizar parâmetro de locomoção no Animator
             if (animator != null)
             {
                 float currentSpeed = moveDirection.sqrMagnitude > 0.001f ? (input.magnitude * moveSpeed) : 0f;

@@ -41,7 +41,11 @@ namespace FowlgenWars.Gameplay
         {
             if (playerController == null)
             {
+#if UNITY_2023_1_OR_NEWER
+                playerController = FindAnyObjectByType<MobilePlayerController>();
+#else
                 playerController = FindObjectOfType<MobilePlayerController>();
+#endif
             }
 
             if (playerController != null)
