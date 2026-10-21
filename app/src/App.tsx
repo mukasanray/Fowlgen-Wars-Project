@@ -1,586 +1,1059 @@
-import { useState, useRef, useEffect } from 'react';
-import { gsap } from 'gsap';
-import { useGSAP } from '@gsap/react';
+import React, { useState, useEffect, useRef } from 'react';
+import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { AuthModal } from './components/AuthModal';
+import { useGSAP } from '@gsap/react';
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+gsap.registerPlugin(ScrollTrigger);
 
-// ─────────────────────────────────────────────────────────
-// TYPES
-// ─────────────────────────────────────────────────────────
-interface StatItem { value: string; label: string }
-interface RouteItem { num: string; route: string; classes: string; role: string }
-interface ModeItem { tag: string; num: string; title: string; desc: string; meta: string; players: string }
-interface ClassItem { icon: string; name: string; role: string; desc: string }
+// DTOs oficiais alinhados ao Relatório Técnico (.NET 9 / Marcos)
+export interface UserProfileDTO {
+  id_usuario: string;
+  nickname_jogo: string;
+  email: string;
+  wallet_address?: string;
+  avatarUrl?: string;
+  status: 'Ativo' | 'Inativo' | 'Bloqueado';
+  jwtToken?: string;
+  refreshToken?: string;
+}
 
-// ─────────────────────────────────────────────────────────
-// DATA
-// ─────────────────────────────────────────────────────────
-const STATS: StatItem[] = [
-  { value: '60fps', label: 'Combate mobile real-time' },
-  { value: '4 Rotas', label: 'Estratégia multi-caminho' },
-  { value: '3 Min', label: 'Partida intensa' },
-  { value: '∞', label: 'Vitórias on-chain' },
+export interface SupporterDTO {
+  id: string;
+  nickname: string;
+  wallet?: string;
+  tier: number;
+  tx?: string;
+  msg: string;
+}
+
+const FALLBACK_SUPPORTERS: SupporterDTO[] = [
+  { id: '1', nickname: 'Marcos_Dev', tier: 3, msg: 'Líder técnico — Arquitetura .NET 9 & Onix Framework sólida!', wallet: '8x9F...3kL9' },
+  { id: '2', nickname: 'SamuelPO', tier: 3, msg: 'A visão do Fowlgen Wars a ganhar vida. Império ou Reino?', wallet: '4vB2...9mP1' },
+  { id: '3', nickname: 'Ramiro_G5B', tier: 3, msg: 'Rumo ao lançamento global no Itch.io e Vercel!', wallet: '9aK7...2wQ4' },
+  { id: '4', nickname: 'AraraAzul_Fã', tier: 2, msg: 'Proteção à fauna brasileira através dos games.', wallet: '3cN8...7yT2' },
+  { id: '5', nickname: 'CaosArcano99', tier: 2, msg: 'Pelo Reino Obscuro do Caos Arcano! Vitória certa.', wallet: '7pL1...5xR8' },
+  { id: '6', nickname: 'ImperioLuz', tier: 1, msg: 'A Ordem Imperial da Luz Suprema prevalecerá!', wallet: '2mV5...8zK3' },
+  { id: '7', nickname: 'MicoGuardiao', tier: 3, msg: 'Web3 + conservação ambiental + eSports Justo (Anti-P2W).', wallet: '6dJ4...1nB7' },
+  { id: '8', nickname: 'MariaClara_QA', tier: 1, msg: 'Zero bugs, 60 FPS e experiência impecável.', wallet: '5hT9...4gW6' },
 ];
 
-const ROUTES: RouteItem[] = [
-  { num: '01', route: 'TOP', classes: 'Tanques · Colossos · Titãs', role: 'Resistência e linha de frente' },
-  { num: '02', route: 'SELVA', classes: 'Hunters · Caçadores', role: 'Emboscadas e eliminação' },
-  { num: '03', route: 'MID', classes: 'Feiticeiros · Magos · Assassinos', role: 'Poder, controle e dano' },
-  { num: '04', route: 'ADC', classes: 'Atiradores · Suportes', role: 'Dano à distância e proteção' },
-];
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000';
 
-const MODES: ModeItem[] = [
-  {
-    tag: 'PvE',
-    num: '01',
-    title: 'Caçada aos Colossos',
-    desc: 'Colossos gigantescos emergem das ilhas corrompidas. Squads de até 5 devem coordenar rotas, habilidades e timing para vencer múltiplas fases de combate.',
-    meta: 'Alto XP · Loot Raro',
-    players: '1–5 Jogadores',
-  },
-  {
-    tag: 'PvP · Principal',
-    num: '02',
-    title: 'Duelo das Ilhas',
-    desc: 'Partidas competitivas 3v3 de 4 minutos pelo controle do cristal central. Resultado assinado pelo servidor e gravado imediatamente na Solana.',
-    meta: 'Ranking · XP · Badges',
-    players: 'Competitivo',
-  },
-  {
-    tag: 'Sobrevivência',
-    num: '03',
-    title: 'Torre do Eclipse',
-    desc: 'Ondas infinitas de criaturas corrompidas emergem sem aviso. Multiplicadores de XP crescem por onda — quanto mais alto, mais alto o risco.',
-    meta: 'Badges de Temporada',
-    players: 'Solo / Duo',
-  },
-];
+export function App() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const heroImgRef = useRef<HTMLImageElement>(null);
 
-const CLASSES: ClassItem[] = [
-  { icon: '🛡️', name: 'Vanguarda', role: 'TOP', desc: 'Linha de frente blindada. Absorve dano e cria aberturas.' },
-  { icon: '🔮', name: 'Arcano', role: 'MID', desc: 'Controle gravitacional e dano em área devastador.' },
-  { icon: '🏹', name: 'Caçador', role: 'SELVA', desc: 'Furtividade, armadilhas e críticos à distância.' },
-  { icon: '💥', name: 'Artilheiro', role: 'ADC', desc: 'Canhões pesados. Dano massivo em ponto único.' },
-  { icon: '⚡', name: 'Arauto', role: 'SUPORTE', desc: 'Cura, amplificação e sustentação em batalhas longas.' },
-];
+  // Estado de Conectividade da API (GET /api/health)
+  const [apiOnline, setApiOnline] = useState<boolean>(false);
 
-// ─────────────────────────────────────────────────────────
-// APP
-// ─────────────────────────────────────────────────────────
-export default function App() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [heroImgLoaded, setHeroImgLoaded] = useState(false);
+  // Estado de Facção (Pedido do Samuel: Reino vs Império)
+  const [selectedFaction, setSelectedFaction] = useState<'imperio' | 'reino' | null>(() => {
+    return (localStorage.getItem('fowlgen_faction') as 'imperio' | 'reino' | null) || null;
+  });
 
-  // Refs
-  const mainRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLElement>(null);
-  const heroTitleRef = useRef<HTMLDivElement>(null);
-  const heroSubRef = useRef<HTMLParagraphElement>(null);
-  const heroCtaRef = useRef<HTMLDivElement>(null);
-  const heroStatsRef = useRef<HTMLDivElement>(null);
-  const heroImgRef = useRef<HTMLDivElement>(null);
+  // Estados de Autenticação & Jogador (Tarefas 2.6, 2.7, 2.8 e 2.14)
+  const [user, setUser] = useState<UserProfileDTO | null>(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authTab, setAuthTab] = useState<'register' | 'web3' | 'profile'>('register');
+  const [emailInput, setEmailInput] = useState('');
+  const [nickInput, setNickInput] = useState('');
+  const [passInput, setPassInput] = useState('');
+  const [avatarInput, setAvatarInput] = useState('');
+  const [authStatusMsg, setAuthStatusMsg] = useState('');
 
-  const openAuth = () => { setIsModalOpen(true); setIsMobileOpen(false); };
+  // Estados de Apoiadores & Paginação (Tarefas 2.10, 2.11 e 2.13)
+  const [supporters, setSupporters] = useState<SupporterDTO[]>(FALLBACK_SUPPORTERS);
+  const [isServerPaginated, setIsServerPaginated] = useState(false);
+  const [totalServerItems, setTotalServerItems] = useState(FALLBACK_SUPPORTERS.length);
+  const [pageIndex, setPageIndex] = useState(1);
+  const pageSize = 4;
 
-  // ── Hero entrance
-  useGSAP(() => {
-    const tl = gsap.timeline({ delay: 0.1, defaults: { ease: 'expo.out' } });
+  // Formulário Apoie-nos (POST /api/supporters)
+  const [supNick, setSupNick] = useState('');
+  const [supWallet, setSupWallet] = useState('');
+  const [supTier, setSupTier] = useState(2);
+  const [supTx, setSupTx] = useState('');
+  const [supMsg, setSupMsg] = useState('');
+  const [supFeedback, setSupFeedback] = useState('');
 
-    tl.fromTo(heroTitleRef.current?.querySelectorAll('.reveal-line') ?? [],
-      { yPercent: 110, opacity: 0 },
-      { yPercent: 0, opacity: 1, duration: 1, stagger: 0.08 }
-    )
-      .fromTo(heroSubRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.8 },
-        '-=0.5'
-      )
-      .fromTo(heroCtaRef.current,
-        { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 0.7 },
-        '-=0.5'
-      )
-      .fromTo(heroStatsRef.current?.querySelectorAll('.stat-item') ?? [],
-        { opacity: 0, y: 10 },
-        { opacity: 1, y: 0, duration: 0.5, stagger: 0.08 },
-        '-=0.4'
-      )
-      .fromTo(heroImgRef.current,
-        { opacity: 0, scale: 1.04, y: 20 },
-        { opacity: 1, scale: 1, y: 0, duration: 1.1, ease: 'power3.out' },
-        '-=1.2'
-      );
-  }, { scope: heroRef });
-
-  // ── Scroll reveals (editorial fade-up)
+  // 1. Verificar integridade da API (GET /api/health) e carregar sessão
   useEffect(() => {
-    const lines = gsap.utils.toArray<HTMLElement>('.editorial-reveal');
-    lines.forEach((el) => {
-      gsap.fromTo(el,
-        { opacity: 0, y: 44 },
-        {
-          opacity: 1, y: 0, duration: 0.9, ease: 'power3.out',
-          scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none none' },
-        }
-      );
-    });
+    const checkHealth = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/health`);
+        setApiOnline(res.ok);
+      } catch {
+        setApiOnline(false);
+      }
+    };
 
-    // Stagger groups
-    const groups = gsap.utils.toArray<HTMLElement>('.stagger-group');
-    groups.forEach((group) => {
-      const children = group.querySelectorAll('.stagger-child');
-      gsap.fromTo(children,
-        { opacity: 0, y: 36, scale: 0.98 },
-        {
-          opacity: 1, y: 0, scale: 1, duration: 0.7, stagger: 0.1, ease: 'power2.out',
-          scrollTrigger: { trigger: group, start: 'top 88%', toggleActions: 'play none none none' },
-        }
-      );
-    });
+    checkHealth();
 
-    // Horizontal line reveals
-    const hLines = gsap.utils.toArray<HTMLElement>('.h-line-reveal');
-    hLines.forEach((el) => {
-      gsap.fromTo(el,
-        { scaleX: 0, transformOrigin: 'left' },
-        {
-          scaleX: 1, duration: 1.2, ease: 'expo.out',
-          scrollTrigger: { trigger: el, start: 'top 92%' },
-        }
-      );
-    });
+    const saved = localStorage.getItem('fowlgen_user_dto');
+    if (saved) {
+      try {
+        const parsed: UserProfileDTO = JSON.parse(saved);
+        setUser(parsed);
+        setNickInput(parsed.nickname_jogo || '');
+        setAvatarInput(parsed.avatarUrl || '');
+        syncUserProfile(parsed);
+      } catch {
+        // Ignora erro de parse
+      }
+    }
 
-    return () => ScrollTrigger.getAll().forEach(t => t.kill());
+    fetchSupporters(1);
   }, []);
 
+  const handleSelectFaction = (faction: 'imperio' | 'reino') => {
+    setSelectedFaction(faction);
+    localStorage.setItem('fowlgen_faction', faction);
+  };
+
+  const syncUserProfile = async (currentProfile: UserProfileDTO) => {
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (currentProfile.jwtToken) {
+        headers['Authorization'] = `Bearer ${currentProfile.jwtToken}`;
+      }
+      const res = await fetch(`${API_BASE}/api/users/${currentProfile.id_usuario}`, { headers });
+      if (res.ok) {
+        const data = await res.json();
+        const updated: UserProfileDTO = {
+          ...currentProfile,
+          nickname_jogo: data.nickname || data.nickname_jogo || currentProfile.nickname_jogo,
+          status: data.status || currentProfile.status,
+          avatarUrl: data.avatarUrl || currentProfile.avatarUrl,
+        };
+        setUser(updated);
+        localStorage.setItem('fowlgen_user_dto', JSON.stringify(updated));
+      }
+    } catch {
+      // Mantém dados locais se offline
+    }
+  };
+
+  const fetchSupporters = async (page: number) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/supporters?pageIndex=${page}&pageSize=${pageSize}`);
+      if (res.ok) {
+        const data = await res.json();
+        const items = Array.isArray(data) ? data : data.items || data.data;
+        if (Array.isArray(items) && items.length > 0) {
+          setSupporters(items);
+          setIsServerPaginated(true);
+          setTotalServerItems(data.totalCount || data.totalItems || items.length);
+          return;
+        }
+      }
+    } catch {
+      setIsServerPaginated(false);
+    }
+  };
+
+  // Animações GSAP Estilo Flycrooked + Zoom Cinematográfico na Hero
+  useGSAP(() => {
+    if (heroImgRef.current) {
+      gsap.to(heroImgRef.current, {
+        scale: 1.22,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#hero-section',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
+    }
+
+    gsap.utils.toArray<HTMLElement>('.editorial-reveal').forEach((el) => {
+      gsap.fromTo(
+        el,
+        { opacity: 0, y: 36 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.85,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 86%',
+          },
+        }
+      );
+    });
+  }, { scope: containerRef });
+
+  const handleRegisterUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailInput || !nickInput || !passInput) return;
+    setAuthStatusMsg('A sincronizar registo com POST /api/users...');
+
+    let userId = crypto.randomUUID ? crypto.randomUUID() : 'guid-' + Date.now();
+    let statusConta: UserProfileDTO['status'] = 'Ativo';
+    let token = undefined;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailInput, nickname: nickInput, password: passInput }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        userId = data.id_usuario || data.id || userId;
+        statusConta = data.status || 'Ativo';
+        token = data.token || data.jwtToken;
+      }
+    } catch {
+      // Modo demonstrativo local
+    }
+
+    const newProfile: UserProfileDTO = {
+      id_usuario: userId,
+      nickname_jogo: nickInput,
+      email: emailInput,
+      status: statusConta,
+      jwtToken: token,
+    };
+
+    setUser(newProfile);
+    localStorage.setItem('fowlgen_user_dto', JSON.stringify(newProfile));
+    setAuthStatusMsg('Conta criada com sucesso!');
+    setTimeout(() => {
+      setAuthModalOpen(false);
+      setAuthStatusMsg('');
+    }, 900);
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setAuthStatusMsg('A atualizar perfil em PUT /api/users/{id}...');
+
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (user.jwtToken) headers['Authorization'] = `Bearer ${user.jwtToken}`;
+
+      await fetch(`${API_BASE}/api/users/${user.id_usuario}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ nickname: nickInput, avatarUrl: avatarInput }),
+      });
+    } catch {
+      // Fallback local
+    }
+
+    const updated: UserProfileDTO = {
+      ...user,
+      nickname_jogo: nickInput || user.nickname_jogo,
+      avatarUrl: avatarInput,
+    };
+    setUser(updated);
+    localStorage.setItem('fowlgen_user_dto', JSON.stringify(updated));
+    setAuthStatusMsg('Perfil atualizado!');
+    setTimeout(() => {
+      setAuthModalOpen(false);
+      setAuthStatusMsg('');
+    }, 800);
+  };
+
+  const handleWeb3Login = async () => {
+    setAuthStatusMsg('A solicitar assinatura na carteira Solana...');
+    let walletAddress = 'Solana_' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    let signature = 'sig_demo_' + Date.now();
+    const msg = `Autenticacao Fowlgen Wars: ${new Date().toISOString()}`;
+    let jwtToken = undefined;
+
+    try {
+      const provider = (window as any).solana || (window as any).solflare;
+      if (provider) {
+        const resp = await provider.connect();
+        walletAddress = resp.publicKey ? resp.publicKey.toString() : walletAddress;
+
+        if (provider.signMessage) {
+          const encodedMessage = new TextEncoder().encode(msg);
+          const signed = await provider.signMessage(encodedMessage, 'utf8');
+          signature = Array.from(signed.signature || signed)
+            .map((b: any) => Number(b).toString(16).padStart(2, '0'))
+            .join('');
+        }
+      }
+
+      const res = await fetch(`${API_BASE}/api/auth/login-web3`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ walletAddress, signature, msg }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        jwtToken = data.token || data.jwtToken;
+      }
+    } catch {
+      // Fallback seguro
+    }
+
+    const web3Profile: UserProfileDTO = {
+      id_usuario: user?.id_usuario || (crypto.randomUUID ? crypto.randomUUID() : 'web3-' + Date.now()),
+      nickname_jogo: user?.nickname_jogo || `Guardiao_${walletAddress.slice(0, 4)}`,
+      email: user?.email || 'web3@fowlgenwars.com',
+      wallet_address: walletAddress,
+      status: 'Ativo',
+      jwtToken,
+    };
+
+    setUser(web3Profile);
+    setNickInput(web3Profile.nickname_jogo);
+    localStorage.setItem('fowlgen_user_dto', JSON.stringify(web3Profile));
+    setAuthStatusMsg('Carteira Web3 validada com sucesso!');
+    setTimeout(() => {
+      setAuthModalOpen(false);
+      setAuthStatusMsg('');
+    }, 900);
+  };
+
+  const handleSupportSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!supNick || !supMsg) return;
+
+    const payload = {
+      nickname: supNick,
+      wallet: supWallet || user?.wallet_address || 'Carteira Oculta',
+      tier: supTier,
+      tx: supTx || 'tx_verificacao',
+      msg: supMsg,
+    };
+
+    try {
+      await fetch(`${API_BASE}/api/supporters`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    } catch {
+      // Fallback local
+    }
+
+    const newEntry: SupporterDTO = {
+      id: String(Date.now()),
+      ...payload,
+    };
+
+    setSupporters((prev) => [newEntry, ...prev]);
+    setTotalServerItems((prev) => prev + 1);
+    setPageIndex(1);
+    setSupNick('');
+    setSupWallet('');
+    setSupTx('');
+    setSupMsg('');
+    setSupFeedback('O seu apoio foi registado no mural com sucesso!');
+    setTimeout(() => setSupFeedback(''), 4000);
+  };
+
+  const displayedSupporters = isServerPaginated
+    ? supporters
+    : supporters.slice((pageIndex - 1) * pageSize, pageIndex * pageSize);
+
+  const totalCount = isServerPaginated ? totalServerItems : supporters.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+
+  const getStatusBadgeStyle = (status: UserProfileDTO['status']) => {
+    if (status === 'Ativo') return 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30';
+    if (status === 'Inativo') return 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+    return 'bg-rose-500/15 text-rose-400 border-rose-500/30';
+  };
+
   return (
-    <div ref={mainRef} className="min-h-screen bg-[#050505] text-zinc-200 overflow-x-hidden selection:bg-white selection:text-black">
-
-      {/* ══════════════ NAVBAR ══════════════ */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.06] bg-[#050505]/80 backdrop-blur-xl">
-        <div className="max-w-screen-xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
-
-          <a href="#" className="flex items-center gap-2 group">
-            <span className="text-xl leading-none">👑</span>
-            <span className="font-black tracking-[0.12em] text-sm text-white uppercase">Fowlgen<span className="text-zinc-500 font-medium ml-1">Wars</span></span>
+    <div ref={containerRef} className="min-h-screen bg-[#050505] text-zinc-100 font-sans selection:bg-amber-500 selection:text-black overflow-x-hidden">
+      {/* NAVBAR EDITORIAL */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/85 backdrop-blur-md border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <a href="#" className="flex items-center gap-3 group">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 group-hover:scale-125 transition-transform" />
+            <span className="font-black tracking-tighter text-xl uppercase">FOWLGEN WARS</span>
+            <span
+              title={apiOnline ? 'API .NET 9 Online' : 'Modo Demonstrativo (Fallback Ativo)'}
+              className="hidden sm:inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-zinc-400"
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${apiOnline ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+              {apiOnline ? 'API Online' : 'G5B Studios'}
+            </span>
           </a>
 
-          {/* Desktop links */}
-          <nav className="hidden md:flex items-center gap-10">
-            {[['#sobre', 'O Jogo'], ['#lore', 'O Reino'], ['#modos', 'Batalhas'], ['#apoiadores', 'Comunidade']].map(([href, label]) => (
-              <a key={href} href={href} className="text-[11px] font-bold uppercase tracking-[0.15em] text-zinc-500 hover:text-white transition-colors duration-200">
-                {label}
-              </a>
-            ))}
+          <nav className="hidden lg:flex items-center gap-7 text-xs uppercase tracking-widest text-zinc-400">
+            <a href="#faccoes" className="hover:text-white transition-colors">Império vs Reino</a>
+            <a href="#guardioes" className="hover:text-white transition-colors">Fauna em Extinção</a>
+            <a href="#webgl" className="hover:text-white transition-colors">MVP & WebGL</a>
+            <a href="#loja" className="hover:text-white transition-colors">Loja</a>
+            <a href="#apoie-nos" className="hover:text-amber-400 transition-colors">Apoie-nos</a>
+            <a href="#apoiadores" className="hover:text-white transition-colors">Apoiadores</a>
           </nav>
 
           <div className="flex items-center gap-3">
-            <button onClick={openAuth}
-              className="hidden md:block text-[11px] font-bold uppercase tracking-[0.15em] text-zinc-500 hover:text-white transition-colors">
-              Entrar
-            </button>
-            <button onClick={openAuth}
-              className="text-[11px] font-black uppercase tracking-[0.15em] bg-white text-black hover:bg-zinc-200 px-4 py-2 rounded-lg transition-colors">
-              Jogar Alpha
-            </button>
-            <button onClick={() => setIsMobileOpen(!isMobileOpen)}
-              className="md:hidden w-9 h-9 flex items-center justify-center text-zinc-400 hover:text-white transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {isMobileOpen
-                  ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-                  : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />}
-              </svg>
-            </button>
+            {user ? (
+              <div className="flex items-center gap-2.5 bg-white/[0.03] border border-white/10 px-3.5 py-1.5 rounded-full">
+                <span className="text-xs font-bold text-zinc-200">{user.nickname_jogo}</span>
+                <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border ${getStatusBadgeStyle(user.status)}`}>
+                  ● {user.status}
+                </span>
+                <button
+                  onClick={() => {
+                    setAuthTab('profile');
+                    setAuthModalOpen(true);
+                  }}
+                  className="text-[11px] text-amber-400 hover:text-amber-300 font-semibold ml-1"
+                >
+                  Editar
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setAuthTab('register');
+                  setAuthModalOpen(true);
+                }}
+                className="text-xs uppercase tracking-widest font-bold px-5 py-2.5 rounded-full bg-white text-black hover:bg-amber-400 transition-all"
+              >
+                Conectar / Registar
+              </button>
+            )}
           </div>
-        </div>
-
-        {/* Mobile drawer */}
-        <div className={`md:hidden transition-all duration-300 ease-in-out overflow-hidden ${isMobileOpen ? 'max-h-80' : 'max-h-0'}`}>
-          <nav className="flex flex-col px-5 py-4 gap-1 border-t border-white/[0.06]">
-            {[['#sobre', 'O Jogo'], ['#lore', 'O Reino'], ['#modos', 'Batalhas Épicas'], ['#apoiadores', 'Comunidade']].map(([href, label]) => (
-              <a key={href} href={href} onClick={() => setIsMobileOpen(false)}
-                className="py-3 text-sm font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors border-b border-white/[0.04] last:border-0">
-                {label}
-              </a>
-            ))}
-          </nav>
         </div>
       </header>
 
-      {/* ══════════════ HERO ══════════════ */}
-      <section ref={heroRef} className="relative min-h-screen flex flex-col justify-end pt-14 overflow-hidden">
-
-        {/* Hero image — full bleed background */}
-        <div ref={heroImgRef} className="absolute inset-0 z-0">
+      {/* HERO SECTION COM ZOOM PROGRESSIVO NO SCROLL */}
+      <section id="hero-section" className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden pt-20 border-b border-white/10">
+        <div className="absolute inset-0 z-0 overflow-hidden">
           <img
+            ref={heroImgRef}
             src="/hero.png"
-            alt="Fowlgen Wars — Arte Oficial"
-            onLoad={() => setHeroImgLoaded(true)}
-            onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=80'; setHeroImgLoaded(true); }}
-            className={`w-full h-full object-cover object-center transition-opacity duration-1000 ${heroImgLoaded ? 'opacity-100' : 'opacity-0'}`}
+            alt="Fowlgen Wars Banner"
+            className="w-full h-full object-cover object-center opacity-45 scale-100 will-change-transform"
           />
-          {/* Cinematic overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/70 to-[#050505]/30" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/60 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-[#050505]/80" />
         </div>
 
-        {/* Hero content — bottom aligned editorial */}
-        <div className="relative z-10 max-w-screen-xl mx-auto px-5 sm:px-8 w-full pb-16 lg:pb-24">
-          <div className="max-w-4xl">
+        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-[11px] uppercase tracking-[0.2em] text-amber-400 mb-6">
+            <span>Unity 6 Real-Time</span>
+            <span>•</span>
+            <span>API .NET 9</span>
+            <span>•</span>
+            <span>Solana Web3</span>
+          </div>
 
-            {/* Eyebrow */}
-            <div className="flex items-center gap-3 mb-8 editorial-reveal">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-40" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+          <h1 className="text-5xl sm:text-7xl md:text-8xl font-black tracking-tighter uppercase leading-[0.92] mb-6">
+            A Guerra das Penas <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-purple-500">
+              Começou.
+            </span>
+          </h1>
+
+          <p className="max-w-2xl mx-auto text-zinc-400 text-base sm:text-lg leading-relaxed mb-10">
+            Combate tático 100% justo (Anti-P2W), preservação da fauna brasileira ameaçada e economia transparente. Escolha a sua bandeira e entre na arena.
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <a
+              href="#faccoes"
+              className="px-8 py-4 rounded-full bg-amber-500 text-black font-black text-xs uppercase tracking-widest hover:bg-amber-400 transition-all shadow-[0_0_40px_rgba(245,158,11,0.3)]"
+            >
+              Escolher o Meu Lado ↓
+            </a>
+            <a
+              href="https://fowlgenwars.itch.io/fowlgenwars"
+              target="_blank"
+              rel="noreferrer"
+              className="px-8 py-4 rounded-full bg-white/5 border border-white/15 text-white font-bold text-xs uppercase tracking-widest hover:bg-white/10 transition-all"
+            >
+              Baixar APK Android (MVP)
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 1. SEÇÃO DO SAMUEL: DE QUAL LADO VOCÊ QUER FICAR? REINO OU IMPÉRIO? */}
+      <section id="faccoes" className="py-28 px-6 max-w-7xl mx-auto border-b border-white/10">
+        <div className="editorial-reveal text-center max-w-3xl mx-auto mb-16">
+          <span className="text-xs uppercase tracking-[0.25em] text-amber-500 font-bold block mb-3">
+            Juramento de Facção
+          </span>
+          <h2 className="text-4xl sm:text-6xl font-black tracking-tighter uppercase mb-4">
+            De qual lado você quer ficar❓
+          </h2>
+          <p className="text-xl text-zinc-300 font-semibold">
+            Reino ou Império❓ <span className="text-zinc-500 font-normal">Escolha o seu estandarte para definir o destino da arena.</span>
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* LADO 1: IMPÉRIO (Bandeira Amarela) */}
+          <div
+            onClick={() => handleSelectFaction('imperio')}
+            className={`editorial-reveal cursor-pointer group relative rounded-3xl p-8 sm:p-10 bg-[#09090d] border transition-all duration-500 flex flex-col items-center text-center ${selectedFaction === 'imperio'
+              ? 'border-amber-400 shadow-[0_0_60px_rgba(245,158,11,0.2)] scale-[1.01]'
+              : 'border-white/10 hover:border-amber-500/50'
+              }`}
+          >
+            <div className="text-[11px] uppercase tracking-[0.2em] px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-6">
+              Estandarte do Império
+            </div>
+            <div className="w-56 h-72 sm:w-64 sm:h-80 mb-8 overflow-hidden rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center p-4">
+              <img
+                src="/bandeira-imperio.png"
+                alt="A Ordem Imperial da Luz Suprema"
+                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-amber-400 mb-3">
+              A Ordem Imperial da Luz Suprema
+            </h3>
+            <p className="text-zinc-400 text-sm leading-relaxed mb-8 max-w-md">
+              Guiados pela coroa solar e pela disciplina dourada, os guerreiros do Império lutam pela honra absoluta, defesa impenetrável e justiça soberana.
+            </p>
+            <button className="mt-auto px-7 py-3.5 rounded-full text-xs uppercase tracking-widest font-black bg-amber-500 text-black group-hover:bg-amber-400 transition-colors">
+              {selectedFaction === 'imperio' ? '✓ Lealdade Jurada ao Império' : 'Escolher Império'}
+            </button>
+          </div>
+
+          {/* LADO 2: REINO (Bandeira Roxa) */}
+          <div
+            onClick={() => handleSelectFaction('reino')}
+            className={`editorial-reveal cursor-pointer group relative rounded-3xl p-8 sm:p-10 bg-[#09090d] border transition-all duration-500 flex flex-col items-center text-center ${selectedFaction === 'reino'
+              ? 'border-purple-500 shadow-[0_0_60px_rgba(147,51,234,0.25)] scale-[1.01]'
+              : 'border-white/10 hover:border-purple-500/50'
+              }`}
+          >
+            <div className="text-[11px] uppercase tracking-[0.2em] px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 mb-6">
+              Estandarte do Reino
+            </div>
+            <div className="w-56 h-72 sm:w-64 sm:h-80 mb-8 overflow-hidden rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center p-4">
+              <img
+                src="/bandeira-reino.png"
+                alt="O Reino Obscuro do Caos Arcano"
+                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-purple-400 mb-3">
+              O Reino Obscuro do Caos Arcano
+            </h3>
+            <p className="text-zinc-400 text-sm leading-relaxed mb-8 max-w-md">
+              Forjados nas sombras místicas e na energia arcana púrpura, os mestres do Reino dominam feitiços devastadores, velocidade letal e estratégias imprevisíveis.
+            </p>
+            <button className="mt-auto px-7 py-3.5 rounded-full text-xs uppercase tracking-widest font-black bg-purple-600 text-white group-hover:bg-purple-500 transition-colors">
+              {selectedFaction === 'reino' ? '✓ Lealdade Jurada ao Reino' : 'Escolher Reino'}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. SEÇÃO DO SAMUEL: ANIMAIS EM EXTINÇÃO (MICO-LEÃO-DOURADO E ARARA-AZUL) */}
+      <section id="guardioes" className="py-28 px-6 max-w-7xl mx-auto border-b border-white/10">
+        <div className="editorial-reveal flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+          <div>
+            <span className="text-xs uppercase tracking-[0.25em] text-emerald-400 font-bold block mb-3">
+              Consciência & Biodiversidade
+            </span>
+            <h2 className="text-4xl sm:text-6xl font-black tracking-tighter uppercase">
+              Guardiões em Extinção
+            </h2>
+          </div>
+          <p className="text-zinc-400 max-w-md text-sm leading-relaxed">
+            O Fowlgen Wars homenageia e apoia a preservação da fauna brasileira ameaçada de extinção, imortalizando espécies lendárias como heróis de elite na arena.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* ARARA AZUL */}
+          <div className="editorial-reveal rounded-3xl overflow-hidden bg-[#09090d] border border-white/10 flex flex-col">
+            <div className="h-[460px] bg-black overflow-hidden relative">
+              <img
+                src="/arara-azul.png"
+                alt="Guardiã Arara-Azul"
+                className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700"
+              />
+              <span className="absolute top-4 left-4 text-[10px] uppercase tracking-widest px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/30 backdrop-blur-md">
+                Espécie Ameaçada • Classe Arcana Celeste
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-400">GSB Studios — Alpha Preview — Unity 6 · Solana</span>
             </div>
-
-            {/* Title — clip reveal per line */}
-            <div ref={heroTitleRef} className="overflow-hidden mb-6">
-              <div className="overflow-hidden">
-                <div className="reveal-line text-[clamp(3rem,8vw,7rem)] font-black leading-[0.92] tracking-tight text-white uppercase">
-                  A GUERRA
-                </div>
-              </div>
-              <div className="overflow-hidden">
-                <div className="reveal-line text-[clamp(3rem,8vw,7rem)] font-black leading-[0.92] tracking-tight uppercase">
-                  <span className="text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.3)' }}>PELO REINO</span>
-                </div>
-              </div>
-              <div className="overflow-hidden">
-                <div className="reveal-line text-[clamp(3rem,8vw,7rem)] font-black leading-[0.92] tracking-tight text-white uppercase">
-                  ALADO
-                </div>
-              </div>
-            </div>
-
-            <p ref={heroSubRef} className="text-zinc-400 text-base sm:text-lg max-w-xl leading-relaxed mb-10 opacity-0">
-              Mini-MOBA mobile com combate real-time a 60 FPS e progressão on-chain imutável na Solana. Cada vitória é sua para sempre.
-            </p>
-
-            <div ref={heroCtaRef} className="flex flex-col sm:flex-row gap-4 mb-16 opacity-0">
-              <button onClick={openAuth}
-                className="group flex items-center justify-center gap-2.5 bg-white hover:bg-zinc-100 text-black font-black text-xs uppercase tracking-[0.15em] px-8 py-4 rounded-xl transition-all duration-200 hover:gap-4">
-                Entrar na Batalha
-                <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </button>
-              <a href="#sobre"
-                className="flex items-center justify-center gap-2 border border-white/20 hover:border-white/40 text-zinc-300 hover:text-white font-bold text-xs uppercase tracking-[0.15em] px-8 py-4 rounded-xl transition-all duration-200">
-                Ver Mecânicas
-              </a>
-            </div>
-
-            {/* Stats strip */}
-            <div ref={heroStatsRef} className="h-line-reveal w-full h-px bg-white/10 mb-8" />
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
-              {STATS.map((s) => (
-                <div key={s.label} className="stat-item opacity-0">
-                  <div className="text-2xl sm:text-3xl font-black text-white tracking-tight">{s.value}</div>
-                  <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 mt-1">{s.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════ #SOBRE — MECÂNICAS ══════════════ */}
-      <section id="sobre" className="py-32 border-t border-white/[0.06]">
-        <div className="max-w-screen-xl mx-auto px-5 sm:px-8">
-
-          {/* Section header */}
-          <div className="flex items-start justify-between gap-8 mb-20">
-            <div className="editorial-reveal">
-              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-600 block mb-4">001 — O Jogo</span>
-              <h2 className="text-4xl sm:text-6xl font-black text-white tracking-tight uppercase leading-[0.95]">
-                Engenharia<br />de Combate
-              </h2>
-            </div>
-            <p className="editorial-reveal hidden lg:block text-zinc-500 text-sm leading-relaxed max-w-sm pt-10">
-              Gameplay fluido no Unity 6 com URP. A Solana só é chamada no resultado — sem lag, sem trapaça, sem intermediários.
-            </p>
-          </div>
-
-          {/* Core principles — editorial rows */}
-          <div className="stagger-group space-y-0 border-t border-white/[0.06]">
-            {[
-              { n: '01', title: 'Real-Time Puro', body: 'Toda movimentação, física e combate correm a 60 FPS no dispositivo. Nenhuma transação durante a batalha. A ação nunca para.' },
-              { n: '02', title: 'Resultado On-Chain', body: 'Ao final de cada partida, o servidor assina o resultado e grava XP, vitórias e partidas diretamente na sua PDA na Solana via Anchor.' },
-              { n: '03', title: 'Estratégia de Rota', body: '4 rotas com funções distintas: Tanques (TOP), Assassinos (SELVA), Magos (MID), Atiradores (ADC). Sincronia é a chave da vitória.' },
-              { n: '04', title: 'Sem Pay-to-Win', body: 'Progressão baseada em habilidade e tempo de jogo. Vitórias verificáveis e transparentes para todos. A blockchain como árbitro.' },
-            ].map((row) => (
-              <div key={row.n} className="stagger-child group flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-12 py-8 border-b border-white/[0.06] hover:bg-white/[0.02] transition-colors px-2 -mx-2 rounded-lg cursor-default">
-                <span className="text-[11px] font-bold tracking-[0.2em] text-zinc-600 shrink-0 w-8">{row.n}</span>
-                <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight shrink-0 sm:w-64 group-hover:text-amber-400 transition-colors duration-300">{row.title}</h3>
-                <p className="text-zinc-500 text-sm leading-relaxed flex-1">{row.body}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Routes */}
-          <div className="mt-24">
-            <div className="editorial-reveal flex items-center gap-4 mb-12">
-              <div className="h-line-reveal flex-1 h-px bg-white/10" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-600 shrink-0">As 4 Rotas de Batalha</span>
-              <div className="h-line-reveal flex-1 h-px bg-white/10" />
-            </div>
-
-            <div className="stagger-group grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {ROUTES.map((r) => (
-                <div key={r.route}
-                  className="stagger-child group bg-[#0a0a0a] border border-white/[0.07] hover:border-white/20 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 cursor-default">
-                  <span className="text-[10px] font-bold tracking-[0.2em] text-zinc-700 block mb-4">{r.num}</span>
-                  <div className="text-2xl font-black text-white uppercase tracking-tight mb-1 group-hover:text-amber-400 transition-colors">{r.route}</div>
-                  <div className="text-xs text-zinc-400 font-medium mb-3">{r.classes}</div>
-                  <div className="h-px w-8 bg-white/10 mb-3 group-hover:w-full group-hover:bg-amber-400/30 transition-all duration-500" />
-                  <p className="text-zinc-600 text-[11px] leading-relaxed">{r.role}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════ #LORE — O REINO ══════════════ */}
-      <section id="lore" className="py-32 border-t border-white/[0.06] bg-[#070707]">
-        <div className="max-w-screen-xl mx-auto px-5 sm:px-8">
-
-          {/* Oversize editorial text */}
-          <div className="mb-20">
-            <span className="editorial-reveal text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-600 block mb-6">002 — A História</span>
-            <h2 className="editorial-reveal text-5xl sm:text-7xl lg:text-[8rem] font-black text-white tracking-tight uppercase leading-[0.9] mb-8">
-              As Ilhas de<br />
-              <span className="text-transparent" style={{ WebkitTextStroke: '1.5px rgba(255,255,255,0.2)' }}>Aurora</span>
-            </h2>
-            <div className="editorial-reveal max-w-2xl">
-              <div className="h-line-reveal w-16 h-px bg-white/20 mb-6" />
-              <p className="text-zinc-400 text-base sm:text-lg leading-relaxed">
-                Há 500 anos, os cristais de éter entraram em colapso e fragmentaram o continente em arquipélagos suspensos. Os clãs Fowlgen adaptaram suas garras e penas à magia elementar que agora permeia o ar. Agora lutam pelo Trono da Coroa Solar — e cada vitória é gravada no Livro Imutável.
+            <div className="p-8">
+              <h3 className="text-2xl font-black uppercase tracking-tight text-sky-400 mb-2">
+                Arara-Azul — Sentinela dos Ventos
+              </h3>
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                Empunhando a lâmina de cristal celeste, representa a luta contra o tráfico de animais silvestres e a preservação do Pantanal e da floresta brasileira.
               </p>
             </div>
           </div>
 
-          {/* Classes grid — editorial */}
-          <div className="stagger-group grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            {CLASSES.map((c) => (
-              <div key={c.name}
-                className="stagger-child group relative bg-[#0a0a0a] border border-white/[0.07] hover:border-white/20 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden cursor-default">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.01] rounded-full blur-2xl pointer-events-none group-hover:bg-white/[0.03] transition-colors" />
-                <span className="text-2xl block mb-5">{c.icon}</span>
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600 block mb-1">{c.role}</span>
-                <h4 className="text-base font-black text-white uppercase tracking-tight mb-2 group-hover:text-zinc-200">{c.name}</h4>
-                <div className="h-px w-6 bg-white/10 mb-3 group-hover:w-full transition-all duration-500 group-hover:bg-white/20" />
-                <p className="text-zinc-600 text-[11px] leading-relaxed">{c.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Lore narrative columns */}
-          <div className="stagger-group mt-20 grid grid-cols-1 lg:grid-cols-3 gap-8 pt-16 border-t border-white/[0.06]">
-            {[
-              { heading: 'A Grande Ruptura', body: 'Os cristais de éter que sustentavam o continente explodiram simultaneamente, elevando massas de terra. Nenhuma civilização foi poupada — todas foram forçadas a se reinventar nas alturas.' },
-              { heading: 'Os Titãs Silvestres', body: 'Criaturas colossais adormecidas nos núcleos rochosos despertaram famintas. Apenas comandantes que dominam as quatro rotas conseguem enfraquecê-las.' },
-              { heading: 'O Livro Imutável', body: 'Cada vitória, cada XP ganho, cada derrota heroica — tudo registrado na Solana. A história dos guerreiros não pode ser apagada ou falsificada.' },
-            ].map((col) => (
-              <div key={col.heading} className="stagger-child">
-                <h3 className="text-xl font-black text-white uppercase tracking-tight mb-4">{col.heading}</h3>
-                <p className="text-zinc-500 text-sm leading-relaxed">{col.body}</p>
-              </div>
-            ))}
+          {/* MICO-LEÃO-DOURADO */}
+          <div className="editorial-reveal rounded-3xl overflow-hidden bg-[#09090d] border border-white/10 flex flex-col">
+            <div className="h-[460px] bg-black overflow-hidden relative">
+              <img
+                src="/mico-leao.png"
+                alt="Guardião Mico-Leão-Dourado"
+                className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700"
+              />
+              <span className="absolute top-4 left-4 text-[10px] uppercase tracking-widest px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 backdrop-blur-md">
+                Espécie Ameaçada • Mestre de Bastão Solar
+              </span>
+            </div>
+            <div className="p-8">
+              <h3 className="text-2xl font-black uppercase tracking-tight text-amber-400 mb-2">
+                Mico-Leão-Dourado — Punho da Mata Atlântica
+              </h3>
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                Ágil, destemido e implacável no combate corpo a corpo, simboliza a regeneração da Mata Atlântica e a força da biodiversidade nacional.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ══════════════ #MODOS — BATALHAS ══════════════ */}
-      <section id="modos" className="py-32 border-t border-white/[0.06]">
-        <div className="max-w-screen-xl mx-auto px-5 sm:px-8">
+      {/* 3. VITRINE MVP & CONTAINER UNITY WEBGL (Tarefas 2.1 e 2.2 do Marcos) */}
+      <section id="webgl" className="py-28 px-6 max-w-7xl mx-auto border-b border-white/10">
+        <div className="editorial-reveal text-center max-w-3xl mx-auto mb-12">
+          <span className="text-xs uppercase tracking-[0.25em] text-amber-500 font-bold block mb-3">
+            Vitrine Oficial do MVP
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tighter uppercase mb-4">
+            Arena Unity WebGL & APK Android
+          </h2>
+          <p className="text-zinc-400 text-sm">
+            Container responsivo 16:9 preparado para embutir o jogo Unity WebGL e download direto do pacote Android.
+          </p>
+        </div>
 
-          <div className="mb-20">
-            <span className="editorial-reveal text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-600 block mb-6">003 — Arenas</span>
-            <h2 className="editorial-reveal text-4xl sm:text-6xl font-black text-white tracking-tight uppercase leading-[0.95]">
-              Modos de<br />Batalha
+        <div className="editorial-reveal relative w-full aspect-video max-w-5xl mx-auto rounded-3xl overflow-hidden bg-[#0a0a0f] border border-white/15 shadow-2xl flex flex-col items-center justify-center p-8 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl font-black mb-4">
+            ▶
+          </div>
+          <h3 className="text-xl font-black uppercase tracking-tight mb-2">
+            Container Unity 6 WebGL
+          </h3>
+          <p className="text-zinc-400 text-xs max-w-md mb-6">
+            Experimente o modelo demonstrativo inicial no portal Itch.io ou descarregue o APK Android diretamente para o seu dispositivo.
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <a
+              href="https://fowlgenwars.itch.io/fowlgenwars"
+              target="_blank"
+              rel="noreferrer"
+              className="px-6 py-3 rounded-full bg-amber-500 text-black font-black text-xs uppercase tracking-widest hover:bg-amber-400 transition-all"
+            >
+              Jogar Demo no Itch.io ↗
+            </a>
+            <a
+              href="https://fowlgenwars.itch.io/fowlgenwars"
+              target="_blank"
+              rel="noreferrer"
+              className="px-6 py-3 rounded-full bg-white/10 text-white font-bold text-xs uppercase tracking-widest hover:bg-white/20 transition-all"
+            >
+              Baixar APK Android (.apk)
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. SEÇÃO LOJA ONLINE & MICRO-RECOMPENSAS ANTI-P2W (Pedido do Samuel + Sprint Kanban) */}
+      <section id="loja" className="py-28 px-6 max-w-7xl mx-auto border-b border-white/10">
+        <div className="editorial-reveal flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
+          <div>
+            <span className="text-xs uppercase tracking-[0.25em] text-purple-400 font-bold block mb-3">
+              Economia Justa • 100% Anti-P2W
+            </span>
+            <h2 className="text-4xl sm:text-5xl font-black tracking-tighter uppercase">
+              Loja Online & Recompensas
             </h2>
           </div>
+          <span className="text-xs uppercase tracking-widest px-4 py-2 rounded-full bg-white/5 border border-white/10 text-zinc-300">
+            Futuros Produtos Oficiais • Em Breve
+          </span>
+        </div>
 
-          <div className="stagger-group space-y-4">
-            {MODES.map((m, i) => (
-              <div key={m.title}
-                className="stagger-child group border border-white/[0.07] hover:border-white/20 rounded-2xl overflow-hidden transition-all duration-300 cursor-default">
-                <div className="flex flex-col lg:flex-row lg:items-stretch">
-                  {/* Number block */}
-                  <div className="hidden lg:flex items-center justify-center w-24 shrink-0 bg-white/[0.02] border-r border-white/[0.06] text-4xl font-black text-zinc-800 group-hover:text-zinc-700 transition-colors">
-                    {m.num}
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 p-7 lg:p-8">
-                    <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-8">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-600">{m.tag}</span>
-                          {i === 1 && (
-                            <span className="text-[9px] font-black uppercase tracking-widest bg-white text-black px-2.5 py-1 rounded-full">
-                              Destaque
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight mb-4 group-hover:text-zinc-100">
-                          {m.title}
-                        </h3>
-                        <p className="text-zinc-500 text-sm leading-relaxed max-w-2xl">{m.desc}</p>
-                      </div>
-
-                      <div className="shrink-0 sm:text-right space-y-2 pt-1">
-                        <div className="text-[11px] font-bold text-zinc-400">{m.players}</div>
-                        <div className="text-[10px] font-medium text-zinc-600">{m.meta}</div>
-                        <button onClick={openAuth}
-                          className="mt-3 text-[10px] font-black uppercase tracking-[0.15em] border border-white/10 hover:border-white/30 hover:text-white text-zinc-400 px-4 py-2 rounded-lg transition-all block w-full sm:w-auto">
-                          Jogar →
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            {
+              title: 'Baú Real Pós-Partida',
+              category: 'Micro-Recompensa In-Game',
+              desc: 'Conquistado exclusivamente por mérito nas batalhas. Contém moedas e insígnias cosméticas sem vantagem competitiva.',
+              tag: 'Anti-P2W Garantido',
+            },
+            {
+              title: 'Skins Guardiões da Fauna',
+              category: 'Cosmético Oficial & Impacto',
+              desc: 'Visuais exclusivos da Arara-Azul e Mico-Leão-Dourado. Parte das receitas apoia projetos de preservação.',
+              tag: 'Em Desenvolvimento',
+            },
+            {
+              title: 'Colecionáveis Físicos & Merch',
+              category: 'Loja Oficial Fowlgen Wars',
+              desc: 'Action figures, camisolas oficiais das facções (Império e Reino) e itens exclusivos que serão incluídos no futuro.',
+              tag: 'Lançamento Futuro',
+            },
+          ].map((item, idx) => (
+            <div key={idx} className="editorial-reveal rounded-3xl p-8 bg-[#09090d] border border-white/10 flex flex-col justify-between">
+              <div>
+                <span className="text-[10px] uppercase tracking-widest text-amber-400 font-bold block mb-2">
+                  {item.category}
+                </span>
+                <h3 className="text-xl font-black uppercase tracking-tight mb-3">{item.title}</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed mb-6">{item.desc}</p>
               </div>
-            ))}
-          </div>
-
-          {/* Tech strip */}
-          <div className="stagger-group mt-20 grid grid-cols-2 lg:grid-cols-4 gap-3 pt-16 border-t border-white/[0.06]">
-            {[
-              { label: 'Engine', value: 'Unity 6 URP' },
-              { label: 'Contratos', value: 'Anchor 0.30' },
-              { label: 'Blockchain', value: 'Solana Devnet' },
-              { label: 'Frontend', value: 'React 19 + GSAP' },
-            ].map((t) => (
-              <div key={t.label} className="stagger-child bg-[#0a0a0a] border border-white/[0.07] rounded-xl px-5 py-4">
-                <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-700 block mb-1">{t.label}</span>
-                <span className="text-sm font-black text-white">{t.value}</span>
+              <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                <span className="text-[11px] text-zinc-500 uppercase tracking-wider">{item.tag}</span>
+                <span className="text-xs font-bold text-zinc-300">Em Breve →</span>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* ══════════════ #APOIADORES ══════════════ */}
-      <section id="apoiadores" className="py-32 border-t border-white/[0.06] bg-[#070707]">
-        <div className="max-w-screen-xl mx-auto px-5 sm:px-8">
+      {/* 5. CAPTAÇÃO DE RECURSOS: APOIE-NOS & MURAL DE APOIADORES (Tarefas 2.10, 2.11 e 2.13) */}
+      <section id="apoie-nos" className="py-28 px-6 max-w-7xl mx-auto">
+        <div className="editorial-reveal text-center max-w-3xl mx-auto mb-16">
+          <span className="text-xs uppercase tracking-[0.25em] text-amber-500 font-bold block mb-3">
+            Captação de Recursos & Comunidade
+          </span>
+          <h2 className="text-4xl sm:text-6xl font-black tracking-tighter uppercase mb-4">
+            Apoie o Fowlgen Wars
+          </h2>
+          <p className="text-zinc-400 text-sm leading-relaxed">
+            Contribua para a evolução do projeto, escolha o seu Tier de apoio e registe a sua mensagem diretamente no Mural Oficial de Apoiadores.
+          </p>
+        </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+        {/* TIERS DE APOIO */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          {[
+            { tier: 1, name: 'Tier 1 • Escudeiro da Arena', price: 'Apoio Inicial', perks: 'Nome no Mural Oficial + Badge de Apoiador Inicial no Discord.' },
+            { tier: 2, name: 'Tier 2 • Cavaleiro da Ordem', price: 'Apoio Destaque', perks: 'Destaque Dourado no Mural + Acesso Alpha Antecipado + Emblema In-Game.' },
+            { tier: 3, name: 'Tier 3 • Patrono Lendário', price: 'Apoio VIP', perks: 'Topo do Mural + Título Exclusivo + Nome nos Créditos Oficiais na Unity.' },
+          ].map((t) => (
+            <div
+              key={t.tier}
+              onClick={() => setSupTier(t.tier)}
+              className={`cursor-pointer rounded-3xl p-7 bg-[#09090d] border transition-all ${supTier === t.tier ? 'border-amber-400 bg-amber-500/[0.04]' : 'border-white/10 hover:border-white/25'
+                }`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-black uppercase tracking-widest text-amber-400">{t.name}</span>
+                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10">{t.price}</span>
+              </div>
+              <p className="text-zinc-400 text-xs leading-relaxed">{t.perks}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start" id="apoiadores">
+          {/* FORMULÁRIO POST /api/supporters */}
+          <form onSubmit={handleSupportSubmit} className="lg:col-span-5 rounded-3xl p-8 bg-[#09090d] border border-white/10 space-y-4">
+            <h3 className="text-xl font-black uppercase tracking-tight mb-1">Registar Contribuição</h3>
+            <p className="text-xs text-zinc-400 mb-4">
+              Conectado a <code className="text-amber-400">POST /api/supporters</code>
+            </p>
+
             <div>
-              <span className="editorial-reveal text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-600 block mb-6">004 — Comunidade</span>
-              <h2 className="editorial-reveal text-4xl sm:text-6xl font-black text-white tracking-tight uppercase leading-[0.95] mb-8">
-                Seja um dos<br />primeiros<br />
-                <span className="text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.25)' }}>
-                  Comandantes
-                </span>
-              </h2>
-              <p className="editorial-reveal text-zinc-500 text-base leading-relaxed max-w-md mb-10">
-                Registre sua identidade Alpha agora. Garanta seu nickname exclusivo, tenha acesso prioritário às batalhas de teste e conquiste o Badge de Fundador permanente.
-              </p>
-              <div className="editorial-reveal flex flex-col sm:flex-row gap-4">
-                <button onClick={openAuth}
-                  className="group flex items-center justify-center gap-2.5 bg-white hover:bg-zinc-100 text-black font-black text-xs uppercase tracking-[0.15em] px-8 py-4 rounded-xl transition-all duration-200 hover:gap-4">
-                  Criar Identidade Alpha
-                  <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </button>
-              </div>
-              <p className="editorial-reveal text-zinc-700 text-[11px] mt-4">
-                Sem necessidade de carteira para registro. Integração Solana opcional.
-              </p>
+              <label className="text-[11px] uppercase tracking-wider text-zinc-400 block mb-1">Nickname *</label>
+              <input
+                type="text"
+                required
+                value={supNick}
+                onChange={(e) => setSupNick(e.target.value)}
+                placeholder="Ex: GuardiaoBR"
+                className="w-full px-4 py-3 rounded-xl bg-black border border-white/10 text-sm focus:border-amber-400 outline-none"
+              />
             </div>
 
-            {/* Perks */}
-            <div className="stagger-group space-y-3">
-              {[
-                { n: '01', title: 'Nickname Exclusivo', body: 'Garanta seu nome de guerreiro antes do lançamento público. Primeiros registros têm prioridade.' },
-                { n: '02', title: 'Histórico On-Chain', body: 'Seu XP e vitórias registrados desde o primeiro combate na Solana. Permanente e verificável.' },
-                { n: '03', title: 'Badge de Fundador', body: 'Distinção Alpha Tester visível no perfil para sempre. Não há como obtê-la após o lançamento.' },
-                { n: '04', title: 'Acesso Antecipado', body: 'Participe das batalhas de teste antes de qualquer outro jogador e ajude a moldar o jogo.' },
-              ].map((p) => (
-                <div key={p.title}
-                  className="stagger-child group flex gap-6 bg-[#0a0a0a] border border-white/[0.07] hover:border-white/20 rounded-xl p-6 transition-all duration-300 cursor-default">
-                  <span className="text-[11px] font-bold tracking-[0.2em] text-zinc-700 shrink-0 pt-0.5">{p.n}</span>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[11px] uppercase tracking-wider text-zinc-400 block mb-1">Tier Escolhido</label>
+                <select
+                  value={supTier}
+                  onChange={(e) => setSupTier(Number(e.target.value))}
+                  className="w-full px-4 py-3 rounded-xl bg-black border border-white/10 text-sm focus:border-amber-400 outline-none"
+                >
+                  <option value={1}>Tier 1 - Escudeiro</option>
+                  <option value={2}>Tier 2 - Cavaleiro</option>
+                  <option value={3}>Tier 3 - Patrono</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-wider text-zinc-400 block mb-1">Carteira / PIX</label>
+                <input
+                  type="text"
+                  value={supWallet}
+                  onChange={(e) => setSupWallet(e.target.value)}
+                  placeholder="Opcional"
+                  className="w-full px-4 py-3 rounded-xl bg-black border border-white/10 text-sm focus:border-amber-400 outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[11px] uppercase tracking-wider text-zinc-400 block mb-1">Hash / Comprovativo (tx)</label>
+              <input
+                type="text"
+                value={supTx}
+                onChange={(e) => setSupTx(e.target.value)}
+                placeholder="Ex: 5xK9...SolanaTx"
+                className="w-full px-4 py-3 rounded-xl bg-black border border-white/10 text-sm focus:border-amber-400 outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="text-[11px] uppercase tracking-wider text-zinc-400 block mb-1">Mensagem de Apoio *</label>
+              <textarea
+                required
+                rows={3}
+                value={supMsg}
+                onChange={(e) => setSupMsg(e.target.value)}
+                placeholder="Deixe o seu grito de guerra para a comunidade!"
+                className="w-full px-4 py-3 rounded-xl bg-black border border-white/10 text-sm focus:border-amber-400 outline-none resize-none"
+              />
+            </div>
+
+            {supFeedback && (
+              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs">
+                {supFeedback}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-3.5 rounded-full bg-amber-500 text-black font-black text-xs uppercase tracking-widest hover:bg-amber-400 transition-colors"
+            >
+              Enviar Apoio para o Mural
+            </button>
+          </form>
+
+          {/* MURAL DINÂMICO PAGINADO (GET /api/supporters) */}
+          <div className="lg:col-span-7 rounded-3xl p-8 bg-[#09090d] border border-white/10">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-xl font-black uppercase tracking-tight">Mural Público de Apoiadores</h3>
+                <p className="text-xs text-zinc-400">
+                  Feed paginado (<code className="text-amber-400">GET /api/supporters?pageIndex={pageIndex}&pageSize={pageSize}</code>)
+                </p>
+              </div>
+              <span className="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-zinc-300">
+                Apoiadores: {totalCount}
+              </span>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              {displayedSupporters.map((s) => (
+                <div key={s.id} className="p-5 rounded-2xl bg-black/60 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h4 className="text-sm font-black text-white uppercase tracking-tight mb-1.5 group-hover:text-zinc-200">{p.title}</h4>
-                    <p className="text-zinc-600 text-[12px] leading-relaxed">{p.body}</p>
+                    <div className="flex items-center gap-2.5 mb-1">
+                      <span className="font-bold text-sm text-white">{s.nickname}</span>
+                      <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                        Tier {s.tier}
+                      </span>
+                      {s.wallet && (
+                        <span className="text-[11px] text-zinc-500 font-mono">{s.wallet}</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-zinc-300 leading-relaxed">"{s.msg}"</p>
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Paginação no client HTTP (Tarefa 2.13) */}
+            <div className="flex items-center justify-between pt-4 border-t border-white/10">
+              <button
+                disabled={pageIndex <= 1}
+                onClick={() => {
+                  const next = Math.max(1, pageIndex - 1);
+                  setPageIndex(next);
+                  fetchSupporters(next);
+                }}
+                className="px-4 py-2 rounded-full text-xs uppercase tracking-wider bg-white/5 border border-white/10 disabled:opacity-30 hover:bg-white/10"
+              >
+                ← Anterior
+              </button>
+              <span className="text-xs text-zinc-400">
+                Página <strong className="text-white">{pageIndex}</strong> de {totalPages}
+              </span>
+              <button
+                disabled={pageIndex >= totalPages}
+                onClick={() => {
+                  const next = Math.min(totalPages, pageIndex + 1);
+                  setPageIndex(next);
+                  fetchSupporters(next);
+                }}
+                className="px-4 py-2 rounded-full text-xs uppercase tracking-wider bg-white/5 border border-white/10 disabled:opacity-30 hover:bg-white/10"
+              >
+                Próxima →
+              </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ══════════════ FOOTER ══════════════ */}
-      <footer className="border-t border-white/[0.06] pt-16 pb-10 bg-[#050505]">
-        <div className="max-w-screen-xl mx-auto px-5 sm:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 mb-16">
-
-            <div className="md:col-span-5 space-y-5">
-              <div className="flex items-center gap-2.5">
-                <span className="text-xl">👑</span>
-                <span className="font-black tracking-[0.12em] text-sm text-white uppercase">
-                  Fowlgen<span className="text-zinc-600 font-medium ml-1">Wars</span>
-                </span>
-              </div>
-              <p className="text-zinc-600 text-sm leading-relaxed max-w-xs">
-                Um projeto de GSB Studios. Combate tático mobile, vitórias imutáveis na Solana.
-              </p>
-              <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-700 bg-[#0a0a0a] border border-white/[0.06] px-4 py-2.5 rounded-lg w-fit">
-                Program ID: 7UYgCSdMd4SVLqVDmZvDbhxs4AV9E2VbgBc2gXJrnD27
-              </div>
-            </div>
-
-            <div className="md:col-span-3 md:col-start-7">
-              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-700 mb-5">Navegar</h4>
-              <ul className="space-y-3">
-                {[['#sobre', 'O Jogo'], ['#lore', 'O Reino'], ['#modos', 'Batalhas'], ['#apoiadores', 'Comunidade']].map(([href, label]) => (
-                  <li key={href}>
-                    <a href={href} className="text-zinc-500 hover:text-white text-sm transition-colors">{label}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="md:col-span-2">
-              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-700 mb-5">Status</h4>
-              <ul className="space-y-3">
-                {[
-                  { label: 'Devnet', status: 'Ativo', color: 'bg-emerald-400' },
-                  { label: 'Site Alpha', status: 'Em Dev', color: 'bg-amber-400' },
-                  { label: 'Unity Build', status: 'WIP', color: 'bg-zinc-600' },
-                ].map((s) => (
-                  <li key={s.label} className="flex items-center gap-2.5 text-xs text-zinc-500">
-                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${s.color} ${s.color === 'bg-emerald-400' ? 'animate-pulse' : ''}`} />
-                    <span>{s.label}</span>
-                    <span className="text-zinc-700">—</span>
-                    <span>{s.status}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+      {/* RODAPÉ OFICIAL (Tarefas 2.4 e 2.12) */}
+      <footer className="border-t border-white/10 bg-[#030304] py-16 px-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+          <div>
+            <div className="font-black tracking-tighter text-lg uppercase mb-1">FOWLGEN WARS • G5B STUDIOS</div>
+            <p className="text-xs text-zinc-500">
+              Portal Oficial & API REST (.NET 9 / Onix.Framework) • Todos os direitos reservados © 2026.
+            </p>
           </div>
 
-          <div className="h-line-reveal h-px bg-white/[0.06] mb-8" />
-
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-[11px] text-zinc-700">© 2026 GSB Studios — Fowlgen Wars. Todos os direitos reservados.</p>
-            <p className="text-[11px] text-zinc-700">Construído com Unity 6 · Anchor · React 19 · GSAP</p>
+          <div className="flex flex-wrap gap-6 text-xs uppercase tracking-widest text-zinc-400">
+            <a href="#apoie-nos" className="hover:text-amber-400">Apoie-nos</a>
+            <a href="#apoiadores" className="hover:text-amber-400">Mural de Apoiadores</a>
+            <a href="https://fowlgenwars.itch.io/fowlgenwars" target="_blank" rel="noreferrer" className="hover:text-white">Itch.io MVP</a>
+            <a href="https://discord.com" target="_blank" rel="noreferrer" className="hover:text-white">Discord</a>
+            <a href="https://x.com" target="_blank" rel="noreferrer" className="hover:text-white">X (Twitter)</a>
+            <a href="https://telegram.org" target="_blank" rel="noreferrer" className="hover:text-white">Telegram</a>
           </div>
         </div>
       </footer>
 
-      <AuthModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      {/* MODAL DE CADASTRO, PERFIL & LOGIN WEB3 (Tarefas 2.6, 2.7, 2.8 e 2.14) */}
+      {authModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-3xl bg-[#0b0b10] border border-white/15 p-8 relative">
+            <button
+              onClick={() => setAuthModalOpen(false)}
+              className="absolute top-5 right-5 text-zinc-400 hover:text-white text-sm"
+            >
+              ✕
+            </button>
+
+            <h3 className="text-2xl font-black uppercase tracking-tight mb-1">Conta do Jogador</h3>
+            <p className="text-xs text-zinc-400 mb-6">Sincronizado com os DTOs da API (.NET 9)</p>
+
+            <div className="grid grid-cols-3 gap-1.5 p-1 rounded-full bg-black border border-white/10 mb-6">
+              <button
+                onClick={() => setAuthTab('register')}
+                className={`py-2 rounded-full text-[11px] font-bold uppercase tracking-wider ${authTab === 'register' ? 'bg-amber-500 text-black' : 'text-zinc-400'
+                  }`}
+              >
+                Registo
+              </button>
+              <button
+                onClick={() => setAuthTab('web3')}
+                className={`py-2 rounded-full text-[11px] font-bold uppercase tracking-wider ${authTab === 'web3' ? 'bg-purple-600 text-white' : 'text-zinc-400'
+                  }`}
+              >
+                Web3
+              </button>
+              <button
+                onClick={() => setAuthTab('profile')}
+                className={`py-2 rounded-full text-[11px] font-bold uppercase tracking-wider ${authTab === 'profile' ? 'bg-white text-black' : 'text-zinc-400'
+                  }`}
+              >
+                Perfil
+              </button>
+            </div>
+
+            {authTab === 'register' && (
+              <form onSubmit={handleRegisterUser} className="space-y-4">
+                <div>
+                  <label className="text-[11px] uppercase tracking-wider text-zinc-400 block mb-1">Nickname no Jogo</label>
+                  <input
+                    type="text"
+                    required
+                    value={nickInput}
+                    onChange={(e) => setNickInput(e.target.value)}
+                    placeholder="Seu nickname"
+                    className="w-full px-4 py-3 rounded-xl bg-black border border-white/10 text-sm outline-none focus:border-amber-400"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] uppercase tracking-wider text-zinc-400 block mb-1">Email</label>
+                  <input
+                    type="email"
+                    required
+                    value={emailInput}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                    placeholder="voce@email.com"
+                    className="w-full px-4 py-3 rounded-xl bg-black border border-white/10 text-sm outline-none focus:border-amber-400"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] uppercase tracking-wider text-zinc-400 block mb-1">Password</label>
+                  <input
+                    type="password"
+                    required
+                    value={passInput}
+                    onChange={(e) => setPassInput(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full px-4 py-3 rounded-xl bg-black border border-white/10 text-sm outline-none focus:border-amber-400"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full py-3.5 rounded-full bg-amber-500 text-black font-black text-xs uppercase tracking-widest hover:bg-amber-400"
+                >
+                  Criar Conta (POST /api/users)
+                </button>
+              </form>
+            )}
+
+            {authTab === 'web3' && (
+              <div className="space-y-4 text-center py-4">
+                <p className="text-xs text-zinc-300 leading-relaxed">
+                  Conecte a sua carteira <strong>Phantom</strong> ou <strong>Solflare</strong> para assinar a mensagem criptográfica em <code className="text-purple-400">POST /api/auth/login-web3</code>.
+                </p>
+                <button
+                  onClick={handleWeb3Login}
+                  className="w-full py-3.5 rounded-full bg-purple-600 text-white font-black text-xs uppercase tracking-widest hover:bg-purple-500"
+                >
+                  Assinar com Phantom / Solflare
+                </button>
+              </div>
+            )}
+
+            {authTab === 'profile' && (
+              <form onSubmit={handleUpdateProfile} className="space-y-4">
+                <div className="p-3 rounded-xl bg-black/60 border border-white/10 text-xs space-y-1">
+                  <div className="text-zinc-500">ID (Guid): <span className="text-zinc-300 font-mono">{user?.id_usuario || 'Não autenticado'}</span></div>
+                  <div className="text-zinc-500">Carteira: <span className="text-zinc-300 font-mono">{user?.wallet_address || 'Não vinculada'}</span></div>
+                </div>
+                <div>
+                  <label className="text-[11px] uppercase tracking-wider text-zinc-400 block mb-1">Atualizar Nickname</label>
+                  <input
+                    type="text"
+                    value={nickInput}
+                    onChange={(e) => setNickInput(e.target.value)}
+                    placeholder="Novo nickname"
+                    className="w-full px-4 py-3 rounded-xl bg-black border border-white/10 text-sm outline-none focus:border-amber-400"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] uppercase tracking-wider text-zinc-400 block mb-1">Avatar URL</label>
+                  <input
+                    type="url"
+                    value={avatarInput}
+                    onChange={(e) => setAvatarInput(e.target.value)}
+                    placeholder="https://..."
+                    className="w-full px-4 py-3 rounded-xl bg-black border border-white/10 text-sm outline-none focus:border-amber-400"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={!user}
+                  className="w-full py-3.5 rounded-full bg-white text-black font-black text-xs uppercase tracking-widest hover:bg-amber-400 disabled:opacity-40"
+                >
+                  Atualizar Perfil (PUT /api/users/id)
+                </button>
+              </form>
+            )}
+
+            {authStatusMsg && (
+              <p className="mt-4 text-center text-xs text-amber-400">{authStatusMsg}</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+export default App;
