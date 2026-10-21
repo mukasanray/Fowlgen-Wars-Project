@@ -10,6 +10,8 @@
 | **Validade** | Avançada (Lei 14.063) + PAdES-LTV (TSA RFC3161) |
 | **Hospedagem** | Self-hosted (Docker) — sua infra, seus dados |
 | **Dev Environment** | **GitHub Codespaces** (0 config rede, URLs públicas automáticas) |
+| **Diretório do Projeto** | `kanban/Opensign` (case-sensitive: `kanban` minúsculo) |
+| **Setup Command** | `npm run setup` (executa `install.ts`) |
 
 ---
 
@@ -30,23 +32,84 @@
 │  │  https://codespace-<hash>-3001.app.github.dev  (OpenSign)   │           │
 │  └─────────────────────────────────────────────────────────────┘           │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                    ┌───────────────┼───────────────┐
-                    ▼               ▼               ▼
-         ┌────────────────┐ ┌────────────────┐ ┌────────────────┐
-         │   STAGING      │ │   PRODUÇÃO     │ │   SIGN ATÁRIO  │
-         │ sign.staging.  │ │ sign.seuapp.com│ │  (celular/PC)  │
-         │ seuapp.com     │ │                │ │                │
-         └────────────────┘ └────────────────┘ └────────────────┘
+                                     │
+                     ┌───────────────┼───────────────┐
+                     ▼               ▼               ▼
+          ┌────────────────┐ ┌────────────────┐ ┌────────────────┐
+          │   STAGING      │ │   PRODUÇÃO     │ │   SIGNATÁRIO   │
+          │ sign.staging.  │ │ sign.seuapp.com│ │  (celular/PC)  │
+          │ seuapp.com     │ │                │ │                │
+          └────────────────┘ └────────────────┘ └────────────────┘
 ```
+
+---
+
+## Estrutura do Projeto (kanban/)
+
+```
+kanban/
+├── install.ts                     # Setup principal (npm run setup)
+├── package.json                   # Scripts: setup, app, dev, verify, dashboard, sync
+├── tsconfig.json
+├── MANUAL.md
+├── setup/
+│   ├── install.ps1                # Windows PowerShell
+│   └── install.bat                # Windows Batch
+├── src/
+│   ├── config/
+│   │   ├── kanban-config.json
+│   │   ├── directories.json
+│   │   └── members.json
+│   ├── electron/
+│   │   └── main.cjs               # App Desktop
+│   ├── scripts/
+│   │   ├── main-orchestrator.ts
+│   │   ├── VERIFY_SETUP.ts
+│   │   ├── VIEW_STATUS.ts
+│   │   ├── generate-dashboard.ts
+│   │   ├── generate_official_report_pdf.py
+│   │   ├── sync-to-github.ts
+│   │   └── update-columns.ts
+│   ├── server/
+│   │   └── server.ts              # Servidor Web (porta 3000)
+│   ├── types/
+│   │   └── interfaces.ts
+│   ├── utils/
+│   │   └── file-system.ts
+│   └── web/
+│       ├── index.html             # Kanban UI
+│       ├── app.js
+│       └── styles.css
+├── Opensign/                      # Repo OpenSign (submódulo ou clone)
+│   └── ... (arquivos do OpenSign)
+└── .devcontainer/                 # GitHub Codespaces config
+    ├── devcontainer.json
+    ├── setup-codespace.sh
+    └── start-codespace.sh
+```
+
+---
+
+## Interface Kanban — Menu & OpenSign
+
+### Menu com Botão Cabeçalho Esquerdo
+- **Localização**: Cabeçalho superior esquerdo do Kanban
+- **Ação**: Clique abre menu lateral (sidebar/drawer)
+- **Estilo**: Ícone hamburger (☰) ou logo Fowlgen Wars
+
+### Item de Menu "OpenSign"
+- **Label**: `OpenSign` (correção: não "OpenSing")
+- **Ação**: Abre visual/iframe do OpenSign dentro do Kanban
+- **Integração**: Carrega `https://codespace-<hash>-3001.app.github.dev` (Codespace) ou URL de produção
+- **Contexto**: Permite criar/gerenciar documentos de assinatura sem sair do Kanban
 
 ---
 
 ## Fase 0 — Setup GitHub Codespaces (5 min, **uma vez**)
 
-### 0.1 Arquivos necessários no repo (já criados)
+### 0.1 Arquivos necessários no repo
 ```
-Kanban/
+kanban/
 ├── docker-compose.dev.yml           # Orquestra Kanban + OpenSign + DB + Redis
 ├── scripts/init-multiple-dbs.sh     # Cria databases kanban + opensign
 ├── .devcontainer/
@@ -55,27 +118,29 @@ Kanban/
 │   └── start-codespace.sh           # Roda a cada start: atualiza URLs
 ├── src/
 │   ├── lib/opensign.ts              # Cliente API tipado + helpers
-│   └── app/api/webhooks/opensign/route.ts  # Handler webhook Next.js
+│   └── app/api/webhooks/opensign/route.ts  # Handler webhook (se Next.js)
 ├── Opensign/                        # Repo OpenSign (submódulo ou clone)
 └── .env.local                       # Auto-gerado (não commit)
 ```
 
+> **Nota**: O diretório raiz é `kanban/` (minúsculo), não `Kanban/`. Ajuste caminhos em scripts.
+
 ### 0.2 Inicia Codespace
 ```bash
 # Opção A: Via GitHub CLI
-gh codespace create --repo seuusuario/Kanban --branch main --machine basicLinux32gb
+gh codespace create --repo seuusuario/fowlgen-wars --branch main --machine basicLinux32gb
 
 # Opção B: Via Browser
-# github.com/seuusuario/Kanban → Code → Codespaces → Create codespace
+# github.com/seuusuario/fowlgen-wars → Code → Codespaces → Create codespace
 ```
 
 ### 0.3 O que acontece automaticamente (2-3 min)
-1. **Container sobe** com `docker-compose.dev.yml` (4 serviços)
-2. **Port forwarding** público automático (GitHub gerencia SSL)
+1. **Container sobe** com `docker-compose.dev.yml` (4 serviços: kanban, opensign, postgres, redis)
+2. **Port forwarding** público automático (GitHub gerencia SSL válido)
 3. **setup-codespace.sh roda**:
    - Cria admin no OpenSign (`dev@kanban.local` / `dev123456`)
    - Gera `OPENSIGN_API_TOKEN` + `OPENSIGN_WEBHOOK_SECRET`
-   - Configura webhook no OpenSign → aponta para Kanban público
+   - Configura webhook no OpenSign → aponta para Kanban público (`/api/webhooks/opensign`)
    - Escreve `.env.local` com URLs públicas atuais
    - Roda migrações Prisma (se houver)
 4. **Pronto!** URLs no terminal:
@@ -84,6 +149,49 @@ gh codespace create --repo seuusuario/Kanban --branch main --machine basicLinux3
    🌐 OpenSign UI:   https://codespace-abc123-3001.app.github.dev
    🔗 Webhook:       https://codespace-abc123-3000.app.github.dev/api/webhooks/opensign
    ```
+
+---
+
+## GitHub Codespaces — Informações Essenciais
+
+### Por que Codespaces?
+| Benefício | Detalhe |
+|-----------|---------|
+| **Zero config** | Ambiente idêntico para todo o time |
+| **URLs públicas SSL** | `*.app.github.dev` — signatários acessam do celular sem VPN |
+| **Port forwarding automático** | `gp url 3000` / `gp url 3001` expõem portas |
+| **Persistência 30 dias** | Para dev, reinicia rápido; staging/prod usam infra própria |
+| **GPU opcional** | `--machine basicLinux32gb` ou `standardLinux32gb` |
+| **Preço** | Incluído no GitHub Team/Enterprise; free tier: 120h/mês |
+
+### Comandos Úteis (`gh` CLI)
+```bash
+# Listar codespaces
+gh codespace list
+
+# Abrir no VS Code Web
+gh codespace code -c <codespace-name>
+
+# Port forwarding manual
+gh codespace ports -c <codespace-name>
+
+# Logs do container
+gh codespace logs -c <codespace-name>
+
+# Parar / Excluir
+gh codespace stop -c <codespace-name>
+gh codespace delete -c <codespace-name>
+```
+
+### Variáveis de Ambiente (Codespace)
+| Variável | Origem | Exemplo |
+|----------|--------|---------|
+| `CODESPACE_NAME` | GitHub | `fancy-space-xyz` |
+| `GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN` | GitHub | `app.github.dev` |
+| `OPENSIGN_API_TOKEN` | setup-codespace.sh | `ost_abc123...` |
+| `OPENSIGN_WEBHOOK_SECRET` | setup-codespace.sh | `whsec_xyz789...` |
+| `KANBAN_PUBLIC_URL` | start-codespace.sh | `https://codespace-abc-3000.app.github.dev` |
+| `OPENSIGN_PUBLIC_URL` | start-codespace.sh | `https://codespace-abc-3001.app.github.dev` |
 
 ---
 
@@ -101,14 +209,16 @@ gh codespace create --repo seuusuario/Kanban --branch main --machine basicLinux3
 ### 1.2 Fluxo de teste completo (30 seg)
 ```
 1. Dev abre Kanban (URL pública Codespace)
-2. Cria card "Contrato Teste" → anexa PDF
-3. Clica "Assinar" → define 2 signatários (WhatsApp + e-mail)
-4. Kanban chama OpenSign API → retorna sign_urls públicas
-5. Dev manda link pro WhatsApp pessoal
-6. Abre no CELULAR → digita código WhatsApp → assina com dedo
-7. OpenSign processa → manda webhook pro Kanban (URL pública)
-8. Kanban recebe → move card para "Assinado" → anexa PDF assinado
-9. Dev vê card movido em tempo real
+2. Clica no botão Cabeçalho Esquerdo (☰) → Menu abre
+3. Seleciona "OpenSign" no menu → Abre visual do OpenSign (iframe/nova aba)
+4. Cria documento "Contrato Teste" → anexa PDF
+5. Define 2 signatários (WhatsApp + e-mail)
+6. Kanban chama OpenSign API → retorna sign_urls públicas
+7. Dev manda link pro WhatsApp pessoal
+8. Abre no CELULAR → digita código WhatsApp → assina com dedo
+9. OpenSign processa → manda webhook pro Kanban (URL pública)
+10. Kanban recebe → move card para "Assinado" → anexa PDF assinado
+11. Dev vê card movido em tempo real
 ```
 
 ### 1.3 Reinício do Codespace (URLs mudam)
@@ -123,11 +233,55 @@ gh codespace create --repo seuusuario/Kanban --branch main --machine basicLinux3
 
 ---
 
-## Fase 2 — Integração Kanban → OpenSign (Código Pronto)
+## Fase 2 — Setup Local (npm run setup)
 
-### 2.1 Cliente API Tipado (`src/lib/opensign.ts`)
+### 2.1 O que `npm run setup` faz (`install.ts`)
+```bash
+# Executa: npx -y tsx install.ts
+```
+
+**Passos automáticos:**
+1. **Pré-requisitos**: Verifica Node ≥18, npm, Git, `node_modules`
+2. **Instala ferramentas** (se ausentes): roda `setup/install.ps1` (Windows) ou `npm install`
+3. **Cria pastas**: `docs/`, `logs/`, `backups/`
+4. **Gera dashboard** inicial do Kanban (Markdown + HTML)
+5. **Atualiza `.gitignore`** raiz
+6. **Inicia servidor Web** na porta 3000 (`src/server/server.ts`)
+7. **Abre navegador** em `http://localhost:3000`
+8. **Exibe Menu Interativo** (se terminal TTY):
+
+```
+   🐔 FOWLGEN WARS — KANBAN STUDIO MENU
+   [1] 🌐 Iniciar Servidor Web (http://localhost:3000)
+   [2] 💻 Iniciar Aplicativo Desktop (Electron)
+   [3] 📊 Gerar / Atualizar Dashboard
+   [4] 📋 Visualizar Status no Terminal
+   [5] 🔍 Diagnóstico e Integridade do Ambiente
+   [6] 🔄 Sincronizar com GitHub Projects
+   [7] 🔧 Reexecutar Instalação / Verificação Completa
+   [0] 🚪 Sair
+```
+
+### 2.2 Scripts Disponíveis (`package.json`)
+| Script | Comando | Descrição |
+|--------|---------|-----------|
+| `setup` | `npx -y tsx install.ts` | **Instalação completa + menu** |
+| `app` | `tsx src/server/server.ts` | Servidor Web Kanban (porta 3000) |
+| `dev` | `tsx src/server/server.ts` | Alias para `app` |
+| `verify` | `tsx src/scripts/VERIFY_SETUP.ts` | Diagnóstico ambiente |
+| `status` | `tsx src/scripts/VIEW_STATUS.ts` | Status tarefas |
+| `dashboard` | `tsx src/scripts/generate-dashboard.ts` | Gera dashboard MD/HTML |
+| `sync` | `tsx src/scripts/main-orchestrator.ts` | Sync GitHub Projects |
+| `app:desktop` | `build:server + electron` | App Desktop (Electron) |
+| `build:server` | `esbuild server.ts` | Compila servidor para `dist/` |
+
+---
+
+## Fase 3 — Integração Kanban → OpenSign (Código)
+
+### 3.1 Cliente API Tipado (`src/lib/opensign.ts`)
 ```typescript
-// Uso no seu código Kanban
+// Uso no código Kanban
 import { getOpenSignClient, type Signer } from '@/lib/opensign';
 
 const client = getOpenSignClient();
@@ -148,7 +302,7 @@ const signData = await client.createSignRequestForCard(
 // }
 ```
 
-### 2.2 Webhook Handler (`src/app/api/webhooks/opensign/route.ts`)
+### 3.2 Webhook Handler (`src/app/api/webhooks/opensign/route.ts`)
 ```typescript
 // Next.js App Router - valida HMAC, processa eventos
 export async function POST(request: NextRequest) {
@@ -163,9 +317,25 @@ export async function POST(request: NextRequest) {
 }
 ```
 
-### 2.3 Componente Frontend (`components/KanbanCardSignAction.tsx`)
+### 3.3 Componente Frontend — Menu + OpenSign Action
 ```tsx
-// Botão dropdown no card com links por signatário
+// components/Header.tsx — Botão Cabeçalho Esquerdo
+<Header>
+  <MenuTrigger className="left-header-btn" aria-label="Abrir menu">
+    <HamburgerIcon />  // ☰
+  </MenuTrigger>
+</Header>
+
+// components/Menu.tsx — Sidebar com item OpenSign
+<Menu>
+  <MenuItem onClick={() => openOpenSignView()}>
+    <SignatureIcon />
+    <span>OpenSign</span>  {/* Correção: NÃO "OpenSing" */}
+  </MenuItem>
+  {/* outros itens... */}
+</Menu>
+
+// components/KanbanCardSignAction.tsx — Ação no card
 <SignAction 
   cardId={card.id}
   signers={card.signers}  // [{ name, signUrl, status }]
@@ -177,7 +347,7 @@ export async function POST(request: NextRequest) {
 
 ---
 
-## Fase 3 — Configuração por Ambiente
+## Fase 4 — Configuração por Ambiente
 
 | Config | Dev (Codespace) | Staging | Produção |
 |--------|-----------------|---------|----------|
@@ -191,188 +361,52 @@ export async function POST(request: NextRequest) {
 
 ---
 
-## Fase 4 — Deploy Staging/Produção (mesmo Docker Compose)
+## Fase 5 — Deploy Staging/Produção (mesmo Docker Compose)
 
-### 4.1 `docker-compose.prod.yml` (derivado do .dev.yml)
+### 5.1 `docker-compose.prod.yml` (derivado do .dev.yml)
 ```yaml
 services:
   kanban:
-    image: seuusuario/Kanban:latest
-    environment:
-      - OPENSIGN_URL=https://sign.seuapp.com
-      - OPENSIGN_PUBLIC_URL=https://sign.seuapp.com
-      - DATABASE_URL=postgresql://...
-    # ... resto igual
+    image: seuusuario/kanban:latest
+    ports: ["3000:3000"]
+    env_file: .env.production
+    depends_on: [postgres, redis]
+    restart: unless-stopped
 
   opensign:
-    image: ghcr.io/opensignlabs/opensign:latest
+    image: opensignlabs/opensign:latest
+    ports: ["3001:3001"]
+    env_file: .env.production
+    depends_on: [postgres, redis]
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
     environment:
-      - FRONTEND_URL=https://sign.seuapp.com
-      - CORS_ORIGIN=https://app.seuapp.com
-    # ... resto igual
-```
+      POSTGRES_DB: kanban
+      POSTGRES_MULTIPLE_DATABASES: kanban,opensign
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    restart: unless-stopped
 
-### 4.2 Variáveis de ambiente (GitHub Secrets / Vercel / Railway)
-```bash
-# Obrigatórias
-OPENSIGN_API_TOKEN=sk_live_xxxxx
-OPENSIGN_WEBHOOK_SECRET=whsec_xxxxx
-OPENSIGN_URL=https://sign.seuapp.com
-OPENSIGN_PUBLIC_URL=https://sign.seuapp.com
+  redis:
+    image: redis:7-alpine
+    volumes: [redis_data:/data]
+    restart: unless-stopped
 
-# Opcionais (Twilio/Meta para WhatsApp/SMS)
-TWILIO_ACCOUNT_SID=
-TWILIO_AUTH_TOKEN=
-META_WHATSAPP_TOKEN=
+volumes:
+  postgres_data:
+  redis_data:
 ```
 
 ---
 
-## Fase 5 — Testes & Validação
+## Checklist de Validação (antes de commit)
 
-### 5.1 Checklist Dev (Codespace)
-| Cenário | Teste | Comando/Verificação |
-|---------|-------|---------------------|
-| **Serviços sobem** | `docker compose ps` | 4 containers healthy |
-| **OpenSign UI** | Abre URL pública | Login `dev@kanban.local` funciona |
-| **Cria documento** | POST `/api/v1/documents` | Retorna `sign_url` pública |
-| **Assinatura WhatsApp** | Abre link no celular | Recebe código, assina, PDF gerado |
-| **Webhook recebido** | Logs Kanban | `POST /api/webhooks/opensign 200` |
-| **Card move** | UI Kanban | Card → "Assinado" + PDF anexado |
-| **PDF válido** | Adobe Reader | "Assinatura válida" + carimbo tempo |
-
-### 5.2 Teste de Carga (Codespace aguenta ~50 req/s)
-```bash
-# No terminal do Codespace
-for i in {1..20}; do
-  curl -X POST "$OPENSIGN_URL/api/v1/documents" \
-    -H "Authorization: Bearer $TOKEN" \
-    -H "Content-Type: application/json" \
-    -d "{\"title\":\"Load Test $i\",\"file_url\":\"https://exemplo.com/test.pdf\",\"recipients\":[{\"name\":\"Teste\",\"email\":\"teste$i@email.com\",\"auth_type\":\"email\"}]}" &
-done
-wait
-# Monitora: docker compose logs -f opensign | grep -E "(error|queue)"
-```
-
----
-
-## Fase 6 — Go-Live Checklist (Atualizado)
-
-| Item | Dev (Codespace) | Staging | Produção | Responsável |
-|------|-----------------|---------|----------|-------------|
-| [ ] Codespace sobe completo (4 serviços) | ✅ Auto | — | — | Dev |
-| [ ] `.env.local` auto-gerado | ✅ Auto | — | — | Dev |
-| [ ] Webhook configurado no OpenSign | ✅ Auto | ☐ Manual | ☐ Manual | Backend |
-| [ ] Link assinatura abre no celular | ✅ Testado | ☐ Testar | ☐ Testar | QA |
-| [ ] PDF assinado valida no Adobe | ☐ Testar | ☐ Testar | ☐ Testar | Jurídico |
-| [ ] Domínio `sign.seuapp.com` + SSL | — | ☐ Configurar | ☐ Configurar | DevOps |
-| [ ] TSA produção configurada | — | ☐ Homologação | ☐ Produção | Backend |
-| [ ] Twilio/Meta produção aprovados | — | ☐ Sandbox | ☐ Produção | Backend |
-| [ ] Backup PostgreSQL automático | — | ☐ Configurar | ☐ Configurar | DevOps |
-| [ ] Monitoramento (logs, métricas) | ☐ Básico | ☐ Completo | ☐ Completo | DevOps |
-| [ ] LGPD/DPA assinado | — | ☐ Revisar | ☐ Assinado | Legal |
-| [ ] Runbook incidentes | — | ☐ Rascunho | ☐ Aprovado | DevOps |
-
----
-
-## Estimativa de Esforço Atualizada
-
-| Fase | Tempo | Quem | Notas |
-|------|-------|------|-------|
-| 0. Setup Codespace (uma vez) | 5 min | Dev | Commit files → Create codespace |
-| 1. Dev diário | 0 min | Dev | `gh codespace create` → pronto |
-| 2. Integração Kanban (código) | 2-4h | Backend + Frontend | Arquivos prontos acima |
-| 3. Testes no Codespace | 1h | QA + Dev | Happy path + edge cases |
-| 4. Deploy Staging | 2h | DevOps | Render/Railway + DNS |
-| 5. Deploy Produção | 2h | DevOps | Mesmo compose, domínio real |
-| **Total (dev → prod)** | **~8-10h** | — | **Codespace elimina 3-4h de infra dev** |
-
----
-
-## Riscos & Mitigações (Atualizado)
-
-| Risco | Prob. | Impacto | Mitigação |
-|-------|-------|---------|-----------|
-| Codespace expira (30 dias) | Média | Baixo | Recria em 2 min; dados persistem no volume Docker |
-| URLs mudam a cada start | Alta | Médio | `start-codespace.sh` auto-atualiza webhook + .env.local |
-| `freetsa.org` indisponível | Média | Alto | Configurar TSA backup (Valid/Certisign) em staging/prod |
-| WhatsApp Business API não aprovada | Média | Médio | Fallback SMS/Email nativo no OpenSign |
-| Worker BullMQ para | Baixa | Alto | Healthcheck Docker + restart policy + alerta |
-| PDF não valida no Adobe | Baixa | Crítico | Testar PAdES-LTV em staging antes de prod |
-| LGPD: vazamento dados | Baixa | Crítico | Criptografia em repouso, logs sem PII, DPA |
-
----
-
-## Arquivos Entregues (Prontos para Commit)
-
-```
-Kanban/
-├── docker-compose.dev.yml                    # ✅ Orquestração completa
-├── scripts/init-multiple-dbs.sh              # ✅ Multi-database PostgreSQL
-├── .devcontainer/
-│   ├── devcontainer.json                     # ✅ Config Codespace (ports, ext)
-│   ├── setup-codespace.sh                    # ✅ Setup 1x (admin, token, webhook)
-│   └── start-codespace.sh                    # ✅ Start Nx (atualiza URLs)
-├── src/
-│   ├── lib/opensign.ts                       # ✅ Cliente tipado + helpers Kanban
-│   └── app/api/webhooks/opensign/route.ts    # ✅ Handler webhook Next.js
-├── Opensign/                                 # ✅ Repo OpenSign (submódulo/clone)
-├── components/KanbanCardSignAction.tsx       # 📝 Criar (baseado no relatório)
-└── hooks/useOpenSign.ts                      # 📝 Criar (hook React)
-```
-
----
-
-## Próximos Passos Imediatos
-
-### Hoje (15 min)
-```bash
-# 1. Commit files acima no seu repo Kanban
-git add docker-compose.dev.yml scripts/ .devcontainer/ src/lib/opensign.ts src/app/api/webhooks/opensign/ Opensign/
-git commit -m "feat: OpenSign integration + GitHub Codespaces dev env"
-git push
-
-# 2. Cria Codespace
-gh codespace create --repo seuusuario/Kanban --branch main
-
-# 3. Testa fluxo completo (30 seg)
-#    Kanban → Card → Assinar → Link no celular → Assina → Card movido
-```
-
-### Amanhã (2h)
-- Implementar `KanbanCardSignAction.tsx` + `useOpenSign.ts`
-- Testes edge cases (expiração, recusa, ordem sequencial)
-- Validação jurídica PDF assinado
-
-### Esta semana (4h)
-- Deploy Staging (Render/Railway + DNS `sign.staging.seuapp.com`)
-- Configura TSA homologação + Twilio verificado
-- Testes com signatários reais
-
-### Próxima semana
-- Deploy Produção (`sign.seuapp.com`)
-- Monitoramento + Runbook
-- Go-live
-
----
-
-## Comando Único para Validar Tudo Agora
-
-```bash
-# No terminal do Codespace (após setup completo)
-curl -X POST "$OPENSIGN_PUBLIC_URL/api/v1/documents" \
-  -H "Authorization: Bearer $OPENSIGN_API_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Teste Integração Kanban",
-    "file_url": "https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table-word.pdf",
-    "recipients": [{"name": "Teste", "email": "seu@email.com", "auth_type": "email"}],
-    "metadata": {"external_id": "TEST-001"}
-  }' | jq .
-```
-
-**Resultado esperado:** JSON com `sign_url` pública (`https://codespace-xxx-3001.app.github.dev/sign/rec_...`). Abra no celular → assine → veja webhook no log do Kanban.
-
----
-
-**Status: PRONTO PARA CODIFICAR.** Todos os arquivos de infraestrutura, cliente API, webhook e configuração Codespace estão criados acima. Faltam apenas os componentes React (`KanbanCardSignAction.tsx`, `useOpenSign.ts`) que seguem o padrão do relatório original.
+- [ ] Caminhos usam `kanban/` (minúsculo) não `Kanban/`
+- [ ] Menu item label = `Opensign`
+- [ ] `npm run setup` executa `install.ts` corretamente
+- [ ] `.devcontainer/` está em `kanban/.devcontainer/`
+- [ ] `Opensign/` pasta existe como submódulo ou clone
+- [ ] `docker-compose.dev.yml` referencia paths corretos
+- [ ] `setup-codespace.sh` / `start-codespace.sh` têm permissão `+x`
+- [ ] `.env.local` no `.gitignore`
