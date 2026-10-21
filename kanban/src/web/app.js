@@ -6324,9 +6324,12 @@ function openOpenSignModal() {
 docker compose -f docker-compose.dev.yml up -d</pre>
 
               <p style="margin: 0 0 6px 0;"><strong>Opção 2: GitHub Codespaces (1-Click na Nuvem)</strong></p>
-              <p style="margin: 0 0 12px 0; color: #64748b; font-size: 12px;">
+              <p style="margin: 0 0 10px 0; color: #64748b; font-size: 12px;">
                 Abra o repositório no Codespaces. Os containers PostgreSQL, Redis e OpenSign sobem automaticamente sem necessidade de instalar nada na máquina local.
               </p>
+              <button type="button" id="btn-open-codespaces" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 8px; border: 1px solid #cbd5e1; background: white; color: #0f172a; margin-bottom: 8px;">
+                ☁️ Abrir GitHub Codespaces (1-Click) ↗
+              </button>
             </div>
           </div>
 
@@ -6440,6 +6443,10 @@ docker compose -f docker-compose.dev.yml up -d</pre>
   // Buttons inside offline screen & header
   overlay.querySelector('#btn-retry-opensign')?.addEventListener('click', checkAndLoad);
   overlay.querySelector('#opensign-refresh')?.addEventListener('click', checkAndLoad);
+
+  overlay.querySelector('#btn-open-codespaces')?.addEventListener('click', () => {
+    window.open('https://github.com/mukasanray/Fowlgen-Wars-Project/codespaces', '_blank', 'noopener,noreferrer');
+  });
 
   overlay.querySelector('#btn-save-custom-opensign')?.addEventListener('click', () => {
     const input = overlay.querySelector('#input-custom-opensign-url');

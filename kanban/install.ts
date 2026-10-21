@@ -219,8 +219,9 @@ export class InstallSetup {
 
   async isServerRunning(port = 3000): Promise<boolean> {
     return new Promise((resolve) => {
-      const req = http.get(`http://localhost:${port}/api/config`, (res) => {
-        resolve(res.statusCode === 200 || res.statusCode === 304);
+      const checkPath = port === 3000 ? '/api/config' : '/';
+      const req = http.get(`http://localhost:${port}${checkPath}`, (res) => {
+        resolve(res.statusCode !== undefined && res.statusCode < 500);
       });
       req.on('error', () => resolve(false));
       req.setTimeout(1200, () => {
@@ -320,6 +321,7 @@ export class InstallSetup {
       console.log('   [5] 🔍 Diagnóstico e Integridade do Ambiente');
       console.log('   [6] 🔄 Sincronizar com GitHub Projects');
       console.log('   [7] 🔧 Reexecutar Instalação / Verificação Completa');
+      console.log('   [8] 🚀 Deploy / Inicializar OpenSign & Codespaces');
       console.log('   [0] 🚪 Sair');
       console.log('='.repeat(54));
 
@@ -363,13 +365,89 @@ export class InstallSetup {
           console.log('\n🔧 Reexecutando instalação completa...');
           await this.performInstallation();
           break;
+        case '8':
+          await this.manageOpenSignDeployment();
+          break;
         case '0':
           console.log('\n👋 Até logo! Bons códigos no Fowlgen Wars.');
           running = false;
           break;
         default:
-          console.log('\n⚠️  Opção inválida. Digite um número de 0 a 7.');
+          console.log('\n⚠️  Opção inválida. Digite um número de 0 a 8.');
       }
+    }
+  }
+
+  async manageOpenSignDeployment(): Promise<void> {
+    console.log('\n' + '-'.repeat(54));
+    console.log('   🚀 DEPLOY & INICIALIZAÇÃO — OPENSIGN + CODESPACES');
+    console.log('-'.repeat(54));
+    console.log('   [1] 🐧 Iniciar OpenSign localmente via Docker (WSL Ubuntu)');
+    console.log('   [2] 🛑 Parar OpenSign local (WSL Ubuntu)');
+    console.log('   [3] ☁️  Criar / Abrir GitHub Codespaces na Nuvem (1-Click)');
+    console.log('   [4] 🔍 Testar Conexão com OpenSign (:3001)');
+    console.log('   [0] ↩️  Voltar ao Menu Principal');
+    console.log('-'.repeat(54));
+
+    const subChoice = await askQuestion('👉 Escolha a ação desejada: ');
+
+    switch (subChoice) {
+      case '1': {
+        console.log('\n🐧 Iniciando containers OpenSign via Docker no WSL Ubuntu...');
+        try {
+          const rootDir = path.resolve(__dirname, '..');
+          execSync('wsl -d Ubuntu -- bash -c "sudo service docker start >/dev/null 2>&1 || true; docker compose -f docker-compose.dev.yml up -d"', {
+            stdio: 'inherit',
+            cwd: rootDir
+          });
+          console.log('\n⏳ Aguardando OpenSign inicializar na porta 3001...');
+          await new Promise(r => setTimeout(r, 4000));
+          if (await this.isServerRunning(3001)) {
+            console.log('   ✅ OpenSign online em http://localhost:3001!');
+          } else {
+            console.log('   💡 Containers disparados. Pode levar alguns instantes para subir completamente.');
+          }
+        } catch (err: any) {
+          console.log(`   ⚠️ Erro ao executar Docker no WSL: ${err?.message || err}`);
+          console.log('   💡 Dica: Certifique-se de que o Docker está instalado no WSL Ubuntu.');
+        }
+        break;
+      }
+      case '2': {
+        console.log('\n🛑 Parando containers do OpenSign no WSL...');
+        try {
+          const rootDir = path.resolve(__dirname, '..');
+          execSync('wsl -d Ubuntu -- docker compose -f docker-compose.dev.yml down', {
+            stdio: 'inherit',
+            cwd: rootDir
+          });
+          console.log('   ✅ Containers do OpenSign finalizados.');
+        } catch (err: any) {
+          console.log(`   ⚠️ Erro ao parar containers: ${err?.message || err}`);
+        }
+        break;
+      }
+      case '3': {
+        console.log('\n☁️  Preparando GitHub Codespaces...');
+        const codespacesUrl = 'https://github.com/mukasanray/Fowlgen-Wars-Project/codespaces';
+        console.log(`   🌐 Abrindo gerenciador de Codespaces: ${codespacesUrl}`);
+        this.openBrowser(codespacesUrl);
+        console.log('   💡 Clique em "Create codespace on main" para subir os 4 containers na nuvem!');
+        break;
+      }
+      case '4': {
+        console.log('\n🔍 Testando conectividade com OpenSign...');
+        const isRunning = await this.isServerRunning(3001);
+        if (isRunning) {
+          console.log('   🟢 OpenSign está ATIVO e respondendo na porta 3001!');
+        } else {
+          console.log('   🔴 OpenSign está OFFLINE na porta 3001.');
+        }
+        break;
+      }
+      case '0':
+      default:
+        break;
     }
   }
 
