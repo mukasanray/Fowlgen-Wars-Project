@@ -1,311 +1,82 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="overflow-x-hidden scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fowlgen Wars - Hub Oficial & Arena Web3</title>
-    <!-- Tailwind CSS -->
+
+    <!-- SEO -->
+    <title>Fowlgen Wars — Mini-MOBA Mobile com Vitórias On-Chain na Solana</title>
+    <meta name="description"
+        content="Comande esquadrões lendários, enfrente colossos em arenas em tempo real e registre cada vitória de forma imutável na rede Solana. Um projeto GSB Studios.">
+    <meta name="theme-color" content="#060608">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Fowlgen Wars — A Guerra pelo Reino Alado Começou">
+    <meta property="og:description"
+        content="Mini-MOBA mobile com combate real-time no Unity 6 e progressão On-Chain na Solana.">
+    <meta property="og:image" content="/hero.png">
+    <meta property="og:type" content="website">
+
+    <!-- Google Fonts: Space Grotesk + Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS via CDN com config estendida -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fontes Google -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%22><text y=%2226%22 font-size=%2228%22>🐔</text></svg>">
+
+    <style>
+        * {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #060608;
+        }
+
+        /* Scrollbar custom */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #f59e0b;
+            border-radius: 4px;
+        }
+
+        /* Selection */
+        ::selection {
+            background: #f59e0b;
+            color: #000;
+        }
+    </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between text-gray-800 overflow-x-hidden bg-amber-50">
 
-    <!-- HEADER / NAVBAR -->
-    <header class="w-full bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b-4 border-yellow-400 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
-            <!-- Logo -->
-            <a href="#" class="flex items-center space-x-2 cursor-pointer hover:opacity-90 transition">
-                <span class="text-3xl animate-bounce">🐔</span>
-                <span class="title-font text-2xl tracking-wider text-amber-600">FOWLGEN <span class="text-rose-500">WARS</span></span>
-            </a>
-            
-            <!-- Menu Central -->
-            <nav class="hidden lg:flex space-x-6 text-base font-bold text-gray-700">
-                <a href="#arena" class="hover:text-rose-500 transition">🎮 Arena Itch.io</a>
-                <a href="#sobre" class="hover:text-rose-500 transition">O Jogo</a>
-                <a href="#modos" class="hover:text-rose-500 transition">Modos</a>
-                <a href="#lore" class="hover:text-rose-500 transition">História</a>
-                <a href="#apoiadores" class="hover:text-rose-500 transition">Apoiadores 💛</a>
-            </nav>
-
-            <!-- Ações Rápidas (Direito) -->
-            <div class="flex items-center gap-2.5 w-full md:w-auto justify-center">
-                <!-- Botão Jogar Direto no Itch.io -->
-                <button onclick="launchGameOnItch()" class="bg-rose-500 text-white title-font px-4 py-2.5 rounded-2xl hover:bg-rose-600 transition inline-flex items-center justify-center gap-2 cursor-pointer text-sm shadow-md flex-1 md:flex-none text-center">
-                    <span>🎮</span> <span>Jogar no Itch.io</span>
-                </button>
-
-                <!-- Botão Conectar Carteira Solana -->
-                <button id="connectWalletNavBtn" onclick="handleWalletClick()" class="bg-purple-600 text-white title-font px-4 py-2.5 rounded-2xl hover:bg-purple-700 transition inline-flex items-center justify-center gap-2 cursor-pointer text-sm shadow-md flex-1 md:flex-none">
-                    <span>⚡</span> <span id="navWalletText">Conectar Carteira</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- HERO SECTION -->
-    <section class="relative overflow-hidden py-14 sm:py-20 bg-gradient-to-b from-yellow-200 via-amber-200 to-amber-300 border-b-8 border-amber-400">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <div class="inline-flex flex-wrap items-center justify-center gap-2 mb-4">
-                <span class="bg-white text-amber-700 text-xs sm:text-sm font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow border-2 border-amber-400">
-                    ✨ Batalhas Caóticas e Fofinhas! 🥚
-                </span>
-                <span class="bg-purple-100 text-purple-700 text-xs sm:text-sm font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow border-2 border-purple-300">
-                    ⚡ Solana Devnet Web3
-                </span>
-                <span class="bg-rose-100 text-rose-700 text-xs sm:text-sm font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow border-2 border-rose-300">
-                    🎯 Grátis no Itch.io
-                </span>
-            </div>
-
-            <h1 class="title-font text-3xl sm:text-6xl lg:text-7xl text-amber-950 tracking-wide mb-4 drop-shadow-sm">
-                A GUERRA MAIS <span class="text-rose-600">LOUCA</span> DO CURRAL!
-            </h1>
-            <p class="max-w-3xl mx-auto text-base sm:text-xl font-bold text-amber-900 mb-8 px-2 leading-relaxed">
-                Estratégia tática em tempo real no navegador! Conecte sua carteira Solana para registrar vitórias e conquistas, escolha suas galinhas guerreiras e lute pela supremacia do galinheiro!
-            </p>
-
-            <!-- Chamadas de Ação Principais -->
-            <div class="flex flex-col sm:flex-row justify-center gap-4 px-4 max-w-xl mx-auto">
-                <button onclick="launchGameOnItch()" class="bg-rose-600 text-white title-font text-base sm:text-lg px-8 py-4 rounded-2xl fun-shadow-pink hover:bg-rose-700 transition text-center shadow-lg inline-flex items-center justify-center gap-2 cursor-pointer">
-                    <span>🐔</span> <span>Batalhar Agora (Itch.io)</span>
-                </button>
-                <button onclick="toggleEmbeddedArena()" class="bg-amber-500 text-white title-font text-base sm:text-lg px-8 py-4 rounded-2xl fun-shadow hover:bg-amber-600 transition text-center shadow-lg inline-flex items-center justify-center gap-2 cursor-pointer">
-                    <span>📺</span> <span>Carregar Arena Aqui</span>
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <!-- DASHBOARD DO JOGADOR / PERFIL WEB3 (EXIBIDO AO CONECTAR OU INTERAGIR) -->
-    <section id="playerDashboard" class="hidden py-8 bg-purple-900 border-b-8 border-purple-950 text-white transition-all duration-300">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-purple-800/90 rounded-3xl p-6 sm:p-8 border-4 border-purple-600 shadow-2xl">
-                <div class="flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-b-2 border-purple-700/60">
-                    <!-- Perfil -->
-                    <div class="flex items-center gap-4">
-                        <div class="w-16 h-16 rounded-2xl bg-amber-400 border-4 border-amber-300 flex items-center justify-center text-3xl shadow">
-                            👑
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h3 id="playerNickDisplay" class="title-font text-2xl text-amber-300">Galinha Guerreira</h3>
-                                <button onclick="editNickname()" class="text-xs bg-purple-700 hover:bg-purple-600 px-2 py-1 rounded-lg border border-purple-500 cursor-pointer">✏️ Editar</button>
-                            </div>
-                            <p class="text-xs text-purple-200">Rede Ativa: <span class="font-bold text-emerald-400">Solana Devnet</span></p>
-                        </div>
-                    </div>
-
-                    <!-- Saldo e Airdrop -->
-                    <div class="flex flex-col sm:flex-row items-center gap-3">
-                        <div class="bg-purple-950/70 px-4 py-2.5 rounded-2xl border border-purple-500/50 text-center">
-                            <span class="text-xs text-purple-300 block">Saldo na Carteira</span>
-                            <span id="walletBalance" class="title-font text-lg text-emerald-400">0.000 SOL</span>
-                        </div>
-                        <button id="airdropBtn" onclick="requestDevnetAirdrop()" class="bg-amber-500 hover:bg-amber-600 text-white title-font text-xs sm:text-sm px-4 py-3 rounded-2xl transition shadow cursor-pointer">
-                            🎁 Pedir 1 SOL (Devnet)
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Endereço e Ações -->
-                <div class="pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div class="flex items-center gap-2 overflow-hidden max-w-full">
-                        <span class="text-xs font-bold text-purple-300">Chave Pública:</span>
-                        <code id="walletAddressDisplay" class="text-xs bg-purple-950 px-3 py-1.5 rounded-lg text-emerald-300 font-mono truncate max-w-xs sm:max-w-md">...</code>
-                        <button onclick="copyWalletAddress()" class="text-xs bg-purple-700 hover:bg-purple-600 px-2.5 py-1.5 rounded-lg cursor-pointer">📋</button>
-                        <a id="solanaExplorerLink" href="#" target="_blank" class="hidden text-xs text-amber-300 underline hover:text-amber-200">Explorer ↗</a>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <button onclick="signAuthChallenge()" class="bg-indigo-600 hover:bg-indigo-500 text-white title-font text-xs px-4 py-2.5 rounded-xl transition cursor-pointer">
-                            ✍️ Validar Sessão
-                        </button>
-                        <button onclick="disconnectWallet()" class="bg-rose-600/80 hover:bg-rose-600 text-white title-font text-xs px-4 py-2.5 rounded-xl transition cursor-pointer">
-                            Desconectar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SEÇÃO DA ARENA EMBUTIDA (ITCH.IO EMBED OPCIONAL) -->
-    <section id="arena" class="py-12 bg-amber-100/70 border-b-8 border-amber-300">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <span class="inline-block bg-white text-rose-600 text-xs sm:text-sm font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-3 shadow border-2 border-rose-300">
-                🎮 Play-in-Browser Gratuito
-            </span>
-            <h2 class="title-font text-3xl sm:text-4xl text-amber-900 mb-3">Arena Oficial no Itch.io</h2>
-            <p class="text-gray-700 font-bold max-w-2xl mx-auto mb-6 text-sm sm:text-base">
-                O combate é executado via Unity WebGL. Jogue sem custo, direto no seu navegador com suporte a tela cheia e conexão Web3.
-            </p>
-
-            <div class="flex flex-wrap justify-center gap-4 mb-6">
-                <a href="https://fowlgenwars.itch.io/fowlgenwars" target="_blank" class="bg-rose-500 hover:bg-rose-600 text-white title-font px-6 py-3 rounded-2xl shadow-lg transition inline-flex items-center gap-2">
-                    <span>🚀</span> <span>Abrir no Itch.io (Recomendado)</span>
-                </a>
-                <button onclick="toggleEmbeddedArena()" class="bg-white border-2 border-amber-500 text-amber-800 hover:bg-amber-50 title-font px-6 py-3 rounded-2xl shadow transition inline-flex items-center gap-2 cursor-pointer">
-                    <span>📺</span> <span>Alternar Visualizador Aqui</span>
-                </button>
-            </div>
-
-            <!-- Contêiner do Iframe da Arena -->
-            <div id="embeddedArenaContainer" style="display: none;" class="mt-6 bg-white rounded-3xl p-4 sm:p-6 border-4 border-amber-400 shadow-2xl transition-all">
-                <div class="flex flex-col sm:flex-row items-center justify-between pb-3 mb-3 border-b-2 border-gray-100 gap-2">
-                    <span class="text-xs font-bold text-gray-700">Arena Oficial: fowlgenwars.itch.io</span>
-                    <button onclick="launchGameOnItch()" class="text-xs bg-rose-500 hover:bg-rose-600 text-white font-bold px-3 py-1.5 rounded-xl shadow cursor-pointer">
-                        🚀 Abrir em Tela Cheia (Itch.io) ↗
-                    </button>
-                </div>
-                <div class="w-full aspect-video max-h-[640px] rounded-2xl overflow-hidden bg-black shadow-inner flex flex-col items-center justify-center relative">
-                    <iframe id="arenaIframe" src="about:blank" class="w-full h-full border-0" allow="fullscreen; autoplay; clipboard-write; encrypted-media" title="Fowlgen Wars WebGL Arena"></iframe>
-                </div>
-                <div class="mt-3 text-center">
-                    <p class="text-xs text-gray-500">
-                        💡 Se o seu navegador bloquear o carregamento embutido por segurança da Itch.io, 
-                        <a href="javascript:void(0)" onclick="launchGameOnItch()" class="text-rose-600 font-bold underline">clique aqui para abrir direto no Itch.io</a> com sua carteira sincronizada!
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SOBRE O PROJETO -->
-    <section id="sobre" class="py-16 bg-white border-b-8 border-amber-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="title-font text-3xl sm:text-4xl text-amber-700 mb-2">Como Funciona a Guerra?</h2>
-                <p class="text-gray-600 font-bold text-base sm:text-lg">Ação rápida, muita comédia e estratégia na palma da mão.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-yellow-50 p-6 sm:p-8 rounded-3xl border-4 border-yellow-200 text-center shadow-lg">
-                    <div class="text-4xl sm:text-5xl mb-3">⏱️</div>
-                    <h3 class="title-font text-xl sm:text-2xl text-amber-800 mb-2">Partidas Rápidas</h3>
-                    <p class="text-gray-600 font-medium text-sm sm:text-base">Apenas 3 minutos por batalha! Destrua o galinheiro adversário antes que alcancem o seu.</p>
-                </div>
-                <div class="bg-rose-50 p-6 sm:p-8 rounded-3xl border-4 border-rose-200 text-center shadow-lg">
-                    <div class="text-4xl sm:text-5xl mb-3">🐔</div>
-                    <h3 class="title-font text-xl sm:text-2xl text-rose-800 mb-2">Galinhas com Poderes</h3>
-                    <p class="text-gray-600 font-medium text-sm sm:text-base">Tropas engraçadas, cada uma com mecânicas únicas de avanço, defesa e invocação.</p>
-                </div>
-                <div class="bg-sky-50 p-6 sm:p-8 rounded-3xl border-4 border-sky-200 text-center shadow-lg">
-                    <div class="text-4xl sm:text-5xl mb-3">⚡</div>
-                    <h3 class="title-font text-xl sm:text-2xl text-sky-800 mb-2">Economia Solana</h3>
-                    <p class="text-gray-600 font-medium text-sm sm:text-base">Suporte on-chain direto na Devnet. Registre vitórias no Smart Contract sem pagar gás real.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- MODOS DE JOGO -->
-    <section id="modos" class="py-16 bg-white border-b-8 border-amber-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="title-font text-3xl sm:text-4xl text-amber-700 mb-2">Modos de Batalha 🎮</h2>
-                <p class="text-gray-600 font-bold text-base sm:text-lg">Escolha sua arena e divirta-se</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-emerald-50 p-6 sm:p-8 rounded-3xl border-4 border-emerald-300 shadow-lg">
-                    <span class="bg-emerald-200 text-emerald-800 font-bold text-xs uppercase px-3 py-1 rounded-full">Modo Clássico</span>
-                    <h3 class="title-font text-xl sm:text-2xl text-emerald-900 mt-3 mb-2">Guerra no Galinheiro</h3>
-                    <p class="text-gray-600 font-medium text-sm sm:text-base">Três caminhos de ataque! Invoque guerreiras e destrua o core inimigo com precisão tática.</p>
-                </div>
-                <div class="bg-purple-50 p-6 sm:p-8 rounded-3xl border-4 border-purple-300 shadow-lg">
-                    <span class="bg-purple-200 text-purple-800 font-bold text-xs uppercase px-3 py-1 rounded-full">Modo Caótico</span>
-                    <h3 class="title-font text-xl sm:text-2xl text-purple-900 mt-3 mb-2">Caixas & Armadilhas</h3>
-                    <p class="text-gray-600 font-medium text-sm sm:text-base">Caixas misteriosas espalhadas pela arena: podem conter bônus devastadores ou explosões!</p>
-                </div>
-                <div class="bg-sky-50 p-6 sm:p-8 rounded-3xl border-4 border-sky-300 shadow-lg">
-                    <span class="bg-sky-200 text-sky-800 font-bold text-xs uppercase px-3 py-1 rounded-full">Modo Desafio</span>
-                    <h3 class="title-font text-xl sm:text-2xl text-sky-900 mt-3 mb-2">Torneio das Penas</h3>
-                    <p class="text-gray-600 font-medium text-sm sm:text-base">Suba no ranking, acumule penas douradas e dispute o troféu do curral.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- LORE & HISTÓRIA -->
-    <section id="lore" class="py-16 bg-amber-100/50 border-b-8 border-amber-300">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-10">
-                <h2 class="title-font text-3xl sm:text-4xl text-amber-800 mb-2">A Grande História 📜</h2>
-                <p class="text-amber-700 font-bold text-sm sm:text-base">Capítulo 1 — O Raio que Mudou o Galinheiro</p>
-            </div>
-            <div class="space-y-4 text-gray-700 font-medium text-base bg-white p-6 sm:p-10 rounded-3xl border-4 border-amber-300 shadow-xl">
-                <p>
-                    Num vilarejo tranquilo, as galinhas viviam a botar ovos e a desfrutar do sol matinal. Até que, num dia radiante... <strong class="text-amber-700">um raio de energia misteriosa atingiu em cheio o ninho sagrado!</strong> ⚡
-                </p>
-                <p>
-                    A partir desse momento, as galinhas ganharam consciência e habilidades mágicas sobre-humanas. A disputa pelo comando gerou duas fações épicas:
-                </p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-4">
-                    <div class="bg-yellow-100 border-4 border-yellow-300 p-5 rounded-2xl">
-                        <h4 class="title-font text-amber-800 text-lg mb-1">🟡 Galinhas Douradas</h4>
-                        <p class="text-xs sm:text-sm text-gray-600 font-medium">Lideradas pela <strong>Imperatriz Clara</strong>, defensoras da cura e dos escudos divinos.</p>
-                    </div>
-                    <div class="bg-purple-100 border-4 border-purple-300 p-5 rounded-2xl">
-                        <h4 class="title-font text-purple-800 text-lg mb-1">⚫ Galinhas Negras</h4>
-                        <p class="text-xs sm:text-sm text-gray-600 font-medium">Lideradas pela <strong>Rainha Obsidiana</strong>, mestras das chamas ardentes e do caos.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ABA: SEJA UM APOIADOR / WEB3 -->
-    <section id="apoiadores" class="py-20 bg-gradient-to-br from-amber-400 via-yellow-300 to-amber-500 border-t-8 border-amber-600 text-amber-950">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <span class="inline-block bg-white text-rose-600 text-xs sm:text-sm font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4 shadow-md border-2 border-rose-400">
-                ⭐ Ecossistema Comunitário
-            </span>
-            <h2 class="title-font text-3xl sm:text-5xl mb-6 text-amber-950">
-                FAÇA PARTE DA HISTÓRIA!
-            </h2>
-            <div id="walletSectionCard" class="bg-white/95 backdrop-blur-md p-6 sm:p-12 rounded-3xl border-4 border-amber-400 shadow-2xl text-left space-y-4">
-                <p class="text-base sm:text-lg font-bold text-gray-700 leading-relaxed text-center">
-                    Colabore com o desenvolvimento do Fowlgen Wars! No ambiente de testes Devnet, você pode experimentar todo o fluxo de interação com a blockchain sem gastar criptomoedas reais.
-                </p>
-                <div class="bg-amber-50 border-2 border-amber-300 p-4 rounded-2xl text-center">
-                    <p class="text-xs sm:text-sm font-bold text-amber-900">
-                        💡 <strong>Transparência:</strong> Projeto desenvolvido com Unity, Solana e WebGL aberto para toda a comunidade.
-                    </p>
-                </div>
-                <div class="text-center pt-4 flex flex-col sm:flex-row justify-center gap-4">
-                    <button id="connectWalletBtn" onclick="handleWalletClick()" class="bg-purple-600 text-white title-font text-base sm:text-lg px-8 py-3.5 rounded-2xl hover:bg-purple-700 transition inline-flex items-center justify-center gap-2 shadow cursor-pointer">
-                        ⚡ Conectar Carteira e Apoiar
-                    </button>
-                    <a href="https://phantom.app/" target="_blank" class="bg-white text-purple-700 border-2 border-purple-600 title-font text-base sm:text-lg px-6 py-3.5 rounded-2xl hover:bg-purple-50 transition inline-flex items-center justify-center gap-2 shadow text-center">
-                        🦊 Obter Carteira Phantom
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FOOTER -->
-    <footer class="bg-amber-400 border-t-8 border-amber-500 py-6 text-center text-amber-900 font-bold text-sm sm:text-base">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p>🐔 Fowlgen Wars — A Grande Batalha no Galinheiro</p>
-            <div class="flex items-center gap-4 text-xs sm:text-sm">
-                <a href="https://fowlgenwars.itch.io/fowlgenwars" target="_blank" class="hover:underline">Itch.io Arena</a>
-                <span>•</span>
-                <a href="https://explorer.solana.com/?cluster=devnet" target="_blank" class="hover:underline">Solana Devnet</a>
-                <span>•</span>
-                <a href="https://github.com/mukasanray/Fowlgen-Wars-Project" target="_blank" class="hover:underline">GitHub</a>
-            </div>
-        </div>
-    </footer>
-
-    <!-- TOAST NOTIFICATION -->
-    <div id="toastNotification" class="fixed bottom-5 right-5 z-50 px-6 py-3 rounded-2xl shadow-2xl font-bold text-white transition-all duration-300 transform translate-y-20 opacity-0 flex items-center gap-2">
-        Notificação
-    </div>
-
-    <!-- SCRIPT PRINCIPAL -->
-    <script src="app.js"></script>
+<body class="min-h-screen flex flex-col text-zinc-300 overflow-x-hidden bg-[#060608]">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
 </body>
+
 </html>
