@@ -47,15 +47,15 @@
     </div>
 
     <!-- Seletor Visual de Modo: Local (Edição) vs Oficial (main) -->
-    <div class="workspace-mode-selector">
-      <div class="mode-toggle-pill" role="tablist">
-        <button type="button" class="mode-toggle-btn active" id="btn-mode-local"
+    <div class="workspace-mode-selector" data-testid="workspace-mode-selector">
+      <div class="mode-toggle-pill" role="tablist" data-testid="mode-toggle-pill">
+        <button type="button" class="mode-toggle-btn active" id="btn-mode-local" data-testid="btn-mode-local"
           title="Modo Local: Visualiza e edita tarefas em tempo real no seu workspace">
           <span class="mode-icon">💻</span>
           <span class="mode-text">Modo Local</span>
           <span class="branch-tag" id="current-branch-tag">carregando...</span>
         </button>
-        <button type="button" class="mode-toggle-btn" id="btn-mode-main"
+        <button type="button" class="mode-toggle-btn" id="btn-mode-main" data-testid="btn-mode-main"
           title="Modo Oficial: Visualiza o estado consolidado da branch main">
           <span class="mode-icon">🌐</span>
           <span class="mode-text">Modo Oficial</span>
@@ -63,35 +63,35 @@
       </div>
 
       <!-- Status das Tarefas no Git -->
-      <div class="git-status-pill" id="git-status-pill" title="Status de sincronização">
+      <div class="git-status-pill" id="git-status-pill" data-testid="git-status-pill" title="Status de sincronização">
         <span class="status-indicator" id="git-status-dot"></span>
         <span id="git-status-label">Tudo Salvo</span>
       </div>
 
       <!-- Outras Branches Opcionais -->
-      <div class="more-branches-wrapper">
-        <select id="select-git-branch" class="branch-select-subtle"
+      <div class="more-branches-wrapper" data-testid="more-branches-wrapper">
+        <select id="select-git-branch" class="branch-select-subtle" data-testid="select-git-branch"
           title="Visualizar outra branch específica do Git...">
           <option value="local">Outras branches...</option>
         </select>
       </div>
     </div>
 
-    <div class="header-actions">
+    <div class="header-actions" data-testid="header-actions">
       <!-- Workflow Primary Actions (com rótulos) -->
-      <button class="btn btn-save btn-sm" id="btn-commit-openspec"
+      <button class="btn btn-save btn-sm" id="btn-commit-openspec" data-testid="btn-commit"
         title="Commitar alterações de tarefas no histórico do Git local">
         💾 Commit Local
       </button>
-      <button class="btn btn-push btn-sm" id="btn-push-git"
+      <button class="btn btn-push btn-sm" id="btn-push-git" data-testid="btn-push"
         title="Subir commits locais para o repositório remoto (git push)">
         ⬆️ Subir ao Repo
       </button>
-      <button class="btn btn-reset-repo btn-sm" id="btn-reset-repo-local"
+      <button class="btn btn-reset-repo btn-sm" id="btn-reset-repo-local" data-testid="btn-reset"
         title="Resetar alterações locais não salvas para o estado limpo do repositório">
         ↺ Reset Repo Local
       </button>
-      <button class="btn btn-primary btn-sm" id="btn-sync-top" title="Sincronizar com GitHub Projects (Kanban)">
+      <button class="btn btn-primary btn-sm" id="btn-sync-top" data-testid="btn-sync" title="Sincronizar com GitHub Projects (Kanban)">
         📋 Sync Kanban
       </button>
 
@@ -99,20 +99,20 @@
       <div class="header-actions-divider" title="Separador"></div>
 
       <!-- Utility Actions (apenas ícones agrupados) -->
-      <button class="btn btn-secondary btn-sm btn-icon-only" id="btn-open-settings"
+      <button class="btn btn-secondary btn-sm btn-icon-only" id="btn-open-settings" data-testid="btn-settings"
         title="Configurar GitHub Token e Repositório" aria-label="Configurações">
         ⚙️
         <span class="status-indicator" id="token-status-dot" style="display: none;" title="GitHub Token"></span>
       </button>
-      <button class="btn btn-secondary btn-sm btn-icon-only" id="btn-toggle-sidebar-top"
+      <button class="btn btn-secondary btn-sm btn-icon-only" id="btn-toggle-sidebar-top" data-testid="btn-toggle-sidebar"
         title="Ocultar/Exibir Painel OpenSpec (Ctrl+B)" aria-label="Ocultar/Exibir Painel OpenSpec">
         ⚡
       </button>
-      <button class="btn btn-secondary btn-sm btn-icon-only" id="btn-refresh" title="Recarregar dados do Kanban"
+      <button class="btn btn-secondary btn-sm btn-icon-only" id="btn-refresh" data-testid="btn-refresh" title="Recarregar dados do Kanban"
         aria-label="Recarregar dados">
         🔄
       </button>
-      <button class="btn btn-secondary btn-sm btn-icon-only btn-theme-toggle" id="btn-toggle-theme"
+      <button class="btn btn-secondary btn-sm btn-icon-only btn-theme-toggle" id="btn-toggle-theme" data-testid="btn-theme"
         title="Alternar tema (Claro / Escuro)" aria-label="Alternar tema">
         <span class="theme-icon" id="theme-toggle-icon">☀️</span>
       </button>
@@ -136,10 +136,10 @@
         </div>
 
         <!-- Navigation Tabs -->
-        <div class="tabs-nav" role="tablist">
-          <button class="tab-btn active" id="tab-tasks" data-tab="tab-content-tasks">📋 Tarefas</button>
-          <button class="tab-btn" id="tab-ideas" data-tab="tab-content-ideas">💡 Ideias / Features</button>
-          <button class="tab-btn" id="tab-kanban" data-tab="tab-content-kanban">🚀 Automação</button>
+        <div class="tabs-nav" role="tablist" data-testid="tabs-nav">
+          <button class="tab-btn active" id="tab-tasks" data-tab="tab-content-tasks" data-testid="tab-tasks">📋 Tarefas</button>
+          <button class="tab-btn" id="tab-ideas" data-tab="tab-content-ideas" data-testid="tab-ideas">💡 Ideias / Features</button>
+          <button class="tab-btn" id="tab-kanban" data-tab="tab-content-kanban" data-testid="tab-kanban">🚀 Automação</button>
         </div>
 
         <!-- TAB 1: GESTÃO DE TAREFAS -->
@@ -163,7 +163,7 @@
               <span style="font-size: 11px; color: var(--accent-sky); font-weight: 600;">✨ Opcional (deixe em branco
                 para Tarefas Gerais)</span>
             </div>
-            <select class="form-select" id="select-feature-task">
+            <select class="form-select" id="select-feature-task" data-testid="select-feature-task">
               <option value="tarefas-gerais">📋 (Em branco - Tarefas Gerais / Avulsas)</option>
             </select>
           </div>
@@ -171,13 +171,13 @@
           <div class="form-row">
             <div class="form-group">
               <label for="select-task-directory">Projeto / Diretório: <span style="color: #f43f5e;">*</span></label>
-              <select class="form-select" id="select-task-directory" required>
+              <select class="form-select" id="select-task-directory" data-testid="select-task-directory" required>
                 <option value="" disabled selected>📁 Selecione o Projeto / Diretório... *</option>
               </select>
             </div>
             <div class="form-group">
               <label for="select-task-status">Status da Tarefa:</label>
-              <select class="form-select" id="select-task-status">
+              <select class="form-select" id="select-task-status" data-testid="select-task-status">
                 <option value="Backlog" selected>📝 Backlog</option>
                 <option value="Em Andamento">🔄 Em Andamento</option>
                 <option value="Testando">🔍 Testando / Review</option>
@@ -196,8 +196,8 @@
                   style="font-size: 10px; color: var(--accent-sky); font-weight: 600; display: none;">0
                   selecionado(s)</span>
               </label>
-              <div class="multi-select-container" id="multi-assignee-container">
-                <button type="button" class="form-select multi-select-trigger" id="multi-assignee-trigger"
+              <div class="multi-select-container" id="multi-assignee-container" data-testid="multi-assignee-container">
+                <button type="button" class="form-select multi-select-trigger" id="multi-assignee-trigger" data-testid="multi-assignee-trigger"
                   aria-haspopup="listbox" aria-expanded="false">
                   <div class="multi-select-values" id="multi-assignee-values">
                     <span class="multi-select-placeholder">👤 Responsáveis... *</span>
@@ -207,10 +207,10 @@
                 <div class="multi-select-dropdown" id="multi-assignee-dropdown" style="display: none;">
                   <div class="multi-select-search-box"
                     style="padding: 6px; border-bottom: 1px solid var(--border-subtle);">
-                    <input type="text" id="multi-assignee-search" class="form-input form-input-sm"
+                    <input type="text" id="multi-assignee-search" class="form-input form-input-sm" data-testid="multi-assignee-search"
                       placeholder="🔍 Buscar membro..." style="margin-bottom: 0;">
                   </div>
-                  <div class="multi-select-options" id="multi-assignee-options">
+                  <div class="multi-select-options" id="multi-assignee-options" data-testid="multi-assignee-options">
                     <!-- Preenchido dinamicamente via teamMembers -->
                   </div>
                 </div>
@@ -219,7 +219,7 @@
             </div>
             <div class="form-group" style="flex: 1;">
               <label for="input-task-id">ID da Tarefa (opcional):</label>
-              <input type="text" class="form-input" id="input-task-id" placeholder="Automático (ex: 1.1)">
+              <input type="text" class="form-input" id="input-task-id" data-testid="input-task-id" placeholder="Automático (ex: 1.1)">
             </div>
           </div>
 
@@ -230,7 +230,7 @@
               <span style="font-size: 11px; color: var(--accent-purple, #c084fc); font-weight: 600;">✨ Suporta
                 Prompt</span>
             </div>
-            <textarea class="form-textarea" id="input-task-text" rows="4" style="min-height: 100px; resize: vertical;"
+            <textarea class="form-textarea" id="input-task-text" data-testid="input-task-text" rows="4" style="min-height: 100px; resize: vertical;"
               placeholder="Descreva a tarefa ou insira o prompt com instruções detalhadas para o agente de IA ou desenvolvedor..."></textarea>
             <div class="prompt-chips-row"
               style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; align-items: center;">
@@ -248,21 +248,21 @@
           </div>
 
           <!-- Quick Action Buttons for Tasks (From PDF) -->
-          <div class="actions-grid">
-            <button class="btn btn-primary" id="btn-action-create-task" title="Criar nova tarefa no tasks.md">
+          <div class="actions-grid" data-testid="task-actions">
+            <button class="btn btn-primary" id="btn-action-create-task" data-testid="btn-create-task" title="Criar nova tarefa no tasks.md">
               ➕ Criar Tarefa
             </button>
-            <button class="btn btn-success" id="btn-action-update-task"
+            <button class="btn btn-success" id="btn-action-update-task" data-testid="btn-update-task"
               title="Salvar alterações na tarefa (texto, prompt, status e responsável)">
               💾 Salvar Alterações
             </button>
-            <button class="btn btn-secondary" id="btn-action-assign-task" title="Atribuir tarefa a uma equipe">
+            <button class="btn btn-secondary" id="btn-action-assign-task" data-testid="btn-assign-task" title="Atribuir tarefa a uma equipe">
               👤 Atribuir Tarefa
             </button>
-            <button class="btn btn-secondary" id="btn-action-list-tasks" title="Listar tarefas da feature">
+            <button class="btn btn-secondary" id="btn-action-list-tasks" data-testid="btn-list-tasks" title="Listar tarefas da feature">
               📋 Listar Tarefas
             </button>
-            <button class="btn btn-danger" id="btn-action-delete-task" title="Excluir a tarefa selecionada"
+            <button class="btn btn-danger" id="btn-action-delete-task" data-testid="btn-delete-task" title="Excluir a tarefa selecionada"
               style="display: none;">
               🗑️ Excluir Tarefa
             </button>
@@ -316,23 +316,23 @@
           </div>
 
           <!-- Quick Action Buttons for Ideas (From PDF) -->
-          <div class="actions-grid">
-            <button class="btn btn-primary" id="btn-action-generate-ai"
+          <div class="actions-grid" data-testid="idea-actions">
+            <button class="btn btn-primary" id="btn-action-generate-ai" data-testid="btn-generate-ai"
               style="background: linear-gradient(135deg, #8b5cf6, #6366f1); border-color: #8b5cf6; font-weight: 600;"
               title="IA Local: Gera a proposta completa e o checklist de tarefas em 3 fases">
               🪄 Gerar Tarefas com IA
             </button>
-            <button class="btn btn-secondary" id="btn-action-new-feature"
+            <button class="btn btn-secondary" id="btn-action-new-feature" data-testid="btn-new-feature"
               title="Criar proposal.md e tasks.md em branco">
               📁 Nova Feature
             </button>
-            <button class="btn btn-warning" id="btn-action-validate-idea" title="Validar ideia">
+            <button class="btn btn-warning" id="btn-action-validate-idea" data-testid="btn-validate-idea" title="Validar ideia">
               🔍 Validar Ideia
             </button>
-            <button class="btn btn-success" id="btn-action-approve-idea" title="Aprovar ideia">
+            <button class="btn btn-success" id="btn-action-approve-idea" data-testid="btn-approve-idea" title="Aprovar ideia">
               ✅ Aprovar Ideia
             </button>
-            <button class="btn btn-danger" id="btn-action-reject-idea" title="Rejeitar ideia">
+            <button class="btn btn-danger" id="btn-action-reject-idea" data-testid="btn-reject-idea" title="Rejeitar ideia">
               ❌ Rejeitar Ideia
             </button>
           </div>
@@ -344,36 +344,36 @@
             Dispare scripts do orquestrador ou sincronização de colunas com o GitHub Projects diretamente:
           </p>
 
-          <div class="actions-grid">
-            <button class="btn btn-primary" id="btn-script-sync" title="Exportar tarefas para o GitHub Projects">
+          <div class="actions-grid" data-testid="kanban-actions">
+            <button class="btn btn-primary" id="btn-script-sync" data-testid="btn-script-sync" title="Exportar tarefas para o GitHub Projects">
               📋 Sync GitHub Projects
             </button>
-            <button class="btn btn-success" id="btn-script-dashboard" title="Executar script de geração do Dashboard">
+            <button class="btn btn-success" id="btn-script-dashboard" data-testid="btn-script-dashboard" title="Executar script de geração do Dashboard">
               📊 Gerar Dashboard
             </button>
-            <button class="btn btn-secondary" id="btn-view-dashboard"
+            <button class="btn btn-secondary" id="btn-view-dashboard" data-testid="btn-view-dashboard"
               style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 600;"
               title="Visualizar Dashboard Executivo">
               👁️ Ver Dashboard
             </button>
-            <button class="btn btn-secondary" id="btn-export-sprint-csv"
+            <button class="btn btn-secondary" id="btn-export-sprint-csv" data-testid="btn-export-csv"
               title="Exportar dados da Sprint em planilha CSV para Excel">
               📊 Exportar Planilha CSV
             </button>
-            <button class="btn btn-secondary" id="btn-export-sprint-pdf"
+            <button class="btn btn-secondary" id="btn-export-sprint-pdf" data-testid="btn-export-pdf"
               title="Exportar relatório da Sprint em formato PDF">
               📄 Exportar Relatório PDF
             </button>
-            <button class="btn btn-secondary" id="btn-script-verify">
+            <button class="btn btn-secondary" id="btn-script-verify" data-testid="btn-script-verify">
               🔍 Verificar Setup
             </button>
-            <button class="btn btn-secondary" id="btn-script-status">
+            <button class="btn btn-secondary" id="btn-script-status" data-testid="btn-script-status">
               📋 Ver Status & Logs
             </button>
           </div>
 
           <!-- Card Exclusivo: Relatório Oficial em PDF (Padrão Executivo / Alinhamento) -->
-          <div class="official-report-panel">
+          <div class="official-report-panel" data-testid="official-report-panel">
             <div class="official-report-header">
               <div class="official-report-title-wrap">
                 <span style="font-size: 18px;">📄</span>
@@ -385,12 +385,12 @@
               Gera relatórios oficiais idênticos ao padrão executivo institucional de alinhamento técnico (A4, métricas da sprint, tabelas de tarefas concluídas e pendentes).
             </p>
 
-            <div class="report-toggle-container">
-              <button type="button" class="report-toggle-btn active" id="btn-official-report-mode-member">
+            <div class="report-toggle-container" data-testid="report-toggle">
+              <button type="button" class="report-toggle-btn active" id="btn-official-report-mode-member" data-testid="report-mode-member">
                 <span class="report-toggle-icon">👤</span>
                 <span class="report-toggle-text">Por Integrante</span>
               </button>
-              <button type="button" class="report-toggle-btn" id="btn-official-report-mode-card">
+              <button type="button" class="report-toggle-btn" id="btn-official-report-mode-card" data-testid="report-mode-card">
                 <span class="report-toggle-icon">📋</span>
                 <span class="report-toggle-text">Por Card de Tarefa</span>
               </button>
@@ -399,11 +399,11 @@
               📌 Filtra e consolida tarefas pelo integrante responsável ou equipe inteira.
             </div>
 
-            <div id="wrapper-official-report-member" style="margin-bottom: 12px;">
+            <div id="wrapper-official-report-member" style="margin-bottom: 12px;" data-testid="report-member-wrapper">
               <label for="select-official-report-member" class="official-report-label">
                 👤 Integrante / Escopo do Relatório:
               </label>
-              <select id="select-official-report-member" class="form-select official-report-select">
+              <select id="select-official-report-member" class="form-select official-report-select" data-testid="select-report-member">
                 <option value="all">👥 Toda a Equipe (Relatório Consolidado)</option>
                 <option value="marcos">💻 Marcos (Líder Técnico • Core Unity & Web3)</option>
                 <option value="junior">🌐 Junior (Dev Web React/Node • Docs)</option>
@@ -416,22 +416,22 @@
               </select>
             </div>
 
-            <div id="wrapper-official-report-feature" style="margin-bottom: 12px; display: none;">
+            <div id="wrapper-official-report-feature" style="margin-bottom: 12px; display: none;" data-testid="report-feature-wrapper">
               <label for="select-official-report-feature" class="official-report-label">
                 📋 Card de Tarefa / Feature (OpenSpec):
               </label>
-              <select id="select-official-report-feature" class="form-select official-report-select">
+              <select id="select-official-report-feature" class="form-select official-report-select" data-testid="select-report-feature">
                 <option value="">Carregando cards de tarefas...</option>
               </select>
             </div>
 
-            <div class="official-report-actions">
-              <button class="btn btn-primary" id="btn-generate-official-pdf"
+            <div class="official-report-actions" data-testid="report-actions">
+              <button class="btn btn-primary" id="btn-generate-official-pdf" data-testid="btn-generate-pdf"
                 style="flex: 1.2; padding: 7px 10px; font-size: 12px; font-weight: 600;"
                 title="Gerar e abrir o PDF oficial em nova aba">
                 📄 Gerar & Visualizar PDF
               </button>
-              <button class="btn btn-secondary" id="btn-download-official-pdf"
+              <button class="btn btn-secondary" id="btn-download-official-pdf" data-testid="btn-download-pdf"
                 style="flex: 1; padding: 7px 10px; font-size: 12px;" title="Baixar arquivo PDF diretamente">
                 💾 Baixar PDF
               </button>
@@ -441,20 +441,20 @@
       </div>
 
       <!-- Live Command Generator (Monospace Box with 1-Click Copy) -->
-      <div class="terminal-card">
+      <div class="terminal-card" data-testid="command-panel">
         <div class="terminal-header">
           <span class="terminal-title">💻 Comando Formatado para o Agent</span>
         </div>
 
-        <div class="command-box" id="command-output">
+        <div class="command-box" id="command-output" data-testid="command-output">
           agent atualizar "**2.1**" "Concluído" "Marcos"
         </div>
 
-        <div class="command-actions">
-          <button class="btn btn-primary" id="btn-copy-command" style="flex: 2;">
+        <div class="command-actions" data-testid="command-actions">
+          <button class="btn btn-primary" id="btn-copy-command" data-testid="btn-copy-command" style="flex: 2;">
             📋 Copiar Comando para o Chat
           </button>
-          <button class="btn btn-success" id="btn-execute-local" style="flex: 1;"
+          <button class="btn btn-success" id="btn-execute-local" data-testid="btn-execute-local" style="flex: 1;"
             title="Aplica diretamente no OpenSpec local">
             ⚡ Executar Direto
           </button>
@@ -462,13 +462,13 @@
       </div>
 
       <!-- Terminal Output / Logs Box -->
-      <div class="panel-card" style="padding: 16px;">
+      <div class="panel-card" style="padding: 16px;" data-testid="log-panel">
         <div class="panel-title" style="margin-bottom: 8px;">
           <h2 style="font-size: 13px;">📟 Log de Execução</h2>
-          <button class="btn btn-secondary btn-sm" id="btn-clear-log"
+          <button class="btn btn-secondary btn-sm" id="btn-clear-log" data-testid="btn-clear-log"
             style="padding: 2px 8px; font-size: 11px;">Limpar</button>
         </div>
-        <div id="execution-log" class="execution-log-box">Pronto para executar comandos.</div>
+        <div id="execution-log" class="execution-log-box" data-testid="execution-log">Pronto para executar comandos.</div>
       </div>
 
     </section>
@@ -477,31 +477,31 @@
     <section class="kanban-view">
       <div class="kanban-header">
         <div class="kanban-header-left">
-          <button type="button" class="btn-toggle-sidebar" id="btn-toggle-sidebar-kanban"
+          <button type="button" class="btn-toggle-sidebar" id="btn-toggle-sidebar-kanban" data-testid="btn-toggle-sidebar-kanban"
             title="Recolher ou expandir o painel lateral de Comandos OpenSpec (Atalho: Ctrl+B)">
             <span class="toggle-icon">◀</span>
             <span class="toggle-label">Recolher Painel</span>
           </button>
           <!-- Alternador de Quadro: Tarefas da Sprint vs Funil de Ideias -->
-          <div class="board-view-switch" role="tablist">
-            <button type="button" class="board-view-btn active" id="btn-view-tasks"
+          <div class="board-view-switch" role="tablist" data-testid="board-view-switch">
+            <button type="button" class="board-view-btn active" id="btn-view-tasks" data-testid="view-tasks"
               title="Quadro de Execução: Tarefas e desenvolvimento da Sprint">
               <span class="view-icon">🎯</span>
               <span class="view-text">Tarefas da Sprint</span>
               <span class="view-badge" id="badge-total-tasks-view">0</span>
             </button>
-            <button type="button" class="board-view-btn" id="btn-view-ideas"
+            <button type="button" class="board-view-btn" id="btn-view-ideas" data-testid="view-ideas"
               title="Funil de Ideias: Validação e aprovação de propostas de Game Design">
               <span class="view-icon">💡</span>
               <span class="view-text">Funil de Ideias</span>
               <span class="view-badge" id="badge-total-ideas-view">0</span>
             </button>
-            <button type="button" class="board-view-btn" id="btn-view-analytics"
+            <button type="button" class="board-view-btn" id="btn-view-analytics" data-testid="view-analytics"
               title="Dashboard Integrado: Métricas, gráficos e entregas da sprint">
               <span class="view-icon">📊</span>
               <span class="view-text">Analytics & Métricas</span>
             </button>
-            <button type="button" class="board-view-btn" id="btn-view-git"
+            <button type="button" class="board-view-btn" id="btn-view-git" data-testid="view-git"
               title="Central Git: Changes & History no local do Kanban">
               <span class="view-icon">🖥️</span>
               <span class="view-text">Changes & History</span>
@@ -511,20 +511,20 @@
         </div>
 
         <!-- Barra de Busca no Kanban (Tarefas / Ideias) -->
-        <div class="kanban-search-wrapper">
+        <div class="kanban-search-wrapper" data-testid="kanban-search">
           <div class="kanban-search-box">
             <span class="kanban-search-icon" id="kanban-search-icon">🔍</span>
-            <input type="text" id="input-search-kanban" class="kanban-search-input"
+            <input type="text" id="input-search-kanban" class="kanban-search-input" data-testid="search-input"
               placeholder="Pesquisar tarefas no Kanban... (Ctrl+F)"
               title="Pesquisar tarefas por texto, prompt, ID ou responsável (Atalho: Ctrl+F ou /)" autocomplete="off">
-            <button type="button" class="btn-clear-kanban-search" id="btn-clear-kanban-search" title="Limpar pesquisa"
+            <button type="button" class="btn-clear-kanban-search" id="btn-clear-kanban-search" data-testid="search-clear" title="Limpar pesquisa"
               style="display: none;">&times;</button>
           </div>
           <span class="kanban-search-count-badge" id="kanban-search-count-badge" style="display: none;">0 itens</span>
         </div>
 
         <!-- Filtro Rápido por Integrante -->
-        <div class="member-filter-bar">
+        <div class="member-filter-bar" data-testid="member-filter">
           <div class="dev-profile-chip" id="developer-profile-chip" style="display: none;"
             title="Desenvolvedor identificado via Git local">
             <span class="dev-chip-avatar" id="dev-chip-avatar">💻</span>
@@ -532,7 +532,7 @@
               <span class="dev-chip-role-label">Você:</span>
               <span class="dev-chip-name" id="dev-chip-name">Carregando...</span>
             </div>
-            <button type="button" class="btn-my-space" id="btn-my-space"
+            <button type="button" class="btn-my-space" id="btn-my-space" data-testid="my-tasks"
               title="Filtrar imediatamente as minhas tarefas">
               🎯 Minhas Tarefas
             </button>
@@ -540,32 +540,32 @@
 
           <span class="filter-label">👤 Equipe:</span>
           <div class="member-search-box">
-            <input type="text" id="input-search-members" class="member-search-input" placeholder="🔍 Integrante..."
+            <input type="text" id="input-search-members" class="member-search-input" data-testid="member-search" placeholder="🔍 Integrante..."
               title="Buscar integrante por nome ou função">
           </div>
-          <div class="member-pills" id="member-filter-pills">
-            <button type="button" class="member-pill active" data-assignee="all">👥 Todos</button>
+          <div class="member-pills" id="member-filter-pills" data-testid="member-pills">
+            <button type="button" class="member-pill active" data-assignee="all" data-testid="pill-all">👥 Todos</button>
           </div>
-          <button type="button" class="btn-manage-members-pill" id="btn-quick-manage-members"
+          <button type="button" class="btn-manage-members-pill" id="btn-quick-manage-members" data-testid="manage-members"
             title="Cadastrar ou gerenciar integrantes da equipe">
             ⚙️ Gerenciar
           </button>
         </div>
 
         <!-- Filtro Rápido por Diretório / Projeto -->
-        <div class="directory-filter-bar">
+        <div class="directory-filter-bar" data-testid="directory-filter">
           <span class="directory-label">📁 Projeto / Diretório:</span>
-          <div class="directory-pills" id="directory-filter-pills">
-            <button type="button" class="directory-pill active" data-directory="all">📂 Todos</button>
-            <button type="button" class="directory-pill" data-directory="app">🌐 Site: app</button>
-            <button type="button" class="directory-pill" data-directory="unity">🎮 Game: Unity</button>
-            <button type="button" class="directory-pill" data-directory="prompt">✨ Skills: prompt</button>
-            <button type="button" class="directory-pill" data-directory="kanban">📋 Kanban: kanban</button>
-            <button type="button" class="directory-pill" data-directory="program">🦀 Solana: program</button>
-            <button type="button" class="directory-pill" data-directory="devsecops">🛡️ DevSecOps: devsecops</button>
-            <button type="button" class="directory-pill" data-directory="docs">📄 Docs: docs</button>
+          <div class="directory-pills" id="directory-filter-pills" data-testid="directory-pills">
+            <button type="button" class="directory-pill active" data-directory="all" data-testid="dir-all">📂 Todos</button>
+            <button type="button" class="directory-pill" data-directory="app" data-testid="dir-app">🌐 Site: app</button>
+            <button type="button" class="directory-pill" data-directory="unity" data-testid="dir-unity">🎮 Game: Unity</button>
+            <button type="button" class="directory-pill" data-directory="prompt" data-testid="dir-prompt">✨ Skills: prompt</button>
+            <button type="button" class="directory-pill" data-directory="kanban" data-testid="dir-kanban">📋 Kanban: kanban</button>
+            <button type="button" class="directory-pill" data-directory="program" data-testid="dir-program">🦀 Solana: program</button>
+            <button type="button" class="directory-pill" data-directory="devsecops" data-testid="dir-devsecops">🛡️ DevSecOps: devsecops</button>
+            <button type="button" class="directory-pill" data-directory="docs" data-testid="dir-docs">📄 Docs: docs</button>
           </div>
-          <button type="button" class="btn-manage-directories-pill" id="btn-quick-manage-directories"
+          <button type="button" class="btn-manage-directories-pill" id="btn-quick-manage-directories" data-testid="manage-directories"
             title="Adicionar ou gerenciar diretórios de projetos">
             ➕ Adicionar Diretório
           </button>
@@ -630,48 +630,48 @@
         </button>
       </div>
 
-      <div class="kanban-columns">
+      <div class="kanban-columns" data-testid="kanban-columns">
 
         <!-- Column 1 -->
-        <div class="column" id="col-backlog" data-col-id="1">
-          <div class="column-header">
+        <div class="column" id="col-backlog" data-col-id="1" data-testid="col-backlog">
+          <div class="column-header" data-testid="col-backlog-header">
             <span class="column-name col-backlog" id="col-title-1">📋 A Fazer</span>
-            <span class="card-count" id="count-backlog">0</span>
+            <span class="card-count" id="count-backlog" data-testid="count-backlog">0</span>
           </div>
-          <div class="column-cards" id="cards-backlog">
+          <div class="column-cards" id="cards-backlog" data-testid="cards-backlog">
             <!-- Dynamic cards -->
           </div>
         </div>
 
         <!-- Column 2 -->
-        <div class="column" id="col-progress" data-col-id="2">
-          <div class="column-header">
+        <div class="column" id="col-progress" data-col-id="2" data-testid="col-progress">
+          <div class="column-header" data-testid="col-progress-header">
             <span class="column-name col-progress" id="col-title-2">⚡ Em Progresso</span>
-            <span class="card-count" id="count-progress">0</span>
+            <span class="card-count" id="count-progress" data-testid="count-progress">0</span>
           </div>
-          <div class="column-cards" id="cards-progress">
+          <div class="column-cards" id="cards-progress" data-testid="cards-progress">
             <!-- Dynamic cards -->
           </div>
         </div>
 
         <!-- Column 3 -->
-        <div class="column" id="col-review" data-col-id="3">
-          <div class="column-header">
+        <div class="column" id="col-review" data-col-id="3" data-testid="col-review">
+          <div class="column-header" data-testid="col-review-header">
             <span class="column-name col-review" id="col-title-3">👀 Em Revisão</span>
-            <span class="card-count" id="count-review">0</span>
+            <span class="card-count" id="count-review" data-testid="count-review">0</span>
           </div>
-          <div class="column-cards" id="cards-review">
+          <div class="column-cards" id="cards-review" data-testid="cards-review">
             <!-- Dynamic cards -->
           </div>
         </div>
 
         <!-- Column 4 -->
-        <div class="column" id="col-done" data-col-id="4">
-          <div class="column-header">
+        <div class="column" id="col-done" data-col-id="4" data-testid="col-done">
+          <div class="column-header" data-testid="col-done-header">
             <span class="column-name col-done" id="col-title-4">✅ Concluído</span>
-            <span class="card-count" id="count-done">0</span>
+            <span class="card-count" id="count-done" data-testid="count-done">0</span>
           </div>
-          <div class="column-cards" id="cards-done">
+          <div class="column-cards" id="cards-done" data-testid="cards-done">
             <!-- Dynamic cards -->
           </div>
         </div>
