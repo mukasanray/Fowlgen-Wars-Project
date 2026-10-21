@@ -4115,3 +4115,137 @@ body[data-theme="light"] .member-form-card {
   color: var(--text-dim);
   font-size: 12.5px;
 }
+
+/* ============================================================
+   CARD DO RELATÓRIO OFICIAL EXECUTIVO EM PDF (LIGHT & DARK)
+   ============================================================ */
+.official-report-panel {
+  margin-top: 18px;
+  padding: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.official-report-panel:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+}
+
+.official-report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.official-report-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.official-report-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.1px;
+}
+
+.official-report-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--bg-pill);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+}
+
+.official-report-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+.official-report-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-label);
+  margin-bottom: 5px;
+}
+
+.official-report-select {
+  width: 100%;
+  padding: 7px 10px;
+  font-size: 12px;
+  background: var(--bg-input);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+}
+
+.official-report-select:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.official-report-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Ajustes Específicos para o Modo Light */
+:root[data-theme="light"] .official-report-panel,
+body[data-theme="light"] .official-report-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+:root[data-theme="light"] .official-report-panel:hover,
+body[data-theme="light"] .official-report-panel:hover {
+  border-color: #7c3aed;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.1);
+}
+
+:root[data-theme="light"] .official-report-title,
+body[data-theme="light"] .official-report-title {
+  color: #1e293b;
+}
+
+:root[data-theme="light"] .official-report-desc,
+body[data-theme="light"] .official-report-desc {
+  color: #475569;
+}
+
+:root[data-theme="light"] .official-report-label,
+body[data-theme="light"] .official-report-label {
+  color: #334155;
+}
+
+:root[data-theme="light"] .official-report-select,
+body[data-theme="light"] .official-report-select {
+  background: #f8fafc;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+}
+
+:root[data-theme="light"] .official-report-select:focus,
+body[data-theme="light"] .official-report-select:focus {
+  background: #ffffff;
+  border-color: #7c3aed;
+}
+
+:root[data-theme="light"] .official-report-badge,
+body[data-theme="light"] .official-report-badge {
+  background: rgba(124, 58, 237, 0.08);
+  border-color: rgba(124, 58, 237, 0.2);
+  color: #7c3aed;
+}

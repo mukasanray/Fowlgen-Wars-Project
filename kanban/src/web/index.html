@@ -108,8 +108,8 @@
         title="Ocultar/Exibir Painel OpenSpec (Ctrl+B)" aria-label="Ocultar/Exibir Painel OpenSpec">
         ⚡
       </button>
-      <button class="btn btn-secondary btn-sm btn-icon-only" id="btn-refresh"
-        title="Recarregar dados do Kanban" aria-label="Recarregar dados">
+      <button class="btn btn-secondary btn-sm btn-icon-only" id="btn-refresh" title="Recarregar dados do Kanban"
+        aria-label="Recarregar dados">
         🔄
       </button>
       <button class="btn btn-secondary btn-sm btn-icon-only btn-theme-toggle" id="btn-toggle-theme"
@@ -145,12 +145,14 @@
         <!-- TAB 1: GESTÃO DE TAREFAS -->
         <div class="tab-content active" id="tab-content-tasks">
           <!-- Active Editing Mode Banner -->
-          <div id="task-editing-banner" style="display: none; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; padding: 7px 12px; margin-bottom: 12px; font-size: 12.5px; color: #38bdf8; justify-content: space-between; align-items: center;">
+          <div id="task-editing-banner"
+            style="display: none; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; padding: 7px 12px; margin-bottom: 12px; font-size: 12.5px; color: #38bdf8; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 6px;">
               <span>✏️ Editando Tarefa:</span>
               <strong id="editing-task-id-label">1.1</strong>
             </div>
-            <button type="button" id="btn-cancel-task-edit" style="background: none; border: none; color: #cbd5e1; cursor: pointer; font-size: 11px; text-decoration: underline;">
+            <button type="button" id="btn-cancel-task-edit"
+              style="background: none; border: none; color: #cbd5e1; cursor: pointer; font-size: 11px; text-decoration: underline;">
               ❌ Cancelar Edição
             </button>
           </div>
@@ -158,7 +160,8 @@
           <div class="form-group">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
               <label for="select-feature-task" style="margin-bottom: 0;">Feature / Módulo:</label>
-              <span style="font-size: 11px; color: var(--accent-sky); font-weight: 600;">✨ Opcional (deixe em branco para Tarefas Gerais)</span>
+              <span style="font-size: 11px; color: var(--accent-sky); font-weight: 600;">✨ Opcional (deixe em branco
+                para Tarefas Gerais)</span>
             </div>
             <select class="form-select" id="select-feature-task">
               <option value="tarefas-gerais">📋 (Em branco - Tarefas Gerais / Avulsas)</option>
@@ -185,20 +188,27 @@
 
           <div class="form-row">
             <div class="form-group" style="flex: 1.4;">
-              <label for="multi-assignee-trigger" style="display: flex; align-items: center; justify-content: space-between;">
-                <span>Responsável / Equipe: <strong style="color: var(--accent-rose, #f43f5e); font-size: 13px;" title="Seleção obrigatória">*</strong></span>
-                <span id="assignee-count-badge" style="font-size: 10px; color: var(--accent-sky); font-weight: 600; display: none;">0 selecionado(s)</span>
+              <label for="multi-assignee-trigger"
+                style="display: flex; align-items: center; justify-content: space-between;">
+                <span>Responsável / Equipe: <strong style="color: var(--accent-rose, #f43f5e); font-size: 13px;"
+                    title="Seleção obrigatória">*</strong></span>
+                <span id="assignee-count-badge"
+                  style="font-size: 10px; color: var(--accent-sky); font-weight: 600; display: none;">0
+                  selecionado(s)</span>
               </label>
               <div class="multi-select-container" id="multi-assignee-container">
-                <button type="button" class="form-select multi-select-trigger" id="multi-assignee-trigger" aria-haspopup="listbox" aria-expanded="false">
+                <button type="button" class="form-select multi-select-trigger" id="multi-assignee-trigger"
+                  aria-haspopup="listbox" aria-expanded="false">
                   <div class="multi-select-values" id="multi-assignee-values">
                     <span class="multi-select-placeholder">👤 Responsáveis... *</span>
                   </div>
                   <span class="multi-select-arrow">▾</span>
                 </button>
                 <div class="multi-select-dropdown" id="multi-assignee-dropdown" style="display: none;">
-                  <div class="multi-select-search-box" style="padding: 6px; border-bottom: 1px solid var(--border-subtle);">
-                    <input type="text" id="multi-assignee-search" class="form-input form-input-sm" placeholder="🔍 Buscar membro..." style="margin-bottom: 0;">
+                  <div class="multi-select-search-box"
+                    style="padding: 6px; border-bottom: 1px solid var(--border-subtle);">
+                    <input type="text" id="multi-assignee-search" class="form-input form-input-sm"
+                      placeholder="🔍 Buscar membro..." style="margin-bottom: 0;">
                   </div>
                   <div class="multi-select-options" id="multi-assignee-options">
                     <!-- Preenchido dinamicamente via teamMembers -->
@@ -215,16 +225,25 @@
 
           <div class="form-group">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <label for="input-task-text" style="margin-bottom: 0;">Descrição da Tarefa / Prompt (para IA e Equipe):</label>
-              <span style="font-size: 11px; color: var(--accent-purple, #c084fc); font-weight: 600;">✨ Suporta Prompt</span>
+              <label for="input-task-text" style="margin-bottom: 0;">Descrição da Tarefa / Prompt (para IA e
+                Equipe):</label>
+              <span style="font-size: 11px; color: var(--accent-purple, #c084fc); font-weight: 600;">✨ Suporta
+                Prompt</span>
             </div>
             <textarea class="form-textarea" id="input-task-text" rows="4" style="min-height: 100px; resize: vertical;"
               placeholder="Descreva a tarefa ou insira o prompt com instruções detalhadas para o agente de IA ou desenvolvedor..."></textarea>
-            <div class="prompt-chips-row" style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; align-items: center;">
+            <div class="prompt-chips-row"
+              style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; align-items: center;">
               <span style="font-size: 11px; color: var(--text-dim);">Sugestões de Prompt:</span>
-              <button type="button" class="btn-prompt-chip" data-template="ia" style="background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.3); color: #c084fc; border-radius: 12px; padding: 2px 8px; font-size: 11px; cursor: pointer;">🤖 Prompt IA</button>
-              <button type="button" class="btn-prompt-chip" data-template="bugfix" style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 12px; padding: 2px 8px; font-size: 11px; cursor: pointer;">🐛 Bugfix</button>
-              <button type="button" class="btn-prompt-chip" data-template="arena" style="background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.3); color: #4ade80; border-radius: 12px; padding: 2px 8px; font-size: 11px; cursor: pointer;">🎮 Arena_Clean</button>
+              <button type="button" class="btn-prompt-chip" data-template="ia"
+                style="background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.3); color: #c084fc; border-radius: 12px; padding: 2px 8px; font-size: 11px; cursor: pointer;">🤖
+                Prompt IA</button>
+              <button type="button" class="btn-prompt-chip" data-template="bugfix"
+                style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 12px; padding: 2px 8px; font-size: 11px; cursor: pointer;">🐛
+                Bugfix</button>
+              <button type="button" class="btn-prompt-chip" data-template="arena"
+                style="background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.3); color: #4ade80; border-radius: 12px; padding: 2px 8px; font-size: 11px; cursor: pointer;">🎮
+                Arena_Clean</button>
             </div>
           </div>
 
@@ -233,7 +252,8 @@
             <button class="btn btn-primary" id="btn-action-create-task" title="Criar nova tarefa no tasks.md">
               ➕ Criar Tarefa
             </button>
-            <button class="btn btn-success" id="btn-action-update-task" title="Salvar alterações na tarefa (texto, prompt, status e responsável)">
+            <button class="btn btn-success" id="btn-action-update-task"
+              title="Salvar alterações na tarefa (texto, prompt, status e responsável)">
               💾 Salvar Alterações
             </button>
             <button class="btn btn-secondary" id="btn-action-assign-task" title="Atribuir tarefa a uma equipe">
@@ -242,7 +262,8 @@
             <button class="btn btn-secondary" id="btn-action-list-tasks" title="Listar tarefas da feature">
               📋 Listar Tarefas
             </button>
-            <button class="btn btn-danger" id="btn-action-delete-task" title="Excluir a tarefa selecionada" style="display: none;">
+            <button class="btn btn-danger" id="btn-action-delete-task" title="Excluir a tarefa selecionada"
+              style="display: none;">
               🗑️ Excluir Tarefa
             </button>
           </div>
@@ -335,10 +356,12 @@
               title="Visualizar Dashboard Executivo">
               👁️ Ver Dashboard
             </button>
-            <button class="btn btn-secondary" id="btn-export-sprint-csv" title="Exportar dados da Sprint em planilha CSV para Excel">
+            <button class="btn btn-secondary" id="btn-export-sprint-csv"
+              title="Exportar dados da Sprint em planilha CSV para Excel">
               📊 Exportar Planilha CSV
             </button>
-            <button class="btn btn-secondary" id="btn-export-sprint-pdf" title="Exportar relatório da Sprint em formato PDF">
+            <button class="btn btn-secondary" id="btn-export-sprint-pdf"
+              title="Exportar relatório da Sprint em formato PDF">
               📄 Exportar Relatório PDF
             </button>
             <button class="btn btn-secondary" id="btn-script-verify">
@@ -350,26 +373,26 @@
           </div>
 
           <!-- Card Exclusivo: Relatório Oficial em PDF (Padrão Executivo / Alinhamento) -->
-          <div class="official-report-panel" style="margin-top: 18px; padding: 14px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-              <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="official-report-panel">
+            <div class="official-report-header">
+              <div class="official-report-title-wrap">
                 <span style="font-size: 18px;">📄</span>
-                <strong style="font-size: 13px; color: #93c5fd; letter-spacing: 0.2px;">Relatório Oficial em PDF (Padrão Executivo)</strong>
+                <strong class="official-report-title">Relatório Oficial em PDF (Padrão Executivo)</strong>
               </div>
-              <span style="font-size: 10px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; padding: 2px 8px;">
+              <span class="official-report-badge">
                 Fowlgen Wars
               </span>
             </div>
 
-            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.45;">
+            <p class="official-report-desc">
               Gera relatórios oficiais idênticos ao padrão executivo institucional de alinhamento técnico (A4, métricas da sprint, tabelas de tarefas concluídas e pendentes).
             </p>
 
             <div style="margin-bottom: 12px;">
-              <label for="select-official-report-member" style="display: block; font-size: 11px; font-weight: 600; color: #cbd5e1; margin-bottom: 5px;">
+              <label for="select-official-report-member" class="official-report-label">
                 👤 Integrante / Escopo do Relatório:
               </label>
-              <select id="select-official-report-member" class="form-select" style="width: 100%; padding: 7px 10px; font-size: 12px; background: #0b1120; border: 1px solid #334155; border-radius: 6px; color: #f8fafc;">
+              <select id="select-official-report-member" class="form-select official-report-select">
                 <option value="all">👥 Toda a Equipe (Relatório Consolidado)</option>
                 <option value="marcos">💻 Marcos (Líder Técnico • Core Unity & Web3)</option>
                 <option value="junior">🌐 Junior (Dev Web React/Node • Docs)</option>
@@ -382,11 +405,14 @@
               </select>
             </div>
 
-            <div style="display: flex; gap: 8px;">
-              <button class="btn btn-primary" id="btn-generate-official-pdf" style="flex: 1.2; padding: 7px 10px; font-size: 12px; font-weight: 600;" title="Gerar e abrir o PDF oficial em nova aba">
+            <div class="official-report-actions">
+              <button class="btn btn-primary" id="btn-generate-official-pdf"
+                style="flex: 1.2; padding: 7px 10px; font-size: 12px; font-weight: 600;"
+                title="Gerar e abrir o PDF oficial em nova aba">
                 📄 Gerar & Visualizar PDF
               </button>
-              <button class="btn btn-secondary" id="btn-download-official-pdf" style="flex: 1; padding: 7px 10px; font-size: 12px;" title="Baixar arquivo PDF diretamente">
+              <button class="btn btn-secondary" id="btn-download-official-pdf"
+                style="flex: 1; padding: 7px 10px; font-size: 12px;" title="Baixar arquivo PDF diretamente">
                 💾 Baixar PDF
               </button>
             </div>
@@ -470,10 +496,9 @@
             <span class="kanban-search-icon" id="kanban-search-icon">🔍</span>
             <input type="text" id="input-search-kanban" class="kanban-search-input"
               placeholder="Pesquisar tarefas no Kanban... (Ctrl+F)"
-              title="Pesquisar tarefas por texto, prompt, ID ou responsável (Atalho: Ctrl+F ou /)"
-              autocomplete="off">
-            <button type="button" class="btn-clear-kanban-search" id="btn-clear-kanban-search"
-              title="Limpar pesquisa" style="display: none;">&times;</button>
+              title="Pesquisar tarefas por texto, prompt, ID ou responsável (Atalho: Ctrl+F ou /)" autocomplete="off">
+            <button type="button" class="btn-clear-kanban-search" id="btn-clear-kanban-search" title="Limpar pesquisa"
+              style="display: none;">&times;</button>
           </div>
           <span class="kanban-search-count-badge" id="kanban-search-count-badge" style="display: none;">0 itens</span>
         </div>
@@ -577,7 +602,8 @@
         <span class="empty-state-icon">🔍</span>
         <div class="empty-state-content">
           <div class="empty-state-title" id="empty-state-search-title">Nenhum resultado encontrado</div>
-          <div class="empty-state-desc" id="empty-state-search-desc">Nenhuma tarefa ou ideia corresponde à sua pesquisa.</div>
+          <div class="empty-state-desc" id="empty-state-search-desc">Nenhuma tarefa ou ideia corresponde à sua pesquisa.
+          </div>
         </div>
         <button type="button" class="btn btn-secondary btn-sm" id="btn-clear-search-empty">
           Limpar Pesquisa
@@ -650,15 +676,18 @@
               <div class="git-desktop-repo-line">
                 <strong class="git-desktop-repo-name" id="git-desktop-title">Fowlgen-Wars-Project</strong>
                 <span class="git-desktop-branch-badge" id="git-desktop-branch-pill">🌿 main</span>
-                <button type="button" class="btn-git-header-refresh" id="btn-git-desktop-refresh" title="Atualizar status do Git">🔄</button>
+                <button type="button" class="btn-git-header-refresh" id="btn-git-desktop-refresh"
+                  title="Atualizar status do Git">🔄</button>
               </div>
             </div>
           </div>
           <div class="git-desktop-header-right">
-            <button type="button" class="btn btn-push btn-sm" id="btn-git-desktop-push" style="display: none;" title="Subir commits pendentes ao repositório">
+            <button type="button" class="btn btn-push btn-sm" id="btn-git-desktop-push" style="display: none;"
+              title="Subir commits pendentes ao repositório">
               ⬆️ Subir ao Repo
             </button>
-            <button type="button" class="btn btn-secondary btn-sm" id="btn-git-back-to-kanban" title="Voltar ao Quadro Kanban">
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-git-back-to-kanban"
+              title="Voltar ao Quadro Kanban">
               ◀ Voltar ao Kanban
             </button>
           </div>
@@ -666,13 +695,15 @@
 
         <!-- Barra de Abas Estilo GitHub Desktop -->
         <div class="git-desktop-tab-bar" role="tablist">
-          <button type="button" class="git-desktop-tab-btn active" id="tab-btn-git-changes" role="tab" aria-selected="true">
+          <button type="button" class="git-desktop-tab-btn active" id="tab-btn-git-changes" role="tab"
+            aria-selected="true">
             <span class="tab-label">Changes</span>
             <span class="git-tab-badge" id="badge-git-changes-count">0</span>
           </button>
           <button type="button" class="git-desktop-tab-btn" id="tab-btn-git-history" role="tab" aria-selected="false">
             <span class="tab-label">History</span>
-            <span class="git-tab-badge unpushed-badge" id="badge-git-unpushed-count" style="display: none;" title="Commits prontos para subir ao repo">⬆️ 0</span>
+            <span class="git-tab-badge unpushed-badge" id="badge-git-unpushed-count" style="display: none;"
+              title="Commits prontos para subir ao repo">⬆️ 0</span>
           </button>
         </div>
 
@@ -683,7 +714,8 @@
             <div class="git-split-sidebar">
               <div class="git-filter-bar">
                 <span class="git-filter-icon">≡</span>
-                <input type="text" id="git-filter-changes-input" class="git-filter-input" placeholder="Filter" autocomplete="off" spellcheck="false">
+                <input type="text" id="git-filter-changes-input" class="git-filter-input" placeholder="Filter"
+                  autocomplete="off" spellcheck="false">
               </div>
 
               <div class="git-changes-summary-bar">
@@ -691,7 +723,8 @@
                   <input type="checkbox" id="chk-git-select-all" checked>
                   <span id="label-git-changed-count">0 changed files</span>
                 </label>
-                <button type="button" class="btn-subtle-action" id="btn-git-discard-all" title="Descartar alterações dos arquivos selecionados">
+                <button type="button" class="btn-subtle-action" id="btn-git-discard-all"
+                  title="Descartar alterações dos arquivos selecionados">
                   ↺ Descartar
                 </button>
               </div>
@@ -707,8 +740,10 @@
                   <span class="git-commit-avatar" id="git-commit-user-avatar">👤</span>
                   <span class="git-commit-user-name" id="git-commit-user-name">Commit local</span>
                 </div>
-                <input type="text" id="input-git-commit-msg" class="git-commit-input" placeholder="Summary (required)" autocomplete="off">
-                <textarea id="textarea-git-commit-desc" class="git-commit-textarea" rows="2" placeholder="Description"></textarea>
+                <input type="text" id="input-git-commit-msg" class="git-commit-input" placeholder="Summary (required)"
+                  autocomplete="off">
+                <textarea id="textarea-git-commit-desc" class="git-commit-textarea" rows="2"
+                  placeholder="Description"></textarea>
                 <button type="button" class="btn btn-primary btn-commit-desktop" id="btn-git-commit-submit">
                   💾 Commit to <span id="label-commit-branch">main</span>
                 </button>
@@ -723,15 +758,18 @@
                   <span class="git-diff-file-path" id="git-diff-file-path">Selecione um arquivo para ver o diff</span>
                 </div>
                 <div class="git-diff-header-actions" id="git-diff-header-actions" style="display: none;">
-                  <button type="button" class="btn btn-secondary btn-sm" id="btn-copy-diff-path" title="Copiar caminho relativo">📋 Copiar Caminho</button>
-                  <button type="button" class="btn btn-danger btn-sm" id="btn-discard-single-file" title="Descartar alterações deste arquivo">↺ Descartar Alterações</button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-copy-diff-path"
+                    title="Copiar caminho relativo">📋 Copiar Caminho</button>
+                  <button type="button" class="btn btn-danger btn-sm" id="btn-discard-single-file"
+                    title="Descartar alterações deste arquivo">↺ Descartar Alterações</button>
                 </div>
               </div>
               <div class="git-diff-body" id="git-diff-body">
                 <div class="git-diff-placeholder">
                   <span style="font-size: 32px; margin-bottom: 8px;">📑</span>
                   <strong>Nenhum arquivo selecionado</strong>
-                  <p>Clique em um arquivo alterado na lista ao lado para inspecionar o diff antes de commitar ou enviar.</p>
+                  <p>Clique em um arquivo alterado na lista ao lado para inspecionar o diff antes de commitar ou enviar.
+                  </p>
                 </div>
               </div>
             </div>
@@ -745,7 +783,8 @@
             <div class="git-split-sidebar">
               <div class="git-filter-bar">
                 <span class="git-filter-icon">🔍</span>
-                <input type="text" id="git-filter-history-input" class="git-filter-input" placeholder="Filter commits" autocomplete="off" spellcheck="false">
+                <input type="text" id="git-filter-history-input" class="git-filter-input" placeholder="Filter commits"
+                  autocomplete="off" spellcheck="false">
               </div>
 
               <!-- Banner Informativo de Commits Unpushed -->
@@ -767,7 +806,8 @@
               <div class="git-commit-details-header" id="git-commit-details-header">
                 <div class="git-commit-details-top">
                   <div class="git-commit-title-wrap">
-                    <h3 class="git-commit-full-title" id="git-commit-full-title">Selecione um commit para ver os detalhes</h3>
+                    <h3 class="git-commit-full-title" id="git-commit-full-title">Selecione um commit para ver os
+                      detalhes</h3>
                     <div class="git-commit-unpushed-badge" id="git-commit-unpushed-tag" style="display: none;">
                       ⬆️ PENDENTE DE ENVIO AO REPOSITÓRIO REMOTO
                     </div>
@@ -886,7 +926,8 @@
               <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 20px;">🔒</span>
                 <div>
-                  <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main);">Identificação Local (100% Privada)</h4>
+                  <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main);">Identificação Local (100%
+                    Privada)</h4>
                   <p style="font-size: 11px; color: var(--text-muted);">Salva exclusivamente no seu computador (ignorado
                     pelo Git). Nenhum e-mail pessoal é versionado.</p>
                 </div>
@@ -997,7 +1038,8 @@
 
           <!-- Lista de Integrantes Atuais -->
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin: 0;">👥 Integrantes da Equipe (<span id="member-count-badge">0</span>)</h4>
+            <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin: 0;">👥 Integrantes da Equipe
+              (<span id="member-count-badge">0</span>)</h4>
             <span id="member-status-breakdown" style="font-size: 11px; color: var(--text-dim);">0 ativos</span>
           </div>
           <div id="members-list-cards"
@@ -1019,38 +1061,47 @@
   <div class="modal-backdrop" id="modal-deactivate-member" style="z-index: 1050;">
     <div class="modal-card" style="max-width: 500px;">
       <div class="modal-header">
-        <h3 id="deactivate-modal-title" style="display: flex; align-items: center; gap: 8px; color: #f59e0b; margin: 0; font-size: 16px;">
+        <h3 id="deactivate-modal-title"
+          style="display: flex; align-items: center; gap: 8px; color: #f59e0b; margin: 0; font-size: 16px;">
           <span>⏸️</span> Inativar Integrante e Repassar Tarefas
         </h3>
         <button class="btn-close" id="btn-close-deactivate-modal">&times;</button>
       </div>
       <div class="modal-body" style="padding: 18px 20px;">
         <input type="hidden" id="input-deactivate-member-id" value="">
-        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 16px;">
+        <div
+          style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 16px;">
           <p style="font-size: 13px; color: #fde68a; margin: 0; line-height: 1.5;">
-            Ao inativar <strong id="deactivate-member-name-label">este integrante</strong>, as tarefas <strong>não terminadas</strong> serão repassadas automaticamente ao Membro Ativo selecionado. O integrante inativado não aparecerá no Kanban, filtros ou seletores de tarefas.
+            Ao inativar <strong id="deactivate-member-name-label">este integrante</strong>, as tarefas <strong>não
+              terminadas</strong> serão repassadas automaticamente ao Membro Ativo selecionado. O integrante inativado
+            não aparecerá no Kanban, filtros ou seletores de tarefas.
           </p>
         </div>
 
         <div class="form-group" style="margin-bottom: 14px;">
-          <label for="select-deactivate-successor" style="font-weight: 600; font-size: 13px; color: var(--text-main); margin-bottom: 6px; display: block;">
+          <label for="select-deactivate-successor"
+            style="font-weight: 600; font-size: 13px; color: var(--text-main); margin-bottom: 6px; display: block;">
             Selecione o Membro Ativo que assumirá as tarefas não terminadas: <span style="color: #ef4444;">*</span>
           </label>
-          <select class="form-select" id="select-deactivate-successor" style="width: 100%; padding: 8px 12px; font-size: 13.5px;">
+          <select class="form-select" id="select-deactivate-successor"
+            style="width: 100%; padding: 8px 12px; font-size: 13.5px;">
             <!-- Populated dynamically with other active members -->
           </select>
         </div>
 
         <div class="form-group" style="margin-bottom: 10px;">
-          <label style="font-weight: 600; font-size: 13px; color: var(--text-main); margin-bottom: 8px; display: block;">
+          <label
+            style="font-weight: 600; font-size: 13px; color: var(--text-main); margin-bottom: 8px; display: block;">
             Escopo do repasse de tarefas:
           </label>
           <div style="display: flex; flex-direction: column; gap: 8px;">
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-main); cursor: pointer;">
+            <label
+              style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-main); cursor: pointer;">
               <input type="radio" name="deactivate-scope" value="pending" checked>
               <span><strong>Repassar tarefas não terminadas</strong> (pendentes / em andamento - padrão)</span>
             </label>
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); cursor: pointer;">
+            <label
+              style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); cursor: pointer;">
               <input type="radio" name="deactivate-scope" value="all">
               <span>Repassar todas as tarefas (incluindo histórico concluído)</span>
             </label>
@@ -1077,28 +1128,36 @@
       </div>
       <div class="modal-body" style="padding: 18px 20px;">
         <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5;">
-          Filtre tarefas e features do Kanban por diretório de projeto (ex: <code>app</code>, <code>unity</code>, <code>prompt</code>, etc.). Adicione novos diretórios personalizados para a sua equipe.
+          Filtre tarefas e features do Kanban por diretório de projeto (ex: <code>app</code>, <code>unity</code>,
+          <code>prompt</code>, etc.). Adicione novos diretórios personalizados para a sua equipe.
         </p>
 
         <!-- Formulário Adicionar Novo Diretório -->
-        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 18px;">
-          <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+        <div
+          style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 18px;">
+          <h4
+            style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
             <span>➕</span> Adicionar Novo Diretório de Projeto
           </h4>
           <div class="form-row">
             <div class="form-group" style="flex: 2; margin-bottom: 10px;">
               <label for="input-new-dir-name" style="font-size: 12px; margin-bottom: 4px;">Nome de Exibição: *</label>
-              <input type="text" class="form-input" id="input-new-dir-name" placeholder="ex: Site / Webapp ou Assets 3D">
+              <input type="text" class="form-input" id="input-new-dir-name"
+                placeholder="ex: Site / Webapp ou Assets 3D">
             </div>
             <div class="form-group" style="flex: 1; margin-bottom: 10px;">
               <label for="input-new-dir-icon" style="font-size: 12px; margin-bottom: 4px;">Ícone / Emoji:</label>
-              <input type="text" class="form-input" id="input-new-dir-icon" placeholder="ex: 🌐, 🎮, 📦" value="📁" maxlength="4">
+              <input type="text" class="form-input" id="input-new-dir-icon" placeholder="ex: 🌐, 🎮, 📦" value="📁"
+                maxlength="4">
             </div>
           </div>
           <div class="form-group" style="margin-bottom: 12px;">
-            <label for="input-new-dir-path" style="font-size: 12px; margin-bottom: 4px;">Identificador / Subdiretório: *</label>
-            <input type="text" class="form-input" id="input-new-dir-path" placeholder="ex: app, unity, prompt, backend, mobile">
-            <span style="font-size: 11px; color: var(--text-dim); margin-top: 3px; display: block;">As tarefas com tags <code>(caminho/)</code> ou da feature serão vinculadas a este filtro.</span>
+            <label for="input-new-dir-path" style="font-size: 12px; margin-bottom: 4px;">Identificador / Subdiretório:
+              *</label>
+            <input type="text" class="form-input" id="input-new-dir-path"
+              placeholder="ex: app, unity, prompt, backend, mobile">
+            <span style="font-size: 11px; color: var(--text-dim); margin-top: 3px; display: block;">As tarefas com tags
+              <code>(caminho/)</code> ou da feature serão vinculadas a este filtro.</span>
           </div>
           <div style="display: flex; justify-content: flex-end;">
             <button type="button" class="btn btn-primary btn-sm" id="btn-save-new-directory">
@@ -1108,11 +1167,13 @@
         </div>
 
         <!-- Lista de Diretórios Atuais -->
-        <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+        <h4
+          style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
           <span>Diretórios Atuais</span>
           <span id="directories-count-badge" class="badge-tag" style="font-size: 11px;">0 diretórios</span>
         </h4>
-        <div id="modal-directories-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; padding-right: 4px;">
+        <div id="modal-directories-list"
+          style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; padding-right: 4px;">
           <!-- Preenchido dinamicamente via JS -->
         </div>
       </div>
@@ -1124,25 +1185,38 @@
 
   <!-- Modal: Confirmação de Ações Críticas (Confirm / Cancel) -->
   <div class="modal-backdrop" id="modal-confirm-action" style="z-index: 1200;">
-    <div class="modal-card" style="max-width: 460px; box-shadow: 0 16px 48px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.12);">
-      <div class="modal-header" style="padding: 14px 18px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between;">
-        <h3 id="confirm-modal-title" style="display: flex; align-items: center; gap: 8px; margin: 0; font-size: 15px; font-weight: 700; color: var(--text-main);">
+    <div class="modal-card"
+      style="max-width: 460px; box-shadow: 0 16px 48px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.12);">
+      <div class="modal-header"
+        style="padding: 14px 18px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between;">
+        <h3 id="confirm-modal-title"
+          style="display: flex; align-items: center; gap: 8px; margin: 0; font-size: 15px; font-weight: 700; color: var(--text-main);">
           <span id="confirm-modal-icon" style="font-size: 18px;">⚠️</span>
           <span id="confirm-modal-title-text">Confirmar Ação</span>
         </h3>
-        <button type="button" class="btn-close" id="btn-confirm-modal-close" style="font-size: 20px; line-height: 1;">&times;</button>
+        <button type="button" class="btn-close" id="btn-confirm-modal-close"
+          style="font-size: 20px; line-height: 1;">&times;</button>
       </div>
       <div class="modal-body" style="padding: 16px 18px;">
-        <p id="confirm-modal-message" style="font-size: 13px; line-height: 1.5; color: var(--text-main); margin-bottom: 12px; margin-top: 0;"></p>
-        <div id="confirm-modal-warning" class="info-banner" style="display: none; margin-bottom: 12px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; font-size: 11.5px; padding: 8px 12px; border-radius: 6px;"></div>
+        <p id="confirm-modal-message"
+          style="font-size: 13px; line-height: 1.5; color: var(--text-main); margin-bottom: 12px; margin-top: 0;"></p>
+        <div id="confirm-modal-warning" class="info-banner"
+          style="display: none; margin-bottom: 12px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; font-size: 11.5px; padding: 8px 12px; border-radius: 6px;">
+        </div>
         <div id="confirm-modal-input-container" style="display: none; margin-top: 10px;">
-          <label id="confirm-modal-input-label" style="font-size: 11.5px; color: var(--text-label); margin-bottom: 5px; display: block; font-weight: 600;">Motivo / Observação:</label>
-          <input type="text" id="confirm-modal-input" class="form-input form-input-sm" placeholder="Digite aqui..." style="margin-bottom: 0;">
+          <label id="confirm-modal-input-label"
+            style="font-size: 11.5px; color: var(--text-label); margin-bottom: 5px; display: block; font-weight: 600;">Motivo
+            / Observação:</label>
+          <input type="text" id="confirm-modal-input" class="form-input form-input-sm" placeholder="Digite aqui..."
+            style="margin-bottom: 0;">
         </div>
       </div>
-      <div class="modal-footer" style="padding: 12px 18px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 8px; background: var(--bg-secondary);">
-        <button type="button" class="btn btn-secondary btn-sm" id="btn-confirm-modal-cancel" style="padding: 6px 14px; font-size: 12px;">Cancelar</button>
-        <button type="button" class="btn btn-primary btn-sm" id="btn-confirm-modal-confirm" style="padding: 6px 16px; font-size: 12px; font-weight: 700;">Confirmar</button>
+      <div class="modal-footer"
+        style="padding: 12px 18px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 8px; background: var(--bg-secondary);">
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-confirm-modal-cancel"
+          style="padding: 6px 14px; font-size: 12px;">Cancelar</button>
+        <button type="button" class="btn btn-primary btn-sm" id="btn-confirm-modal-confirm"
+          style="padding: 6px 16px; font-size: 12px; font-weight: 700;">Confirmar</button>
       </div>
     </div>
   </div>
@@ -1171,7 +1245,9 @@
       <div class="detail-metrics-bar">
         <div class="detail-metric-badges">
           <span class="card-tag tag-created" id="detail-badge-status">CRIADO</span>
-          <button type="button" class="btn-card-directory" id="detail-badge-directory" title="Alterar o projeto / diretório desta feature">🌐 Projeto <span style="font-size: 8px; opacity: 0.7;">▼</span></button>
+          <button type="button" class="btn-card-directory" id="detail-badge-directory"
+            title="Alterar o projeto / diretório desta feature">🌐 Projeto <span
+              style="font-size: 8px; opacity: 0.7;">▼</span></button>
           <span class="badge-tag" id="detail-badge-assignee">👥 Todos</span>
           <span class="badge-modified-git" id="detail-badge-modified" style="display: none;">⚡ Modificado Local</span>
           <span class="badge-tag" id="detail-badge-branch"
@@ -1225,7 +1301,8 @@
         <!-- TAB 2: TASKS LIST & ADD TASK -->
         <div id="detail-view-tasks" class="modal-view-section" style="display: none;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <h4 style="font-size: 14px; font-weight: 700; color: var(--text-main);">Checklist Operacional da Feature</h4>
+            <h4 style="font-size: 14px; font-weight: 700; color: var(--text-main);">Checklist Operacional da Feature
+            </h4>
             <span style="font-size: 12px; color: var(--text-dim);">Clique no checkbox para alterar status em tempo
               real</span>
           </div>
@@ -1247,7 +1324,8 @@
                 <select class="form-select" id="detail-new-task-assignee"></select>
               </div>
               <div class="form-group" style="margin-bottom: 8px; flex: 1.3;">
-                <label for="detail-new-task-directory" style="font-size: 12px;">Projeto / Diretório: <span style="color: #f43f5e;">*</span></label>
+                <label for="detail-new-task-directory" style="font-size: 12px;">Projeto / Diretório: <span
+                    style="color: #f43f5e;">*</span></label>
                 <select class="form-select" id="detail-new-task-directory" required>
                   <option value="" disabled selected>📁 Selecione o Projeto / Diretório... *</option>
                 </select>
@@ -1255,10 +1333,13 @@
             </div>
             <div class="form-group" style="margin-bottom: 8px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <label for="detail-new-task-text" style="font-size: 12px; margin-bottom: 0;">Descrição da Tarefa / Prompt:</label>
-                <span style="font-size: 10px; color: var(--accent-purple, #c084fc); font-weight: 600;">✨ Suporta Prompt</span>
+                <label for="detail-new-task-text" style="font-size: 12px; margin-bottom: 0;">Descrição da Tarefa /
+                  Prompt:</label>
+                <span style="font-size: 10px; color: var(--accent-purple, #c084fc); font-weight: 600;">✨ Suporta
+                  Prompt</span>
               </div>
-              <textarea class="form-textarea" id="detail-new-task-text" rows="3" style="min-height: 80px; resize: vertical; font-size: 13px;"
+              <textarea class="form-textarea" id="detail-new-task-text" rows="3"
+                style="min-height: 80px; resize: vertical; font-size: 13px;"
                 placeholder="Descreva a tarefa ou insira o prompt com instruções detalhadas para o agente de IA ou desenvolvedor..."></textarea>
             </div>
             <div style="display: flex; justify-content: flex-end;">
