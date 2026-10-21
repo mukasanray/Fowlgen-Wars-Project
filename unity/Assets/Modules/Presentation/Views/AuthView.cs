@@ -36,15 +36,13 @@ namespace FowlgenWars.Architecture.Views
             var button = Root.Q<Button>("connect-button");
             if (button != null)
             {
-                button.clicked -= OnConnectClick;
-                button.clicked += OnConnectClick;
+                SetupInteractiveButton(button, OnConnectClick);
             }
 
             var quickButton = Root.Q<Button>("quick-play-button");
             if (quickButton != null)
             {
-                quickButton.clicked -= OnQuickPlayClick;
-                quickButton.clicked += OnQuickPlayClick;
+                SetupInteractiveButton(quickButton, OnQuickPlayClick);
             }
         }
 

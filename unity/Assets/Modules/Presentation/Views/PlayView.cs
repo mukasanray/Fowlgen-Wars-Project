@@ -46,22 +46,19 @@ namespace FowlgenWars.Architecture.Views
             playBtn = Root.Q<Button>("play-button");
             if (playBtn != null)
             {
-                playBtn.clicked -= OnPlayClick;
-                playBtn.clicked += OnPlayClick;
+                SetupInteractiveButton(playBtn, OnPlayClick);
             }
 
             airdropBtn = Root.Q<Button>("airdrop-button");
             if (airdropBtn != null)
             {
-                airdropBtn.clicked -= OnAirdropClick;
-                airdropBtn.clicked += OnAirdropClick;
+                SetupInteractiveButton(airdropBtn, OnAirdropClick);
             }
 
             var disconnectBtn = Root.Q<Button>("disconnect-button");
             if (disconnectBtn != null)
             {
-                disconnectBtn.clicked -= OnDisconnectClick;
-                disconnectBtn.clicked += OnDisconnectClick;
+                SetupInteractiveButton(disconnectBtn, OnDisconnectClick);
             }
         }
 

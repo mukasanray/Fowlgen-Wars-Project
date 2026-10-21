@@ -86,19 +86,27 @@
     border-top-width: 0;
     border-bottom-width: 0;
     margin-bottom: 4px;
-    transition-property: scale;
-    transition-duration: 0.15s;
-    transition-timing-function: ease-out;
+    scale: 1 1;
+    transform-origin: center;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    transition-property: scale, -unity-background-image-tint-color;
+    transition-duration: 0.18s;
+    transition-timing-function: ease-out-back;
 }
 
-.primary-button:hover {
+.primary-button:hover,
+.primary-button.hovered {
     background-color: rgba(0, 0, 0, 0);
-    scale: 1.05 1.05;
+    scale: 1.08 1.08;
+    -unity-background-image-tint-color: rgb(255, 255, 220);
 }
 
-.primary-button:active {
+.primary-button:active,
+.primary-button.active-pressed {
     background-color: rgba(0, 0, 0, 0);
-    scale: 0.95 0.95;
+    scale: 0.94 0.94;
+    -unity-background-image-tint-color: rgb(215, 215, 215);
+    transition-duration: 0.08s;
 }
 
 .primary-button:focus {

@@ -1,5 +1,9 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.EventSystems;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem.UI;
+#endif
 using FowlgenWars.Architecture.Contracts;
 
 namespace FowlgenWars.Architecture.Views
@@ -20,6 +24,8 @@ namespace FowlgenWars.Architecture.Views
 
         protected virtual void Awake()
         {
+            EnsureEventSystem();
+
             Document = GetComponent<UIDocument>();
             if (Document == null)
                 Document = gameObject.AddComponent<UIDocument>();
@@ -50,32 +56,6 @@ namespace FowlgenWars.Architecture.Views
                 layout.CloneTree(Root);
             }
 
-            // Garante dimensões completas (flexGrow = 1, width = 100%, height = 100%) no Root e contêineres filhos
-            if (Root != null)
-            {
-                Root.style.flexGrow = 1;
-                Root.style.width = Length.Percent(100);
-                Root.style.height = Length.Percent(100);
-
-                foreach (var child in Root.Children())
-                {
-                    child.style.flexGrow = 1;
-                    child.style.width = Length.Percent(100);
-                    child.style.height = Length.Percent(100);
-
-                    // Garante que o elemento .screen dentro do template também tenha dimensões completas
-                    foreach (var grandChild in child.Children())
-                    {
-                        if (grandChild.ClassListContains("screen"))
-                        {
-                            grandChild.style.flexGrow = 1;
-                            grandChild.style.width = Length.Percent(100);
-                            grandChild.style.height = Length.Percent(100);
-                        }
-                    }
-                }
-            }
-
             StyleSheet styles = Resources.Load<StyleSheet>(styleResource);
             if (styles != null && Root != null && !Root.styleSheets.Contains(styles))
                 Root.styleSheets.Add(styles);
@@ -84,5 +64,85 @@ namespace FowlgenWars.Architecture.Views
         }
 
         public abstract void SetStatus(string message);
+
+#if ENABLE_INPUT_SYSTEM
+        protected virtual void Update()
+        {
+            if (UnityEngine.InputSystem.Mouse.current != null && !UnityEngine.InputSystem.Mouse.current.enabled)
+            {
+                UnityEngine.InputSystem.InputSystem.EnableDevice(UnityEngine.InputSystem.Mouse.current);
+            }
+        }
+#endif
+
+        protected void SetupInteractiveButton(Button button, System.Action onClick)
+        {
+            if (button == null) return;
+
+            float lastClick = 0f;
+            void TriggerClick()
+            {
+                if (Time.unscaledTime - lastClick < 0.35f) return;
+                lastClick = Time.unscaledTime;
+                onClick?.Invoke();
+            }
+
+            button.clicked -= TriggerClick;
+            button.clicked += TriggerClick;
+
+            button.RegisterCallback<ClickEvent>(evt =>
+            {
+                TriggerClick();
+                evt.StopPropagation();
+            });
+
+            button.RegisterCallback<PointerUpEvent>(evt =>
+            {
+                button.RemoveFromClassList("active-pressed");
+                if (evt.button == 0)
+                {
+                    TriggerClick();
+                }
+            });
+
+            button.RegisterCallback<PointerEnterEvent>(evt => button.AddToClassList("hovered"));
+            button.RegisterCallback<PointerLeaveEvent>(evt =>
+            {
+                button.RemoveFromClassList("hovered");
+                button.RemoveFromClassList("active-pressed");
+            });
+
+            button.RegisterCallback<PointerDownEvent>(evt =>
+            {
+                if (evt.button == 0)
+                {
+                    button.AddToClassList("active-pressed");
+                }
+            });
+        }
+
+        private static void EnsureEventSystem()
+        {
+            if (FindAnyObjectByType<EventSystem>() != null)
+                return;
+
+            var esGo = new GameObject("EventSystem");
+            esGo.AddComponent<EventSystem>();
+
+#if ENABLE_INPUT_SYSTEM
+            var inputModule = esGo.AddComponent<InputSystemUIInputModule>();
+#if UNITY_EDITOR
+            var actions = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.InputSystem.InputActionAsset>("Assets/InputSystem_Actions.inputactions");
+            if (actions != null)
+                inputModule.actionsAsset = actions;
+            else
+                inputModule.AssignDefaultActions();
+#else
+            inputModule.AssignDefaultActions();
+#endif
+#else
+            esGo.AddComponent<StandaloneInputModule>();
+#endif
+        }
     }
 }

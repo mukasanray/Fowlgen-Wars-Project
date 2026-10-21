@@ -6,7 +6,9 @@
         "FowlgenWars.Modules.Auth",
         "FowlgenWars.Modules.MobileControls",
         "FowlgenWars.Modules.Gameplay",
-        "FishNet.Runtime"
+        "FishNet.Runtime",
+        "UnityEngine.UI",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
