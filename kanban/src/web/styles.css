@@ -4252,3 +4252,41 @@ body[data-theme="light"] .official-report-badge {
   border-color: rgba(124, 58, 237, 0.2);
   color: #7c3aed;
 }
+
+/* Botão de PDF individual do Card da Sprint */
+.btn-card-pdf {
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #0284c7;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+}
+
+.btn-card-pdf:hover {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #0284c7;
+  color: #0369a1;
+  transform: translateY(-1px);
+}
+
+:root[data-theme="dark"] .btn-card-pdf,
+body:not([data-theme="light"]) .btn-card-pdf {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+}
+
+:root[data-theme="dark"] .btn-card-pdf:hover,
+body:not([data-theme="light"]) .btn-card-pdf:hover {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+  color: #7dd3fc;
+}

@@ -937,6 +937,7 @@ async function fetchFeatures() {
       currentFeatures = data.features;
       renderFeatures(data.features);
       updateFeatureSelect(data.features);
+      populateOfficialReportFeatures(data.features);
       updateStats(data.features);
       setConnectionStatus(true);
       renderBranchBanner(data);
@@ -1368,7 +1369,45 @@ function exportSprintPdf() {
 // =============================================================
 // Exportação de Relatório Técnico Oficial em PDF (Padrão Executivo)
 // =============================================================
+let officialReportMode = 'member'; // 'member' ou 'card'
+
+function generateFeatureCardPdf(featureName, download = false) {
+  if (!featureName) {
+    showToast('Nenhum card de tarefa selecionado.', 'warning');
+    return;
+  }
+  const feat = currentFeatures.find(f => f.name === featureName);
+  const cardTitle = feat ? (feat.title || feat.name) : featureName;
+
+  showToast(`Gerando Relatório Oficial do Card em PDF (${cardTitle})...`, 'info');
+  appendLog(`Gerando Relatório Técnico Oficial em PDF para o Card: ${cardTitle}`);
+
+  const url = `/api/reports/official-pdf?feature=${encodeURIComponent(featureName)}${download ? '&download=true' : ''}&t=${Date.now()}`;
+
+  if (download) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Relatorio_Oficial_Card_${featureName.replace(/[^a-zA-Z0-9_-]/g, '_')}_Fowlgen_Wars.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } else {
+    window.open(url, '_blank');
+  }
+}
+
 function generateOfficialPdf(download = false) {
+  if (officialReportMode === 'card') {
+    const selFeature = document.getElementById('select-official-report-feature');
+    const featureName = selFeature ? selFeature.value : '';
+    if (!featureName) {
+      showToast('Por favor, selecione um Card de Tarefa / Feature na lista.', 'warning');
+      return;
+    }
+    generateFeatureCardPdf(featureName, download);
+    return;
+  }
+
   const selectMember = document.getElementById('select-official-report-member');
   const memberId = selectMember ? selectMember.value : 'all';
   const memberLabel = selectMember && selectMember.selectedOptions && selectMember.selectedOptions[0]
@@ -1413,6 +1452,25 @@ function populateOfficialReportMembers() {
   });
 
   if (currentVal) sel.value = currentVal;
+}
+
+function populateOfficialReportFeatures(features) {
+  const sel = document.getElementById('select-official-report-feature');
+  if (!sel || !features || features.length === 0) return;
+  const currentVal = sel.value;
+  sel.innerHTML = '';
+
+  features.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f.name;
+    const dirIcon = f.directory ? '🎮 ' : '📋 ';
+    opt.textContent = `${dirIcon}${f.title || f.name} (${f.progress || 0}%)`;
+    sel.appendChild(opt);
+  });
+
+  if (currentVal && features.some(f => f.name === currentVal)) {
+    sel.value = currentVal;
+  }
 }
 
 // =============================================================
@@ -2393,6 +2451,7 @@ function createFeatureCard(feature) {
         ${assigneesHtml}
         ${modifiedBadge}
         ${branchBadge}
+        <button type="button" class="btn-card-pdf" data-feature="${escapeHtml(feature.name)}" title="Gerar Relatório Executivo em PDF deste Card de Tarefa">📄 PDF</button>
       </div>
     </div>
     <h3 class="card-title">${feature.title || feature.name}</h3>
@@ -2426,6 +2485,12 @@ function createFeatureCard(feature) {
   card.querySelector('.btn-card-directory')?.addEventListener('click', (e) => {
     e.stopPropagation();
     openCardDirDropdown(e.currentTarget, feature.name, feature.directory);
+  });
+
+  // Gerar PDF oficial do Card
+  card.querySelector('.btn-card-pdf')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    generateFeatureCardPdf(feature.name, false);
   });
 
   // Select feature and open Details Modal on card click
@@ -3159,6 +3224,37 @@ document.getElementById('btn-export-sprint-csv')?.addEventListener('click', expo
 document.getElementById('btn-export-sprint-pdf')?.addEventListener('click', exportSprintPdf);
 document.getElementById('btn-generate-official-pdf')?.addEventListener('click', () => generateOfficialPdf(false));
 document.getElementById('btn-download-official-pdf')?.addEventListener('click', () => generateOfficialPdf(true));
+
+// Alternador de Modo do Relatório Oficial (Por Integrante vs Por Card de Tarefa)
+const btnModeMember = document.getElementById('btn-official-report-mode-member');
+const btnModeCard = document.getElementById('btn-official-report-mode-card');
+const wrapperMember = document.getElementById('wrapper-official-report-member');
+const wrapperFeature = document.getElementById('wrapper-official-report-feature');
+
+btnModeMember?.addEventListener('click', () => {
+  officialReportMode = 'member';
+  btnModeMember.classList.add('active');
+  btnModeCard.classList.remove('active');
+  if (wrapperMember) wrapperMember.style.display = 'block';
+  if (wrapperFeature) wrapperFeature.style.display = 'none';
+});
+
+btnModeCard?.addEventListener('click', () => {
+  officialReportMode = 'card';
+  btnModeCard.classList.add('active');
+  btnModeMember.classList.remove('active');
+  if (wrapperMember) wrapperMember.style.display = 'none';
+  if (wrapperFeature) wrapperFeature.style.display = 'block';
+  populateOfficialReportFeatures(currentFeatures);
+});
+
+// Botão de Exportar PDF no Modal de Detalhes do Card
+document.getElementById('btn-detail-export-pdf')?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (currentDetailFeature) {
+    generateFeatureCardPdf(currentDetailFeature.name, false);
+  }
+});
 document.getElementById('btn-script-verify')?.addEventListener('click', () => runScriptAPI('verify'));
 document.getElementById('btn-script-status')?.addEventListener('click', () => runScriptAPI('status'));
 document.getElementById('btn-refresh')?.addEventListener('click', () => {

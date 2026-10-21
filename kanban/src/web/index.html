@@ -385,7 +385,12 @@
               Gera relatórios oficiais idênticos ao padrão executivo institucional de alinhamento técnico (A4, métricas da sprint, tabelas de tarefas concluídas e pendentes).
             </p>
 
-            <div style="margin-bottom: 12px;">
+            <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+              <button type="button" class="btn btn-sm btn-secondary active" id="btn-official-report-mode-member" style="flex: 1; font-size: 11px; padding: 5px 8px; font-weight: 600;">👤 Por Integrante</button>
+              <button type="button" class="btn btn-sm btn-secondary" id="btn-official-report-mode-card" style="flex: 1; font-size: 11px; padding: 5px 8px; font-weight: 600;">📋 Por Card de Tarefa</button>
+            </div>
+
+            <div id="wrapper-official-report-member" style="margin-bottom: 12px;">
               <label for="select-official-report-member" class="official-report-label">
                 👤 Integrante / Escopo do Relatório:
               </label>
@@ -399,6 +404,15 @@
                 <option value="ramiro">🛡️ Ramiro (Dev Unity Combat/IA)</option>
                 <option value="sthefany">📊 Sthefany (QA & Balanceamento)</option>
                 <option value="vaguinhow">⚙️ Vaguinhow (Dev Gameplay & Shaders)</option>
+              </select>
+            </div>
+
+            <div id="wrapper-official-report-feature" style="margin-bottom: 12px; display: none;">
+              <label for="select-official-report-feature" class="official-report-label">
+                📋 Card de Tarefa / Feature (OpenSpec):
+              </label>
+              <select id="select-official-report-feature" class="form-select official-report-select">
+                <option value="">Carregando cards de tarefas...</option>
               </select>
             </div>
 
@@ -1234,6 +1248,11 @@
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-detail-export-pdf"
+            title="Gerar Relatório Executivo em PDF deste Card de Tarefa"
+            style="display: flex; align-items: center; gap: 5px; font-weight: 600; font-size: 11px; padding: 5px 10px;">
+            <span>📄</span> Gerar PDF do Card
+          </button>
           <button class="btn-close" id="btn-close-details" title="Fechar (Esc)">&times;</button>
         </div>
       </div>

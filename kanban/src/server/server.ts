@@ -3103,27 +3103,34 @@ const server = http.createServer(async (req, res) => {
 
     // API: Export Official Executive PDF Report (padrão Relatorio_Alinhamento_Site_API_Apoiadores_Junior_Marcos.pdf)
     if (req.method === 'GET' && pathname === '/api/reports/official-pdf') {
+      const feature = parsedUrl.searchParams.get('feature');
       const member = parsedUrl.searchParams.get('member') || 'all';
       const isDownload = parsedUrl.searchParams.get('download') === 'true';
       const docsDir = path.join(KANBAN_ROOT, 'docs');
       if (!fs.existsSync(docsDir)) {
         try { fs.mkdirSync(docsDir, { recursive: true }); } catch {}
       }
-      const tempPdfName = `relatorio-oficial-${member.replace(/[^a-zA-Z0-9_-]/g, '_')}-${Date.now()}.pdf`;
+      const labelPrefix = feature ? `card-${feature}` : `membro-${member}`;
+      const tempPdfName = `relatorio-oficial-${labelPrefix.replace(/[^a-zA-Z0-9_-]/g, '_')}-${Date.now()}.pdf`;
       const tempOut = path.join(docsDir, tempPdfName);
       const scriptPath = path.join(KANBAN_ROOT, 'src/scripts/generate_official_report_pdf.py');
 
       try {
-        const cmd = `python "${scriptPath}" --member "${member}" --output "${tempOut}"`;
+        const cmd = feature
+          ? `python "${scriptPath}" --feature "${feature}" --output "${tempOut}"`
+          : `python "${scriptPath}" --member "${member}" --output "${tempOut}"`;
         execSync(cmd, { cwd: REPO_ROOT, encoding: 'utf8', timeout: 35000 });
 
         if (fs.existsSync(tempOut)) {
           const pdfData = fs.readFileSync(tempOut);
           try { fs.unlinkSync(tempOut); } catch {}
 
-          const filename = member === 'all'
-            ? 'Relatorio_Oficial_Equipe_Fowlgen_Wars.pdf'
-            : `Relatorio_Oficial_${member.charAt(0).toUpperCase() + member.slice(1)}_Fowlgen_Wars.pdf`;
+          let filename = 'Relatorio_Oficial_Equipe_Fowlgen_Wars.pdf';
+          if (feature) {
+            filename = `Relatorio_Oficial_Card_${feature.replace(/[^a-zA-Z0-9_-]/g, '_')}_Fowlgen_Wars.pdf`;
+          } else if (member !== 'all') {
+            filename = `Relatorio_Oficial_${member.charAt(0).toUpperCase() + member.slice(1)}_Fowlgen_Wars.pdf`;
+          }
 
           res.writeHead(200, {
             'Content-Type': 'application/pdf',
