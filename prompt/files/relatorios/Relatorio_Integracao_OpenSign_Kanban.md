@@ -46,7 +46,7 @@
 
 ### 0.1 Arquivos necessários no repo (já criados)
 ```
-seu-kanban/
+Kanban/
 ├── docker-compose.dev.yml           # Orquestra Kanban + OpenSign + DB + Redis
 ├── scripts/init-multiple-dbs.sh     # Cria databases kanban + opensign
 ├── .devcontainer/
@@ -56,16 +56,17 @@ seu-kanban/
 ├── src/
 │   ├── lib/opensign.ts              # Cliente API tipado + helpers
 │   └── app/api/webhooks/opensign/route.ts  # Handler webhook Next.js
+├── Opensign/                        # Repo OpenSign (submódulo ou clone)
 └── .env.local                       # Auto-gerado (não commit)
 ```
 
 ### 0.2 Inicia Codespace
 ```bash
 # Opção A: Via GitHub CLI
-gh codespace create --repo seuusuario/seu-kanban --branch main --machine basicLinux32gb
+gh codespace create --repo seuusuario/Kanban --branch main --machine basicLinux32gb
 
 # Opção B: Via Browser
-# github.com/seuusuario/seu-kanban → Code → Codespaces → Create codespace
+# github.com/seuusuario/Kanban → Code → Codespaces → Create codespace
 ```
 
 ### 0.3 O que acontece automaticamente (2-3 min)
@@ -196,7 +197,7 @@ export async function POST(request: NextRequest) {
 ```yaml
 services:
   kanban:
-    image: seuusuario/kanban:latest
+    image: seuusuario/Kanban:latest
     environment:
       - OPENSIGN_URL=https://sign.seuapp.com
       - OPENSIGN_PUBLIC_URL=https://sign.seuapp.com
@@ -305,7 +306,7 @@ wait
 ## Arquivos Entregues (Prontos para Commit)
 
 ```
-seu-kanban/
+Kanban/
 ├── docker-compose.dev.yml                    # ✅ Orquestração completa
 ├── scripts/init-multiple-dbs.sh              # ✅ Multi-database PostgreSQL
 ├── .devcontainer/
@@ -315,6 +316,7 @@ seu-kanban/
 ├── src/
 │   ├── lib/opensign.ts                       # ✅ Cliente tipado + helpers Kanban
 │   └── app/api/webhooks/opensign/route.ts    # ✅ Handler webhook Next.js
+├── Opensign/                                 # ✅ Repo OpenSign (submódulo/clone)
 ├── components/KanbanCardSignAction.tsx       # 📝 Criar (baseado no relatório)
 └── hooks/useOpenSign.ts                      # 📝 Criar (hook React)
 ```
@@ -326,12 +328,12 @@ seu-kanban/
 ### Hoje (15 min)
 ```bash
 # 1. Commit files acima no seu repo Kanban
-git add docker-compose.dev.yml scripts/ .devcontainer/ src/lib/opensign.ts src/app/api/webhooks/opensign/
+git add docker-compose.dev.yml scripts/ .devcontainer/ src/lib/opensign.ts src/app/api/webhooks/opensign/ Opensign/
 git commit -m "feat: OpenSign integration + GitHub Codespaces dev env"
 git push
 
 # 2. Cria Codespace
-gh codespace create --repo seuusuario/seu-kanban --branch main
+gh codespace create --repo seuusuario/Kanban --branch main
 
 # 3. Testa fluxo completo (30 seg)
 #    Kanban → Card → Assinar → Link no celular → Assina → Card movido
