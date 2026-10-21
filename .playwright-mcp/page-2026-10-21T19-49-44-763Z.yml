@@ -1,0 +1,2558 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - button "Abrir Menu Lateral" [expanded] [active] [ref=e5] [cursor=pointer]:
+        - generic [ref=e6]: ☰
+      - generic [ref=e7]:
+        - generic [ref=e8]: 🐔
+        - generic [ref=e9]:
+          - heading "FOWLGEN WARS — OpenSpec & Kanban Studio" [level=1] [ref=e10]
+          - paragraph [ref=e11]:
+            - generic [ref=e13]: Servidor Ativo • Sincronizado com OpenSpec
+    - menu "Menu Lateral" [ref=e174]:
+      - generic [ref=e175]:
+        - generic [ref=e176]:
+          - generic [ref=e177]: 🐔
+          - generic [ref=e178]:
+            - generic [ref=e179]: Fowlgen Wars
+            - generic [ref=e180]: Central de Gestão & Ferramentas
+        - button "Fechar Menu" [ref=e181] [cursor=pointer]: ✕
+      - generic [ref=e182]:
+        - generic [ref=e183]: Serviços Integrados
+        - menuitem "📝 OpenSign Assinatura Assinatura digital de contratos ›" [ref=e184] [cursor=pointer]:
+          - generic [ref=e185]: 📝
+          - generic [ref=e186]:
+            - generic [ref=e187]:
+              - generic [ref=e188]: OpenSign
+              - generic [ref=e189]: Assinatura
+            - generic [ref=e190]: Assinatura digital de contratos
+          - generic [ref=e191]: ›
+        - menuitem "📊 OpenSign Dashboard Admin Gerenciar templates e signatários ↗" [ref=e192] [cursor=pointer]:
+          - generic [ref=e193]: 📊
+          - generic [ref=e194]:
+            - generic [ref=e195]:
+              - generic [ref=e196]: OpenSign Dashboard
+              - generic [ref=e197]: Admin
+            - generic [ref=e198]: Gerenciar templates e signatários
+          - generic [ref=e199]: ↗
+        - generic [ref=e201]: Sistema & Preferências
+        - menuitem "⚙️ Configurações Ajustes do repositório e sincronização" [ref=e202] [cursor=pointer]:
+          - generic [ref=e203]: ⚙️
+          - generic [ref=e204]:
+            - generic [ref=e205]: Configurações
+            - generic [ref=e206]: Ajustes do repositório e sincronização
+        - menuitem "ℹ️ Sobre Versão, licença e créditos" [ref=e207] [cursor=pointer]:
+          - generic [ref=e208]: ℹ️
+          - generic [ref=e209]:
+            - generic [ref=e210]: Sobre
+            - generic [ref=e211]: Versão, licença e créditos
+      - generic [ref=e212]:
+        - generic [ref=e213]: OpenSpec Engine Ativo
+        - generic [ref=e216]: v1.0.0
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e16]: "Features:"
+        - generic [ref=e17]: "29"
+      - generic [ref=e18]:
+        - generic [ref=e19]: "Tarefas:"
+        - generic [ref=e20]: "189"
+      - generic [ref=e21]:
+        - generic [ref=e22]: "Concluídas:"
+        - generic [ref=e23]: "124"
+    - generic [ref=e24]:
+      - tablist [ref=e25]:
+        - button "💻 Modo Local main" [ref=e217] [cursor=pointer]:
+          - generic [ref=e27]: 💻
+          - generic [ref=e28]: Modo Local
+          - 'generic "Branch local ativa: main" [ref=e218]': main
+        - button "🌐 Modo Oficial" [ref=e30] [cursor=pointer]:
+          - generic [ref=e31]: 🌐
+          - generic [ref=e32]: Modo Oficial
+      - generic "3 arquivo(s) de tarefas alterados localmente. Clique em Salvar Alterações para registrar no Git." [ref=e219]: 3 pendente(s) de salvar
+      - combobox "Visualizar outra branch específica do Git..." [ref=e37] [cursor=pointer]:
+        - option "📂 Outras branches..." [disabled] [selected]
+        - option "🌿 origin/backup/pre-vercel-deploy"
+        - option "🌿 origin/feature/devsecops-checklist"
+        - option "🌿 origin/fix/anchor-fmt-and-keys"
+        - option "🌿 origin/fowlgenwars-unity-marcos"
+        - option "🌿 origin/main"
+    - generic [ref=e38]:
+      - button "💾 Commit Local (3)" [ref=e220] [cursor=pointer]
+      - button "⬆️ Subir ao Repo" [ref=e40] [cursor=pointer]
+      - button "↺ Reset Repo Local" [ref=e41] [cursor=pointer]
+      - button "📋 Sync Kanban" [ref=e42] [cursor=pointer]
+      - generic "Separador" [ref=e43]
+      - button "Configurações" [ref=e44] [cursor=pointer]: ⚙️
+      - button "Ocultar Painel OpenSpec (Ctrl+B)" [ref=e45] [cursor=pointer]: ⚡
+      - button "Recarregar dados" [ref=e46] [cursor=pointer]: 🔄
+      - button "Alternar para tema Escuro" [ref=e47] [cursor=pointer]:
+        - generic [ref=e48]: 🌙
+  - main [ref=e49]:
+    - generic [ref=e50]:
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - heading "⚡ Comandos Essenciais do OpenSpec" [level=2] [ref=e53]
+          - button "◀" [ref=e55] [cursor=pointer]
+        - tablist [ref=e56]:
+          - button "📋 Tarefas" [ref=e57] [cursor=pointer]
+          - button "💡 Ideias / Features" [ref=e58] [cursor=pointer]
+          - button "🚀 Automação" [ref=e59] [cursor=pointer]
+        - generic [ref=e60]:
+          - generic [ref=e61]:
+            - generic [ref=e62]:
+              - generic [ref=e63]: "Feature / Módulo:"
+              - generic [ref=e64]: ✨ Opcional (deixe em branco para Tarefas Gerais)
+            - combobox "Feature / Módulo:" [ref=e65]:
+              - option "📋 (Em branco - Tarefas Gerais / Avulsas)" [selected]
+              - option "animacoes-personagens-mixamo (20% concluído)"
+              - option "arena-clean-consolidacao-moba (100% concluído)"
+              - option "audio-central-e-vfx-procedurais (100% concluído)"
+              - option "build-apk-android-homologacao-qa (20% concluído)"
+              - option "combate-colisoes-e-destruicao-base (100% concluído)"
+              - option "desempate-timer-game-match (75% concluído)"
+              - option "devsecops-pipeline-ci-cd-gitleaks (0% concluído)"
+              - option "fowlgen-wars-sistema-de-falas-engracadas (0% concluído)"
+              - option "fowlgen-wars-sistema-de-montarias-entrada-rapida-e-inicio-de-partida (0% concluído)"
+              - option "ideia-armadilhas-personalizadas (0% concluído)"
+              - option "ideia-camada-tatica-xadrez (50% concluído)"
+              - option "ideia-dupla-estrategica-duo (50% concluído)"
+              - option "ideia-economia-micro-recompensas (20% concluído)"
+              - option "ideia-legada-arena-4-rotas (0% concluído)"
+              - option "ideia-skins-arenas-tematicas (20% concluído)"
+              - option "infra-k8s-fishnet-server-headless (0% concluído)"
+              - option "integracao-opensign-kanban (100% concluído)"
+              - option "kanban-painel-integracao-openspec (100% concluído)"
+              - option "migrate-joystick-to-mobilecontrols (100% concluído)"
+              - option "mobilecontrols-full-feature-parity (100% concluído)"
+              - option "multiplayer-fishnet-1v1-hibrido (80% concluído)"
+              - option "poc-01-fundacao-unity-telas (100% concluído)"
+              - option "poc-02-03-smart-contract-anchor-solana (100% concluído)"
+              - option "portal-web-hub-app (59% concluído)"
+              - option "showcase-cinemachine-video-pitch (25% concluído)"
+              - option "submissao-oficial-hackathon-colosseum (20% concluído)"
+              - option "transacao-onchain-vitoria-solana (75% concluído)"
+              - option "web3-hub-app-solana-devnet-jorge (100% concluído)"
+          - generic [ref=e66]:
+            - generic [ref=e67]:
+              - generic [ref=e68]: "Projeto / Diretório: *"
+              - 'combobox "Projeto / Diretório: *" [ref=e69]':
+                - option "📁 Selecione o Projeto / Diretório... *" [disabled] [selected]
+                - 'option "🌐 Site: app"'
+                - 'option "🎮 Game: Unity"'
+                - 'option "✨ Skills: prompt"'
+                - 'option "📋 Kanban: kanban"'
+                - 'option "🦀 Solana: program"'
+                - 'option "🛡️ DevSecOps: devsecops"'
+                - 'option "📄 Docs: docs"'
+                - option "📁 Geral / Raiz"
+            - generic [ref=e70]:
+              - generic [ref=e71]: "Status da Tarefa:"
+              - combobox "Status da Tarefa:" [ref=e72]:
+                - option "📝 Backlog" [selected]
+                - option "🔄 Em Andamento"
+                - option "🔍 Testando / Review"
+                - option "✅ Concluído"
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - generic [ref=e76]:
+                - text: "Responsável / Equipe:"
+                - strong [ref=e77]: "*"
+              - 'button "Responsável / Equipe: *" [ref=e79] [cursor=pointer]':
+                - generic [ref=e80]: 👤 Responsáveis... *
+                - generic [ref=e82]: ▾
+            - generic [ref=e83]:
+              - generic [ref=e84]: "ID da Tarefa (opcional):"
+              - textbox "ID da Tarefa (opcional):" [ref=e85]:
+                - /placeholder: "Automático (ex: 1.1)"
+          - generic [ref=e86]:
+            - generic [ref=e87]:
+              - generic [ref=e88]: "Descrição da Tarefa / Prompt (para IA e Equipe):"
+              - generic [ref=e89]: ✨ Suporta Prompt
+            - textbox "Descrição da Tarefa / Prompt (para IA e Equipe):" [ref=e90]:
+              - /placeholder: Descreva a tarefa ou insira o prompt com instruções detalhadas para o agente de IA ou desenvolvedor...
+            - generic [ref=e91]:
+              - generic [ref=e92]: "Sugestões de Prompt:"
+              - button "🤖 Prompt IA" [ref=e93] [cursor=pointer]
+              - button "🐛 Bugfix" [ref=e94] [cursor=pointer]
+              - button "🎮 Arena_Clean" [ref=e95] [cursor=pointer]
+          - generic [ref=e96]:
+            - button "➕ Criar Tarefa" [ref=e97] [cursor=pointer]
+            - button "💾 Salvar Alterações" [ref=e98] [cursor=pointer]
+            - button "👤 Atribuir Tarefa" [ref=e99] [cursor=pointer]
+            - button "📋 Listar Tarefas" [ref=e100] [cursor=pointer]
+      - generic [ref=e101]:
+        - generic [ref=e102]: 💻 Comando Formatado para o Agent
+        - generic [ref=e104]: agent atualizar "**2.1**" "Backlog" ""
+        - generic [ref=e105]:
+          - button "📋 Copiar Comando para o Chat" [ref=e106] [cursor=pointer]
+          - button "⚡ Executar Direto" [ref=e107] [cursor=pointer]
+      - generic [ref=e108]:
+        - generic [ref=e109]:
+          - heading "📟 Log de Execução" [level=2] [ref=e110]
+          - button "Limpar" [ref=e111] [cursor=pointer]
+        - generic [ref=e112]: Pronto para executar comandos.
+    - generic [ref=e113]:
+      - generic [ref=e114]:
+        - generic [ref=e115]:
+          - button "◀ Recolher Painel" [ref=e116] [cursor=pointer]:
+            - generic [ref=e117]: ◀
+            - generic [ref=e118]: Recolher Painel
+          - tablist [ref=e119]:
+            - button "🎯 Tarefas da Sprint 189" [ref=e222] [cursor=pointer]:
+              - generic [ref=e121]: 🎯
+              - generic [ref=e122]: Tarefas da Sprint
+              - generic [ref=e123]: "189"
+            - button "💡 Funil de Ideias 29" [ref=e223] [cursor=pointer]:
+              - generic [ref=e125]: 💡
+              - generic [ref=e126]: Funil de Ideias
+              - generic [ref=e127]: "29"
+            - button "📊 Analytics & Métricas" [ref=e128] [cursor=pointer]:
+              - generic [ref=e129]: 📊
+              - generic [ref=e130]: Analytics & Métricas
+            - button "🖥️ Changes & History" [ref=e131] [cursor=pointer]:
+              - generic [ref=e132]: 🖥️
+              - generic [ref=e133]: Changes & History
+        - generic [ref=e135]:
+          - generic: 🔍
+          - 'textbox "Pesquisar tarefas por texto, prompt, ID ou responsável (Atalho: Ctrl+F ou /)" [ref=e136]':
+            - /placeholder: Pesquisar tarefas no Kanban... (Ctrl+F)
+        - generic [ref=e137]:
+          - 'generic "Você está conectado como Marcos (Privacidade ativa: salvo apenas localmente)" [ref=e224]':
+            - generic [ref=e225]: 💻
+            - generic [ref=e226]:
+              - generic [ref=e227]: "Você:"
+              - generic [ref=e228]: Marcos
+            - button "🎯 Minhas Tarefas" [ref=e229] [cursor=pointer]
+          - generic [ref=e138]: "👤 Equipe:"
+          - textbox "Buscar integrante por nome ou função" [ref=e140]:
+            - /placeholder: 🔍 Integrante...
+          - generic [ref=e141]:
+            - button "👥 Todos" [ref=e230] [cursor=pointer]
+            - button "👑 Samuel" [ref=e231] [cursor=pointer]
+            - button "💻 Marcos" [ref=e232] [cursor=pointer]
+            - button "🛡️ Jorge Espindola" [ref=e233] [cursor=pointer]
+            - button "🌐 Junior" [ref=e234] [cursor=pointer]
+            - button "🧪 Maria Clara" [ref=e235] [cursor=pointer]
+            - button "📈 Ramiro" [ref=e236] [cursor=pointer]
+            - button "📈 Sthefany" [ref=e237] [cursor=pointer]
+            - button "🎬 Vaguinhow" [ref=e238] [cursor=pointer]
+          - button "⚙️ Gerenciar" [ref=e143] [cursor=pointer]
+        - generic [ref=e144]:
+          - generic [ref=e145]: "📁 Projeto / Diretório:"
+          - generic [ref=e146]:
+            - button "📂 Todos" [ref=e239] [cursor=pointer]
+            - 'button "🌐 Site: app" [ref=e240] [cursor=pointer]'
+            - 'button "🎮 Game: Unity" [ref=e241] [cursor=pointer]'
+            - 'button "✨ Skills: prompt" [ref=e242] [cursor=pointer]'
+            - 'button "📋 Kanban: kanban" [ref=e243] [cursor=pointer]'
+            - 'button "🦀 Solana: program" [ref=e244] [cursor=pointer]'
+            - 'button "🛡️ DevSecOps: devsecops" [ref=e245] [cursor=pointer]'
+            - 'button "📄 Docs: docs" [ref=e246] [cursor=pointer]'
+          - button "➕ Adicionar Diretório" [ref=e155] [cursor=pointer]
+      - generic [ref=e247]:
+        - generic [ref=e248]:
+          - generic [ref=e249]: ⚡
+          - generic [ref=e250]:
+            - text: Você está no
+            - strong [ref=e251]: Modo Local
+            - text: na branch
+            - code [ref=e252]: main
+            - text: com
+            - strong [ref=e253]: 3 alteração(ões) pendente(s)
+            - text: de salvar.
+        - button "💾 Salvar Alterações" [ref=e255] [cursor=pointer]
+      - generic [ref=e156]:
+        - generic [ref=e157]:
+          - generic [ref=e158]:
+            - generic [ref=e159]: 📋 A Fazer
+            - generic [ref=e160]: "5"
+          - generic [ref=e256]:
+            - generic [ref=e257] [cursor=pointer]:
+              - generic [ref=e258]:
+                - generic [ref=e259]: Backlog
+                - generic [ref=e260]:
+                  - button "📁 unity ▼" [ref=e261]:
+                    - generic [ref=e262]: 📁 unity
+                    - generic [ref=e263]: ▼
+                  - generic [ref=e264]: 👤 Samuel
+                  - generic [ref=e265]: 👤 Jorge Espindola
+                  - button "📄 PDF" [ref=e266]
+              - heading "fowlgen wars sistema de falas engracadas" [level=3] [ref=e267]
+              - generic [ref=e269]:
+                - generic [ref=e270]: Progresso (0/2)
+                - generic [ref=e271]: 0%
+              - generic [ref=e273]:
+                - generic [ref=e274]: 📋 Tarefas (0/2)
+                - generic [ref=e276]:
+                  - generic [ref=e277]:
+                    - checkbox "1.1 Planejamento 👤 Samuel" [ref=e278]
+                    - generic [ref=e279]:
+                      - strong [ref=e280]: "1.1"
+                      - text: Planejamento
+                    - generic [ref=e281]: 👤 Samuel
+                  - button "✏️" [ref=e282]
+                - generic [ref=e283]:
+                  - generic [ref=e284]:
+                    - checkbox "1.2 Implementação 👤 Jorge Espindola" [ref=e285]
+                    - generic [ref=e286]:
+                      - strong [ref=e287]: "1.2"
+                      - text: Implementação
+                    - generic [ref=e288]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e289]
+            - generic [ref=e290] [cursor=pointer]:
+              - generic [ref=e291]:
+                - generic [ref=e292]: Backlog
+                - generic [ref=e293]:
+                  - button "📁 unity ▼" [ref=e294]:
+                    - generic [ref=e295]: 📁 unity
+                    - generic [ref=e296]: ▼
+                  - generic [ref=e297]: 👤 Todos
+                  - button "📄 PDF" [ref=e298]
+              - heading "fowlgen wars sistema de montarias entrada rapida e inicio de partida" [level=3] [ref=e299]
+              - generic [ref=e301]:
+                - generic [ref=e302]: Progresso (0/2)
+                - generic [ref=e303]: 0%
+              - generic [ref=e305]:
+                - generic [ref=e306]: 📋 Tarefas (0/2)
+                - generic [ref=e308]:
+                  - generic [ref=e309]:
+                    - checkbox "1.1 Planejamento" [ref=e310]
+                    - generic [ref=e311]:
+                      - strong [ref=e312]: "1.1"
+                      - text: Planejamento
+                  - button "✏️" [ref=e313]
+                - generic [ref=e314]:
+                  - generic [ref=e315]:
+                    - checkbox "1.2 Implementação" [ref=e316]
+                    - generic [ref=e317]:
+                      - strong [ref=e318]: "1.2"
+                      - text: Implementação
+                  - button "✏️" [ref=e319]
+            - generic [ref=e320] [cursor=pointer]:
+              - generic [ref=e321]:
+                - generic [ref=e322]: Backlog
+                - generic [ref=e323]:
+                  - button "📁 unity ▼" [ref=e324]:
+                    - generic [ref=e325]: 📁 unity
+                    - generic [ref=e326]: ▼
+                  - generic [ref=e327]: 👤 Samuel
+                  - generic [ref=e328]: 👤 Marcos
+                  - generic [ref=e329]: 👤 Maria Clara
+                  - button "📄 PDF" [ref=e330]
+              - heading "Sistema de Armadilhas Personalizadas (Ovo Congelante e Minas)" [level=3] [ref=e331]
+              - generic [ref=e333]:
+                - generic [ref=e334]: Progresso (0/4)
+                - generic [ref=e335]: 0%
+              - generic [ref=e337]:
+                - generic [ref=e338]:
+                  - generic [ref=e339]: 📋 Tarefas (0/4)
+                  - generic [ref=e340]: ↕️ Role para ver
+                - generic [ref=e341]:
+                  - generic [ref=e342]:
+                    - checkbox "1.1 Formatação das 6 camadas conceituais de armadilhas em Markdown 👤 Marcos" [ref=e343]
+                    - generic [ref=e344]:
+                      - strong [ref=e345]: "1.1"
+                      - text: Formatação das 6 camadas conceituais de armadilhas em Markdown
+                    - generic [ref=e346]: 👤 Marcos
+                  - button "✏️" [ref=e347]
+                - generic [ref=e348]:
+                  - generic [ref=e349]:
+                    - checkbox "1.2 Prototipagem do prefab de Ovo Congelante com colisor de proximidade 👤 Marcos" [ref=e350]
+                    - generic [ref=e351]:
+                      - strong [ref=e352]: "1.2"
+                      - text: Prototipagem do prefab de Ovo Congelante com colisor de proximidade
+                    - generic [ref=e353]: 👤 Marcos
+                  - button "✏️" [ref=e354]
+                - generic [ref=e355]:
+                  - generic [ref=e356]:
+                    - checkbox "1.3 Definição das regras de limite de armadilhas ativas por partida 👤 Samuel" [ref=e357]
+                    - generic [ref=e358]:
+                      - strong [ref=e359]: "1.3"
+                      - text: Definição das regras de limite de armadilhas ativas por partida
+                    - generic [ref=e360]: 👤 Samuel
+                  - button "✏️" [ref=e361]
+                - generic [ref=e362]:
+                  - generic [ref=e363]:
+                    - checkbox "1.4 Validação funcional de impacto na fluidez do combate móvel 👤 Maria Clara" [ref=e364]
+                    - generic [ref=e365]:
+                      - strong [ref=e366]: "1.4"
+                      - text: Validação funcional de impacto na fluidez do combate móvel
+                    - generic [ref=e367]: 👤 Maria Clara
+                  - button "✏️" [ref=e368]
+            - generic [ref=e369] [cursor=pointer]:
+              - generic [ref=e370]:
+                - generic [ref=e371]: Backlog
+                - generic [ref=e372]:
+                  - button "📁 unity ▼" [ref=e373]:
+                    - generic [ref=e374]: 📁 unity
+                    - generic [ref=e375]: ▼
+                  - generic [ref=e376]: 👤 Marcos
+                  - generic [ref=e377]: 👤 Samuel
+                  - button "📄 PDF" [ref=e378]
+              - heading "Conceito Legado de Mini-MOBA em 4 Rotas (Sprint 01)" [level=3] [ref=e379]
+              - generic [ref=e381]:
+                - generic [ref=e382]: Progresso (0/4)
+                - generic [ref=e383]: 0%
+              - generic [ref=e385]:
+                - generic [ref=e386]:
+                  - generic [ref=e387]: 📋 Tarefas (0/4)
+                  - generic [ref=e388]: ↕️ Role para ver
+                - generic [ref=e389]:
+                  - generic [ref=e390]:
+                    - checkbox "1.1 Registro do briefing original de 4 rotas da Sprint 01 em Markdown 👤 Marcos" [ref=e391]
+                    - generic [ref=e392]:
+                      - strong [ref=e393]: "1.1"
+                      - text: Registro do briefing original de 4 rotas da Sprint 01 em Markdown
+                    - generic [ref=e394]: 👤 Marcos
+                  - button "✏️" [ref=e395]
+                - generic [ref=e396]:
+                  - generic [ref=e397]:
+                    - checkbox "1.2 Análise comparativa de ergonomia de 4 rotas vs 3 rotas para partidas de 3 min 👤 Samuel" [ref=e398]
+                    - generic [ref=e399]:
+                      - strong [ref=e400]: "1.2"
+                      - text: Análise comparativa de ergonomia de 4 rotas vs 3 rotas para partidas de 3 min
+                    - generic [ref=e401]: 👤 Samuel
+                  - button "✏️" [ref=e402]
+                - generic [ref=e403]:
+                  - generic [ref=e404]:
+                    - checkbox "1.3 Deliberação de PO descartando 4 rotas em favor da cena canônica Arena_Clean 👤 Samuel" [ref=e405]
+                    - generic [ref=e406]:
+                      - strong [ref=e407]: "1.3"
+                      - text: Deliberação de PO descartando 4 rotas em favor da cena canônica Arena_Clean
+                    - generic [ref=e408]: 👤 Samuel
+                  - button "✏️" [ref=e409]
+                - generic [ref=e410]:
+                  - generic [ref=e411]:
+                    - checkbox "1.4 Registro formal de descarte para prevenção de conflitos em Claude.md 👤 Marcos" [ref=e412]
+                    - generic [ref=e413]:
+                      - strong [ref=e414]: "1.4"
+                      - text: Registro formal de descarte para prevenção de conflitos em Claude.md
+                    - generic [ref=e415]: 👤 Marcos
+                  - button "✏️" [ref=e416]
+            - generic [ref=e417] [cursor=pointer]:
+              - generic [ref=e418]:
+                - generic [ref=e419]: Backlog
+                - generic [ref=e420]:
+                  - button "📁 unity ▼" [ref=e421]:
+                    - generic [ref=e422]: 📁 unity
+                    - generic [ref=e423]: ▼
+                  - generic [ref=e424]: 👤 Marcos
+                  - button "📄 PDF" [ref=e425]
+              - heading "Dedicated Game Server Headless & Infraestrutura K8s" [level=3] [ref=e426]
+              - generic [ref=e428]:
+                - generic [ref=e429]: Progresso (0/1)
+                - generic [ref=e430]: 0%
+              - generic [ref=e432]:
+                - generic [ref=e433]: 📋 Tarefas (0/1)
+                - generic [ref=e435]:
+                  - generic [ref=e436]:
+                    - checkbox "1.4 Teste de subida e conexão remota UDP na porta 7770 👤 Marcos" [ref=e437]
+                    - generic [ref=e438]:
+                      - strong [ref=e439]: "1.4"
+                      - text: Teste de subida e conexão remota UDP na porta 7770
+                    - generic [ref=e440]: 👤 Marcos
+                  - button "✏️" [ref=e441]
+        - generic [ref=e161]:
+          - generic [ref=e162]:
+            - generic [ref=e163]: ⚡ Em Progresso
+            - generic [ref=e164]: "12"
+          - generic [ref=e442]:
+            - generic [ref=e443] [cursor=pointer]:
+              - generic [ref=e444]:
+                - generic [ref=e445]: In Progress
+                - generic [ref=e446]:
+                  - button "📁 unity ▼" [ref=e447]:
+                    - generic [ref=e448]: 📁 unity
+                    - generic [ref=e449]: ▼
+                  - generic [ref=e450]: 👤 Marcos
+                  - generic [ref=e451]: 👤 Vaguinhow
+                  - button "📄 PDF" [ref=e452]
+              - 'heading "Fase 8: Rigging e Animator Controllers dos Personagens" [level=3] [ref=e453]'
+              - generic [ref=e455]:
+                - generic [ref=e456]: Progresso (1/5)
+                - generic [ref=e457]: 20%
+              - generic [ref=e460]:
+                - generic [ref=e461]:
+                  - generic [ref=e462]: 📋 Tarefas (1/5)
+                  - generic [ref=e463]: ↕️ Role para ver
+                - generic [ref=e464]:
+                  - generic [ref=e465]:
+                    - checkbox "1.1 Importação dos modelos FBX Tripo3D com esqueleto e materiais URP 👤 Vaguinhow" [ref=e466]
+                    - generic [ref=e467]:
+                      - strong [ref=e468]: "1.1"
+                      - text: Importação dos modelos FBX Tripo3D com esqueleto e materiais URP
+                    - generic [ref=e469]: 👤 Vaguinhow
+                  - button "✏️" [ref=e470]
+                - generic [ref=e471]:
+                  - generic [ref=e472]:
+                    - checkbox "1.2 Instalação e integração do pacote Mixamo MCP na Unity 👤 Marcos" [checked] [ref=e473]
+                    - generic [ref=e474]:
+                      - strong [ref=e475]: "1.2"
+                      - text: Instalação e integração do pacote Mixamo MCP na Unity
+                    - generic [ref=e476]: 👤 Marcos
+                  - button "✏️" [ref=e477]
+                - generic [ref=e478]:
+                  - generic [ref=e479]:
+                    - checkbox "1.3 Configuração do MiloAnimatorController com estados Idle, Walk e Attack 👤 Vaguinhow" [ref=e480]
+                    - generic [ref=e481]:
+                      - strong [ref=e482]: "1.3"
+                      - text: Configuração do MiloAnimatorController com estados Idle, Walk e Attack
+                    - generic [ref=e483]: 👤 Vaguinhow
+                  - button "✏️" [ref=e484]
+                - generic [ref=e485]:
+                  - generic [ref=e486]:
+                    - checkbox "1.4 Configuração do AxelAnimatorController e MinionAnimatorController 👤 Vaguinhow" [ref=e487]
+                    - generic [ref=e488]:
+                      - strong [ref=e489]: "1.4"
+                      - text: Configuração do AxelAnimatorController e MinionAnimatorController
+                    - generic [ref=e490]: 👤 Vaguinhow
+                  - button "✏️" [ref=e491]
+                - generic [ref=e492]:
+                  - generic [ref=e493]:
+                    - checkbox "1.5 Vinculação dos triggers de animação aos scripts de combate 👤 Marcos" [ref=e494]
+                    - generic [ref=e495]:
+                      - strong [ref=e496]: "1.5"
+                      - text: Vinculação dos triggers de animação aos scripts de combate
+                    - generic [ref=e497]: 👤 Marcos
+                  - button "✏️" [ref=e498]
+            - generic [ref=e499] [cursor=pointer]:
+              - generic [ref=e500]:
+                - generic [ref=e501]: In Progress
+                - generic [ref=e502]:
+                  - button "📁 unity ▼" [ref=e503]:
+                    - generic [ref=e504]: 📁 unity
+                    - generic [ref=e505]: ▼
+                  - generic [ref=e506]: 👤 Maria Clara
+                  - generic [ref=e507]: 👤 Marcos
+                  - button "📄 PDF" [ref=e508]
+              - 'heading "POC-SUB-01: Geração de Build APK Android e Homologação de QA" [level=3] [ref=e509]'
+              - generic [ref=e511]:
+                - generic [ref=e512]: Progresso (1/5)
+                - generic [ref=e513]: 20%
+              - generic [ref=e516]:
+                - generic [ref=e517]:
+                  - generic [ref=e518]: 📋 Tarefas (1/5)
+                  - generic [ref=e519]: ↕️ Role para ver
+                - generic [ref=e520]:
+                  - generic [ref=e521]:
+                    - checkbox "1.1 Configuração de Build Settings Android com orientação horizontal travada 👤 Marcos" [checked] [ref=e522]
+                    - generic [ref=e523]:
+                      - strong [ref=e524]: "1.1"
+                      - text: Configuração de Build Settings Android com orientação horizontal travada
+                    - generic [ref=e525]: 👤 Marcos
+                  - button "✏️" [ref=e526]
+                - generic [ref=e527]:
+                  - generic [ref=e528]:
+                    - checkbox "1.2 Compilação do binário FowlgenWars_MVP_Colosseum2026.apk assinado 👤 Marcos" [ref=e529]
+                    - generic [ref=e530]:
+                      - strong [ref=e531]: "1.2"
+                      - text: Compilação do binário FowlgenWars_MVP_Colosseum2026.apk assinado
+                    - generic [ref=e532]: 👤 Marcos
+                  - button "✏️" [ref=e533]
+                - generic [ref=e534]:
+                  - generic [ref=e535]:
+                    - checkbox "1.3 Instalação em smartphone físico Android e execução do checklist de QA 👤 Maria Clara" [ref=e536]
+                    - generic [ref=e537]:
+                      - strong [ref=e538]: "1.3"
+                      - text: Instalação em smartphone físico Android e execução do checklist de QA
+                    - generic [ref=e539]: 👤 Maria Clara
+                  - button "✏️" [ref=e540]
+                - generic [ref=e541]:
+                  - generic [ref=e542]:
+                    - checkbox "1.4 Validação de usabilidade dos botões táteis e sensibilidade de toque 👤 Maria Clara" [ref=e543]
+                    - generic [ref=e544]:
+                      - strong [ref=e545]: "1.4"
+                      - text: Validação de usabilidade dos botões táteis e sensibilidade de toque
+                    - generic [ref=e546]: 👤 Maria Clara
+                  - button "✏️" [ref=e547]
+                - generic [ref=e548]:
+                  - generic [ref=e549]:
+                    - checkbox "1.5 Emissão de relatório funcional de homologação de gameplay 👤 Maria Clara" [ref=e550]
+                    - generic [ref=e551]:
+                      - strong [ref=e552]: "1.5"
+                      - text: Emissão de relatório funcional de homologação de gameplay
+                    - generic [ref=e553]: 👤 Maria Clara
+                  - button "✏️" [ref=e554]
+            - generic [ref=e555] [cursor=pointer]:
+              - generic [ref=e556]:
+                - generic [ref=e557]: In Progress
+                - generic [ref=e558]:
+                  - button "📁 unity ▼" [ref=e559]:
+                    - generic [ref=e560]: 📁 unity
+                    - generic [ref=e561]: ▼
+                  - generic [ref=e562]: 👤 Samuel
+                  - generic [ref=e563]: 👤 Marcos
+                  - generic [ref=e564]: 👤 Maria Clara
+                  - button "📄 PDF" [ref=e565]
+              - heading "Regra de Desempate do Timer da Partida de 3 Minutos" [level=3] [ref=e566]
+              - generic [ref=e568]:
+                - generic [ref=e569]: Progresso (3/4)
+                - generic [ref=e570]: 75%
+              - generic [ref=e573]:
+                - generic [ref=e574]:
+                  - generic [ref=e575]: 📋 Tarefas (3/4)
+                  - generic [ref=e576]: ↕️ Role para ver
+                - generic [ref=e577]:
+                  - generic [ref=e578]:
+                    - checkbox "1.1 Definição da regra oficial de desempate pelo PO Samuel Menon 👤 Samuel" [checked] [ref=e579]
+                    - generic [ref=e580]:
+                      - strong [ref=e581]: "1.1"
+                      - text: Definição da regra oficial de desempate pelo PO Samuel Menon
+                    - generic [ref=e582]: 👤 Samuel
+                  - button "✏️" [ref=e583]
+                - generic [ref=e584]:
+                  - generic [ref=e585]:
+                    - checkbox "1.2 Implementação da condição no GameMatchManager e MatchHUDTimerTracker 👤 Marcos" [checked] [ref=e586]
+                    - generic [ref=e587]:
+                      - strong [ref=e588]: "1.2"
+                      - text: Implementação da condição no GameMatchManager e MatchHUDTimerTracker
+                    - generic [ref=e589]: 👤 Marcos
+                  - button "✏️" [ref=e590]
+                - generic [ref=e591]:
+                  - generic [ref=e592]:
+                    - checkbox "1.3 Feedback visual de tempo esgotado e declaração do vencedor 👤 Marcos" [checked] [ref=e593]
+                    - generic [ref=e594]:
+                      - strong [ref=e595]: "1.3"
+                      - text: Feedback visual de tempo esgotado e declaração do vencedor
+                    - generic [ref=e596]: 👤 Marcos
+                  - button "✏️" [ref=e597]
+                - generic [ref=e598]:
+                  - generic [ref=e599]:
+                    - checkbox "1.4 Validação em partida de teste até o timer expirar 👤 Maria Clara" [ref=e600]
+                    - generic [ref=e601]:
+                      - strong [ref=e602]: "1.4"
+                      - text: Validação em partida de teste até o timer expirar
+                    - generic [ref=e603]: 👤 Maria Clara
+                  - button "✏️" [ref=e604]
+            - generic [ref=e605] [cursor=pointer]:
+              - generic [ref=e606]:
+                - generic [ref=e607]: In Progress
+                - generic [ref=e608]:
+                  - button "📁 app ▼" [ref=e609]:
+                    - generic [ref=e610]: 📁 app
+                    - generic [ref=e611]: ▼
+                  - generic [ref=e612]: 👤 Samuel
+                  - generic [ref=e613]: 👤 Marcos
+                  - generic [ref=e614]: 👤 Maria Clara
+                  - button "📄 PDF" [ref=e615]
+              - heading "Camada Estratégica e Tomada de Decisão Inspirada no Xadrez" [level=3] [ref=e616]
+              - generic [ref=e618]:
+                - generic [ref=e619]: Progresso (2/4)
+                - generic [ref=e620]: 50%
+              - generic [ref=e623]:
+                - generic [ref=e624]:
+                  - generic [ref=e625]: 📋 Tarefas (2/4)
+                  - generic [ref=e626]: ↕️ Role para ver
+                - generic [ref=e627]:
+                  - generic [ref=e628]:
+                    - checkbox "1.1 Estruturação do prompt conceitual do WhatsApp em Markdown formatado 👤 Marcos" [checked] [ref=e629]
+                    - generic [ref=e630]:
+                      - strong [ref=e631]: "1.1"
+                      - text: Estruturação do prompt conceitual do WhatsApp em Markdown formatado
+                    - generic [ref=e632]: 👤 Marcos
+                  - button "✏️" [ref=e633]
+                - generic [ref=e634]:
+                  - generic [ref=e635]:
+                    - checkbox "1.2 Mapeamento do centro da Arena_Clean como área de disputa entre as 3 rotas" [checked] [ref=e636]
+                    - generic [ref=e637]:
+                      - strong [ref=e638]: "1.2"
+                      - text: Mapeamento do centro da Arena_Clean como área de disputa entre as 3 rotas
+                  - button "✏️" [ref=e639]
+                - generic [ref=e640]:
+                  - generic [ref=e641]:
+                    - checkbox "1.3 Calibração de buffs/vantagem de visão no controle do centro da arena 👤 Samuel" [ref=e642]
+                    - generic [ref=e643]:
+                      - strong [ref=e644]: "1.3"
+                      - text: Calibração de buffs/vantagem de visão no controle do centro da arena
+                    - generic [ref=e645]: 👤 Samuel
+                  - button "✏️" [ref=e646]
+                - generic [ref=e647]:
+                  - generic [ref=e648]:
+                    - checkbox "1.4 Validação da mecânica com testes de UX em partidas contra IA 👤 Maria Clara" [ref=e649]
+                    - generic [ref=e650]:
+                      - strong [ref=e651]: "1.4"
+                      - text: Validação da mecânica com testes de UX em partidas contra IA
+                    - generic [ref=e652]: 👤 Maria Clara
+                  - button "✏️" [ref=e653]
+            - generic [ref=e654] [cursor=pointer]:
+              - generic [ref=e655]:
+                - generic [ref=e656]: In Progress
+                - generic [ref=e657]:
+                  - button "📁 app ▼" [ref=e658]:
+                    - generic [ref=e659]: 📁 app
+                    - generic [ref=e660]: ▼
+                  - generic [ref=e661]: 👤 Samuel
+                  - generic [ref=e662]: 👤 Marcos
+                  - generic [ref=e663]: 👤 Maria Clara
+                  - button "📄 PDF" [ref=e664]
+              - heading "Sistema de Dupla Estratégica (Duo Inseparável ADC + Suporte)" [level=3] [ref=e665]
+              - generic [ref=e667]:
+                - generic [ref=e668]: Progresso (2/4)
+                - generic [ref=e669]: 50%
+              - generic [ref=e672]:
+                - generic [ref=e673]:
+                  - generic [ref=e674]: 📋 Tarefas (2/4)
+                  - generic [ref=e675]: ↕️ Role para ver
+                - generic [ref=e676]:
+                  - generic [ref=e677]:
+                    - checkbox "1.1 Estruturação do briefing de duo no WhatsApp em documento Markdown oficial 👤 Marcos" [checked] [ref=e678]
+                    - generic [ref=e679]:
+                      - strong [ref=e680]: "1.1"
+                      - text: Estruturação do briefing de duo no WhatsApp em documento Markdown oficial
+                    - generic [ref=e681]: 👤 Marcos
+                  - button "✏️" [ref=e682]
+                - generic [ref=e683]:
+                  - generic [ref=e684]:
+                    - checkbox "1.2 Modelagem preliminar dos papéis de dano e suporte em ScriptableObjects 👤 Marcos" [checked] [ref=e685]
+                    - generic [ref=e686]:
+                      - strong [ref=e687]: "1.2"
+                      - text: Modelagem preliminar dos papéis de dano e suporte em ScriptableObjects
+                    - generic [ref=e688]: 👤 Marcos
+                  - button "✏️" [ref=e689]
+                - generic [ref=e690]:
+                  - generic [ref=e691]:
+                    - checkbox "1.3 Implementação de comportamento de bloco onde o suporte acompanha o ADC 👤 Marcos" [ref=e692]
+                    - generic [ref=e693]:
+                      - strong [ref=e694]: "1.3"
+                      - text: Implementação de comportamento de bloco onde o suporte acompanha o ADC
+                    - generic [ref=e695]: 👤 Marcos
+                  - button "✏️" [ref=e696]
+                - generic [ref=e697]:
+                  - generic [ref=e698]:
+                    - checkbox "1.4 Testes de estresse de balanceamento em partidas 2v2 👤 Maria Clara" [ref=e699]
+                    - generic [ref=e700]:
+                      - strong [ref=e701]: "1.4"
+                      - text: Testes de estresse de balanceamento em partidas 2v2
+                    - generic [ref=e702]: 👤 Maria Clara
+                  - button "✏️" [ref=e703]
+            - generic [ref=e704] [cursor=pointer]:
+              - generic [ref=e705]:
+                - generic [ref=e706]: In Progress
+                - generic [ref=e707]:
+                  - button "📁 app ▼" [ref=e708]:
+                    - generic [ref=e709]: 📁 app
+                    - generic [ref=e710]: ▼
+                  - generic [ref=e711]: 👤 Samuel
+                  - generic [ref=e712]: 👤 Marcos
+                  - generic [ref=e713]: 👤 Junior
+                  - button "📄 PDF" [ref=e714]
+              - heading "Sistema de Micro-Recompensas, Moedas e Baús Pós-Partida" [level=3] [ref=e715]
+              - generic [ref=e717]:
+                - generic [ref=e718]: Progresso (1/5)
+                - generic [ref=e719]: 20%
+              - generic [ref=e722]:
+                - generic [ref=e723]:
+                  - generic [ref=e724]: 📋 Tarefas (1/5)
+                  - generic [ref=e725]: ↕️ Role para ver
+                - generic [ref=e726]:
+                  - generic [ref=e727]:
+                    - checkbox "1.1 Transferência e estruturação dos prompts soltos do WhatsApp para Markdown 👤 Marcos" [checked] [ref=e728]
+                    - generic [ref=e729]:
+                      - strong [ref=e730]: "1.1"
+                      - text: Transferência e estruturação dos prompts soltos do WhatsApp para Markdown
+                    - generic [ref=e731]: 👤 Marcos
+                  - button "✏️" [ref=e732]
+                - generic [ref=e733]:
+                  - generic [ref=e734]:
+                    - checkbox "1.2 Modelagem das entidades de inventário no backend e criação do endpoint REST para alimentar o perfil do jogador no site e sincronizar com o FishNet Server 👤 Marcos" [ref=e735]
+                    - generic [ref=e736]:
+                      - strong [ref=e737]: "1.2"
+                      - text: Modelagem das entidades de inventário no backend e criação do endpoint REST para alimentar o perfil do jogador no site e sincronizar com o FishNet Server
+                    - generic [ref=e738]: 👤 Marcos
+                  - button "✏️" [ref=e739]
+                - generic [ref=e740]:
+                  - generic [ref=e741]:
+                    - checkbox "1.3 Criação de mock visual no site para exibição das micro-recompensas no perfil do jogador 👤 Junior" [ref=e742]
+                    - generic [ref=e743]:
+                      - strong [ref=e744]: "1.3"
+                      - text: Criação de mock visual no site para exibição das micro-recompensas no perfil do jogador
+                    - generic [ref=e745]: 👤 Junior
+                  - button "✏️" [ref=e746]
+                - generic [ref=e747]:
+                  - generic [ref=e748]:
+                    - checkbox "1.4 Validação de conformidade com o princípio Anti-P2W e Nivelamento Proporcional 👤 Samuel" [ref=e749]
+                    - generic [ref=e750]:
+                      - strong [ref=e751]: "1.4"
+                      - text: Validação de conformidade com o princípio Anti-P2W e Nivelamento Proporcional
+                    - generic [ref=e752]: 👤 Samuel
+                  - button "✏️" [ref=e753]
+                - generic [ref=e754]:
+                  - generic [ref=e755]:
+                    - checkbox "1.5 Refatoração estética dos botões com sprites/imagens elegantes nas telas do game na Unity 👤 Marcos" [ref=e756]
+                    - generic [ref=e757]:
+                      - strong [ref=e758]: "1.5"
+                      - text: Refatoração estética dos botões com sprites/imagens elegantes nas telas do game na Unity
+                    - generic [ref=e759]: 👤 Marcos
+                  - button "✏️" [ref=e760]
+            - generic [ref=e761] [cursor=pointer]:
+              - generic [ref=e762]:
+                - generic [ref=e763]: In Progress
+                - generic [ref=e764]:
+                  - button "📁 unity ▼" [ref=e765]:
+                    - generic [ref=e766]: 📁 unity
+                    - generic [ref=e767]: ▼
+                  - generic [ref=e768]: 👤 Samuel
+                  - generic [ref=e769]: 👤 Marcos
+                  - generic [ref=e770]: 👤 Jorge Espindola
+                  - generic [ref=e771]: 👤 Ramiro
+                  - generic [ref=e772]: 👤 Junior
+                  - button "📄 PDF" [ref=e773]
+              - heading "Sistema de Arenas e Skins Temáticas Cosméticas" [level=3] [ref=e774]
+              - generic [ref=e776]:
+                - generic [ref=e777]: Progresso (1/5)
+                - generic [ref=e778]: 20%
+              - generic [ref=e781]:
+                - generic [ref=e782]:
+                  - generic [ref=e783]: 📋 Tarefas (1/5)
+                  - generic [ref=e784]: ↕️ Role para ver
+                - generic [ref=e785]:
+                  - generic [ref=e786]:
+                    - checkbox "1.1 Formatação das 6 temáticas oficiais de arena em documento Markdown 👤 Marcos" [ref=e787]
+                    - generic [ref=e788]:
+                      - strong [ref=e789]: "1.1"
+                      - text: Formatação das 6 temáticas oficiais de arena em documento Markdown
+                    - generic [ref=e790]: 👤 Marcos
+                  - button "✏️" [ref=e791]
+                - generic [ref=e792]:
+                  - generic [ref=e793]:
+                    - checkbox "1.2 Criação de protótipo de iluminação e skybox para a Arena Medieval 👤 Marcos" [ref=e794]
+                    - generic [ref=e795]:
+                      - strong [ref=e796]: "1.2"
+                      - text: Criação de protótipo de iluminação e skybox para a Arena Medieval
+                    - generic [ref=e797]: 👤 Marcos
+                  - button "✏️" [ref=e798]
+                - generic [ref=e799]:
+                  - generic [ref=e800]:
+                    - checkbox "1.3 Curadoria de trilhas sonoras temáticas 👤 Jorge Espindola" [ref=e801]
+                    - generic [ref=e802]:
+                      - strong [ref=e803]: "1.3"
+                      - text: Curadoria de trilhas sonoras temáticas
+                    - generic [ref=e804]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e805]
+                - generic [ref=e806]:
+                  - generic [ref=e807]:
+                    - checkbox "1.4 Planejamento de precificação cosmética e passes de temporada sem P2W 👤 Ramiro" [ref=e808]
+                    - generic [ref=e809]:
+                      - strong [ref=e810]: "1.4"
+                      - text: Planejamento de precificação cosmética e passes de temporada sem P2W
+                    - generic [ref=e811]: 👤 Ramiro
+                  - button "✏️" [ref=e812]
+                - generic [ref=e813]:
+                  - generic [ref=e814]:
+                    - checkbox "1.5 Conversão e padronização do prompt da arena Caos Total em Markdown 👤 Junior" [checked] [ref=e815]
+                    - generic [ref=e816]:
+                      - strong [ref=e817]: "1.5"
+                      - text: Conversão e padronização do prompt da arena Caos Total em Markdown
+                    - generic [ref=e818]: 👤 Junior
+                  - button "✏️" [ref=e819]
+            - generic [ref=e820] [cursor=pointer]:
+              - generic [ref=e821]:
+                - generic [ref=e822]: In Progress
+                - generic [ref=e823]:
+                  - button "📁 unity ▼" [ref=e824]:
+                    - generic [ref=e825]: 📁 unity
+                    - generic [ref=e826]: ▼
+                  - generic [ref=e827]: 👤 Marcos
+                  - generic [ref=e828]: 👤 Jorge Espindola
+                  - button "📄 PDF" [ref=e829]
+              - 'heading "POC-NET-01: Multiplayer Híbrido FishNet 1v1" [level=3] [ref=e830]'
+              - generic [ref=e832]:
+                - generic [ref=e833]: Progresso (4/5)
+                - generic [ref=e834]: 80%
+              - generic [ref=e837]:
+                - generic [ref=e838]:
+                  - generic [ref=e839]: 📋 Tarefas (4/5)
+                  - generic [ref=e840]: ↕️ Role para ver
+                - generic [ref=e841]:
+                  - generic [ref=e842]:
+                    - checkbox "1.1 Integração do NetworkManager e NetworkObject na cena Arena_Clean 👤 Marcos" [checked] [ref=e843]
+                    - generic [ref=e844]:
+                      - strong [ref=e845]: "1.1"
+                      - text: Integração do NetworkManager e NetworkObject na cena Arena_Clean
+                    - generic [ref=e846]: 👤 Marcos
+                  - button "✏️" [ref=e847]
+                - generic [ref=e848]:
+                  - generic [ref=e849]:
+                    - checkbox "1.2 Validação de CmdTakeDamage e sincronização de HP via SyncVars 👤 Marcos" [checked] [ref=e850]
+                    - generic [ref=e851]:
+                      - strong [ref=e852]: "1.2"
+                      - text: Validação de CmdTakeDamage e sincronização de HP via SyncVars
+                    - generic [ref=e853]: 👤 Marcos
+                  - button "✏️" [ref=e854]
+                - generic [ref=e855]:
+                  - generic [ref=e856]:
+                    - checkbox "1.3 Conexão e handshake P2P/LAN entre 2 dispositivos no mesmo Wi-Fi 👤 Marcos" [checked] [ref=e857]
+                    - generic [ref=e858]:
+                      - strong [ref=e859]: "1.3"
+                      - text: Conexão e handshake P2P/LAN entre 2 dispositivos no mesmo Wi-Fi
+                    - generic [ref=e860]: 👤 Marcos
+                  - button "✏️" [ref=e861]
+                - generic [ref=e862]:
+                  - generic [ref=e863]:
+                    - checkbox "1.4 Sincronização do estado dos galinheiros e evento de vitória em rede 👤 Marcos" [checked] [ref=e864]
+                    - generic [ref=e865]:
+                      - strong [ref=e866]: "1.4"
+                      - text: Sincronização do estado dos galinheiros e evento de vitória em rede
+                    - generic [ref=e867]: 👤 Marcos
+                  - button "✏️" [ref=e868]
+                - generic [ref=e869]:
+                  - generic [ref=e870]:
+                    - checkbox "1.5 Gravação do take demonstrativo de 15s com 2 telas sincronizadas para o pitch 👤 Jorge Espindola" [ref=e871]
+                    - generic [ref=e872]:
+                      - strong [ref=e873]: "1.5"
+                      - text: Gravação do take demonstrativo de 15s com 2 telas sincronizadas para o pitch
+                    - generic [ref=e874]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e875]
+            - generic [ref=e876] [cursor=pointer]:
+              - generic [ref=e877]:
+                - generic [ref=e878]: In Progress
+                - generic [ref=e879]:
+                  - button "📁 app ▼" [ref=e880]:
+                    - generic [ref=e881]: 📁 app
+                    - generic [ref=e882]: ▼
+                  - generic [ref=e883]: 👤 Samuel
+                  - generic [ref=e884]: 👤 Junior
+                  - generic [ref=e885]: 👤 Marcos
+                  - button "📄 PDF" [ref=e886]
+              - 'heading "POC-WEB-01: Portal Web Oficial e API REST de Produção para o Site" [level=3] [ref=e887]'
+              - generic [ref=e889]:
+                - generic [ref=e890]: Progresso (23/39)
+                - generic [ref=e891]: 59%
+              - generic [ref=e894]:
+                - generic [ref=e895]:
+                  - generic [ref=e896]: 📋 Tarefas (23/39)
+                  - generic [ref=e897]: ↕️ Role para ver
+                - generic [ref=e898]:
+                  - generic [ref=e899]:
+                    - checkbox "1.1 Criação do site oficial CW e estruturação base" [checked] [ref=e900]
+                    - generic [ref=e901]:
+                      - strong [ref=e902]: "1.1"
+                      - text: Criação do site oficial CW e estruturação base
+                  - button "✏️" [ref=e903]
+                - generic [ref=e904]:
+                  - generic [ref=e905]:
+                    - checkbox "1.2 Implementação de responsividade mobile e ajustes de layout e botões" [checked] [ref=e906]
+                    - generic [ref=e907]:
+                      - strong [ref=e908]: "1.2"
+                      - text: Implementação de responsividade mobile e ajustes de layout e botões
+                  - button "✏️" [ref=e909]
+                - generic [ref=e910]:
+                  - generic [ref=e911]:
+                    - checkbox "1.3 Implementação do botão Membro Fundador e correção de bugs de interface" [checked] [ref=e912]
+                    - generic [ref=e913]:
+                      - strong [ref=e914]: "1.3"
+                      - text: Implementação do botão Membro Fundador e correção de bugs de interface
+                  - button "✏️" [ref=e915]
+                - generic [ref=e916]:
+                  - generic [ref=e917]:
+                    - checkbox "1.4 Ajustes finos de rolagem da página e revisão ortográfica dos textos" [checked] [ref=e918]
+                    - generic [ref=e919]:
+                      - strong [ref=e920]: "1.4"
+                      - text: Ajustes finos de rolagem da página e revisão ortográfica dos textos
+                  - button "✏️" [ref=e921]
+                - generic [ref=e922]:
+                  - generic [ref=e923]:
+                    - checkbox "1.5 Elaboração da documentação técnica inicial do portal" [checked] [ref=e924]
+                    - generic [ref=e925]:
+                      - strong [ref=e926]: "1.5"
+                      - text: Elaboração da documentação técnica inicial do portal
+                  - button "✏️" [ref=e927]
+                - generic [ref=e928]:
+                  - generic [ref=e929]:
+                    - checkbox "2.1 Página de vitrine do MVP com botão de download do APK Android 👤 Junior" [checked] [ref=e930]
+                    - generic [ref=e931]:
+                      - strong [ref=e932]: "2.1"
+                      - text: Página de vitrine do MVP com botão de download do APK Android
+                    - generic [ref=e933]: 👤 Junior
+                  - button "✏️" [ref=e934]
+                - generic [ref=e935]:
+                  - generic [ref=e936]:
+                    - checkbox "2.2 Preparação do container de apresentação para embutir o jogo Unity 👤 Junior" [checked] [ref=e937]
+                    - generic [ref=e938]:
+                      - strong [ref=e939]: "2.2"
+                      - text: Preparação do container de apresentação para embutir o jogo Unity
+                    - generic [ref=e940]: 👤 Junior
+                  - button "✏️" [ref=e941]
+                - generic [ref=e942]:
+                  - generic [ref=e943]:
+                    - checkbox "2.3 Validação cruzada dos textos e prompts do site contra Claude.md 👤 Junior" [checked] [ref=e944]
+                    - generic [ref=e945]:
+                      - strong [ref=e946]: "2.3"
+                      - text: Validação cruzada dos textos e prompts do site contra Claude.md
+                    - generic [ref=e947]: 👤 Junior
+                  - button "✏️" [ref=e948]
+                - generic [ref=e949]:
+                  - generic [ref=e950]:
+                    - checkbox "2.4 Atualização dos links da comunidade e redes sociais no rodapé 👤 Junior" [checked] [ref=e951]
+                    - generic [ref=e952]:
+                      - strong [ref=e953]: "2.4"
+                      - text: Atualização dos links da comunidade e redes sociais no rodapé
+                    - generic [ref=e954]: 👤 Junior
+                  - button "✏️" [ref=e955]
+                - generic [ref=e956]:
+                  - generic [ref=e957]:
+                    - checkbox "2.5 Organização do acervo de referências conceituais e READMEs históricos em prompt/files/referencias/ 👤 Junior" [checked] [ref=e958]
+                    - generic [ref=e959]:
+                      - strong [ref=e960]: "2.5"
+                      - text: Organização do acervo de referências conceituais e READMEs históricos em prompt/files/referencias/
+                    - generic [ref=e961]: 👤 Junior
+                  - button "✏️" [ref=e962]
+                - generic [ref=e963]:
+                  - generic [ref=e964]:
+                    - 'checkbox "2.6 Refatorar o sistema de cadastro e nickname: substituir o `prompt()` local do navegador e salvamento isolado em `localStorage` por formulário/modal real conectado ao endpoint `POST /api/users` 👤 Junior" [checked] [ref=e965]'
+                    - generic [ref=e966]:
+                      - strong [ref=e967]: "2.6"
+                      - text: "Refatorar o sistema de cadastro e nickname: substituir o `prompt()` local do navegador e salvamento isolado em `localStorage` por formulário/modal real conectado ao endpoint `POST /api/users`"
+                    - generic [ref=e968]: 👤 Junior
+                  - button "✏️" [ref=e969]
+                - generic [ref=e970]:
+                  - generic [ref=e971]:
+                    - 'checkbox "2.7 Refatorar o fluxo de autenticação Web3: conectar a assinatura de mensagem da carteira ao endpoint `POST /api/auth/login-web3` da API e gerenciar o token JWT retornado pelo backend 👤 Junior" [checked] [ref=e972]'
+                    - generic [ref=e973]:
+                      - strong [ref=e974]: "2.7"
+                      - text: "Refatorar o fluxo de autenticação Web3: conectar a assinatura de mensagem da carteira ao endpoint `POST /api/auth/login-web3` da API e gerenciar o token JWT retornado pelo backend"
+                    - generic [ref=e975]: 👤 Junior
+                  - button "✏️" [ref=e976]
+                - generic [ref=e977]:
+                  - generic [ref=e978]:
+                    - 'checkbox "2.8 Refatorar o modelo de dados do jogador no frontend para operar com os campos oficiais definidos pelo backend: `id_usuario`, `nickname_jogo`, `email` e `wallet_address` 👤 Junior" [checked] [ref=e979]'
+                    - generic [ref=e980]:
+                      - strong [ref=e981]: "2.8"
+                      - text: "Refatorar o modelo de dados do jogador no frontend para operar com os campos oficiais definidos pelo backend: `id_usuario`, `nickname_jogo`, `email` e `wallet_address`"
+                    - generic [ref=e982]: 👤 Junior
+                  - button "✏️" [ref=e983]
+                - generic [ref=e984]:
+                  - generic [ref=e985]:
+                    - checkbox "2.9 Refatorar e modernizar o estilo visual do site 👤 Junior" [checked] [ref=e986]
+                    - generic [ref=e987]:
+                      - strong [ref=e988]: "2.9"
+                      - text: Refatorar e modernizar o estilo visual do site
+                    - generic [ref=e989]: 👤 Junior
+                  - button "✏️" [ref=e990]
+                - generic [ref=e991]:
+                  - generic [ref=e992]:
+                    - checkbox "2.10 Criar a página/seção \"Apoie-nos\" com apresentação dos Tiers de Apoio, opções de contribuição e formulário para enviar mensagem de apoio 👤 Junior" [checked] [ref=e993]
+                    - generic [ref=e994]:
+                      - strong [ref=e995]: "2.10"
+                      - text: Criar a página/seção "Apoie-nos" com apresentação dos Tiers de Apoio, opções de contribuição e formulário para enviar mensagem de apoio
+                    - generic [ref=e996]: 👤 Junior
+                  - button "✏️" [ref=e997]
+                - generic [ref=e998]:
+                  - generic [ref=e999]:
+                    - checkbox "2.11 Criar a página/seção \"Apoiadores\" com mural público dinâmico consumindo a API 👤 Junior" [checked] [ref=e1000]
+                    - generic [ref=e1001]:
+                      - strong [ref=e1002]: "2.11"
+                      - text: Criar a página/seção "Apoiadores" com mural público dinâmico consumindo a API
+                    - generic [ref=e1003]: 👤 Junior
+                  - button "✏️" [ref=e1004]
+                - generic [ref=e1005]:
+                  - generic [ref=e1006]:
+                    - checkbox "2.12 Atualizar links de navegação na Navbar e no Footer direcionando para \"Apoiadores\" e \"Apoie-nos\" 👤 Junior" [checked] [ref=e1007]
+                    - generic [ref=e1008]:
+                      - strong [ref=e1009]: "2.12"
+                      - text: Atualizar links de navegação na Navbar e no Footer direcionando para "Apoiadores" e "Apoie-nos"
+                    - generic [ref=e1010]: 👤 Junior
+                  - button "✏️" [ref=e1011]
+                - generic [ref=e1012]:
+                  - generic [ref=e1013]:
+                    - checkbox "2.13 Implementação de componente/lógica de paginação no client HTTP do site para consumir as listagens paginadas da API 👤 Junior" [checked] [ref=e1014]
+                    - generic [ref=e1015]:
+                      - strong [ref=e1016]: "2.13"
+                      - text: Implementação de componente/lógica de paginação no client HTTP do site para consumir as listagens paginadas da API
+                    - generic [ref=e1017]: 👤 Junior
+                  - button "✏️" [ref=e1018]
+                - generic [ref=e1019]:
+                  - generic [ref=e1020]:
+                    - checkbox "2.14 Tratamento e exibição de badges visuais de status da conta do jogador nos componentes de perfil 👤 Junior" [checked] [ref=e1021]
+                    - generic [ref=e1022]:
+                      - strong [ref=e1023]: "2.14"
+                      - text: Tratamento e exibição de badges visuais de status da conta do jogador nos componentes de perfil
+                    - generic [ref=e1024]: 👤 Junior
+                  - button "✏️" [ref=e1025]
+                - generic [ref=e1026]:
+                  - generic [ref=e1027]:
+                    - 'checkbox "2.15 Seção de Juramento de Facções : estandartes visuais , lore das facções e seleção interativa com persistência no `localStorage` 👤 Junior" [checked] [ref=e1028]'
+                    - generic [ref=e1029]:
+                      - strong [ref=e1030]: "2.15"
+                      - text: "Seção de Juramento de Facções : estandartes visuais , lore das facções e seleção interativa com persistência no `localStorage`"
+                    - generic [ref=e1031]: 👤 Junior
+                  - button "✏️" [ref=e1032]
+                - generic [ref=e1033]:
+                  - generic [ref=e1034]:
+                    - 'checkbox "2.16 Seção de Guardiões da Fauna Brasileira Ameaçada: integração dos assets da Arara-Azul e Mico-Leão-Dourado , ficha de classe e conscientização ambiental 👤 Junior" [checked] [ref=e1035]'
+                    - generic [ref=e1036]:
+                      - strong [ref=e1037]: "2.16"
+                      - text: "Seção de Guardiões da Fauna Brasileira Ameaçada: integração dos assets da Arara-Azul e Mico-Leão-Dourado , ficha de classe e conscientização ambiental"
+                    - generic [ref=e1038]: 👤 Junior
+                  - button "✏️" [ref=e1039]
+                - generic [ref=e1040]:
+                  - generic [ref=e1041]:
+                    - 'checkbox "2.17 Vitrine da Loja Oficial & Micro-Recompensas Anti-P2W: exibição de Baú Real Pós-Partida, skins de guardiões e colecionáveis oficiais 👤 Junior" [checked] [ref=e1042]'
+                    - generic [ref=e1043]:
+                      - strong [ref=e1044]: "2.17"
+                      - text: "Vitrine da Loja Oficial & Micro-Recompensas Anti-P2W: exibição de Baú Real Pós-Partida, skins de guardiões e colecionáveis oficiais"
+                    - generic [ref=e1045]: 👤 Junior
+                  - button "✏️" [ref=e1046]
+                - generic [ref=e1047]:
+                  - generic [ref=e1048]:
+                    - checkbox "2.18 Monitor reativo de integridade e conectividade com a API REST com badge dinâmico no Navbar 👤 Junior" [checked] [ref=e1049]
+                    - generic [ref=e1050]:
+                      - strong [ref=e1051]: "2.18"
+                      - text: Monitor reativo de integridade e conectividade com a API REST com badge dinâmico no Navbar
+                    - generic [ref=e1052]: 👤 Junior
+                  - button "✏️" [ref=e1053]
+                - generic [ref=e1054]:
+                  - generic [ref=e1055]:
+                    - 'checkbox "3.1 Implementação no módulo `Core` e `Acesso` dos Value Objects 👤 Marcos" [ref=e1056]'
+                    - generic [ref=e1057]:
+                      - strong [ref=e1058]: "3.1"
+                      - text: "Implementação no módulo `Core` e `Acesso` dos Value Objects"
+                    - generic [ref=e1059]: 👤 Marcos
+                  - button "✏️" [ref=e1060]
+                - generic [ref=e1061]:
+                  - generic [ref=e1062]:
+                    - 'checkbox "3.2 Modelagem das entidades de domínio de Acesso: `Perfil` com as seeds de produção oficiais , `Permissao`, `PerfilPermissao` e relacionamento com `Usuario` 👤 Marcos" [ref=e1063]'
+                    - generic [ref=e1064]:
+                      - strong [ref=e1065]: "3.2"
+                      - text: "Modelagem das entidades de domínio de Acesso: `Perfil` com as seeds de produção oficiais , `Permissao`, `PerfilPermissao` e relacionamento com `Usuario`"
+                    - generic [ref=e1066]: 👤 Marcos
+                  - button "✏️" [ref=e1067]
+                - generic [ref=e1068]:
+                  - generic [ref=e1069]:
+                    - checkbox "3.3 Implementação de persistência EF Core 👤 Marcos" [ref=e1070]
+                    - generic [ref=e1071]:
+                      - strong [ref=e1072]: "3.3"
+                      - text: Implementação de persistência EF Core
+                    - generic [ref=e1073]: 👤 Marcos
+                  - button "✏️" [ref=e1074]
+                - generic [ref=e1075]:
+                  - generic [ref=e1076]:
+                    - 'checkbox "3.4 Desenvolvimento do CRUD completo com paginação e alteração de status para `Usuario` 👤 Marcos" [ref=e1077]'
+                    - generic [ref=e1078]:
+                      - strong [ref=e1079]: "3.4"
+                      - text: "Desenvolvimento do CRUD completo com paginação e alteração de status para `Usuario`"
+                    - generic [ref=e1080]: 👤 Marcos
+                  - button "✏️" [ref=e1081]
+                - generic [ref=e1082]:
+                  - generic [ref=e1083]:
+                    - 'checkbox "3.5 Desenvolvimento dos endpoints CRUD paginados e gestão de status para `Perfil` e `Permissao` 👤 Marcos" [ref=e1084]'
+                    - generic [ref=e1085]:
+                      - strong [ref=e1086]: "3.5"
+                      - text: "Desenvolvimento dos endpoints CRUD paginados e gestão de status para `Perfil` e `Permissao`"
+                    - generic [ref=e1087]: 👤 Marcos
+                  - button "✏️" [ref=e1088]
+                - generic [ref=e1089]:
+                  - generic [ref=e1090]:
+                    - 'checkbox "3.6 Criação do `SupportersController.cs` com catálogo completo para o site: `GET /api/supporters` , `GET /api/supporters/admin` , `GET /api/supporters/{id}`, `POST /api/supporters` , `PUT /api/supporters/{id}` , `PATCH /api/supporters/{id}/status` e `DELETE /api/supporters/{id}` 👤 Marcos" [ref=e1091]'
+                    - generic [ref=e1092]:
+                      - strong [ref=e1093]: "3.6"
+                      - text: "Criação do `SupportersController.cs` com catálogo completo para o site: `GET /api/supporters` , `GET /api/supporters/admin` , `GET /api/supporters/{id}`, `POST /api/supporters` , `PUT /api/supporters/{id}` , `PATCH /api/supporters/{id}/status` e `DELETE /api/supporters/{id}`"
+                    - generic [ref=e1094]: 👤 Marcos
+                  - button "✏️" [ref=e1095]
+                - generic [ref=e1096]:
+                  - generic [ref=e1097]:
+                    - 'checkbox "3.7 Configuração de segurança RBAC por Roles/Policies no `ApiConfig.cs`, endpoints de autenticação corporativa e Web3 , documentação Swagger interativa com catálogo unificado de endpoints e endpoint `GET /api/health` 👤 Marcos" [ref=e1098]'
+                    - generic [ref=e1099]:
+                      - strong [ref=e1100]: "3.7"
+                      - text: "Configuração de segurança RBAC por Roles/Policies no `ApiConfig.cs`, endpoints de autenticação corporativa e Web3 , documentação Swagger interativa com catálogo unificado de endpoints e endpoint `GET /api/health`"
+                    - generic [ref=e1101]: 👤 Marcos
+                  - button "✏️" [ref=e1102]
+                - generic [ref=e1103]:
+                  - generic [ref=e1104]:
+                    - 'checkbox "3.8 Modelagem e endpoint de recompensas/inventário do jogador: criar endpoint `GET /api/users/{id}/rewards` retornando saldo de micro-recompensas para alimentar o perfil do jogador no site 👤 Marcos" [ref=e1105]'
+                    - generic [ref=e1106]:
+                      - strong [ref=e1107]: "3.8"
+                      - text: "Modelagem e endpoint de recompensas/inventário do jogador: criar endpoint `GET /api/users/{id}/rewards` retornando saldo de micro-recompensas para alimentar o perfil do jogador no site"
+                    - generic [ref=e1108]: 👤 Marcos
+                  - button "✏️" [ref=e1109]
+                - generic [ref=e1110]:
+                  - generic [ref=e1111]:
+                    - 'checkbox "4.1 Implementar controle de ambiente no `.env` com flag booleana , criando o arquivo `app/.env.example` 👤 Junior" [ref=e1112]'
+                    - generic [ref=e1113]:
+                      - strong [ref=e1114]: "4.1"
+                      - text: "Implementar controle de ambiente no `.env` com flag booleana , criando o arquivo `app/.env.example`"
+                    - generic [ref=e1115]: 👤 Junior
+                  - button "✏️" [ref=e1116]
+                - generic [ref=e1117]:
+                  - generic [ref=e1118]:
+                    - 'checkbox "4.2 Desacoplamento arquitetural: integrar `apiService.ts` e `AuthModal.tsx` diretamente no `App.tsx`, respeitando a flag `VITE_USE_API` e eliminando fetches e modais inline duplicados 👤 Junior" [ref=e1119]'
+                    - generic [ref=e1120]:
+                      - strong [ref=e1121]: "4.2"
+                      - text: "Desacoplamento arquitetural: integrar `apiService.ts` e `AuthModal.tsx` diretamente no `App.tsx`, respeitando a flag `VITE_USE_API` e eliminando fetches e modais inline duplicados"
+                    - generic [ref=e1122]: 👤 Junior
+                  - button "✏️" [ref=e1123]
+                - generic [ref=e1124]:
+                  - generic [ref=e1125]:
+                    - checkbox "4.3 Correção de tipagens TypeScript e validação do build de produção 👤 Junior" [ref=e1126]
+                    - generic [ref=e1127]:
+                      - strong [ref=e1128]: "4.3"
+                      - text: Correção de tipagens TypeScript e validação do build de produção
+                    - generic [ref=e1129]: 👤 Junior
+                  - button "✏️" [ref=e1130]
+                - generic [ref=e1131]:
+                  - generic [ref=e1132]:
+                    - 'checkbox "4.4 Homologação de Cadastro Real: validar envio de formulário para `POST /api/users` com criação efetiva de usuário no banco de dados PostgreSQL da API e persistência do Guid oficial 👤 Junior" [ref=e1133]'
+                    - generic [ref=e1134]:
+                      - strong [ref=e1135]: "4.4"
+                      - text: "Homologação de Cadastro Real: validar envio de formulário para `POST /api/users` com criação efetiva de usuário no banco de dados PostgreSQL da API e persistência do Guid oficial"
+                    - generic [ref=e1136]: 👤 Junior
+                  - button "✏️" [ref=e1137]
+                - generic [ref=e1138]:
+                  - generic [ref=e1139]:
+                    - 'checkbox "4.5 Homologação de Login Web3 Real: validar autenticação via carteira Phantom/Solflare com `POST /api/auth/login-web3`, recepção e armazenamento seguro do token JWT emitido pelo backend 👤 Junior" [ref=e1140]'
+                    - generic [ref=e1141]:
+                      - strong [ref=e1142]: "4.5"
+                      - text: "Homologação de Login Web3 Real: validar autenticação via carteira Phantom/Solflare com `POST /api/auth/login-web3`, recepção e armazenamento seguro do token JWT emitido pelo backend"
+                    - generic [ref=e1143]: 👤 Junior
+                  - button "✏️" [ref=e1144]
+                - generic [ref=e1145]:
+                  - generic [ref=e1146]:
+                    - 'checkbox "4.6 Homologação do Perfil e Recompensas Reais: validar consulta de perfil , atualização cadastral e conexão do mock visual de micro-recompensas ao endpoint real `GET /api/users/{id}/rewards` quando `VITE_USE_API=true` 👤 Junior" [ref=e1147]'
+                    - generic [ref=e1148]:
+                      - strong [ref=e1149]: "4.6"
+                      - text: "Homologação do Perfil e Recompensas Reais: validar consulta de perfil , atualização cadastral e conexão do mock visual de micro-recompensas ao endpoint real `GET /api/users/{id}/rewards` quando `VITE_USE_API=true`"
+                    - generic [ref=e1150]: 👤 Junior
+                  - button "✏️" [ref=e1151]
+                - generic [ref=e1152]:
+                  - generic [ref=e1153]:
+                    - 'checkbox "4.7 Homologação do Mural de Apoiadores Real: conectar o feed dinâmico e formulário a `POST /api/supporters` e `GET /api/supporters`, testando a paginação real do banco e moderação de status 👤 Junior" [ref=e1154]'
+                    - generic [ref=e1155]:
+                      - strong [ref=e1156]: "4.7"
+                      - text: "Homologação do Mural de Apoiadores Real: conectar o feed dinâmico e formulário a `POST /api/supporters` e `GET /api/supporters`, testando a paginação real do banco e moderação de status"
+                    - generic [ref=e1157]: 👤 Junior
+                  - button "✏️" [ref=e1158]
+                - generic [ref=e1159]:
+                  - generic [ref=e1160]:
+                    - 'checkbox "4.8 Teste de Resiliência e Fallback: validar que quando `VITE_USE_API=true` e a API oscilar ou cair, o frontend alterne suavemente para o modo demonstrativo com o badge do Navbar refletindo o status real 👤 Junior" [ref=e1161]'
+                    - generic [ref=e1162]:
+                      - strong [ref=e1163]: "4.8"
+                      - text: "Teste de Resiliência e Fallback: validar que quando `VITE_USE_API=true` e a API oscilar ou cair, o frontend alterne suavemente para o modo demonstrativo com o badge do Navbar refletindo o status real"
+                    - generic [ref=e1164]: 👤 Junior
+                  - button "✏️" [ref=e1165]
+            - generic [ref=e1166] [cursor=pointer]:
+              - generic [ref=e1167]:
+                - generic [ref=e1168]: In Progress
+                - generic [ref=e1169]:
+                  - button "📁 unity ▼" [ref=e1170]:
+                    - generic [ref=e1171]: 📁 unity
+                    - generic [ref=e1172]: ▼
+                  - generic [ref=e1173]: 👤 Samuel
+                  - generic [ref=e1174]: 👤 Marcos
+                  - generic [ref=e1175]: 👤 Ramiro
+                  - button "📄 PDF" [ref=e1176]
+              - 'heading "POC-CIN-01: Apresentação Cinemachine e Vídeo Pitch ≤ 3 Minutos" [level=3] [ref=e1177]'
+              - generic [ref=e1179]:
+                - generic [ref=e1180]: Progresso (1/4)
+                - generic [ref=e1181]: 25%
+              - generic [ref=e1184]:
+                - generic [ref=e1185]:
+                  - generic [ref=e1186]: 📋 Tarefas (1/4)
+                  - generic [ref=e1187]: ↕️ Role para ver
+                - generic [ref=e1188]:
+                  - generic [ref=e1189]:
+                    - checkbox "1.1 Ajuste das tomadas de câmera com Cinemachine 3 nativo na BattleArena 👤 Marcos" [checked] [ref=e1190]
+                    - generic [ref=e1191]:
+                      - strong [ref=e1192]: "1.1"
+                      - text: Ajuste das tomadas de câmera com Cinemachine 3 nativo na BattleArena
+                    - generic [ref=e1193]: 👤 Marcos
+                  - button "✏️" [ref=e1194]
+                - generic [ref=e1195]:
+                  - generic [ref=e1196]:
+                    - checkbox "1.2 Roteiro cronometrado segundo a segundo com foco na tese comercial 👤 Ramiro" [ref=e1197]
+                    - generic [ref=e1198]:
+                      - strong [ref=e1199]: "1.2"
+                      - text: Roteiro cronometrado segundo a segundo com foco na tese comercial
+                    - generic [ref=e1200]: 👤 Ramiro
+                  - button "✏️" [ref=e1201]
+                - generic [ref=e1202]:
+                  - generic [ref=e1203]:
+                    - checkbox "1.3 Narração e edição do vídeo demonstrativo com duração estrita ≤ 180s 👤 Samuel" [ref=e1204]
+                    - generic [ref=e1205]:
+                      - strong [ref=e1206]: "1.3"
+                      - text: Narração e edição do vídeo demonstrativo com duração estrita ≤ 180s
+                    - generic [ref=e1207]: 👤 Samuel
+                  - button "✏️" [ref=e1208]
+                - generic [ref=e1209]:
+                  - generic [ref=e1210]:
+                    - checkbox "1.4 Revisão de qualidade e conformidade com os 5 critérios dos jurados 👤 Samuel" [ref=e1211]
+                    - generic [ref=e1212]:
+                      - strong [ref=e1213]: "1.4"
+                      - text: Revisão de qualidade e conformidade com os 5 critérios dos jurados
+                    - generic [ref=e1214]: 👤 Samuel
+                  - button "✏️" [ref=e1215]
+            - generic [ref=e1216] [cursor=pointer]:
+              - generic [ref=e1217]:
+                - generic [ref=e1218]: In Progress
+                - generic [ref=e1219]:
+                  - button "📁 unity ▼" [ref=e1220]:
+                    - generic [ref=e1221]: 📁 unity
+                    - generic [ref=e1222]: ▼
+                  - generic [ref=e1223]: 👤 Ramiro
+                  - generic [ref=e1224]: 👤 Marcos
+                  - generic [ref=e1225]: 👤 Samuel
+                  - button "📄 PDF" [ref=e1226]
+              - 'heading "POC-SUB-03: Submissão Oficial Colosseum Arena e Superteam Brasil" [level=3] [ref=e1227]'
+              - generic [ref=e1229]:
+                - generic [ref=e1230]: Progresso (1/5)
+                - generic [ref=e1231]: 20%
+              - generic [ref=e1234]:
+                - generic [ref=e1235]:
+                  - generic [ref=e1236]: 📋 Tarefas (1/5)
+                  - generic [ref=e1237]: ↕️ Role para ver
+                - generic [ref=e1238]:
+                  - generic [ref=e1239]:
+                    - checkbox "1.1 Atualização do README.md com Program ID, transação de exemplo e instruções 👤 Marcos" [checked] [ref=e1240]
+                    - generic [ref=e1241]:
+                      - strong [ref=e1242]: "1.1"
+                      - text: Atualização do README.md com Program ID, transação de exemplo e instruções
+                    - generic [ref=e1243]: 👤 Marcos
+                  - button "✏️" [ref=e1244]
+                - generic [ref=e1245]:
+                  - generic [ref=e1246]:
+                    - checkbox "1.2 Upload do APK Android no GitHub Releases e Google Drive com link público 👤 Ramiro" [ref=e1247]
+                    - generic [ref=e1248]:
+                      - strong [ref=e1249]: "1.2"
+                      - text: Upload do APK Android no GitHub Releases e Google Drive com link público
+                    - generic [ref=e1250]: 👤 Ramiro
+                  - button "✏️" [ref=e1251]
+                - generic [ref=e1252]:
+                  - generic [ref=e1253]:
+                    - checkbox "1.3 Publicação do vídeo pitch de demonstração no YouTube 👤 Samuel" [ref=e1254]
+                    - generic [ref=e1255]:
+                      - strong [ref=e1256]: "1.3"
+                      - text: Publicação do vídeo pitch de demonstração no YouTube
+                    - generic [ref=e1257]: 👤 Samuel
+                  - button "✏️" [ref=e1258]
+                - generic [ref=e1259]:
+                  - generic [ref=e1260]:
+                    - checkbox "1.4 Preenchimento do formulário na Colosseum Arena com os 7 membros da equipe 👤 Ramiro" [ref=e1261]
+                    - generic [ref=e1262]:
+                      - strong [ref=e1263]: "1.4"
+                      - text: Preenchimento do formulário na Colosseum Arena com os 7 membros da equipe
+                    - generic [ref=e1264]: 👤 Ramiro
+                  - button "✏️" [ref=e1265]
+                - generic [ref=e1266]:
+                  - generic [ref=e1267]:
+                    - checkbox "1.5 Vinculação da submissão na plataforma Superteam Brasil 👤 Ramiro" [ref=e1268]
+                    - generic [ref=e1269]:
+                      - strong [ref=e1270]: "1.5"
+                      - text: Vinculação da submissão na plataforma Superteam Brasil
+                    - generic [ref=e1271]: 👤 Ramiro
+                  - button "✏️" [ref=e1272]
+            - generic [ref=e1273] [cursor=pointer]:
+              - generic [ref=e1274]:
+                - generic [ref=e1275]: In Progress
+                - generic [ref=e1276]:
+                  - button "📁 unity ▼" [ref=e1277]:
+                    - generic [ref=e1278]: 📁 unity
+                    - generic [ref=e1279]: ▼
+                  - generic [ref=e1280]: 👤 Jorge Espindola
+                  - generic [ref=e1281]: 👤 Marcos
+                  - generic [ref=e1282]: 👤 Maria Clara
+                  - button "📄 PDF" [ref=e1283]
+              - 'heading "POC-INT-02: Registro On-Chain da Vitória na Solana Devnet" [level=3] [ref=e1284]'
+              - generic [ref=e1286]:
+                - generic [ref=e1287]: Progresso (3/4)
+                - generic [ref=e1288]: 75%
+              - generic [ref=e1291]:
+                - generic [ref=e1292]:
+                  - generic [ref=e1293]: 📋 Tarefas (3/4)
+                  - generic [ref=e1294]: ↕️ Role para ver
+                - generic [ref=e1295]:
+                  - generic [ref=e1296]:
+                    - checkbox "1.1 Integração do botão Registrar Vitória On-Chain no painel de vitória 👤 Jorge Espindola" [checked] [ref=e1297]
+                    - generic [ref=e1298]:
+                      - strong [ref=e1299]: "1.1"
+                      - text: Integração do botão Registrar Vitória On-Chain no painel de vitória
+                    - generic [ref=e1300]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e1301]
+                - generic [ref=e1302]:
+                  - generic [ref=e1303]:
+                    - checkbox "1.2 Montagem da instrução de incremento via TransactionManager e Solana SDK 👤 Marcos" [checked] [ref=e1304]
+                    - generic [ref=e1305]:
+                      - strong [ref=e1306]: "1.2"
+                      - text: Montagem da instrução de incremento via TransactionManager e Solana SDK
+                    - generic [ref=e1307]: 👤 Marcos
+                  - button "✏️" [ref=e1308]
+                - generic [ref=e1309]:
+                  - generic [ref=e1310]:
+                    - checkbox "1.3 Exibição do toast de confirmação e link direto para o Solana Explorer 👤 Jorge Espindola" [checked] [ref=e1311]
+                    - generic [ref=e1312]:
+                      - strong [ref=e1313]: "1.3"
+                      - text: Exibição do toast de confirmação e link direto para o Solana Explorer
+                    - generic [ref=e1314]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e1315]
+                - generic [ref=e1316]:
+                  - generic [ref=e1317]:
+                    - checkbox "1.4 Teste de ponta a ponta com carteira Devnet em smartphone Android 👤 Maria Clara" [ref=e1318]
+                    - generic [ref=e1319]:
+                      - strong [ref=e1320]: "1.4"
+                      - text: Teste de ponta a ponta com carteira Devnet em smartphone Android
+                    - generic [ref=e1321]: 👤 Maria Clara
+                  - button "✏️" [ref=e1322]
+        - generic [ref=e165]:
+          - generic [ref=e166]:
+            - generic [ref=e167]: 👀 Em Revisão
+            - generic [ref=e168]: "2"
+          - generic [ref=e1323]:
+            - generic [ref=e1324] [cursor=pointer]:
+              - generic [ref=e1325]:
+                - generic [ref=e1326]: Ready
+                - generic [ref=e1327]:
+                  - button "📁 prompt ▼" [ref=e1328]:
+                    - generic [ref=e1329]: 📁 prompt
+                    - generic [ref=e1330]: ▼
+                  - generic [ref=e1331]: 👤 Jorge Espindola
+                  - button "📄 PDF" [ref=e1332]
+              - 'heading "POC-SEC-01: Pipeline DevSecOps, Gitleaks e CI/CD Anchor" [level=3] [ref=e1333]'
+              - generic [ref=e1335]:
+                - generic [ref=e1336]: Progresso (0/4)
+                - generic [ref=e1337]: 0%
+              - generic [ref=e1339]:
+                - generic [ref=e1340]:
+                  - generic [ref=e1341]: 📋 Tarefas (0/4)
+                  - generic [ref=e1342]: ↕️ Role para ver
+                - generic [ref=e1343]:
+                  - generic [ref=e1344]:
+                    - checkbox "1.1 Configuração do workflow anchor-ci.yml com cargo check, clippy e test 👤 Jorge Espindola" [ref=e1345]
+                    - generic [ref=e1346]:
+                      - strong [ref=e1347]: "1.1"
+                      - text: Configuração do workflow anchor-ci.yml com cargo check, clippy e test
+                    - generic [ref=e1348]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e1349]
+                - generic [ref=e1350]:
+                  - generic [ref=e1351]:
+                    - checkbox "1.2 Verificação automática de segredos com Gitleaks em pull requests 👤 Jorge Espindola" [ref=e1352]
+                    - generic [ref=e1353]:
+                      - strong [ref=e1354]: "1.2"
+                      - text: Verificação automática de segredos com Gitleaks em pull requests
+                    - generic [ref=e1355]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e1356]
+                - generic [ref=e1357]:
+                  - generic [ref=e1358]:
+                    - checkbox "1.3 Auditoria de .gitignore para garantir isolamento de private keys 👤 Jorge Espindola" [ref=e1359]
+                    - generic [ref=e1360]:
+                      - strong [ref=e1361]: "1.3"
+                      - text: Auditoria de .gitignore para garantir isolamento de private keys
+                    - generic [ref=e1362]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e1363]
+                - generic [ref=e1364]:
+                  - generic [ref=e1365]:
+                    - checkbox "1.4 Revisão do Threat Modeling da arquitetura híbrida de premiação 👤 Jorge Espindola" [ref=e1366]
+                    - generic [ref=e1367]:
+                      - strong [ref=e1368]: "1.4"
+                      - text: Revisão do Threat Modeling da arquitetura híbrida de premiação
+                    - generic [ref=e1369]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e1370]
+            - generic [ref=e1371] [cursor=pointer]:
+              - generic [ref=e1372]:
+                - generic [ref=e1373]: Ready
+                - generic [ref=e1374]:
+                  - button "📁 kanban ▼" [ref=e1375]:
+                    - generic [ref=e1376]: 📁 kanban
+                    - generic [ref=e1377]: ▼
+                  - generic [ref=e1378]: 👤 Sthefany
+                  - button "📄 PDF" [ref=e1379]
+              - heading "Tarefas Gerais & Avulsas" [level=3] [ref=e1380]
+              - generic [ref=e1382]:
+                - generic [ref=e1383]: Progresso (0/2)
+                - generic [ref=e1384]: 0%
+              - generic [ref=e1386]:
+                - generic [ref=e1387]: 📋 Tarefas (0/2)
+                - generic [ref=e1389]:
+                  - generic [ref=e1390]:
+                    - checkbox "1.1 Criar canal do YouTube 👤 Sthefany" [ref=e1391]
+                    - generic [ref=e1392]:
+                      - strong [ref=e1393]: "1.1"
+                      - text: Criar canal do YouTube
+                    - generic [ref=e1394]: 👤 Sthefany
+                  - button "✏️" [ref=e1395]
+                - generic [ref=e1396]:
+                  - generic [ref=e1397]:
+                    - checkbox "1.2 Criar thumbnails para vídeos do YouTube 👤 Sthefany" [ref=e1398]
+                    - generic [ref=e1399]:
+                      - strong [ref=e1400]: "1.2"
+                      - text: Criar thumbnails para vídeos do YouTube
+                    - generic [ref=e1401]: 👤 Sthefany
+                  - button "✏️" [ref=e1402]
+        - generic [ref=e169]:
+          - generic [ref=e170]:
+            - generic [ref=e171]: ✅ Concluído
+            - generic [ref=e172]: "10"
+          - generic [ref=e1403]:
+            - generic [ref=e1404] [cursor=pointer]:
+              - generic [ref=e1405]:
+                - generic [ref=e1406]: Done
+                - generic [ref=e1407]:
+                  - button "📁 unity ▼" [ref=e1408]:
+                    - generic [ref=e1409]: 📁 unity
+                    - generic [ref=e1410]: ▼
+                  - generic [ref=e1411]: 👤 Marcos
+                  - button "📄 PDF" [ref=e1412]
+              - 'heading "POC-UNI-01: Consolidação da Cena Canônica Arena_Clean" [level=3] [ref=e1413]'
+              - generic [ref=e1415]:
+                - generic [ref=e1416]: Progresso (5/5)
+                - generic [ref=e1417]: 100%
+              - generic [ref=e1420]:
+                - generic [ref=e1421]:
+                  - generic [ref=e1422]: 📋 Tarefas (5/5)
+                  - generic [ref=e1423]: ↕️ Role para ver
+                - generic [ref=e1424]:
+                  - generic [ref=e1425]:
+                    - checkbox "1.1 Calibração da câmera tática MOBA e travamento paisagem mobile" [checked] [ref=e1426]
+                    - generic [ref=e1427]:
+                      - strong [ref=e1428]: "1.1"
+                      - text: Calibração da câmera tática MOBA e travamento paisagem mobile
+                  - button "✏️" [ref=e1429]
+                - generic [ref=e1430]:
+                  - generic [ref=e1431]:
+                    - checkbox "1.2 Implementação do Joystick Virtual flutuante e cluster de 4 habilidades" [checked] [ref=e1432]
+                    - generic [ref=e1433]:
+                      - strong [ref=e1434]: "1.2"
+                      - text: Implementação do Joystick Virtual flutuante e cluster de 4 habilidades
+                  - button "✏️" [ref=e1435]
+                - generic [ref=e1436]:
+                  - generic [ref=e1437]:
+                    - checkbox "1.3 Configuração das 3 rotas nas pontes Top , Mid e Bot" [checked] [ref=e1438]
+                    - generic [ref=e1439]:
+                      - strong [ref=e1440]: "1.3"
+                      - text: Configuração das 3 rotas nas pontes Top , Mid e Bot
+                  - button "✏️" [ref=e1441]
+                - generic [ref=e1442]:
+                  - generic [ref=e1443]:
+                    - checkbox "1.4 IA ofensiva do Bot Axel com perseguição contínua e raio de 18m" [checked] [ref=e1444]
+                    - generic [ref=e1445]:
+                      - strong [ref=e1446]: "1.4"
+                      - text: IA ofensiva do Bot Axel com perseguição contínua e raio de 18m
+                  - button "✏️" [ref=e1447]
+                - generic [ref=e1448]:
+                  - generic [ref=e1449]:
+                    - checkbox "1.5 Substituição de caminhos absolutos por caminhos relativos canônicos Assets/ 👤 Marcos" [checked] [ref=e1450]
+                    - generic [ref=e1451]:
+                      - strong [ref=e1452]: "1.5"
+                      - text: Substituição de caminhos absolutos por caminhos relativos canônicos Assets/
+                    - generic [ref=e1453]: 👤 Marcos
+                  - button "✏️" [ref=e1454]
+            - generic [ref=e1455] [cursor=pointer]:
+              - generic [ref=e1456]:
+                - generic [ref=e1457]: Done
+                - generic [ref=e1458]:
+                  - button "📁 unity ▼" [ref=e1459]:
+                    - generic [ref=e1460]: 📁 unity
+                    - generic [ref=e1461]: ▼
+                  - generic [ref=e1462]: 👤 Jorge Espindola
+                  - generic [ref=e1463]: 👤 Marcos
+                  - button "📄 PDF" [ref=e1464]
+              - 'heading "POC-UNI-04: AudioManager Central e Efeitos Visuais (VFX)" [level=3] [ref=e1465]'
+              - generic [ref=e1467]:
+                - generic [ref=e1468]: Progresso (4/4)
+                - generic [ref=e1469]: 100%
+              - generic [ref=e1472]:
+                - generic [ref=e1473]:
+                  - generic [ref=e1474]: 📋 Tarefas (4/4)
+                  - generic [ref=e1475]: ↕️ Role para ver
+                - generic [ref=e1476]:
+                  - generic [ref=e1477]:
+                    - checkbox "1.1 Criação do AudioManager singleton com pool de 12 canais e áudio procedural 👤 Jorge Espindola" [checked] [ref=e1478]
+                    - generic [ref=e1479]:
+                      - strong [ref=e1480]: "1.1"
+                      - text: Criação do AudioManager singleton com pool de 12 canais e áudio procedural
+                    - generic [ref=e1481]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e1482]
+                - generic [ref=e1483]:
+                  - generic [ref=e1484]:
+                    - checkbox "1.2 Implementação de CombatVFXManager para penas voando, auras e explosão 👤 Marcos" [checked] [ref=e1485]
+                    - generic [ref=e1486]:
+                      - strong [ref=e1487]: "1.2"
+                      - text: Implementação de CombatVFXManager para penas voando, auras e explosão
+                    - generic [ref=e1488]: 👤 Marcos
+                  - button "✏️" [ref=e1489]
+                - generic [ref=e1490]:
+                  - generic [ref=e1491]:
+                    - checkbox "1.3 Vinculação dos materiais URP Lit dos Minions Caipira e Rodilan" [checked] [ref=e1492]
+                    - generic [ref=e1493]:
+                      - strong [ref=e1494]: "1.3"
+                      - text: Vinculação dos materiais URP Lit dos Minions Caipira e Rodilan
+                  - button "✏️" [ref=e1495]
+                - generic [ref=e1496]:
+                  - generic [ref=e1497]:
+                    - checkbox "1.4 Correção do Device Simulator para AutoRotation paisagem horizontal 👤 Marcos" [checked] [ref=e1498]
+                    - generic [ref=e1499]:
+                      - strong [ref=e1500]: "1.4"
+                      - text: Correção do Device Simulator para AutoRotation paisagem horizontal
+                    - generic [ref=e1501]: 👤 Marcos
+                  - button "✏️" [ref=e1502]
+            - generic [ref=e1503] [cursor=pointer]:
+              - generic [ref=e1504]:
+                - generic [ref=e1505]: Done
+                - generic [ref=e1506]:
+                  - button "📁 unity ▼" [ref=e1507]:
+                    - generic [ref=e1508]: 📁 unity
+                    - generic [ref=e1509]: ▼
+                  - generic [ref=e1510]: 👤 Marcos
+                  - button "📄 PDF" [ref=e1511]
+              - 'heading "POC-UNI-02: Colisão Física, Dano e Queda dos Galinheiros" [level=3] [ref=e1512]'
+              - generic [ref=e1514]:
+                - generic [ref=e1515]: Progresso (4/4)
+                - generic [ref=e1516]: 100%
+              - generic [ref=e1519]:
+                - generic [ref=e1520]:
+                  - generic [ref=e1521]: 📋 Tarefas (4/4)
+                  - generic [ref=e1522]: ↕️ Role para ver
+                - generic [ref=e1523]:
+                  - generic [ref=e1524]:
+                    - checkbox "1.1 Configuração de BoxColliders e camadas de colisão nas bases e tropas" [checked] [ref=e1525]
+                    - generic [ref=e1526]:
+                      - strong [ref=e1527]: "1.1"
+                      - text: Configuração de BoxColliders e camadas de colisão nas bases e tropas
+                  - button "✏️" [ref=e1528]
+                - generic [ref=e1529]:
+                  - generic [ref=e1530]:
+                    - checkbox "1.2 Implementação de StructureGalinheiro com barra de HP 3D no mundo" [checked] [ref=e1531]
+                    - generic [ref=e1532]:
+                      - strong [ref=e1533]: "1.2"
+                      - text: Implementação de StructureGalinheiro com barra de HP 3D no mundo
+                  - button "✏️" [ref=e1534]
+                - generic [ref=e1535]:
+                  - generic [ref=e1536]:
+                    - checkbox "1.3 Lógica de combate frente a frente entre tropas até derrota" [checked] [ref=e1537]
+                    - generic [ref=e1538]:
+                      - strong [ref=e1539]: "1.3"
+                      - text: Lógica de combate frente a frente entre tropas até derrota
+                  - button "✏️" [ref=e1540]
+                - generic [ref=e1541]:
+                  - generic [ref=e1542]:
+                    - checkbox "1.4 Bateria automatizada CombatAndBaseDestructionTests 4/4 passando 100% 👤 Marcos" [checked] [ref=e1543]
+                    - generic [ref=e1544]:
+                      - strong [ref=e1545]: "1.4"
+                      - text: Bateria automatizada CombatAndBaseDestructionTests 4/4 passando 100%
+                    - generic [ref=e1546]: 👤 Marcos
+                  - button "✏️" [ref=e1547]
+            - generic [ref=e1548] [cursor=pointer]:
+              - generic [ref=e1549]:
+                - generic [ref=e1550]: Done
+                - generic [ref=e1551]:
+                  - button "📁 app ▼" [ref=e1552]:
+                    - generic [ref=e1553]: 📁 app
+                    - generic [ref=e1554]: ▼
+                  - generic [ref=e1555]: 👤 Samuel e Marcos
+                  - generic [ref=e1556]: 👤 Jorge Espindola
+                  - generic [ref=e1557]: 👤 Marcos
+                  - generic "Alterações locais pendentes de commit" [ref=e1558]: ⚡ Modificado Local
+                  - button "📄 PDF" [ref=e1559]
+              - heading "Integração OpenSign com Kanban Studio e GitHub Codespaces" [level=3] [ref=e1560]
+              - generic [ref=e1562]:
+                - generic [ref=e1563]: Progresso (20/20)
+                - generic [ref=e1564]: 100%
+              - generic [ref=e1567]:
+                - generic [ref=e1568]:
+                  - generic [ref=e1569]: 📋 Tarefas (20/20)
+                  - generic [ref=e1570]: ↕️ Role para ver
+                - generic [ref=e1571]:
+                  - generic [ref=e1572]:
+                    - 'checkbox "1.1 Criar configuração do Codespaces em `kanban/.devcontainer/devcontainer.json` com encaminhamento de portas e extensões 👤 Jorge Espindola" [checked] [ref=e1573]'
+                    - generic [ref=e1574]:
+                      - strong [ref=e1575]: "1.1"
+                      - text: "Criar configuração do Codespaces em `kanban/.devcontainer/devcontainer.json` com encaminhamento de portas e extensões"
+                    - generic [ref=e1576]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e1577]
+                - generic [ref=e1578]:
+                  - generic [ref=e1579]:
+                    - 'checkbox "1.2 Criar script `kanban/.devcontainer/setup-codespace.sh` para criação de admin, geração de tokens e registro de webhook no start inicial 👤 Jorge Espindola" [checked] [ref=e1580]'
+                    - generic [ref=e1581]:
+                      - strong [ref=e1582]: "1.2"
+                      - text: "Criar script `kanban/.devcontainer/setup-codespace.sh` para criação de admin, geração de tokens e registro de webhook no start inicial"
+                    - generic [ref=e1583]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e1584]
+                - generic [ref=e1585]:
+                  - generic [ref=e1586]:
+                    - 'checkbox "1.3 Criar script `kanban/.devcontainer/start-codespace.sh` para atualizar URLs públicas reativas do Codespace a cada inicialização 👤 Jorge Espindola" [checked] [ref=e1587]'
+                    - generic [ref=e1588]:
+                      - strong [ref=e1589]: "1.3"
+                      - text: "Criar script `kanban/.devcontainer/start-codespace.sh` para atualizar URLs públicas reativas do Codespace a cada inicialização"
+                    - generic [ref=e1590]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e1591]
+                - generic [ref=e1592]:
+                  - generic [ref=e1593]:
+                    - 'checkbox "1.4 Criar `kanban/docker-compose.dev.yml` orquestrando Kanban, OpenSign, PostgreSQL 16 e Redis 7 👤 Jorge Espindola" [checked] [ref=e1594]'
+                    - generic [ref=e1595]:
+                      - strong [ref=e1596]: "1.4"
+                      - text: "Criar `kanban/docker-compose.dev.yml` orquestrando Kanban, OpenSign, PostgreSQL 16 e Redis 7"
+                    - generic [ref=e1597]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e1598]
+                - generic [ref=e1599]:
+                  - generic [ref=e1600]:
+                    - 'checkbox "1.5 Criar `kanban/Dockerfile.dev` com Node 20, ferramentas de banco e utilitários Unix 👤 Jorge Espindola" [checked] [ref=e1601]'
+                    - generic [ref=e1602]:
+                      - strong [ref=e1603]: "1.5"
+                      - text: "Criar `kanban/Dockerfile.dev` com Node 20, ferramentas de banco e utilitários Unix"
+                    - generic [ref=e1604]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e1605]
+                - generic [ref=e1606]:
+                  - generic [ref=e1607]:
+                    - 'checkbox "1.6 Criar script de inicialização `kanban/scripts/init-multiple-dbs.sh` para databases `kanban` e `opensign` no PostgreSQL 👤 Jorge Espindola" [checked] [ref=e1608]'
+                    - generic [ref=e1609]:
+                      - strong [ref=e1610]: "1.6"
+                      - text: "Criar script de inicialização `kanban/scripts/init-multiple-dbs.sh` para databases `kanban` e `opensign` no PostgreSQL"
+                    - generic [ref=e1611]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e1612]
+                - generic [ref=e1613]:
+                  - generic [ref=e1614]:
+                    - 'checkbox "1.7 Adicionar script `setup:opensign` no `kanban/package.json` para facilitar clone/submódulo do repositório OpenSign 👤 Marcos" [checked] [ref=e1615]'
+                    - generic [ref=e1616]:
+                      - strong [ref=e1617]: "1.7"
+                      - text: "Adicionar script `setup:opensign` no `kanban/package.json` para facilitar clone/submódulo do repositório OpenSign"
+                    - generic [ref=e1618]: 👤 Marcos
+                  - button "✏️" [ref=e1619]
+                - generic [ref=e1620]:
+                  - generic [ref=e1621]:
+                    - 'checkbox "2.1 Desenvolver cliente tipado TypeScript em `kanban/src/lib/opensign.ts` com interfaces `Signer`, `SignRequestResult` e métodos de API 👤 Marcos" [checked] [ref=e1622]'
+                    - generic [ref=e1623]:
+                      - strong [ref=e1624]: "2.1"
+                      - text: "Desenvolver cliente tipado TypeScript em `kanban/src/lib/opensign.ts` com interfaces `Signer`, `SignRequestResult` e métodos de API"
+                    - generic [ref=e1625]: 👤 Marcos
+                  - button "✏️" [ref=e1626]
+                - generic [ref=e1627]:
+                  - generic [ref=e1628]:
+                    - 'checkbox "2.2 Implementar handler e middleware em `kanban/src/app/api/webhooks/opensign/route.ts` 👤 Marcos" [checked] [ref=e1629]'
+                    - generic [ref=e1630]:
+                      - strong [ref=e1631]: "2.2"
+                      - text: "Implementar handler e middleware em `kanban/src/app/api/webhooks/opensign/route.ts`"
+                    - generic [ref=e1632]: 👤 Marcos
+                  - button "✏️" [ref=e1633]
+                - generic [ref=e1634]:
+                  - generic [ref=e1635]:
+                    - 'checkbox "2.3 Adicionar endpoint `GET /api/config` no `kanban/src/server/server.ts` expondo URLs públicas do OpenSign e Webhook 👤 Marcos" [checked] [ref=e1636]'
+                    - generic [ref=e1637]:
+                      - strong [ref=e1638]: "2.3"
+                      - text: "Adicionar endpoint `GET /api/config` no `kanban/src/server/server.ts` expondo URLs públicas do OpenSign e Webhook"
+                    - generic [ref=e1639]: 👤 Marcos
+                  - button "✏️" [ref=e1640]
+                - generic [ref=e1641]:
+                  - generic [ref=e1642]:
+                    - 'checkbox "2.4 Adicionar endpoint `POST /api/webhooks/opensign` no `kanban/src/server/server.ts` com validação estrita HMAC SHA-256 e proteção contra falhas de timing buffer 👤 Marcos" [checked] [ref=e1643]'
+                    - generic [ref=e1644]:
+                      - strong [ref=e1645]: "2.4"
+                      - text: "Adicionar endpoint `POST /api/webhooks/opensign` no `kanban/src/server/server.ts` com validação estrita HMAC SHA-256 e proteção contra falhas de timing buffer"
+                    - generic [ref=e1646]: 👤 Marcos
+                  - button "✏️" [ref=e1647]
+                - generic [ref=e1648]:
+                  - generic [ref=e1649]:
+                    - 'checkbox "2.5 Configurar `server.listen` na interface `0.0.0.0` para permitir acesso de containers e GitHub Codespaces Port Forwarding 👤 Marcos" [checked] [ref=e1650]'
+                    - generic [ref=e1651]:
+                      - strong [ref=e1652]: "2.5"
+                      - text: "Configurar `server.listen` na interface `0.0.0.0` para permitir acesso de containers e GitHub Codespaces Port Forwarding"
+                    - generic [ref=e1653]: 👤 Marcos
+                  - button "✏️" [ref=e1654]
+                - generic [ref=e1655]:
+                  - generic [ref=e1656]:
+                    - 'checkbox "3.1 Inserir botão de menu no cabeçalho esquerdo em `kanban/src/web/index.html` 👤 Marcos" [checked] [ref=e1657]'
+                    - generic [ref=e1658]:
+                      - strong [ref=e1659]: "3.1"
+                      - text: "Inserir botão de menu no cabeçalho esquerdo em `kanban/src/web/index.html`"
+                    - generic [ref=e1660]: 👤 Marcos
+                  - button "✏️" [ref=e1661]
+                - generic [ref=e1662]:
+                  - generic [ref=e1663]:
+                    - 'checkbox "3.2 Inserir item de menu com label correto \"OpenSign\" e item do Dashboard em `kanban/src/web/index.html` 👤 Marcos" [checked] [ref=e1664]'
+                    - generic [ref=e1665]:
+                      - strong [ref=e1666]: "3.2"
+                      - text: "Inserir item de menu com label correto \"OpenSign\" e item do Dashboard em `kanban/src/web/index.html`"
+                    - generic [ref=e1667]: 👤 Marcos
+                  - button "✏️" [ref=e1668]
+                - generic [ref=e1669]:
+                  - generic [ref=e1670]:
+                    - 'checkbox "3.3 Implementar estilos responsivos do menu dropdown e do botão hamburger em `kanban/src/web/styles.css` 👤 Marcos" [checked] [ref=e1671]'
+                    - generic [ref=e1672]:
+                      - strong [ref=e1673]: "3.3"
+                      - text: "Implementar estilos responsivos do menu dropdown e do botão hamburger em `kanban/src/web/styles.css`"
+                    - generic [ref=e1674]: 👤 Marcos
+                  - button "✏️" [ref=e1675]
+                - generic [ref=e1676]:
+                  - generic [ref=e1677]:
+                    - 'checkbox "3.4 Implementar funções `initHamburgerMenu`, `openOpenSignModal` e `openOpenSignDashboard` em `kanban/src/web/app.js` 👤 Marcos" [checked] [ref=e1678]'
+                    - generic [ref=e1679]:
+                      - strong [ref=e1680]: "3.4"
+                      - text: "Implementar funções `initHamburgerMenu`, `openOpenSignModal` e `openOpenSignDashboard` em `kanban/src/web/app.js`"
+                    - generic [ref=e1681]: 👤 Marcos
+                  - button "✏️" [ref=e1682]
+                - generic [ref=e1683]:
+                  - generic [ref=e1684]:
+                    - checkbox "3.5 Suporte a navegação por teclado e recarregamento/abertura externa no modal iframe 👤 Marcos" [checked] [ref=e1685]
+                    - generic [ref=e1686]:
+                      - strong [ref=e1687]: "3.5"
+                      - text: Suporte a navegação por teclado e recarregamento/abertura externa no modal iframe
+                    - generic [ref=e1688]: 👤 Marcos
+                  - button "✏️" [ref=e1689]
+                - generic [ref=e1690]:
+                  - generic [ref=e1691]:
+                    - checkbox "4.1 Expandir suite E2E com bateria completa de testes de integridade para UI do OpenSign, endpoints de configuração e validação criptográfica HMAC 👤 Marcos" [checked] [ref=e1692]
+                    - generic [ref=e1693]:
+                      - strong [ref=e1694]: "4.1"
+                      - text: Expandir suite E2E com bateria completa de testes de integridade para UI do OpenSign, endpoints de configuração e validação criptográfica HMAC
+                    - generic [ref=e1695]: 👤 Marcos
+                  - button "✏️" [ref=e1696]
+                - generic [ref=e1697]:
+                  - generic [ref=e1698]:
+                    - 'checkbox "4.2 Blindar execução do endpoint de reset com flag `dryRun` nos testes E2E evitando perdas de estado no repositório 👤 Marcos" [checked] [ref=e1699]'
+                    - generic [ref=e1700]:
+                      - strong [ref=e1701]: "4.2"
+                      - text: "Blindar execução do endpoint de reset com flag `dryRun` nos testes E2E evitando perdas de estado no repositório"
+                    - generic [ref=e1702]: 👤 Marcos
+                  - button "✏️" [ref=e1703]
+                - generic [ref=e1704]:
+                  - generic [ref=e1705]:
+                    - checkbox "4.3 Validar execução e aprovação 100% da bateria de testes 👤 Marcos" [checked] [ref=e1706]
+                    - generic [ref=e1707]:
+                      - strong [ref=e1708]: "4.3"
+                      - text: Validar execução e aprovação 100% da bateria de testes
+                    - generic [ref=e1709]: 👤 Marcos
+                  - button "✏️" [ref=e1710]
+            - generic [ref=e1711] [cursor=pointer]:
+              - generic [ref=e1712]:
+                - generic [ref=e1713]: Done
+                - generic [ref=e1714]:
+                  - button "📁 app ▼" [ref=e1715]:
+                    - generic [ref=e1716]: 📁 app
+                    - generic [ref=e1717]: ▼
+                  - generic [ref=e1718]: 👤 Samuel
+                  - generic [ref=e1719]: 👤 Marcos
+                  - generic [ref=e1720]: 👤 Jorge Espindola
+                  - button "📄 PDF" [ref=e1721]
+              - heading "Painel Kanban Studio & Central de Orquestração OpenSpec Git-Native" [level=3] [ref=e1722]
+              - generic [ref=e1724]:
+                - generic [ref=e1725]: Progresso (16/16)
+                - generic [ref=e1726]: 100%
+              - generic [ref=e1729]:
+                - generic [ref=e1730]:
+                  - generic [ref=e1731]: 📋 Tarefas (16/16)
+                  - generic [ref=e1732]: ↕️ Role para ver
+                - generic [ref=e1733]:
+                  - generic [ref=e1734]:
+                    - checkbox "1.1 Servidor Node/TypeScript com API REST e sincronização bidirecional do OpenSpec 👤 Marcos" [checked] [ref=e1735]
+                    - generic [ref=e1736]:
+                      - strong [ref=e1737]: "1.1"
+                      - text: Servidor Node/TypeScript com API REST e sincronização bidirecional do OpenSpec
+                    - generic [ref=e1738]: 👤 Marcos
+                  - button "✏️" [ref=e1739]
+                - generic [ref=e1740]:
+                  - generic [ref=e1741]:
+                    - checkbox "1.2 Interface Web do Kanban com 4 colunas de sprint, Funil de Ideias e Dashboard de Analytics 👤 Marcos" [checked] [ref=e1742]
+                    - generic [ref=e1743]:
+                      - strong [ref=e1744]: "1.2"
+                      - text: Interface Web do Kanban com 4 colunas de sprint, Funil de Ideias e Dashboard de Analytics
+                    - generic [ref=e1745]: 👤 Marcos
+                  - button "✏️" [ref=e1746]
+                - generic [ref=e1747]:
+                  - generic [ref=e1748]:
+                    - checkbox "1.3 Suite de testes E2E automatizada com Playwright / Node para validação de endpoints e integridade 👤 Marcos" [checked] [ref=e1749]
+                    - generic [ref=e1750]:
+                      - strong [ref=e1751]: "1.3"
+                      - text: Suite de testes E2E automatizada com Playwright / Node para validação de endpoints e integridade
+                    - generic [ref=e1752]: 👤 Marcos
+                  - button "✏️" [ref=e1753]
+                - generic [ref=e1754]:
+                  - generic [ref=e1755]:
+                    - checkbox "1.4 Botão de Sincronização Git com detecção de commits remotos 👤 Marcos" [checked] [ref=e1756]
+                    - generic [ref=e1757]:
+                      - strong [ref=e1758]: "1.4"
+                      - text: Botão de Sincronização Git com detecção de commits remotos
+                    - generic [ref=e1759]: 👤 Marcos
+                  - button "✏️" [ref=e1760]
+                - generic [ref=e1761]:
+                  - generic [ref=e1762]:
+                    - checkbox "1.5 Seletor de Múltiplos Responsáveis com obrigatoriedade e feedback visual 👤 Marcos" [checked] [ref=e1763]
+                    - generic [ref=e1764]:
+                      - strong [ref=e1765]: "1.5"
+                      - text: Seletor de Múltiplos Responsáveis com obrigatoriedade e feedback visual
+                    - generic [ref=e1766]: 👤 Marcos
+                  - button "✏️" [ref=e1767]
+                - generic [ref=e1768]:
+                  - generic [ref=e1769]:
+                    - checkbox "1.6 Sistema de Modais Preventivos para exclusões, git push/pull e ações acidentais 👤 Marcos" [checked] [ref=e1770]
+                    - generic [ref=e1771]:
+                      - strong [ref=e1772]: "1.6"
+                      - text: Sistema de Modais Preventivos para exclusões, git push/pull e ações acidentais
+                    - generic [ref=e1773]: 👤 Marcos
+                  - button "✏️" [ref=e1774]
+                - generic [ref=e1775]:
+                  - generic [ref=e1776]:
+                    - checkbox "1.7 Separação das opções de Avatar em \"Arte Designer 2D\" e \"Arte e Animador 3D\" com remoção de VFX 👤 Marcos" [checked] [ref=e1777]
+                    - generic [ref=e1778]:
+                      - strong [ref=e1779]: "1.7"
+                      - text: Separação das opções de Avatar em "Arte Designer 2D" e "Arte e Animador 3D" com remoção de VFX
+                    - generic [ref=e1780]: 👤 Marcos
+                  - button "✏️" [ref=e1781]
+                - generic [ref=e1782]:
+                  - generic [ref=e1783]:
+                    - checkbox "1.8 Limpeza automática dos inputs dos formulários após cadastrar tarefas e ideias/features 👤 Marcos" [checked] [ref=e1784]
+                    - generic [ref=e1785]:
+                      - strong [ref=e1786]: "1.8"
+                      - text: Limpeza automática dos inputs dos formulários após cadastrar tarefas e ideias/features
+                    - generic [ref=e1787]: 👤 Marcos
+                  - button "✏️" [ref=e1788]
+                - generic [ref=e1789]:
+                  - generic [ref=e1790]:
+                    - checkbox "1.9 Sistema de Busca e Filtragem Reativa de Tarefas e Ideias no Kanban com atalhos de teclado 👤 Marcos" [checked] [ref=e1791]
+                    - generic [ref=e1792]:
+                      - strong [ref=e1793]: "1.9"
+                      - text: Sistema de Busca e Filtragem Reativa de Tarefas e Ideias no Kanban com atalhos de teclado
+                    - generic [ref=e1794]: 👤 Marcos
+                  - button "✏️" [ref=e1795]
+                - generic [ref=e1796]:
+                  - generic [ref=e1797]:
+                    - checkbox "1.10 Botão e Endpoint de \"Reset Repo Local\" com modal preventivo para descartar alterações com erro 👤 Marcos" [checked] [ref=e1798]
+                    - generic [ref=e1799]:
+                      - strong [ref=e1800]: "1.10"
+                      - text: Botão e Endpoint de "Reset Repo Local" com modal preventivo para descartar alterações com erro
+                    - generic [ref=e1801]: 👤 Marcos
+                  - button "✏️" [ref=e1802]
+                - generic [ref=e1803]:
+                  - generic [ref=e1804]:
+                    - checkbox "1.11 Central Git com visualizador de diff, commits unpushed e setinha ⬆️ 👤 Marcos" [checked] [ref=e1805]
+                    - generic [ref=e1806]:
+                      - strong [ref=e1807]: "1.11"
+                      - text: Central Git com visualizador de diff, commits unpushed e setinha ⬆️
+                    - generic [ref=e1808]: 👤 Marcos
+                  - button "✏️" [ref=e1809]
+                - generic [ref=e1810]:
+                  - generic [ref=e1811]:
+                    - checkbox "2.1 Filtro e Seletor dinâmico por Diretório/Projeto no Kanban 👤 Marcos" [checked] [ref=e1812]
+                    - generic [ref=e1813]:
+                      - strong [ref=e1814]: "2.1"
+                      - text: Filtro e Seletor dinâmico por Diretório/Projeto no Kanban
+                    - generic [ref=e1815]: 👤 Marcos
+                  - button "✏️" [ref=e1816]
+                - generic [ref=e1817]:
+                  - generic [ref=e1818]:
+                    - checkbox "2.2 Modal para cadastrar e customizar novos diretórios de projeto com persistência 👤 Marcos" [checked] [ref=e1819]
+                    - generic [ref=e1820]:
+                      - strong [ref=e1821]: "2.2"
+                      - text: Modal para cadastrar e customizar novos diretórios de projeto com persistência
+                    - generic [ref=e1822]: 👤 Marcos
+                  - button "✏️" [ref=e1823]
+                - generic [ref=e1824]:
+                  - generic [ref=e1825]:
+                    - checkbox "2.3 Sincronização automatizada com GitHub Projects / Issues API 👤 Marcos" [checked] [ref=e1826]
+                    - generic [ref=e1827]:
+                      - strong [ref=e1828]: "2.3"
+                      - text: Sincronização automatizada com GitHub Projects / Issues API
+                    - generic [ref=e1829]: 👤 Marcos
+                  - button "✏️" [ref=e1830]
+                - generic [ref=e1831]:
+                  - generic [ref=e1832]:
+                    - checkbox "2.4 Exportação de relatórios da Sprint em formato PDF e planilha CSV 👤 Samuel" [checked] [ref=e1833]
+                    - generic [ref=e1834]:
+                      - strong [ref=e1835]: "2.4"
+                      - text: Exportação de relatórios da Sprint em formato PDF e planilha CSV
+                    - generic [ref=e1836]: 👤 Samuel
+                  - button "✏️" [ref=e1837]
+                - generic [ref=e1838]:
+                  - generic [ref=e1839]:
+                    - checkbox "2.5 Notificações sonoras/toast para atualizações de status de tarefas na equipe 👤 Jorge Espindola" [checked] [ref=e1840]
+                    - generic [ref=e1841]:
+                      - strong [ref=e1842]: "2.5"
+                      - text: Notificações sonoras/toast para atualizações de status de tarefas na equipe
+                    - generic [ref=e1843]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e1844]
+            - generic [ref=e1845] [cursor=pointer]:
+              - generic [ref=e1846]:
+                - generic [ref=e1847]: Done
+                - generic [ref=e1848]:
+                  - button "📁 unity ▼" [ref=e1849]:
+                    - generic [ref=e1850]: 📁 unity
+                    - generic [ref=e1851]: ▼
+                  - generic [ref=e1852]: 👤 Marcos
+                  - button "📄 PDF" [ref=e1853]
+              - 'heading "POC-UNI-01: Migração Completa do Joystick Pack para o Módulo DDD MobileControls" [level=3] [ref=e1854]'
+              - generic [ref=e1856]:
+                - generic [ref=e1857]: Progresso (11/11)
+                - generic [ref=e1858]: 100%
+              - generic [ref=e1861]:
+                - generic [ref=e1862]:
+                  - generic [ref=e1863]: 📋 Tarefas (11/11)
+                  - generic [ref=e1864]: ↕️ Role para ver
+                - generic [ref=e1865]:
+                  - generic [ref=e1866]:
+                    - 'checkbox "1.1 Expandir `IJoystickInput.cs` com o enum `JoystickMode { Fixed, Floating, Dynamic }` e métodos `SetMode`/`CycleMode` 👤 Marcos" [checked] [ref=e1867]'
+                    - generic [ref=e1868]:
+                      - strong [ref=e1869]: "1.1"
+                      - text: "Expandir `IJoystickInput.cs` com o enum `JoystickMode { Fixed, Floating, Dynamic }` e métodos `SetMode`/`CycleMode`"
+                    - generic [ref=e1870]: 👤 Marcos
+                  - button "✏️" [ref=e1871]
+                - generic [ref=e1872]:
+                  - generic [ref=e1873]:
+                    - 'checkbox "1.2 Evoluir `VirtualJoystickView.cs` para suportar posicionamento dinâmico nos 3 modos e reposicionamento de background/handle 👤 Marcos" [checked] [ref=e1874]'
+                    - generic [ref=e1875]:
+                      - strong [ref=e1876]: "1.2"
+                      - text: "Evoluir `VirtualJoystickView.cs` para suportar posicionamento dinâmico nos 3 modos e reposicionamento de background/handle"
+                    - generic [ref=e1877]: 👤 Marcos
+                  - button "✏️" [ref=e1878]
+                - generic [ref=e1879]:
+                  - generic [ref=e1880]:
+                    - 'checkbox "2.1 Copiar sprites de joystick para `Assets/Modules/MobileControls/Sprites/` 👤 Marcos" [checked] [ref=e1881]'
+                    - generic [ref=e1882]:
+                      - strong [ref=e1883]: "2.1"
+                      - text: "Copiar sprites de joystick para `Assets/Modules/MobileControls/Sprites/`"
+                    - generic [ref=e1884]: 👤 Marcos
+                  - button "✏️" [ref=e1885]
+                - generic [ref=e1886]:
+                  - generic [ref=e1887]:
+                    - 'checkbox "2.2 Criar prefab canônico `Assets/Modules/MobileControls/Prefabs/Virtual Joystick.prefab` com `VirtualJoystickView` 👤 Marcos" [checked] [ref=e1888]'
+                    - generic [ref=e1889]:
+                      - strong [ref=e1890]: "2.2"
+                      - text: "Criar prefab canônico `Assets/Modules/MobileControls/Prefabs/Virtual Joystick.prefab` com `VirtualJoystickView`"
+                    - generic [ref=e1891]: 👤 Marcos
+                  - button "✏️" [ref=e1892]
+                - generic [ref=e1893]:
+                  - generic [ref=e1894]:
+                    - 'checkbox "3.1 Refatorar `MobilePlayerController.cs` para remover campos e métodos vinculados a `JoystickPack` 👤 Marcos" [checked] [ref=e1895]'
+                    - generic [ref=e1896]:
+                      - strong [ref=e1897]: "3.1"
+                      - text: "Refatorar `MobilePlayerController.cs` para remover campos e métodos vinculados a `JoystickPack`"
+                    - generic [ref=e1898]: 👤 Marcos
+                  - button "✏️" [ref=e1899]
+                - generic [ref=e1900]:
+                  - generic [ref=e1901]:
+                    - 'checkbox "3.2 Atualizar `JoystickModeSwitcher.cs` para integrar ao `MobilePlayerController` desacoplado 👤 Marcos" [checked] [ref=e1902]'
+                    - generic [ref=e1903]:
+                      - strong [ref=e1904]: "3.2"
+                      - text: "Atualizar `JoystickModeSwitcher.cs` para integrar ao `MobilePlayerController` desacoplado"
+                    - generic [ref=e1905]: 👤 Marcos
+                  - button "✏️" [ref=e1906]
+                - generic [ref=e1907]:
+                  - generic [ref=e1908]:
+                    - 'checkbox "3.3 Remover dependência `\"JoystickPack\"` de `FowlgenWars.Modules.Gameplay.asmdef` 👤 Marcos" [checked] [ref=e1909]'
+                    - generic [ref=e1910]:
+                      - strong [ref=e1911]: "3.3"
+                      - text: "Remover dependência `\"JoystickPack\"` de `FowlgenWars.Modules.Gameplay.asmdef`"
+                    - generic [ref=e1912]: 👤 Marcos
+                  - button "✏️" [ref=e1913]
+                - generic [ref=e1914]:
+                  - generic [ref=e1915]:
+                    - 'checkbox "4.1 Atualizar `SetupMobaArenaComplete.cs` para usar o prefab do `MobileControls` 👤 Marcos" [checked] [ref=e1916]'
+                    - generic [ref=e1917]:
+                      - strong [ref=e1918]: "4.1"
+                      - text: "Atualizar `SetupMobaArenaComplete.cs` para usar o prefab do `MobileControls`"
+                    - generic [ref=e1919]: 👤 Marcos
+                  - button "✏️" [ref=e1920]
+                - generic [ref=e1921]:
+                  - generic [ref=e1922]:
+                    - 'checkbox "4.2 Atualizar a cena `BattleArena.unity` com o novo componente e ligações 👤 Marcos" [checked] [ref=e1923]'
+                    - generic [ref=e1924]:
+                      - strong [ref=e1925]: "4.2"
+                      - text: "Atualizar a cena `BattleArena.unity` com o novo componente e ligações"
+                    - generic [ref=e1926]: 👤 Marcos
+                  - button "✏️" [ref=e1927]
+                - generic [ref=e1928]:
+                  - generic [ref=e1929]:
+                    - 'checkbox "4.3 Excluir pasta legada `Assets/Joystick Pack` 👤 Marcos" [checked] [ref=e1930]'
+                    - generic [ref=e1931]:
+                      - strong [ref=e1932]: "4.3"
+                      - text: "Excluir pasta legada `Assets/Joystick Pack`"
+                    - generic [ref=e1933]: 👤 Marcos
+                  - button "✏️" [ref=e1934]
+                - generic [ref=e1935]:
+                  - generic [ref=e1936]:
+                    - 'checkbox "4.4 Atualizar especificação `openspec/specs/battle-arena.md` e validar compilação 👤 Marcos" [checked] [ref=e1937]'
+                    - generic [ref=e1938]:
+                      - strong [ref=e1939]: "4.4"
+                      - text: "Atualizar especificação `openspec/specs/battle-arena.md` e validar compilação"
+                    - generic [ref=e1940]: 👤 Marcos
+                  - button "✏️" [ref=e1941]
+            - generic [ref=e1942] [cursor=pointer]:
+              - generic [ref=e1943]:
+                - generic [ref=e1944]: Done
+                - generic [ref=e1945]:
+                  - button "📁 app ▼" [ref=e1946]:
+                    - generic [ref=e1947]: 📁 app
+                    - generic [ref=e1948]: ▼
+                  - generic [ref=e1949]: 👤 Marcos
+                  - button "📄 PDF" [ref=e1950]
+              - heading "Consolidação de Paridade Total do Joystick Pack no Módulo DDD MobileControls e Controllers" [level=3] [ref=e1951]
+              - generic [ref=e1953]:
+                - generic [ref=e1954]: Progresso (8/8)
+                - generic [ref=e1955]: 100%
+              - generic [ref=e1958]:
+                - generic [ref=e1959]:
+                  - generic [ref=e1960]: 📋 Tarefas (8/8)
+                  - generic [ref=e1961]: ↕️ Role para ver
+                - generic [ref=e1962]:
+                  - generic [ref=e1963]:
+                    - 'checkbox "1.1 Atualizar `IJoystickInput.cs` com `AxisOptions`, `Horizontal`, `Vertical`, `SnapX`, `SnapY`, `SetAxisOptions` e `SetSnapping` 👤 Marcos" [checked] [ref=e1964]'
+                    - generic [ref=e1965]:
+                      - strong [ref=e1966]: "1.1"
+                      - text: "Atualizar `IJoystickInput.cs` com `AxisOptions`, `Horizontal`, `Vertical`, `SnapX`, `SnapY`, `SetAxisOptions` e `SetSnapping`"
+                    - generic [ref=e1967]: 👤 Marcos
+                  - button "✏️" [ref=e1968]
+                - generic [ref=e1969]:
+                  - generic [ref=e1970]:
+                    - 'checkbox "2.1 Atualizar `VirtualJoystickView.cs` com suporte a `AxisOptions`, `SnapFloat`, `FormatInput`, `handleRange` relativo e auto-alinhamento de âncoras 👤 Marcos" [checked] [ref=e1971]'
+                    - generic [ref=e1972]:
+                      - strong [ref=e1973]: "2.1"
+                      - text: "Atualizar `VirtualJoystickView.cs` com suporte a `AxisOptions`, `SnapFloat`, `FormatInput`, `handleRange` relativo e auto-alinhamento de âncoras"
+                    - generic [ref=e1974]: 👤 Marcos
+                  - button "✏️" [ref=e1975]
+                - generic [ref=e1976]:
+                  - generic [ref=e1977]:
+                    - 'checkbox "2.2 Criar `VirtualJoystickEditor.cs` sob `#if UNITY_EDITOR` em `Assets/Modules/MobileControls/Editor/` 👤 Marcos" [checked] [ref=e1978]'
+                    - generic [ref=e1979]:
+                      - strong [ref=e1980]: "2.2"
+                      - text: "Criar `VirtualJoystickEditor.cs` sob `#if UNITY_EDITOR` em `Assets/Modules/MobileControls/Editor/`"
+                    - generic [ref=e1981]: 👤 Marcos
+                  - button "✏️" [ref=e1982]
+                - generic [ref=e1983]:
+                  - generic [ref=e1984]:
+                    - 'checkbox "3.1 Atualizar `MobileInputReader.cs` expondo `Horizontal`, `Vertical` e `IsPressed` 👤 Marcos" [checked] [ref=e1985]'
+                    - generic [ref=e1986]:
+                      - strong [ref=e1987]: "3.1"
+                      - text: "Atualizar `MobileInputReader.cs` expondo `Horizontal`, `Vertical` e `IsPressed`"
+                    - generic [ref=e1988]: 👤 Marcos
+                  - button "✏️" [ref=e1989]
+                - generic [ref=e1990]:
+                  - generic [ref=e1991]:
+                    - 'checkbox "3.2 Atualizar `MobilePlayerController.cs` com acesso a `Horizontal`, `Vertical`, `SetAxisOptions` e `SetSnapping` 👤 Marcos" [checked] [ref=e1992]'
+                    - generic [ref=e1993]:
+                      - strong [ref=e1994]: "3.2"
+                      - text: "Atualizar `MobilePlayerController.cs` com acesso a `Horizontal`, `Vertical`, `SetAxisOptions` e `SetSnapping`"
+                    - generic [ref=e1995]: 👤 Marcos
+                  - button "✏️" [ref=e1996]
+                - generic [ref=e1997]:
+                  - generic [ref=e1998]:
+                    - 'checkbox "4.1 Copiar sprites de eixos para `Assets/Modules/MobileControls/Sprites/` 👤 Marcos" [checked] [ref=e1999]'
+                    - generic [ref=e2000]:
+                      - strong [ref=e2001]: "4.1"
+                      - text: "Copiar sprites de eixos para `Assets/Modules/MobileControls/Sprites/`"
+                    - generic [ref=e2002]: 👤 Marcos
+                  - button "✏️" [ref=e2003]
+                - generic [ref=e2004]:
+                  - generic [ref=e2005]:
+                    - 'checkbox "4.2 Remover pasta legada `Assets/Joystick Pack` 👤 Marcos" [checked] [ref=e2006]'
+                    - generic [ref=e2007]:
+                      - strong [ref=e2008]: "4.2"
+                      - text: "Remover pasta legada `Assets/Joystick Pack`"
+                    - generic [ref=e2009]: 👤 Marcos
+                  - button "✏️" [ref=e2010]
+                - generic [ref=e2011]:
+                  - generic [ref=e2012]:
+                    - checkbox "4.3 Validar compilação do projeto Unity 👤 Marcos" [checked] [ref=e2013]
+                    - generic [ref=e2014]:
+                      - strong [ref=e2015]: "4.3"
+                      - text: Validar compilação do projeto Unity
+                    - generic [ref=e2016]: 👤 Marcos
+                  - button "✏️" [ref=e2017]
+            - generic [ref=e2018] [cursor=pointer]:
+              - generic [ref=e2019]:
+                - generic [ref=e2020]: Done
+                - generic [ref=e2021]:
+                  - button "📁 unity ▼" [ref=e2022]:
+                    - generic [ref=e2023]: 📁 unity
+                    - generic [ref=e2024]: ▼
+                  - generic [ref=e2025]: 👤 Marcos
+                  - button "📄 PDF" [ref=e2026]
+              - 'heading "POC-01: Fundação Unity, Telas e Ciclo de Vida" [level=3] [ref=e2027]'
+              - generic [ref=e2029]:
+                - generic [ref=e2030]: Progresso (4/4)
+                - generic [ref=e2031]: 100%
+              - generic [ref=e2034]:
+                - generic [ref=e2035]:
+                  - generic [ref=e2036]: 📋 Tarefas (4/4)
+                  - generic [ref=e2037]: ↕️ Role para ver
+                - generic [ref=e2038]:
+                  - generic [ref=e2039]:
+                    - checkbox "1.1 Setup de bootstrap e ciclo de vida da engine Unity 2022 URP 👤 Marcos" [checked] [ref=e2040]
+                    - generic [ref=e2041]:
+                      - strong [ref=e2042]: "1.1"
+                      - text: Setup de bootstrap e ciclo de vida da engine Unity 2022 URP
+                    - generic [ref=e2043]: 👤 Marcos
+                  - button "✏️" [ref=e2044]
+                - generic [ref=e2045]:
+                  - generic [ref=e2046]:
+                    - checkbox "1.2 Implementação do menu principal e navegação em Play.unity 👤 Marcos" [checked] [ref=e2047]
+                    - generic [ref=e2048]:
+                      - strong [ref=e2049]: "1.2"
+                      - text: Implementação do menu principal e navegação em Play.unity
+                    - generic [ref=e2050]: 👤 Marcos
+                  - button "✏️" [ref=e2051]
+                - generic [ref=e2052]:
+                  - generic [ref=e2053]:
+                    - checkbox "1.3 Framework de telas de teste com tabela de status e feedback visual 👤 Marcos" [checked] [ref=e2054]
+                    - generic [ref=e2055]:
+                      - strong [ref=e2056]: "1.3"
+                      - text: Framework de telas de teste com tabela de status e feedback visual
+                    - generic [ref=e2057]: 👤 Marcos
+                  - button "✏️" [ref=e2058]
+                - generic [ref=e2059]:
+                  - generic [ref=e2060]:
+                    - checkbox "1.4 Validação em PlayMode batch sem warnings impeditivos 👤 Marcos" [checked] [ref=e2061]
+                    - generic [ref=e2062]:
+                      - strong [ref=e2063]: "1.4"
+                      - text: Validação em PlayMode batch sem warnings impeditivos
+                    - generic [ref=e2064]: 👤 Marcos
+                  - button "✏️" [ref=e2065]
+            - generic [ref=e2066] [cursor=pointer]:
+              - generic [ref=e2067]:
+                - generic [ref=e2068]: Done
+                - generic [ref=e2069]:
+                  - button "📁 app ▼" [ref=e2070]:
+                    - generic [ref=e2071]: 📁 app
+                    - generic [ref=e2072]: ▼
+                  - generic [ref=e2073]: 👤 Jorge Espindola
+                  - generic [ref=e2074]: 👤 Marcos
+                  - button "📄 PDF" [ref=e2075]
+              - 'heading "POC-ANC-01/02: Smart Contract Anchor & Deploy Devnet" [level=3] [ref=e2076]'
+              - generic [ref=e2078]:
+                - generic [ref=e2079]: Progresso (4/4)
+                - generic [ref=e2080]: 100%
+              - generic [ref=e2083]:
+                - generic [ref=e2084]:
+                  - generic [ref=e2085]: 📋 Tarefas (4/4)
+                  - generic [ref=e2086]: ↕️ Role para ver
+                - generic [ref=e2087]:
+                  - generic [ref=e2088]:
+                    - checkbox "1.1 Implementação das instruções initialize e increment em Rust em program/ 👤 Jorge Espindola" [checked] [ref=e2089]
+                    - generic [ref=e2090]:
+                      - strong [ref=e2091]: "1.1"
+                      - text: Implementação das instruções initialize e increment em Rust em program/
+                    - generic [ref=e2092]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e2093]
+                - generic [ref=e2094]:
+                  - generic [ref=e2095]:
+                    - checkbox "1.2 Teste automatizado test_initialize.rs via LiteSVM com cargo test aprovado 100% 👤 Jorge Espindola" [checked] [ref=e2096]
+                    - generic [ref=e2097]:
+                      - strong [ref=e2098]: "1.2"
+                      - text: Teste automatizado test_initialize.rs via LiteSVM com cargo test aprovado 100%
+                    - generic [ref=e2099]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e2100]
+                - generic [ref=e2101]:
+                  - generic [ref=e2102]:
+                    - checkbox "1.3 Deploy do contrato na Solana Devnet com Program ID 81MprTi78xQvtVg9aaK4s4Cw9K62CU6PtcPYsChLNyxE 👤 Jorge Espindola" [checked] [ref=e2103]
+                    - generic [ref=e2104]:
+                      - strong [ref=e2105]: "1.3"
+                      - text: Deploy do contrato na Solana Devnet com Program ID 81MprTi78xQvtVg9aaK4s4Cw9K62CU6PtcPYsChLNyxE
+                    - generic [ref=e2106]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e2107]
+                - generic [ref=e2108]:
+                  - generic [ref=e2109]:
+                    - checkbox "1.4 Exportação do IDL fowlgen_wars_contract.json sincronizado com a Unity 👤 Marcos" [checked] [ref=e2110]
+                    - generic [ref=e2111]:
+                      - strong [ref=e2112]: "1.4"
+                      - text: Exportação do IDL fowlgen_wars_contract.json sincronizado com a Unity
+                    - generic [ref=e2113]: 👤 Marcos
+                  - button "✏️" [ref=e2114]
+            - generic [ref=e2115] [cursor=pointer]:
+              - generic [ref=e2116]:
+                - generic [ref=e2117]: Done
+                - generic [ref=e2118]:
+                  - button "📁 app ▼" [ref=e2119]:
+                    - generic [ref=e2120]: 📁 app
+                    - generic [ref=e2121]: ▼
+                  - generic [ref=e2122]: 👤 Jorge Espindola
+                  - button "📄 PDF" [ref=e2123]
+              - 'heading "POC-WEB-02: Hub Web3 Solana Devnet, Wallet Adapter e Deploy Vercel (Jorge Espindola)" [level=3] [ref=e2124]'
+              - generic [ref=e2126]:
+                - generic [ref=e2127]: Progresso (5/5)
+                - generic [ref=e2128]: 100%
+              - generic [ref=e2131]:
+                - generic [ref=e2132]:
+                  - generic [ref=e2133]: 📋 Tarefas (5/5)
+                  - generic [ref=e2134]: ↕️ Role para ver
+                - generic [ref=e2135]:
+                  - generic [ref=e2136]:
+                    - checkbox "1.1 Implementação do client RPC Solana Devnet e detecção de carteiras Phantom e Solflare em app/app.ts - commit a3a505e 👤 Jorge Espindola" [checked] [ref=e2137]
+                    - generic [ref=e2138]:
+                      - strong [ref=e2139]: "1.1"
+                      - text: Implementação do client RPC Solana Devnet e detecção de carteiras Phantom e Solflare em app/app.ts - commit a3a505e
+                    - generic [ref=e2140]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e2141]
+                - generic [ref=e2142]:
+                  - generic [ref=e2143]:
+                    - checkbox "1.2 Sistema de autenticação por assinatura de mensagem Ed25519 e sessão JWT em app/app.ts - commit a3a505e 👤 Jorge Espindola" [checked] [ref=e2144]
+                    - generic [ref=e2145]:
+                      - strong [ref=e2146]: "1.2"
+                      - text: Sistema de autenticação por assinatura de mensagem Ed25519 e sessão JWT em app/app.ts - commit a3a505e
+                    - generic [ref=e2147]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e2148]
+                - generic [ref=e2149]:
+                  - generic [ref=e2150]:
+                    - checkbox "1.3 Arquitetura de deploy contínuo, roteamento SPA e rollback em app/vercel.json e rollback.sh - commit a3a505e 👤 Jorge Espindola" [checked] [ref=e2151]
+                    - generic [ref=e2152]:
+                      - strong [ref=e2153]: "1.3"
+                      - text: Arquitetura de deploy contínuo, roteamento SPA e rollback em app/vercel.json e rollback.sh - commit a3a505e
+                    - generic [ref=e2154]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e2155]
+                - generic [ref=e2156]:
+                  - generic [ref=e2157]:
+                    - checkbox "1.4 Desbloqueio de batalha e fallback para carteira Web3 em sandbox CSP/iframe da Itch.io - commit 31b37a6 👤 Jorge Espindola" [checked] [ref=e2158]
+                    - generic [ref=e2159]:
+                      - strong [ref=e2160]: "1.4"
+                      - text: Desbloqueio de batalha e fallback para carteira Web3 em sandbox CSP/iframe da Itch.io - commit 31b37a6
+                    - generic [ref=e2161]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e2162]
+                - generic [ref=e2163]:
+                  - generic [ref=e2164]:
+                    - checkbox "1.5 Correção reativa dos botões de conectar carteira, carga de arena e saldo na Vercel - commit a02e21c 👤 Jorge Espindola" [checked] [ref=e2165]
+                    - generic [ref=e2166]:
+                      - strong [ref=e2167]: "1.5"
+                      - text: Correção reativa dos botões de conectar carteira, carga de arena e saldo na Vercel - commit a02e21c
+                    - generic [ref=e2168]: 👤 Jorge Espindola
+                  - button "✏️" [ref=e2169]
+  - generic:
+    - generic:
+      - generic:
+        - heading "⚙️ Configurações do Sistema" [level=3]
+        - button "×"
+      - generic:
+        - button "🐙 GitHub & Projetos (Modo Oficial)"
+        - button "👥 Integrantes da Equipe"
+      - generic:
+        - generic:
+          - paragraph:
+            - text: Insira seu
+            - strong: Personal Access Token (PAT)
+            - text: do GitHub com permissões de
+            - code: repo
+            - text: e
+            - code: project
+            - text: para sincronização com o GitHub Projects.
+          - generic:
+            - generic: "GitHub Personal Access Token (PAT):"
+            - generic:
+              - textbox "GitHub Personal Access Token (PAT):":
+                - /placeholder: ghp_xxxxxxxxxxxxxxxxxxxx
+              - button "👁️"
+            - generic:
+              - text: "Obtenha em:"
+              - link "github.com/settings/tokens":
+                - /url: https://github.com/settings/tokens
+          - generic:
+            - generic:
+              - generic: "Repositório:"
+              - textbox "Repositório:": mukasanray/Fowlgen-Wars-Project
+            - generic:
+              - generic: "Branch:"
+              - textbox "Branch:": main
+          - generic:
+            - generic:
+              - generic: "Project ID (GitHub Projects):"
+              - textbox "Project ID (GitHub Projects):":
+                - /placeholder: "ex: PVT_kwDOBr-_0g"
+                - text: PVT_kwDOBr-_0g
+            - generic:
+              - generic: "Responsável Padrão:"
+              - textbox "Responsável Padrão:": Marcos
+          - generic:
+            - button "🧪 Testar Conexão GitHub"
+      - generic:
+        - button "Cancelar"
+        - button "💾 Salvar Configurações"
+  - generic:
+    - generic:
+      - generic:
+        - heading "⏸️ Inativar Integrante e Repassar Tarefas" [level=3]:
+          - generic: ⏸️
+          - text: Inativar Integrante e Repassar Tarefas
+        - button "×"
+      - generic:
+        - generic:
+          - paragraph:
+            - text: Ao inativar
+            - strong: este integrante
+            - text: ", as tarefas"
+            - strong: não terminadas
+            - text: serão repassadas automaticamente ao Membro Ativo selecionado. O integrante inativado não aparecerá no Kanban, filtros ou seletores de tarefas.
+        - generic:
+          - generic: "Selecione o Membro Ativo que assumirá as tarefas não terminadas: *"
+          - 'combobox "Selecione o Membro Ativo que assumirá as tarefas não terminadas: *"'
+        - generic:
+          - generic: "Escopo do repasse de tarefas:"
+          - generic:
+            - generic:
+              - radio "Repassar tarefas não terminadas (pendentes / em andamento - padrão)" [checked]
+              - generic:
+                - strong: Repassar tarefas não terminadas
+                - text: (pendentes / em andamento - padrão)
+            - generic:
+              - radio "Repassar todas as tarefas (incluindo histórico concluído)"
+              - generic: Repassar todas as tarefas (incluindo histórico concluído)
+      - generic:
+        - button "Cancelar"
+        - button "Confirmar e Repassar Tarefas"
+  - generic:
+    - generic:
+      - generic:
+        - heading "📁 Gerenciar Diretórios e Filtros de Projeto" [level=3]:
+          - generic: 📁
+          - text: Gerenciar Diretórios e Filtros de Projeto
+        - button "×"
+      - generic:
+        - paragraph:
+          - text: "Filtre tarefas e features do Kanban por diretório de projeto (ex:"
+          - code: app
+          - text: ","
+          - code: unity
+          - text: ","
+          - code: prompt
+          - text: ", etc.). Adicione novos diretórios personalizados para a sua equipe."
+        - generic:
+          - heading "➕ Adicionar Novo Diretório de Projeto" [level=4]:
+            - generic: ➕
+            - text: Adicionar Novo Diretório de Projeto
+          - generic:
+            - generic:
+              - generic: "Nome de Exibição: *"
+              - 'textbox "Nome de Exibição: *"':
+                - /placeholder: "ex: Site / Webapp ou Assets 3D"
+            - generic:
+              - generic: "Ícone / Emoji:"
+              - textbox "Ícone / Emoji:":
+                - /placeholder: "ex: 🌐, 🎮, 📦"
+                - text: 📁
+          - generic:
+            - generic: "Identificador / Subdiretório: *"
+            - 'textbox "Identificador / Subdiretório: *"':
+              - /placeholder: "ex: app, unity, prompt, backend, mobile"
+            - generic:
+              - text: As tarefas com tags
+              - code: (caminho/)
+              - text: ou da feature serão vinculadas a este filtro.
+          - generic:
+            - button "➕ Cadastrar Diretório"
+        - heading "Diretórios Atuais 7 diretório(s)" [level=4]:
+          - generic: Diretórios Atuais
+          - generic: 7 diretório(s)
+        - generic:
+          - generic:
+            - generic:
+              - generic: 🌐
+              - generic:
+                - generic: "Site: app"
+                - generic:
+                  - text: "caminho:"
+                  - code: app
+                  - text: "(ID: app)"
+            - generic:
+              - button "🎯 Filtrar"
+              - button "🗑️ Excluir"
+          - generic:
+            - generic:
+              - generic: 🎮
+              - generic:
+                - generic: "Game: Unity"
+                - generic:
+                  - text: "caminho:"
+                  - code: unity
+                  - text: "(ID: unity)"
+            - generic:
+              - button "🎯 Filtrar"
+              - button "🗑️ Excluir"
+          - generic:
+            - generic:
+              - generic: ✨
+              - generic:
+                - generic: "Skills: prompt"
+                - generic:
+                  - text: "caminho:"
+                  - code: prompt
+                  - text: "(ID: prompt)"
+            - generic:
+              - button "🎯 Filtrar"
+              - button "🗑️ Excluir"
+          - generic:
+            - generic:
+              - generic: 📋
+              - generic:
+                - generic: "Kanban: kanban"
+                - generic:
+                  - text: "caminho:"
+                  - code: kanban
+                  - text: "(ID: kanban)"
+            - generic:
+              - button "🎯 Filtrar"
+              - button "🗑️ Excluir"
+          - generic:
+            - generic:
+              - generic: 🦀
+              - generic:
+                - generic: "Solana: program"
+                - generic:
+                  - text: "caminho:"
+                  - code: program
+                  - text: "(ID: program)"
+            - generic:
+              - button "🎯 Filtrar"
+              - button "🗑️ Excluir"
+          - generic:
+            - generic:
+              - generic: 🛡️
+              - generic:
+                - generic: "DevSecOps: devsecops"
+                - generic:
+                  - text: "caminho:"
+                  - code: devsecops
+                  - text: "(ID: devsecops)"
+            - generic:
+              - button "🎯 Filtrar"
+              - button "🗑️ Excluir"
+          - generic:
+            - generic:
+              - generic: 📄
+              - generic:
+                - generic: "Docs: docs"
+                - generic:
+                  - text: "caminho:"
+                  - code: docs
+                  - text: "(ID: docs)"
+            - generic:
+              - button "🎯 Filtrar"
+              - button "🗑️ Excluir"
+      - generic:
+        - button "Fechar"
+  - generic:
+    - generic:
+      - generic:
+        - heading "⚠️ Confirmar Ação" [level=3]:
+          - generic: ⚠️
+          - generic: Confirmar Ação
+        - button "×"
+      - generic:
+        - paragraph
+      - generic:
+        - button "Cancelar"
+        - button "Confirmar"
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic: 💡
+          - generic:
+            - heading "Título da Ideia / Tarefa" [level=3]
+            - paragraph: openspec/changes/...
+        - generic:
+          - button "📄 Gerar PDF do Card":
+            - generic: 📄
+            - text: Gerar PDF do Card
+          - button "×"
+      - generic:
+        - generic:
+          - generic: CRIADO
+          - button "🌐 Projeto ▼":
+            - text: 🌐 Projeto
+            - generic: ▼
+          - generic: 👥 Todos
+        - generic: "Progresso: 0/0 (0%)"
+      - generic:
+        - button "📄 Proposta da Feature (proposal.md)"
+        - button "📋 Checklist de Tarefas ( 0 )":
+          - text: 📋 Checklist de Tarefas (
+          - generic: "0"
+          - text: )
+        - button "💻 Comandos & Agent OpenSpec"
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - button "👁️ Visualizar Formatado"
+              - button "✏️ Editar Markdown"
+      - generic:
+        - button "Fechar"

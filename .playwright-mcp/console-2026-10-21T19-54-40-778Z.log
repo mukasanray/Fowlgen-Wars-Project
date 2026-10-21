@@ -1,0 +1,8 @@
+[      79ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3000/:0
+[     172ms] [LOG] 📡 Config loaded: {repo: mukasanray/Fowlgen-Wars-Project, branch: main, projectId: PVT_kwDOBr-_0g, assignee: Marcos, hasToken: false} @ http://localhost:3000/app.js:6083
+[   22275ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ http://localhost:3000/app.js:6372
+[   22321ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3001/:0
+[  550852ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3000/:0
+[  550862ms] [LOG] 📡 Config loaded: {repo: mukasanray/Fowlgen-Wars-Project, branch: main, projectId: PVT_kwDOBr-_0g, assignee: Marcos, hasToken: false} @ http://localhost:3000/app.js:6083
+[  571586ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ http://localhost:3000/app.js:6372
+[  571617ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3001/:0

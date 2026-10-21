@@ -1,6 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const BASE_URL = 'http://localhost:3000';
 
@@ -199,8 +200,8 @@ async function runAllTests() {
     const resGitReset = await request({
       path: '/api/git/reset',
       method: 'POST',
-      body: { dryRun: true }
-    });
+      headers: { 'x-dry-run': 'true' }
+    }, { dryRun: true });
     assert(resGitReset.status === 200 && resGitReset.json && resGitReset.json.success, 'POST /api/git/reset restaura estado limpo do repositório');
     assert(resRoot.data.includes('btn-reset-repo-local'), 'index.html contém botão btn-reset-repo-local (Reset Repo Local)');
     assert(resStyles.data.includes('.btn-reset-repo'), 'styles.css contém estilos elegantes para .btn-reset-repo');
@@ -551,8 +552,66 @@ async function runAllTests() {
     assert(resAppJs.data.includes('populateDirectorySelects'), 'app.js implementa populateDirectorySelects para preenchimento dinâmico');
     assert(resAppJs.data.includes('updateTaskDirectoryPlaceholder'), 'app.js implementa herança e placeholder informativo de diretório');
 
-    // 17. Clean Up Test Feature
-    console.log('\n--- 17. Limpeza do Ambiente de Teste ---');
+    // 17. Integração OpenSign & Menu Cabeçalho Esquerdo (Hamburger)
+    console.log('\n--- 17. Integração OpenSign & Menu Cabeçalho Esquerdo ---');
+    assert(resRoot.data.includes('id="btn-hamburger-menu"'), 'index.html contém botão hamburger id="btn-hamburger-menu"');
+    assert(resRoot.data.includes('id="hamburger-dropdown"'), 'index.html contém menu dropdown id="hamburger-dropdown"');
+    assert(resRoot.data.includes('id="menu-opensign"'), 'index.html contém item de menu id="menu-opensign"');
+    assert(resRoot.data.includes('OpenSign</span>'), 'index.html exibe label "OpenSign" (grafia correta)');
+    assert(!resRoot.data.includes('OpenSing'), 'index.html NÃO contém o typo "OpenSing"');
+    assert(resRoot.data.includes('id="menu-opensign-dashboard"'), 'index.html contém item id="menu-opensign-dashboard"');
+    assert(resStyles.data.includes('.left-header-menu'), 'styles.css define regras para .left-header-menu');
+    assert(resStyles.data.includes('.btn-hamburger'), 'styles.css define estilos para .btn-hamburger');
+    assert(resStyles.data.includes('.hamburger-dropdown'), 'styles.css define estilos para .hamburger-dropdown');
+    assert(resAppJs.data.includes('initHamburgerMenu'), 'app.js implementa inicialização do menu hamburger (initHamburgerMenu)');
+    assert(resAppJs.data.includes('openOpenSignModal'), 'app.js implementa modal visual/iframe do OpenSign (openOpenSignModal)');
+    assert(resAppJs.data.includes('openOpenSignDashboard'), 'app.js implementa abertura do dashboard OpenSign (openOpenSignDashboard)');
+
+    // Endpoint GET /api/config
+    const resConfig = await request({ path: '/api/config' });
+    assert(resConfig.status === 200 && resConfig.json && resConfig.json.success, 'GET /api/config retorna 200 OK com configuração pública');
+    assert(typeof resConfig.json.config.opensignPublicUrl === 'string', 'GET /api/config informa opensignPublicUrl');
+    assert(typeof resConfig.json.config.kanbanPublicUrl === 'string', 'GET /api/config informa kanbanPublicUrl');
+    assert(typeof resConfig.json.config.webhookUrl === 'string', 'GET /api/config informa webhookUrl');
+
+    // Endpoint POST /api/webhooks/opensign - Validação de Segurança HMAC SHA256
+    const resWebhookNoSig = await request({
+      path: '/api/webhooks/opensign',
+      method: 'POST'
+    }, { event: 'recipient_signed' });
+    assert(resWebhookNoSig.status === 401, 'POST /api/webhooks/opensign rejeita requisição sem assinatura (401)');
+
+    const resWebhookBadSig = await request({
+      path: '/api/webhooks/opensign',
+      method: 'POST',
+      headers: { 'x-opensign-signature': 'assinatura-invalida-123' }
+    }, { event: 'recipient_signed' });
+    assert(resWebhookBadSig.status === 401, 'POST /api/webhooks/opensign rejeita requisição com assinatura HMAC inválida (401)');
+
+    const webhookSecret = process.env.OPENSIGN_WEBHOOK_SECRET || 'dev-webhook-secret-change-in-prod';
+    const validWebhookPayload = {
+      event: 'recipient_signed',
+      documentId: 'doc-teste-123',
+      documentTitle: 'Contrato de Teste OpenSign',
+      metadata: {
+        external_id: 'test-card-opensign'
+      },
+      signers: [
+        { id: 'sig-1', name: 'Signatário Teste', email: 'teste@kanban.local', status: 'signed' }
+      ]
+    };
+    const validBodyStr = JSON.stringify(validWebhookPayload);
+    const validSig = crypto.createHmac('sha256', webhookSecret).update(validBodyStr).digest('hex');
+
+    const resWebhookValid = await request({
+      path: '/api/webhooks/opensign',
+      method: 'POST',
+      headers: { 'x-opensign-signature': validSig }
+    }, validWebhookPayload);
+    assert(resWebhookValid.status === 200 && resWebhookValid.json && resWebhookValid.json.received, 'POST /api/webhooks/opensign aceita e processa payload com assinatura HMAC válida (200 OK)');
+
+    // 18. Clean Up Test Feature
+    console.log('\n--- 18. Limpeza do Ambiente de Teste ---');
     const repoRoot = path.resolve(__dirname, '..');
     const testFeatureDir = path.join(repoRoot, 'openspec', 'changes', testFeatureId);
     if (fs.existsSync(testFeatureDir)) {
@@ -565,8 +624,27 @@ async function runAllTests() {
     console.log(`📊 RESULTADO FINAL: ${passed} PASSOU / ${failed} FALHOU`);
     console.log('====================================================');
 
+    if (spawnedServer) {
+      try {
+        if (process.platform === 'win32') {
+          require('child_process').execSync(`taskkill /pid ${spawnedServer.pid} /T /F`, { stdio: 'ignore' });
+        } else {
+          spawnedServer.kill();
+        }
+      } catch {}
+    }
+
     process.exit(failed > 0 ? 1 : 0);
   } catch (err) {
+    if (spawnedServer) {
+      try {
+        if (process.platform === 'win32') {
+          require('child_process').execSync(`taskkill /pid ${spawnedServer.pid} /T /F`, { stdio: 'ignore' });
+        } else {
+          spawnedServer.kill();
+        }
+      } catch {}
+    }
     console.error('❌ Erro inesperado durante execução dos testes:', err);
     process.exit(1);
   }

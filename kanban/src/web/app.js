@@ -6062,12 +6062,421 @@ function initApp() {
       updateSidebarToggleButtons(false);
     }
   } catch { }
+  fetchConfig().then(() => {
+    initHamburgerMenu();
+  });
   fetchGitInfo();
   fetchMembers();
   fetchDirectories();
   fetchFeatures();
   loadConfig();
   updateCommandPreview();
+}
+
+// Fetch public config (OpenSign URL, etc.)
+async function fetchConfig() {
+  try {
+    const response = await fetch('/api/config');
+    const data = await response.json();
+    if (data.success && data.config) {
+      window.OPENSIGN_PUBLIC_URL = data.config.opensignPublicUrl;
+      window.KANBAN_PUBLIC_URL = data.config.kanbanPublicUrl;
+      console.log('📡 Config loaded:', data.config);
+    }
+  } catch (e) {
+    console.warn('⚠️  Could not fetch config, using defaults');
+    window.OPENSIGN_PUBLIC_URL = window.location.origin.replace(':3000', ':3001');
+    window.KANBAN_PUBLIC_URL = window.location.origin;
+  }
+}
+
+// Hamburger Menu (Menu Lateral / Sidebar Drawer) + OpenSign
+function initHamburgerMenu() {
+  const btnHamburger = document.getElementById('btn-hamburger-menu');
+  const drawerOverlay = document.getElementById('sidebar-drawer-overlay');
+  const drawer = document.getElementById('hamburger-dropdown');
+  const btnClose = document.getElementById('btn-close-sidebar-drawer');
+  const menuOpensign = document.getElementById('menu-opensign');
+  const menuOpensignDashboard = document.getElementById('menu-opensign-dashboard');
+  const menuSettings = document.getElementById('menu-settings');
+  const menuAbout = document.getElementById('menu-about');
+
+  if (!btnHamburger || !drawer) return;
+
+  let isOpen = false;
+
+  function openDrawer() {
+    if (drawerOverlay) {
+      drawerOverlay.style.display = 'flex';
+      // Trigger reflow for CSS transition
+      void drawerOverlay.offsetWidth;
+      drawerOverlay.classList.add('active');
+    }
+    drawer.style.display = 'flex';
+    btnHamburger.setAttribute('aria-expanded', 'true');
+    isOpen = true;
+  }
+
+  function closeDrawer() {
+    if (drawerOverlay) {
+      drawerOverlay.classList.remove('active');
+      setTimeout(() => {
+        if (!isOpen) {
+          drawerOverlay.style.display = 'none';
+        }
+      }, 260);
+    }
+    btnHamburger.setAttribute('aria-expanded', 'false');
+    isOpen = false;
+  }
+
+  function toggleDrawer() {
+    if (isOpen) closeDrawer();
+    else openDrawer();
+  }
+
+  btnHamburger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDrawer();
+  });
+
+  if (btnClose) {
+    btnClose.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeDrawer();
+    });
+  }
+
+  if (drawerOverlay) {
+    drawerOverlay.addEventListener('click', (e) => {
+      if (e.target === drawerOverlay) {
+        closeDrawer();
+      }
+    });
+  }
+
+  // Keyboard navigation & shortcuts
+  btnHamburger.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleDrawer();
+    } else if (e.key === 'Escape' && isOpen) {
+      closeDrawer();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen) {
+      closeDrawer();
+    }
+    if (e.altKey && (e.key === 'm' || e.key === 'M')) {
+      e.preventDefault();
+      toggleDrawer();
+    }
+  });
+
+  // Menu item handlers
+  if (menuOpensign) {
+    menuOpensign.addEventListener('click', () => {
+      closeDrawer();
+      openOpenSignModal();
+    });
+  }
+
+  if (menuOpensignDashboard) {
+    menuOpensignDashboard.addEventListener('click', () => {
+      closeDrawer();
+      openOpenSignDashboard();
+    });
+  }
+
+  if (menuSettings) {
+    menuSettings.addEventListener('click', () => {
+      closeDrawer();
+      openSettingsModal();
+    });
+  }
+
+  if (menuAbout) {
+    menuAbout.addEventListener('click', () => {
+      closeDrawer();
+      showAboutModal();
+    });
+  }
+}
+
+// OpenSign Modal (iframe com diagnóstico offline e fallback)
+function openOpenSignModal() {
+  const getOpenSignUrl = () => localStorage.getItem('OPENSIGN_URL') || window.OPENSIGN_PUBLIC_URL || window.location.origin.replace(':3000', ':3001');
+  let currentUrl = getOpenSignUrl();
+
+  // Remove existing modal if any
+  const existing = document.getElementById('opensign-modal-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'opensign-modal-overlay';
+  overlay.className = 'modal-overlay';
+  overlay.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px);
+    z-index: 100000; display: flex; align-items: center; justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+  `;
+
+  const modal = document.createElement('div');
+  modal.className = 'modal opensign-modal';
+  modal.style.cssText = `
+    width: 95%; height: 90%; max-width: 1400px; max-height: 90vh;
+    background: var(--bg-modal, #ffffff); border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: var(--radius-lg, 16px); overflow: hidden; display: flex;
+    flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  `;
+
+  modal.innerHTML = `
+    <div class="modal-header" style="
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; border-bottom: 1px solid var(--border-color, #e2e8f0);
+      background: var(--bg-header, #f8fafc); flex-shrink: 0;
+    ">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 20px;">📝</span>
+        <h2 style="font-size: 16px; font-weight: 700; margin: 0; color: var(--text-primary, #0f172a);">OpenSign — Assinatura Digital</h2>
+        <span id="opensign-status-badge" style="font-size: 11px; font-weight: 600; padding: 3px 10px; background: #e0f2fe; color: #0284c7; border-radius: 999px; display: inline-flex; align-items: center; gap: 5px;">
+          <span style="width: 7px; height: 7px; border-radius: 50%; background: #0284c7;"></span> Verificando...
+        </span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button type="button" id="opensign-refresh" class="btn btn-secondary btn-sm" title="Recarregar" style="padding: 6px 10px; cursor: pointer;">
+          ⟳
+        </button>
+        <button type="button" id="opensign-external" class="btn btn-secondary btn-sm" title="Abrir em nova aba" style="padding: 6px 10px; cursor: pointer;">
+          ↗
+        </button>
+        <button type="button" id="opensign-close" class="btn btn-secondary btn-sm" style="padding: 6px 10px; cursor: pointer; font-weight: bold;">
+          ✕
+        </button>
+      </div>
+    </div>
+    <div class="modal-body" style="flex: 1; overflow: hidden; position: relative; background: #f8fafc; display: flex;">
+      <!-- Iframe container -->
+      <div id="opensign-iframe-wrapper" style="width: 100%; height: 100%; display: none; position: relative;">
+        <iframe id="opensign-iframe"
+          style="width: 100%; height: 100%; border: none; background: white;"
+          allow="camera; microphone; clipboard-read; clipboard-write"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads allow-presentation">
+        </iframe>
+      </div>
+
+      <!-- Offline / Diagnostic Screen -->
+      <div id="opensign-offline-view" style="
+        display: none; flex: 1; overflow-y: auto; padding: 32px 24px;
+        flex-direction: column; align-items: center; justify-content: center;
+        background: radial-gradient(circle at top, #f1f5f9 0%, #e2e8f0 100%);
+        font-family: inherit; color: #1e293b;
+      ">
+        <div style="
+          max-width: 680px; width: 100%; background: white; border-radius: 16px;
+          padding: 32px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+          border: 1px solid #cbd5e1;
+        ">
+          <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
+            <div style="width: 48px; height: 48px; border-radius: 12px; background: #fee2e2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+              ⚡
+            </div>
+            <div>
+              <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">Serviço OpenSign Offline</h3>
+              <p style="margin: 2px 0 0 0; font-size: 13px; color: #64748b;">
+                Não foi possível estabelecer conexão com o OpenSign em <code id="lbl-offline-url" style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-weight: 600; color: #2563eb;">${currentUrl}</code>
+              </p>
+            </div>
+          </div>
+
+          <!-- Diagnóstico de ambiente -->
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 18px; margin-bottom: 22px;">
+            <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #475569; margin-bottom: 10px;">
+              Diagnóstico do Ambiente Local:
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span>🟢</span> <strong>Kanban Studio:</strong> Ativo (:3000)
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span>🔴</span> <strong>OpenSign Service:</strong> Parado (:3001)
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span>🐧</span> <strong>WSL Ubuntu:</strong> Docker 29.1 instalado
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span>☁️</span> <strong>Codespaces:</strong> Configurado (.devcontainer)
+              </div>
+            </div>
+          </div>
+
+          <!-- Passos para inicializar -->
+          <div style="margin-bottom: 22px;">
+            <div style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">
+              🚀 Como inicializar o OpenSign:
+            </div>
+            <div style="font-size: 13px; line-height: 1.6; color: #334155;">
+              <p style="margin: 0 0 10px 0;"><strong>Opção 1: Via Docker no WSL Ubuntu (Recomendado)</strong></p>
+              <pre style="background: #0f172a; color: #38bdf8; padding: 10px 14px; border-radius: 8px; font-size: 12px; overflow-x: auto; margin: 0 0 12px 0;">wsl -d Ubuntu
+docker compose -f docker-compose.dev.yml up -d</pre>
+
+              <p style="margin: 0 0 6px 0;"><strong>Opção 2: GitHub Codespaces (1-Click na Nuvem)</strong></p>
+              <p style="margin: 0 0 12px 0; color: #64748b; font-size: 12px;">
+                Abra o repositório no Codespaces. Os containers PostgreSQL, Redis e OpenSign sobem automaticamente sem necessidade de instalar nada na máquina local.
+              </p>
+            </div>
+          </div>
+
+          <!-- URL customizada -->
+          <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 14px; margin-bottom: 22px;">
+            <label style="display: block; font-size: 12px; font-weight: 600; color: #1e40af; margin-bottom: 6px;">
+              Ou conecte a um servidor OpenSign existente:
+            </label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="input-custom-opensign-url" value="${currentUrl}" placeholder="http://localhost:3001" style="
+                flex: 1; padding: 8px 12px; border: 1px solid #93c5fd; border-radius: 6px; font-size: 13px;
+              ">
+              <button type="button" id="btn-save-custom-opensign" class="btn btn-primary btn-sm" style="padding: 8px 16px; cursor: pointer; white-space: nowrap;">
+                Salvar & Conectar
+              </button>
+            </div>
+          </div>
+
+          <!-- Ações -->
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" id="btn-retry-opensign" class="btn btn-primary" style="padding: 9px 18px; cursor: pointer; font-weight: 600;">
+              ⟳ Testar Conexão Novamente
+            </button>
+            <button type="button" id="btn-close-offline-modal" class="btn btn-secondary" style="padding: 9px 16px; cursor: pointer;">
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div id="opensign-loading" style="
+        position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(255, 255, 255, 0.95); display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 14px; z-index: 10;
+      ">
+        <div style="width: 44px; height: 44px; border: 3px solid #e2e8f0; border-top-color: #2563eb; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <span style="color: #475569; font-size: 14px; font-weight: 500;">Conectando ao OpenSign...</span>
+      </div>
+    </div>
+  `;
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // Close handlers
+  const closeModal = () => {
+    overlay.style.animation = 'fadeOut 0.15s ease-in forwards';
+    setTimeout(() => overlay.remove(), 150);
+  };
+
+  overlay.querySelector('#opensign-close')?.addEventListener('click', closeModal);
+  overlay.querySelector('#btn-close-offline-modal')?.addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', function escHandler(e) {
+    if (e.key === 'Escape') { closeModal(); document.removeEventListener('keydown', escHandler); }
+  });
+
+  // Elements
+  const statusBadge = overlay.querySelector('#opensign-status-badge');
+  const iframeWrapper = overlay.querySelector('#opensign-iframe-wrapper');
+  const iframe = overlay.querySelector('#opensign-iframe');
+  const offlineView = overlay.querySelector('#opensign-offline-view');
+  const loading = overlay.querySelector('#opensign-loading');
+  const lblOfflineUrl = overlay.querySelector('#lbl-offline-url');
+
+  const checkAndLoad = async () => {
+    currentUrl = getOpenSignUrl();
+    if (lblOfflineUrl) lblOfflineUrl.textContent = currentUrl;
+    loading.style.display = 'flex';
+    offlineView.style.display = 'none';
+    iframeWrapper.style.display = 'none';
+    statusBadge.innerHTML = `<span style="width: 7px; height: 7px; border-radius: 50%; background: #0284c7;"></span> Verificando...`;
+    statusBadge.style.background = '#e0f2fe';
+    statusBadge.style.color = '#0284c7';
+
+    let isReachable = false;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2000);
+
+    try {
+      // Test connectivity
+      await fetch(currentUrl, { mode: 'no-cors', signal: controller.signal });
+      clearTimeout(timer);
+      isReachable = true;
+    } catch (err) {
+      clearTimeout(timer);
+      isReachable = false;
+    }
+
+    if (isReachable) {
+      statusBadge.innerHTML = `<span style="width: 7px; height: 7px; border-radius: 50%; background: #10b981;"></span> Online`;
+      statusBadge.style.background = '#d1fae5';
+      statusBadge.style.color = '#065f46';
+      iframe.src = currentUrl;
+      iframeWrapper.style.display = 'block';
+      iframe.onload = () => {
+        loading.style.display = 'none';
+      };
+      // fallback to hide loading after 2s
+      setTimeout(() => { loading.style.display = 'none'; }, 2000);
+    } else {
+      loading.style.display = 'none';
+      statusBadge.innerHTML = `<span style="width: 7px; height: 7px; border-radius: 50%; background: #ef4444;"></span> Offline`;
+      statusBadge.style.background = '#fee2e2';
+      statusBadge.style.color = '#991b1b';
+      offlineView.style.display = 'flex';
+    }
+  };
+
+  // Buttons inside offline screen & header
+  overlay.querySelector('#btn-retry-opensign')?.addEventListener('click', checkAndLoad);
+  overlay.querySelector('#opensign-refresh')?.addEventListener('click', checkAndLoad);
+
+  overlay.querySelector('#btn-save-custom-opensign')?.addEventListener('click', () => {
+    const input = overlay.querySelector('#input-custom-opensign-url');
+    if (input && input.value.trim()) {
+      localStorage.setItem('OPENSIGN_URL', input.value.trim());
+      checkAndLoad();
+    }
+  });
+
+  overlay.querySelector('#opensign-external')?.addEventListener('click', () => {
+    window.open(currentUrl, '_blank', 'noopener,noreferrer');
+  });
+
+  // Initial check
+  checkAndLoad();
+
+  // Add fadeOut / spin animation if not exists
+  if (!document.getElementById('opensign-modal-styles')) {
+    const style = document.createElement('style');
+    style.id = 'opensign-modal-styles';
+    style.textContent = `
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+      @keyframes spin { to { transform: rotate(360deg); } }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
+// OpenSign Dashboard (nova aba)
+function openOpenSignDashboard() {
+  const opensignUrl = localStorage.getItem('OPENSIGN_URL') || window.OPENSIGN_PUBLIC_URL || window.location.origin.replace(':3000', ':3001');
+  window.open(opensignUrl, '_blank', 'noopener,noreferrer');
+}
+
+function showAboutModal() {
+  alert('Fowlgen Wars — OpenSpec & Kanban Studio\\nVersão 1.0.0\\n\\nIntegração OpenSign para assinatura digital de contratos e documentos.');
 }
 
 if (document.readyState === 'loading') {

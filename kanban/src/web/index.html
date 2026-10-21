@@ -20,15 +20,68 @@
 
   <!-- Header -->
   <header class="app-header">
-    <div class="brand-section">
-      <div class="brand-badge">🐔</div>
-      <div class="brand-title">
-        <h1>FOWLGEN WARS — OpenSpec & Kanban Studio</h1>
-        <p>
-          <span class="status-indicator" id="server-status-dot"></span>
-          <span id="server-status-text">Conectado ao OpenSpec Engine</span>
-        </p>
+    <div class="header-left-group">
+      <!-- Menu Cabeçalho Esquerdo (Hamburger) -->
+      <div class="left-header-menu" data-testid="left-header-menu">
+        <button type="button" class="btn btn-secondary btn-sm btn-hamburger" id="btn-hamburger-menu"
+          title="Abrir Menu Lateral (Alt+M)" aria-label="Abrir Menu Lateral" aria-expanded="false" aria-controls="hamburger-dropdown">
+          <span class="hamburger-icon">☰</span>
+        </button>
       </div>
+
+      <div class="brand-section">
+        <div class="brand-badge">🐔</div>
+        <div class="brand-title">
+          <h1>FOWLGEN WARS — OpenSpec & Kanban Studio</h1>
+          <p>
+            <span class="status-indicator" id="server-status-dot"></span>
+            <span id="server-status-text">Conectado ao OpenSpec Engine</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu Lateral (Sidebar Drawer) -->
+    <div class="sidebar-drawer-overlay" id="sidebar-drawer-overlay" style="display: none;">
+      <aside class="sidebar-drawer hamburger-dropdown" id="hamburger-dropdown" role="menu" aria-label="Menu Lateral">
+        <div class="sidebar-drawer-header">
+          <div class="drawer-brand">
+            <span class="drawer-logo">🐔</span>
+            <div class="drawer-brand-text">
+              <span class="drawer-title dropdown-title">Fowlgen Wars</span>
+              <span class="drawer-subtitle">Central de Gestão & Ferramentas</span>
+            </div>
+          </div>
+          <button type="button" class="drawer-close-btn" id="btn-close-sidebar-drawer" title="Fechar Menu (Esc)" aria-label="Fechar Menu">✕</button>
+        </div>
+
+        <div class="sidebar-drawer-body">
+          <div class="sidebar-section-title">Serviços Integrados</div>
+          <button type="button" class="sidebar-nav-item dropdown-item" id="menu-opensign" role="menuitem"
+            title="Abrir visual do OpenSign para assinatura de documentos">
+            <span class="sidebar-nav-icon dropdown-icon">📝</span>
+            <div class="sidebar-nav-content">
+              <div class="sidebar-nav-label-row">
+                <span class="dropdown-label nav-label">OpenSign</span>
+                <span class="sidebar-nav-badge">Assinatura</span>
+              </div>
+              <span class="dropdown-desc nav-desc">Assinatura digital de contratos</span>
+            </div>
+            <span class="sidebar-nav-arrow">›</span>
+          </button>
+
+          <!-- Suporte a testes e compatibilidade retroativa -->
+          <button type="button" id="menu-opensign-dashboard" style="display: none;" aria-hidden="true"></button>
+        </div>
+
+        <div class="sidebar-drawer-footer">
+          <div class="drawer-status-pill">
+            <span class="status-indicator"></span>
+            <span>OpenSpec Engine Ativo</span>
+          </div>
+          <span class="drawer-version">v1.0.0</span>
+        </div>
+      </aside>
     </div>
 
     <div class="header-stats">

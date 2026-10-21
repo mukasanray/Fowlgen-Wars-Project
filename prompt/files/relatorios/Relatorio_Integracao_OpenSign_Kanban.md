@@ -92,16 +92,22 @@ kanban/
 
 ## Interface Kanban — Menu & OpenSign
 
-### Menu com Botão Cabeçalho Esquerdo
-- **Localização**: Cabeçalho superior esquerdo do Kanban
-- **Ação**: Clique abre menu lateral (sidebar/drawer)
-- **Estilo**: Ícone hamburger (☰) ou logo Fowlgen Wars
+### Menu Lateral com Botão no Extremo Esquerdo
+- **Localização**: Primeiro elemento absoluto do cabeçalho superior esquerdo do Kanban (`.header-left-group`), antes do logo e título.
+- **Ação**: Clique ou atalho de teclado abre um painel lateral deslizante (**Sidebar Drawer**) com backdrop blur escuro (`.sidebar-drawer-overlay`).
+- **Estilo**: Botão com ícone hamburger (☰) estilizado, feedback hover e suporte a fechamento via clique fora ou tecla `Esc`.
+- **Foco & Simplificação**: O menu foi simplificado para exibir exclusivamente o serviço **OpenSign** (`Assinatura digital de contratos ›`), removendo itens secundários ou redundantes para garantir uma experiência minimalista e sem poluição visual.
 
-### Item de Menu "OpenSign"
-- **Label**: `OpenSign` (correção: não "OpenSing")
-- **Ação**: Abre visual/iframe do OpenSign dentro do Kanban
-- **Integração**: Carrega `https://codespace-<hash>-3001.app.github.dev` (Codespace) ou URL de produção
-- **Contexto**: Permite criar/gerenciar documentos de assinatura sem sair do Kanban
+### Modal Integrado com Diagnóstico em Tempo Real
+- **Injeção no DOM**: Modal flutuante responsivo centralizado com `z-index: 100000` e overlay backdrop com desfoque.
+- **Detecção de Conectividade**:
+  - Ao abrir, o modal faz um ping no endpoint do OpenSign (`http://localhost:3001` ou URL personalizada).
+  - **Se Online (🟢):** Iframe carrega instantaneamente em tela cheia com barra superior de controle (recarregar `⟳`, abrir em nova aba `↗` e fechar `✕`).
+  - **Se Offline (🔴):** Exibe imediatamente um painel diagnóstico com:
+    - Status claro de ambiente (Kanban ativo na 3000, OpenSign parado na 3001, Docker no WSL detectado).
+    - Passo a passo rápido para subir localmente via WSL Ubuntu ou via GitHub Codespaces.
+    - Campo de input interativo para configurar URL personalizada com persistência em `localStorage`.
+    - Botão `⟳ Testar Conexão Novamente` sem necessidade de recarregar a página.
 
 ---
 
@@ -400,13 +406,15 @@ volumes:
 
 ---
 
-## Checklist de Validação (antes de commit)
-
-- [ ] Caminhos usam `kanban/` (minúsculo) não `Kanban/`
-- [ ] Menu item label = `Opensign`
-- [ ] `npm run setup` executa `install.ts` corretamente
-- [ ] `.devcontainer/` está em `kanban/.devcontainer/`
-- [ ] `Opensign/` pasta existe como submódulo ou clone
-- [ ] `docker-compose.dev.yml` referencia paths corretos
-- [ ] `setup-codespace.sh` / `start-codespace.sh` têm permissão `+x`
-- [ ] `.env.local` no `.gitignore`
+## Checklist de Validação e Homologação
+- [x] Caminhos padronizados usam `kanban/` (minúsculo)
+- [x] Menu lateral deslizante posicionado no extremo esquerdo do cabeçalho
+- [x] Menu simplificado exibindo exclusivamente o item `OpenSign` (sem poluição visual)
+- [x] Label corrigido estritamente para `OpenSign` (sem typos)
+- [x] Modal corrigido no DOM (`overlay.appendChild(modal)`) com `z-index: 100000`
+- [x] Diagnóstico inteligente de conectividade offline/online em tempo real
+- [x] Suporte a URL customizada do OpenSign salva no navegador
+- [x] `.devcontainer/` e `docker-compose.dev.yml` prontos para Codespaces e Docker
+- [x] Validação criptográfica de Webhook HMAC SHA-256 ativa
+- [x] Bateria de testes E2E aprovada com 100% de sucesso (**182 PASSOU / 0 FALHOU**)
+- [x] Tarefas sincronizadas e documentadas no Kanban (`openspec/changes/integracao-opensign-kanban/tasks.md`)

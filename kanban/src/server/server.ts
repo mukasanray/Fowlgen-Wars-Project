@@ -3,9 +3,107 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
+import { createHmac, timingSafeEqual } from 'crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+
+// OpenSign Webhook Handler
+interface OpenSignWebhookPayload {
+  event: 'document_completed' | 'recipient_signed' | 'document_expired' | 'document_declined';
+  documentId: string;
+  documentTitle: string;
+  metadata: {
+    external_id: string;
+    [key: string]: string;
+  };
+  signers: Array<{
+    id: string;
+    name: string;
+    email: string;
+    status: string;
+    signedAt?: string;
+  }>;
+  pdfUrl?: string;
+}
+
+const OPENSIGN_WEBHOOK_SECRET = process.env.OPENSIGN_WEBHOOK_SECRET || 'dev-webhook-secret-change-in-prod';
+
+function validateOpenSignWebhook(payload: string, signature: string): boolean {
+  try {
+    const expected = createHmac('sha256', OPENSIGN_WEBHOOK_SECRET).update(payload).digest('hex');
+    const sigBuf = Buffer.from(signature);
+    const expBuf = Buffer.from(expected);
+    if (sigBuf.length !== expBuf.length) return false;
+    return timingSafeEqual(sigBuf, expBuf);
+  } catch {
+    return false;
+  }
+}
+
+async function handleOpenSignWebhook(req: http.IncomingMessage, res: http.ServerResponse, rawBody: string) {
+  try {
+    const signature = req.headers['x-opensign-signature'] ||
+                      req.headers['x-webhook-signature'] ||
+                      req.headers['signature'];
+
+    if (!signature || !validateOpenSignWebhook(rawBody, String(signature))) {
+      sendJSON(res, 401, { error: 'Assinatura inválida ou ausente' });
+      return;
+    }
+
+    const payload: OpenSignWebhookPayload = JSON.parse(rawBody);
+    const cardId = payload.metadata?.external_id;
+
+    if (!cardId) {
+      sendJSON(res, 400, { error: 'external_id (cardId) não encontrado no metadata' });
+      return;
+    }
+
+    console.log(`📥 [OpenSign Webhook] ${payload.event} para card ${cardId}`);
+
+    // Roteia evento
+    switch (payload.event) {
+      case 'recipient_signed': {
+        const signer = payload.signers.find(s => s.status === 'signed');
+        console.log(`✍️  [${cardId}] ${signer?.name} (${signer?.email}) assinou`);
+        // TODO: updateCard(cardId, { lastSignedBy: signer?.name, signStatus: 'in_progress', signedAt: signer?.signedAt });
+        break;
+      }
+
+      case 'document_completed': {
+        console.log(`✅ [${cardId}] Documento completo - todos assinaram`);
+        // TODO: baixar PDF assinado via OpenSign API
+        // await downloadSignedPdf(payload.documentId);
+        // await attachFile(cardId, pdfBuffer, `assinado-${payload.documentTitle}.pdf`);
+        // await moveCard(cardId, 'Assinado');
+        break;
+      }
+
+      case 'document_expired': {
+        console.log(`⏰ [${cardId}] Documento expirado`);
+        // TODO: await moveCard(cardId, 'Expirado');
+        break;
+      }
+
+      case 'document_declined': {
+        const decliner = payload.signers.find(s => s.status === 'declined');
+        console.log(`❌ [${cardId}] Recusado por ${decliner?.name} (${decliner?.email})`);
+        // TODO: await moveCard(cardId, 'Recusado');
+        break;
+      }
+
+      default:
+        console.log(`⚠️  Evento não tratado: ${payload.event}`);
+    }
+
+    sendJSON(res, 200, { received: true });
+
+  } catch (error: any) {
+    console.error('❌ [OpenSign Webhook] Erro:', error.message);
+    sendJSON(res, 500, { error: error.message });
+  }
+}
 
 function findRepoRoot(startDir: string): string {
   if (process.env.REPO_ROOT && fs.existsSync(process.env.REPO_ROOT)) {
@@ -2123,7 +2221,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    // API: Get GitHub and project config + Database info
+    // API: Get GitHub and project config + OpenSign & Database info
     if (req.method === 'GET' && pathname === '/api/config') {
       let configData: any = {};
       if (fs.existsSync(CONFIG_PATH)) {
@@ -2135,6 +2233,9 @@ const server = http.createServer(async (req, res) => {
       const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '';
       const maskedToken = token ? `${token.substring(0, 4)}••••••••${token.slice(-4)}` : '';
 
+      const opensignPublicUrl = process.env.OPENSIGN_PUBLIC_URL || `http://localhost:3001`;
+      const kanbanPublicUrl = process.env.KANBAN_PUBLIC_URL || `http://localhost:${PORT}`;
+
       sendJSON(res, 200, {
         success: true,
         config: {
@@ -2143,7 +2244,10 @@ const server = http.createServer(async (req, res) => {
           projectId: configData.projectId || '',
           assignee: configData.assignee || 'Marcos',
           hasToken: Boolean(token),
-          tokenMasked: maskedToken
+          tokenMasked: maskedToken,
+          opensignPublicUrl,
+          kanbanPublicUrl,
+          webhookUrl: `${kanbanPublicUrl}/api/webhooks/opensign`
         }
       });
       return;
@@ -2324,10 +2428,10 @@ const server = http.createServer(async (req, res) => {
     // API: Reset uncommitted local changes (Reset Repo Local)
     if (req.method === 'POST' && pathname === '/api/git/reset') {
       try {
-        let isDryRun = false;
+        let isDryRun = req.headers['x-dry-run'] === 'true';
         try {
           const body = await parseJSONBody(req);
-          if (body && (body.dryRun === true || req.headers['x-dry-run'] === 'true')) {
+          if (body && body.dryRun === true) {
             isDryRun = true;
           }
         } catch { }
@@ -2710,6 +2814,14 @@ const server = http.createServer(async (req, res) => {
           error: err.message || 'Erro ao descartar alterações do arquivo'
         });
       }
+      return;
+    }
+
+    // API: OpenSign Webhook
+    if (req.method === 'POST' && pathname === '/api/webhooks/opensign') {
+      let rawBody = '';
+      req.on('data', chunk => { rawBody += chunk; });
+      req.on('end', () => handleOpenSignWebhook(req, res, rawBody));
       return;
     }
 
@@ -3244,7 +3356,7 @@ server.on('error', (err: any) => {
   }
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   const url = `http://localhost:${PORT}`;
   console.log(`\n🎮 Fowlgen Wars - OpenSpec Control Center & Kanban Studio`);
   console.log(`📡 Servidor rodando em: ${url}`);

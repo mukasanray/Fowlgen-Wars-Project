@@ -1,0 +1,49 @@
+{
+  "name": "Fowlgen Wars Kanban + OpenSign",
+  "dockerComposeFile": "../docker-compose.dev.yml",
+  "service": "kanban",
+  "workspaceFolder": "/app",
+  "forwardPorts": [3000, 3001, 5432, 6379],
+  "portsAttributes": {
+    "3000": {
+      "label": "Kanban",
+      "onAutoForward": "notify"
+    },
+    "3001": {
+      "label": "OpenSign",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/setup-codespace.sh",
+  "postStartCommand": "bash .devcontainer/start-codespace.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "prisma.prisma",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "bradlc.vscode-tailwindcss",
+        "formulahendry.auto-rename-tag",
+        "christian-kohler.path-intellisense"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        }
+      }
+    }
+  },
+  "remoteEnv": {
+    "NODE_ENV": "development",
+    "OPENSIGN_JWT_SECRET": "opensign-dev-secret-change-in-prod"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  }
+}

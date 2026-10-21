@@ -1,0 +1,341 @@
+- generic [active] [ref=f5e1]:
+  - banner [ref=f5e2]:
+    - generic [ref=f5e3]:
+      - button "Abrir Menu Lateral" [ref=f5e5] [cursor=pointer]:
+        - generic [ref=f5e6]: ☰
+      - generic [ref=f5e7]:
+        - generic [ref=f5e8]: 🐔
+        - generic [ref=f5e9]:
+          - heading "FOWLGEN WARS — OpenSpec & Kanban Studio" [level=1] [ref=f5e10]
+          - paragraph [ref=f5e11]:
+            - generic [ref=f5e13]: Conectado ao OpenSpec Engine
+    - generic [ref=f5e14]:
+      - generic [ref=f5e15]:
+        - generic [ref=f5e16]: "Features:"
+        - generic [ref=f5e17]: "0"
+      - generic [ref=f5e18]:
+        - generic [ref=f5e19]: "Tarefas:"
+        - generic [ref=f5e20]: "0"
+      - generic [ref=f5e21]:
+        - generic [ref=f5e22]: "Concluídas:"
+        - generic [ref=f5e23]: "0"
+    - generic [ref=f5e24]:
+      - tablist [ref=f5e25]:
+        - button "💻 Modo Local carregando..." [ref=f5e26] [cursor=pointer]:
+          - generic [ref=f5e27]: 💻
+          - generic [ref=f5e28]: Modo Local
+          - generic [ref=f5e29]: carregando...
+        - button "🌐 Modo Oficial" [ref=f5e30] [cursor=pointer]:
+          - generic [ref=f5e31]: 🌐
+          - generic [ref=f5e32]: Modo Oficial
+      - generic "Status de sincronização" [ref=f5e33]: Tudo Salvo
+      - combobox "Visualizar outra branch específica do Git..." [ref=f5e37] [cursor=pointer]:
+        - option "Outras branches..." [selected]
+    - generic [ref=f5e38]:
+      - button "💾 Commit Local" [ref=f5e39] [cursor=pointer]
+      - button "⬆️ Subir ao Repo" [ref=f5e40] [cursor=pointer]
+      - button "↺ Reset Repo Local" [ref=f5e41] [cursor=pointer]
+      - button "📋 Sync Kanban" [ref=f5e42] [cursor=pointer]
+      - generic "Separador" [ref=f5e43]
+      - button "Configurações" [ref=f5e44] [cursor=pointer]: ⚙️
+      - button "Ocultar Painel OpenSpec (Ctrl+B)" [ref=f5e45] [cursor=pointer]: ⚡
+      - button "Recarregar dados" [ref=f5e46] [cursor=pointer]: 🔄
+      - button "Alternar para tema Escuro" [ref=f5e47] [cursor=pointer]:
+        - generic [ref=f5e48]: 🌙
+  - main [ref=f5e49]:
+    - generic [ref=f5e50]:
+      - generic [ref=f5e51]:
+        - generic [ref=f5e52]:
+          - heading "⚡ Comandos Essenciais do OpenSpec" [level=2] [ref=f5e53]
+          - button "◀" [ref=f5e55] [cursor=pointer]
+        - tablist [ref=f5e56]:
+          - button "📋 Tarefas" [ref=f5e57] [cursor=pointer]
+          - button "💡 Ideias / Features" [ref=f5e58] [cursor=pointer]
+          - button "🚀 Automação" [ref=f5e59] [cursor=pointer]
+        - generic [ref=f5e60]:
+          - generic [ref=f5e61]:
+            - generic [ref=f5e62]:
+              - generic [ref=f5e63]: "Feature / Módulo:"
+              - generic [ref=f5e64]: ✨ Opcional (deixe em branco para Tarefas Gerais)
+            - combobox "Feature / Módulo:" [ref=f5e65]:
+              - option "📋 (Em branco - Tarefas Gerais / Avulsas)" [selected]
+          - generic [ref=f5e66]:
+            - generic [ref=f5e67]:
+              - generic [ref=f5e68]: "Projeto / Diretório: *"
+              - 'combobox "Projeto / Diretório: *" [ref=f5e69]':
+                - option "📁 Selecione o Projeto / Diretório... *" [disabled] [selected]
+            - generic [ref=f5e70]:
+              - generic [ref=f5e71]: "Status da Tarefa:"
+              - combobox "Status da Tarefa:" [ref=f5e72]:
+                - option "📝 Backlog" [selected]
+                - option "🔄 Em Andamento"
+                - option "🔍 Testando / Review"
+                - option "✅ Concluído"
+          - generic [ref=f5e73]:
+            - generic [ref=f5e74]:
+              - generic [ref=f5e76]:
+                - text: "Responsável / Equipe:"
+                - strong [ref=f5e77]: "*"
+              - 'button "Responsável / Equipe: *" [ref=f5e79] [cursor=pointer]':
+                - generic [ref=f5e80]: 👤 Responsáveis... *
+                - generic [ref=f5e82]: ▾
+            - generic [ref=f5e83]:
+              - generic [ref=f5e84]: "ID da Tarefa (opcional):"
+              - textbox "ID da Tarefa (opcional):" [ref=f5e85]:
+                - /placeholder: "Automático (ex: 1.1)"
+          - generic [ref=f5e86]:
+            - generic [ref=f5e87]:
+              - generic [ref=f5e88]: "Descrição da Tarefa / Prompt (para IA e Equipe):"
+              - generic [ref=f5e89]: ✨ Suporta Prompt
+            - textbox "Descrição da Tarefa / Prompt (para IA e Equipe):" [ref=f5e90]:
+              - /placeholder: Descreva a tarefa ou insira o prompt com instruções detalhadas para o agente de IA ou desenvolvedor...
+            - generic [ref=f5e91]:
+              - generic [ref=f5e92]: "Sugestões de Prompt:"
+              - button "🤖 Prompt IA" [ref=f5e93] [cursor=pointer]
+              - button "🐛 Bugfix" [ref=f5e94] [cursor=pointer]
+              - button "🎮 Arena_Clean" [ref=f5e95] [cursor=pointer]
+          - generic [ref=f5e96]:
+            - button "➕ Criar Tarefa" [ref=f5e97] [cursor=pointer]
+            - button "💾 Salvar Alterações" [ref=f5e98] [cursor=pointer]
+            - button "👤 Atribuir Tarefa" [ref=f5e99] [cursor=pointer]
+            - button "📋 Listar Tarefas" [ref=f5e100] [cursor=pointer]
+      - generic [ref=f5e101]:
+        - generic [ref=f5e102]: 💻 Comando Formatado para o Agent
+        - generic [ref=f5e104]: agent atualizar "**2.1**" "Backlog" ""
+        - generic [ref=f5e105]:
+          - button "📋 Copiar Comando para o Chat" [ref=f5e106] [cursor=pointer]
+          - button "⚡ Executar Direto" [ref=f5e107] [cursor=pointer]
+      - generic [ref=f5e108]:
+        - generic [ref=f5e109]:
+          - heading "📟 Log de Execução" [level=2] [ref=f5e110]
+          - button "Limpar" [ref=f5e111] [cursor=pointer]
+        - generic [ref=f5e112]: Pronto para executar comandos.
+    - generic [ref=f5e113]:
+      - generic [ref=f5e114]:
+        - generic [ref=f5e115]:
+          - button "◀ Recolher Painel" [ref=f5e116] [cursor=pointer]:
+            - generic [ref=f5e117]: ◀
+            - generic [ref=f5e118]: Recolher Painel
+          - tablist [ref=f5e119]:
+            - button "🎯 Tarefas da Sprint 0" [ref=f5e120] [cursor=pointer]:
+              - generic [ref=f5e121]: 🎯
+              - generic [ref=f5e122]: Tarefas da Sprint
+              - generic [ref=f5e123]: "0"
+            - button "💡 Funil de Ideias 0" [ref=f5e124] [cursor=pointer]:
+              - generic [ref=f5e125]: 💡
+              - generic [ref=f5e126]: Funil de Ideias
+              - generic [ref=f5e127]: "0"
+            - button "📊 Analytics & Métricas" [ref=f5e128] [cursor=pointer]:
+              - generic [ref=f5e129]: 📊
+              - generic [ref=f5e130]: Analytics & Métricas
+            - button "🖥️ Changes & History" [ref=f5e131] [cursor=pointer]:
+              - generic [ref=f5e132]: 🖥️
+              - generic [ref=f5e133]: Changes & History
+        - generic [ref=f5e135]:
+          - generic: 🔍
+          - 'textbox "Pesquisar tarefas por texto, prompt, ID ou responsável (Atalho: Ctrl+F ou /)" [ref=f5e136]':
+            - /placeholder: Pesquisar tarefas no Kanban... (Ctrl+F)
+        - generic [ref=f5e137]:
+          - generic [ref=f5e138]: "👤 Equipe:"
+          - textbox "Buscar integrante por nome ou função" [ref=f5e140]:
+            - /placeholder: 🔍 Integrante...
+          - button "👥 Todos" [ref=f5e142] [cursor=pointer]
+          - button "⚙️ Gerenciar" [ref=f5e143] [cursor=pointer]
+        - generic [ref=f5e144]:
+          - generic [ref=f5e145]: "📁 Projeto / Diretório:"
+          - generic [ref=f5e146]:
+            - button "📂 Todos" [ref=f5e147] [cursor=pointer]
+            - 'button "🌐 Site: app" [ref=f5e148] [cursor=pointer]'
+            - 'button "🎮 Game: Unity" [ref=f5e149] [cursor=pointer]'
+            - 'button "✨ Skills: prompt" [ref=f5e150] [cursor=pointer]'
+            - 'button "📋 Kanban: kanban" [ref=f5e151] [cursor=pointer]'
+            - 'button "🦀 Solana: program" [ref=f5e152] [cursor=pointer]'
+            - 'button "🛡️ DevSecOps: devsecops" [ref=f5e153] [cursor=pointer]'
+            - 'button "📄 Docs: docs" [ref=f5e154] [cursor=pointer]'
+          - button "➕ Adicionar Diretório" [ref=f5e155] [cursor=pointer]
+      - generic [ref=f5e156]:
+        - generic [ref=f5e158]:
+          - generic [ref=f5e159]: 📋 A Fazer
+          - generic [ref=f5e160]: "0"
+        - generic [ref=f5e162]:
+          - generic [ref=f5e163]: ⚡ Em Progresso
+          - generic [ref=f5e164]: "0"
+        - generic [ref=f5e166]:
+          - generic [ref=f5e167]: 👀 Em Revisão
+          - generic [ref=f5e168]: "0"
+        - generic [ref=f5e170]:
+          - generic [ref=f5e171]: ✅ Concluído
+          - generic [ref=f5e172]: "0"
+  - generic:
+    - generic:
+      - generic:
+        - heading "⚙️ Configurações do Sistema" [level=3]
+        - button "×"
+      - generic:
+        - button "🐙 GitHub & Projetos (Modo Oficial)"
+        - button "👥 Integrantes da Equipe"
+      - generic:
+        - generic:
+          - paragraph:
+            - text: Insira seu
+            - strong: Personal Access Token (PAT)
+            - text: do GitHub com permissões de
+            - code: repo
+            - text: e
+            - code: project
+            - text: para sincronização com o GitHub Projects.
+          - generic:
+            - generic: "GitHub Personal Access Token (PAT):"
+            - generic:
+              - textbox "GitHub Personal Access Token (PAT):":
+                - /placeholder: ghp_xxxxxxxxxxxxxxxxxxxx
+              - button "👁️"
+            - generic:
+              - text: "Obtenha em:"
+              - link "github.com/settings/tokens":
+                - /url: https://github.com/settings/tokens
+          - generic:
+            - generic:
+              - generic: "Repositório:"
+              - textbox "Repositório:": mukasanray/Fowlgen-Wars-Project
+            - generic:
+              - generic: "Branch:"
+              - textbox "Branch:": main
+          - generic:
+            - generic:
+              - generic: "Project ID (GitHub Projects):"
+              - textbox "Project ID (GitHub Projects):":
+                - /placeholder: "ex: PVT_kwDOBr-_0g"
+            - generic:
+              - generic: "Responsável Padrão:"
+              - textbox "Responsável Padrão:": Marcos
+          - generic:
+            - button "🧪 Testar Conexão GitHub"
+      - generic:
+        - button "Cancelar"
+        - button "💾 Salvar Configurações"
+  - generic:
+    - generic:
+      - generic:
+        - heading "⏸️ Inativar Integrante e Repassar Tarefas" [level=3]:
+          - generic: ⏸️
+          - text: Inativar Integrante e Repassar Tarefas
+        - button "×"
+      - generic:
+        - generic:
+          - paragraph:
+            - text: Ao inativar
+            - strong: este integrante
+            - text: ", as tarefas"
+            - strong: não terminadas
+            - text: serão repassadas automaticamente ao Membro Ativo selecionado. O integrante inativado não aparecerá no Kanban, filtros ou seletores de tarefas.
+        - generic:
+          - generic: "Selecione o Membro Ativo que assumirá as tarefas não terminadas: *"
+          - 'combobox "Selecione o Membro Ativo que assumirá as tarefas não terminadas: *"'
+        - generic:
+          - generic: "Escopo do repasse de tarefas:"
+          - generic:
+            - generic:
+              - radio "Repassar tarefas não terminadas (pendentes / em andamento - padrão)" [checked]
+              - generic:
+                - strong: Repassar tarefas não terminadas
+                - text: (pendentes / em andamento - padrão)
+            - generic:
+              - radio "Repassar todas as tarefas (incluindo histórico concluído)"
+              - generic: Repassar todas as tarefas (incluindo histórico concluído)
+      - generic:
+        - button "Cancelar"
+        - button "Confirmar e Repassar Tarefas"
+  - generic:
+    - generic:
+      - generic:
+        - heading "📁 Gerenciar Diretórios e Filtros de Projeto" [level=3]:
+          - generic: 📁
+          - text: Gerenciar Diretórios e Filtros de Projeto
+        - button "×"
+      - generic:
+        - paragraph:
+          - text: "Filtre tarefas e features do Kanban por diretório de projeto (ex:"
+          - code: app
+          - text: ","
+          - code: unity
+          - text: ","
+          - code: prompt
+          - text: ", etc.). Adicione novos diretórios personalizados para a sua equipe."
+        - generic:
+          - heading "➕ Adicionar Novo Diretório de Projeto" [level=4]:
+            - generic: ➕
+            - text: Adicionar Novo Diretório de Projeto
+          - generic:
+            - generic:
+              - generic: "Nome de Exibição: *"
+              - 'textbox "Nome de Exibição: *"':
+                - /placeholder: "ex: Site / Webapp ou Assets 3D"
+            - generic:
+              - generic: "Ícone / Emoji:"
+              - textbox "Ícone / Emoji:":
+                - /placeholder: "ex: 🌐, 🎮, 📦"
+                - text: 📁
+          - generic:
+            - generic: "Identificador / Subdiretório: *"
+            - 'textbox "Identificador / Subdiretório: *"':
+              - /placeholder: "ex: app, unity, prompt, backend, mobile"
+            - generic:
+              - text: As tarefas com tags
+              - code: (caminho/)
+              - text: ou da feature serão vinculadas a este filtro.
+          - generic:
+            - button "➕ Cadastrar Diretório"
+        - heading "Diretórios Atuais 0 diretórios" [level=4]:
+          - generic: Diretórios Atuais
+          - generic: 0 diretórios
+      - generic:
+        - button "Fechar"
+  - generic:
+    - generic:
+      - generic:
+        - heading "⚠️ Confirmar Ação" [level=3]:
+          - generic: ⚠️
+          - generic: Confirmar Ação
+        - button "×"
+      - generic:
+        - paragraph
+      - generic:
+        - button "Cancelar"
+        - button "Confirmar"
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic: 💡
+          - generic:
+            - heading "Título da Ideia / Tarefa" [level=3]
+            - paragraph: openspec/changes/...
+        - generic:
+          - button "📄 Gerar PDF do Card":
+            - generic: 📄
+            - text: Gerar PDF do Card
+          - button "×"
+      - generic:
+        - generic:
+          - generic: CRIADO
+          - button "🌐 Projeto ▼":
+            - text: 🌐 Projeto
+            - generic: ▼
+          - generic: 👥 Todos
+        - generic: "Progresso: 0/0 (0%)"
+      - generic:
+        - button "📄 Proposta da Feature (proposal.md)"
+        - button "📋 Checklist de Tarefas ( 0 )":
+          - text: 📋 Checklist de Tarefas (
+          - generic: "0"
+          - text: )
+        - button "💻 Comandos & Agent OpenSpec"
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - button "👁️ Visualizar Formatado"
+              - button "✏️ Editar Markdown"
+      - generic:
+        - button "Fechar"

@@ -1,0 +1,27 @@
+# Dockerfile.dev - Kanban development container
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Instala dependências do sistema
+RUN apk add --no-cache \
+    postgresql-client \
+    redis \
+    curl \
+    jq \
+    openssl \
+    git \
+    bash
+
+# Copia package.json e instala dependências
+COPY package*.json ./
+RUN npm install
+
+# Copia código fonte
+COPY . .
+
+# Expõe porta
+EXPOSE 3000
+
+# Comando padrão (sobrescrito no docker-compose)
+CMD ["npm", "run", "dev"]

@@ -1,0 +1,2 @@
+[     544ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3000/:0
+[     559ms] [LOG] 📡 Config loaded: {repo: mukasanray/Fowlgen-Wars-Project, branch: main, projectId: PVT_kwDOBr-_0g, assignee: Marcos, hasToken: false} @ http://localhost:3000/app.js:6083
