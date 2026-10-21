@@ -4145,6 +4145,7 @@ body[data-theme="light"] .member-form-card {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
 }
 
 .official-report-title {
@@ -4152,6 +4153,8 @@ body[data-theme="light"] .member-form-card {
   font-weight: 700;
   color: var(--text-main);
   letter-spacing: -0.1px;
+  line-height: 1.35;
+  flex: 1;
 }
 
 .official-report-badge {
