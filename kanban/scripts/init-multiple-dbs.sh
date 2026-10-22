@@ -8,8 +8,17 @@ function create_user_and_database() {
     local db_password="${OPENSIGN_DB_PASSWORD:-$database}"
     echo "Creating user and database '$database'"
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
-        CREATE USER $db_user WITH PASSWORD '$db_password';
-        CREATE DATABASE $database;
+        DO \$\$
+        BEGIN
+          IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$db_user') THEN
+            CREATE ROLE $db_user LOGIN PASSWORD '$db_password';
+          ELSE
+            ALTER ROLE $db_user WITH LOGIN PASSWORD '$db_password';
+          END IF;
+        END
+        \$\$;
+        SELECT 'CREATE DATABASE $database'
+        WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$database')\gexec
         GRANT ALL PRIVILEGES ON DATABASE $database TO $db_user;
 EOSQL
 }
