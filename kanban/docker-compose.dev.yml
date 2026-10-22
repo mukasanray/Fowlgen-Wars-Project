@@ -13,8 +13,8 @@ services:
       - DATABASE_URL=postgresql://postgres:[REDACTED]@postgres:5432/kanban
       - REDIS_URL=redis://redis:6379
       - OPENSIGN_URL=http://opensign:3001
-      - OPENSIGN_API_TOKEN=${OPENSIGN_API_TOKEN}
-      - OPENSIGN_WEBHOOK_SECRET=${OPENSIGN_WEBHOOK_SECRET}
+      - OPENSIGN_API_TOKEN=${OPENSIGN_API_TOKEN:-}
+      - OPENSIGN_WEBHOOK_SECRET=${OPENSIGN_WEBHOOK_SECRET:-}
     volumes:
       - .:/app
       - /app/node_modules
@@ -25,28 +25,38 @@ services:
         condition: service_healthy
     command: npm run dev
 
-  opensign:
-    image: opensignlabs/opensign:latest
+  opensign-server:
+    image: opensign/opensignserver:main
     ports:
-      - "3001:3001"
+      - "8080:8080"
+    env_file:
+      - .env.opensign.local
     environment:
-      - NODE_ENV=development
-      - PORT=3001
-      - DATABASE_URL=postgresql://${OPENSIGN_DB_USER}:${OPENSIGN_DB_PASSWORD}@postgres:5432/${OPENSIGN_DB_NAME}
-      - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=${OPENSIGN_JWT_SECRET}
-      - ADMIN_EMAIL=${OPENSIGN_ADMIN_EMAIL}
-      - ADMIN_PASSWORD=${OPENSIGN_ADMIN_PASSWORD}
-      - WEBHOOK_URL=http://kanban:3000/api/webhooks/opensign
-      - TSA_URL=https://freetsa.org/tsr
+      - NODE_ENV=production
+      - SERVER_URL=http://localhost:3001/api/app
+      - PUBLIC_URL=http://localhost:3001
     volumes:
-      - ./Opensign:/app
-      - /app/node_modules
+      - opensign_files:/usr/src/app/files
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      mongo:
+        condition: service_started
+
+  opensign:
+    image: opensign/opensign:main
+    ports:
+      - "3001:3000"
+    env_file:
+      - .env.opensign.local
+    depends_on:
+      opensign-server:
+        condition: service_started
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
 
   postgres:
     image: postgres:16-alpine
@@ -82,3 +92,5 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  mongo_data:
+  opensign_files:

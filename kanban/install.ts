@@ -93,7 +93,9 @@ export class InstallSetup {
     try {
       const config = await this.collectOpenSignConfig();
       const envPath = this.writeOpenSignEnv(config);
-      execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml up -d', { stdio: 'inherit', cwd: __dirname });
+      if (!fs.existsSync(envPath)) throw new Error(`Arquivo de ambiente não foi criado: ${envPath}`);
+      execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml config --quiet', { stdio: 'inherit', cwd: __dirname });
+      execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml up --pull always -d', { stdio: 'inherit', cwd: __dirname });
       console.log(`   ✅ OpenSign, PostgreSQL e Redis iniciados usando ${envPath}.`);
       console.log('   🌐 Kanban: porta 3000 | OpenSign: porta 3001');
     } catch (error: any) {
@@ -452,12 +454,26 @@ export class InstallSetup {
     const jwtSecret = await askQuestion('JWT secret', 'altere-este-secret-local');
     const webhookSecret = await askQuestion('Webhook secret', 'altere-este-webhook-local');
     if (!databasePassword || !adminPassword) throw new Error('A senha do banco e a senha do administrador são obrigatórias.');
-    return { OPENSIGN_PROJECT_NAME: projectName, OPENSIGN_PROJECT_SLUG: projectSlug, OPENSIGN_DB_NAME: databaseName, OPENSIGN_DB_USER: databaseUser, OPENSIGN_DB_PASSWORD: databasePassword, OPENSIGN_ADMIN_EMAIL: adminEmail, OPENSIGN_ADMIN_PASSWORD: adminPassword, OPENSIGN_JWT_SECRET: jwtSecret, OPENSIGN_WEBHOOK_SECRET: webhookSecret };
+    return {
+      OPENSIGN_PROJECT_NAME: projectName,
+      OPENSIGN_PROJECT_SLUG: projectSlug,
+      OPENSIGN_DB_NAME: databaseName,
+      OPENSIGN_DB_USER: databaseUser,
+      OPENSIGN_DB_PASSWORD: databasePassword,
+      OPENSIGN_ADMIN_EMAIL: adminEmail,
+      OPENSIGN_ADMIN_PASSWORD: adminPassword,
+      OPENSIGN_JWT_SECRET: jwtSecret,
+      OPENSIGN_WEBHOOK_SECRET: webhookSecret,
+      MONGODB_URI: 'mongodb://mongo:27017/opensign',
+      DATABASE_URL: 'mongodb://mongo:27017/opensign',
+      HOST_URL: 'http://localhost:3001',
+      OPENSIGN_API_TOKEN: ''
+    };
   }
 
   private writeOpenSignEnv(config: Record<string, string>): string {
     const envPath = path.join(__dirname, '.env.opensign.local');
-    fs.writeFileSync(envPath, Object.entries(config).map(([key, value]) => `${key}=${value.replace(/\\r?\\n/g, '')}`).join('\\n') + '\\n', { encoding: 'utf8', mode: 0o600 });
+    fs.writeFileSync(envPath, Object.entries(config).map(([key, value]) => `${key}=${value.replace(/\r?\n/g, '')}`).join('\n') + '\n', { encoding: 'utf8', mode: 0o600 });
     return envPath;
   }
 
@@ -494,7 +510,9 @@ export class InstallSetup {
         try {
           const config = await this.collectOpenSignConfig();
           const envPath = this.writeOpenSignEnv(config);
-          execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml up -d', { stdio: 'inherit', cwd: __dirname });
+          if (!fs.existsSync(envPath)) throw new Error(`Arquivo de ambiente não foi criado: ${envPath}`);
+          execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml config --quiet', { stdio: 'inherit', cwd: __dirname });
+          execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml up --pull always -d', { stdio: 'inherit', cwd: __dirname });
           console.log(`   ? Containers iniciados usando ${envPath}.`);
           console.log('   ?? OpenSign: porta 3001 | Kanban: porta 3000');
           console.log('   ?? Acesse as URLs pela aba Portas do Codespace.');
