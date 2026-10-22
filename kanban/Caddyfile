@@ -1,7 +1,7 @@
-{$HOST_URL} {
-    reverse_proxy 127.0.0.1:3003
+http://localhost:3001 {
+    reverse_proxy opensign:3000
     handle_path /api/* {
-        reverse_proxy 127.0.0.1:8080
+        reverse_proxy opensign-server:8080
         rewrite * {uri}
     }
 }

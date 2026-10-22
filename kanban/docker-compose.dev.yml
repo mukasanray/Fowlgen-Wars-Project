@@ -1,5 +1,13 @@
 version: '3.8'
 
+# Cross-platform docker-compose for Windows (Docker Desktop), Linux, and GitHub Codespaces
+# Architecture follows official OpenSign setup:
+# - Caddy is the ONLY entry point on host (port 3001)
+# - Caddy proxies /api/* to opensign-server:8080
+# - Caddy proxies everything else to opensign:3000
+# - Frontend and Server NOT exposed directly to host
+# - Kanban runs separately on port 3002
+
 services:
   kanban:
     build:
@@ -10,9 +18,9 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3000
-      - DATABASE_URL=postgresql://postgres:[REDACTED]@postgres:5432/kanban
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/kanban
       - REDIS_URL=redis://redis:6379
-      - OPENSIGN_URL=http://opensign:3001
+      - OPENSIGN_URL=http://localhost:3001
       - OPENSIGN_API_TOKEN=${OPENSIGN_API_TOKEN:-}
       - OPENSIGN_WEBHOOK_SECRET=${OPENSIGN_WEBHOOK_SECRET:-}
     volumes:
@@ -24,60 +32,95 @@ services:
       redis:
         condition: service_healthy
     command: npm run dev
+    networks:
+      - app-network
 
+  # OpenSign Server (Backend API) - NOT exposed to host
   opensign-server:
     image: opensign/opensignserver:main
-    ports:
-      - "8080:8080"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    container_name: kanban-opensign-server
     env_file:
       - .env.opensign.local
     environment:
       - NODE_ENV=production
       - SERVER_URL=http://localhost:3001/api/app
       - PUBLIC_URL=http://localhost:3001
+      - PARSE_MOUNT=/app
+      - USE_LOCAL=true
+      - MONGODB_URI=mongodb://mongo:27017/opensign
+      - DATABASE_URL=mongodb://mongo:27017/opensign
     volumes:
       - opensign_files:/usr/src/app/files
     depends_on:
       mongo:
         condition: service_started
+    networks:
+      - app-network
 
+  # OpenSign Client (Frontend React) - NOT exposed to host
   opensign:
     image: opensign/opensign:main
-    ports:
-      - "3003:3000"
+    container_name: kanban-opensign
     env_file:
       - .env.opensign.local
+    environment:
+      - REACT_APP_SERVERURL=http://localhost:3001/api/app
+      - REACT_APP_APPID=opensign
+      - GENERATE_SOURCEMAP=false
+      - PUBLIC_URL=http://localhost:3001
     depends_on:
-      opensign-server:
-        condition: service_started
+      - opensign-server
+    networks:
+      - app-network
 
+  # Caddy Reverse Proxy - ONLY entry point on host
   caddy:
     image: caddy:latest
-    network_mode: host
+    container_name: kanban-caddy
+    ports:
+      - "3001:3001"  # Main entry point
+      - "80:80"      # HTTP for Let's Encrypt
+      - "443:443"    # HTTPS
+      - "443:443/udp" # HTTP/3
+      - "2019:2019"  # Caddy admin API
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
     environment:
       - HOST_URL=${HOST_URL:-localhost:3001}
+    depends_on:
+      - opensign
+      - opensign-server
+    networks:
+      - app-network
 
   mongo:
     image: mongo:latest
+    container_name: kanban-mongo
     ports:
       - "27018:27017"
     volumes:
       - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - app-network
 
   postgres:
     image: postgres:16-alpine
+    container_name: kanban-postgres
+    env_file:
+      - .env.opensign.local
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_MULTIPLE_DATABASES=kanban,${OPENSIGN_DB_NAME}
-      - OPENSIGN_DB_USER=${OPENSIGN_DB_USER}
-      - OPENSIGN_DB_PASSWORD=${OPENSIGN_DB_PASSWORD}
+      - POSTGRES_MULTIPLE_DATABASES=kanban,${OPENSIGN_DB_NAME:-opensign}
+      - OPENSIGN_DB_USER=${OPENSIGN_DB_USER:-opensign}
+      - OPENSIGN_DB_PASSWORD=${OPENSIGN_DB_PASSWORD:-opensign}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-multiple-dbs.sh:/docker-entrypoint-initdb.d/init-multiple-dbs.sh
@@ -88,9 +131,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - app-network
 
   redis:
     image: redis:7-alpine
+    container_name: kanban-redis
     volumes:
       - redis_data:/data
     ports:
@@ -100,6 +146,12 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   postgres_data:

@@ -9,6 +9,9 @@ import { randomBytes } from 'node:crypto';
 import { GenerateDashboard } from './src/scripts/generate-dashboard';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const IS_WINDOWS = process.platform === 'win32';
+const IS_LINUX = process.platform === 'linux';
+const IS_CODESPACES = !!process.env.CODESPACES;
 
 function askQuestion(query: string, defaultValue = ''): Promise<string> {
   const rl = readline.createInterface({
@@ -46,6 +49,16 @@ export class InstallSetup {
       hasGit = false;
     }
     return hasModules && hasGit;
+  }
+
+  hasDocker(): boolean {
+    try {
+      execSync('docker --version', { stdio: 'ignore' });
+      execSync('docker compose version', { stdio: 'ignore' });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async runSetupScripts(): Promise<void> {
@@ -86,20 +99,44 @@ export class InstallSetup {
 
   private async setupOpenSignAfterKanban(): Promise<void> {
     console.log('\n✍️ Configurando OpenSign...');
-    if (!process.env.CODESPACES) {
-      console.log('   ⚠️ O modo combinado exige execução dentro de um GitHub Codespace.');
-      console.log('   💡 Abra um Codespace e execute npm run setup novamente.');
+
+    if (!this.hasDocker()) {
+      console.log('   ⚠️ Docker não encontrado. OpenSign requer Docker para rodar.');
+      if (IS_WINDOWS) {
+        console.log('   💡 Instale o Docker Desktop: https://www.docker.com/products/docker-desktop/');
+      } else if (IS_LINUX) {
+        console.log('   💡 Instale o Docker Engine: https://docs.docker.com/engine/install/ubuntu/');
+      } else if (IS_CODESPACES) {
+        console.log('   💡 No Codespace, o Docker já deve estar disponível. Verifique a configuração.');
+      }
+      console.log('   💡 O Kanban continua instalado; instale o Docker e execute novamente pela opção [8] → [2].');
       return;
     }
+
     try {
       const config = await this.collectOpenSignConfig();
       const envPath = this.writeOpenSignEnv(config);
       if (!fs.existsSync(envPath)) throw new Error(`Arquivo de ambiente não foi criado: ${envPath}`);
+
+      console.log('   🐳 Validando docker-compose...');
       execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml config --quiet', { stdio: 'inherit', cwd: __dirname });
+
+      console.log('   🚀 Iniciando containers OpenSign (PostgreSQL, Redis, MongoDB, OpenSign Server, OpenSign Frontend, Caddy)...');
       execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml up --pull always -d', { stdio: 'inherit', cwd: __dirname });
-      console.log(`   ✅ OpenSign, PostgreSQL e Redis iniciados usando ${envPath}.`);
-      console.log('   🌐 Kanban: porta 3002 (KANBAN_HOST_PORT) | OpenSign: porta 3001');
-      console.log('   👤 Crie a primeira conta administradora pela interface OpenSign em /addadmin.');
+
+      console.log(`   ✅ OpenSign iniciado usando ${envPath}.`);
+      console.log('   🌐 Kanban: http://localhost:3000 | OpenSign: http://localhost:3001');
+      console.log('   👤 Crie a primeira conta administradora em: http://localhost:3001/addadmin');
+
+      // Wait for Caddy/OpenSign to be ready
+      console.log('   ⏳ Aguardando OpenSign ficar disponível...');
+      for (let i = 0; i < 24; i++) {
+        await new Promise(r => setTimeout(r, 2000));
+        if (await this.isServerRunning(3001)) {
+          console.log('   ✅ OpenSign online em http://localhost:3001!');
+          break;
+        }
+      }
     } catch (error: any) {
       console.log(`   ⚠️ Não foi possível iniciar o OpenSign: ${error?.message || error}`);
       console.log('   💡 O Kanban continua instalado; tente novamente pela opção [8] → [2].');
@@ -229,14 +266,24 @@ export class InstallSetup {
     console.log('✅ INSTALAÇÃO CONCLUÍDA COM SUCESSO!');
     console.log('='.repeat(50));
 
-    // 9. Start Kanban Studio server and open in default browser
-    console.log('\n🌐 Preparando inicialização do Servidor Web e painel do Kanban...');
+    // 9. Start Kanban Studio server
+    console.log('\n🌐 Preparando inicialização do Servidor Web do Kanban...');
     await this.ensureServerRunning(3000);
 
-    const targetUrl = 'http://localhost:3000';
-    console.log(`\n🌐 Abrindo OpenSpec & Kanban Studio no navegador padrão (${targetUrl})...`);
-    this.openBrowser(targetUrl);
-    console.log('   ✅ Painel interativo online e aberto no navegador com sucesso!');
+    // 10. Setup OpenSign (on all platforms with Docker)
+    if (this.hasDocker()) {
+      console.log('\n🔧 Configurando OpenSign...');
+      await this.setupOpenSignAfterKanban();
+    } else {
+      console.log('\n⚠️ Docker não detectado. OpenSign não será iniciado automaticamente.');
+      console.log('   💡 Instale o Docker e execute "npm run setup" → opção [8] → [2] para iniciar o OpenSign.');
+    }
+
+    // 11. Open admin registration page
+    const adminUrl = 'http://localhost:3001/addadmin';
+    console.log(`\n🌐 Abrindo página de cadastro do admin (${adminUrl})...`);
+    this.openBrowser(adminUrl);
+    console.log('   ✅ Página de cadastro do administrador aberta no navegador!');
 
     // 10. Write installation log
     const logEntry = {
@@ -389,17 +436,22 @@ export class InstallSetup {
           console.log('\n🌐 Verificando Servidor Web do Kanban Studio...');
           if (await this.isServerRunning(3000)) {
             console.log('   📡 Servidor já está rodando em http://localhost:3000!');
-            console.log('   🌐 Abrindo navegador em http://localhost:3000...\n');
+            console.log('   🌐 Abrindo navegador no Kanban Studio (http://localhost:3000)...\n');
             this.openBrowser('http://localhost:3000');
           } else {
             console.log('\n🌐 Iniciando Servidor Web do Kanban Studio...');
-            console.log('🌐 Abrindo navegador em http://localhost:3000...');
             console.log('💡 Pressione Ctrl+C para encerrar o servidor e voltar ao menu.\n');
             this.checkPrerequisites();
-          this.ensureRuntimeDirectories();
-          await this.ensureServerRunning(3000);
-          this.openBrowser('http://localhost:3000');
-          console.log('   ℹ️ OpenSign, PostgreSQL e Redis são iniciados separadamente pela opção [8].');
+            this.ensureRuntimeDirectories();
+            await this.ensureServerRunning(3000);
+            this.openBrowser('http://localhost:3000');
+          }
+          // Also check OpenSign status
+          if (await this.isServerRunning(3001)) {
+            console.log('   📡 OpenSign também está rodando em http://localhost:3001');
+            console.log('   👤 Admin: http://localhost:3001/addadmin');
+          } else {
+            console.log('   ℹ️ OpenSign não está rodando. Use a opção [8] → [2] para iniciar.');
           }
           break;
         case '2':
@@ -458,17 +510,47 @@ export class InstallSetup {
   }
 
   private async collectOpenSignConfig(): Promise<Record<string, string>> {
-    console.log('\\n🔐 Configuração manual do OpenSign.');
-    const projectName = await askQuestion('Nome do projeto', 'opensign-local');
+    // Check for non-interactive mode via environment variables
+    const nonInteractive = process.env.OPENSIGN_NON_INTERACTIVE === 'true';
+
+    // MongoDB connection differs by platform
+    let mongodbUri = 'mongodb://host.docker.internal:27018/opensign';
+    if (IS_LINUX && !IS_CODESPACES) {
+      mongodbUri = 'mongodb://host.docker.internal:27018/opensign';
+    }
+
+    // In non-interactive mode, use env vars or defaults
+    const projectName = nonInteractive
+      ? (process.env.OPENSIGN_PROJECT_NAME || 'opensign-local')
+      : await askQuestion('Nome do projeto', 'opensign-local');
+
     const defaultSlug = this.normalizeOpenSignIdentifier(projectName, 'opensign-local');
-    const projectSlug = this.normalizeOpenSignIdentifier(await askQuestion('Slug do projeto OpenSign', defaultSlug), defaultSlug);
-    const databaseName = this.normalizeOpenSignIdentifier(await askQuestion('Nome do banco OpenSign', projectSlug), projectSlug);
-    const databaseUser = this.normalizeOpenSignIdentifier(await askQuestion('Usuário do banco OpenSign', projectSlug), projectSlug);
-    const databasePassword = await askQuestion('Senha do banco OpenSign');
+    const projectSlug = nonInteractive
+      ? (process.env.OPENSIGN_PROJECT_SLUG || defaultSlug)
+      : this.normalizeOpenSignIdentifier(await askQuestion('Slug do projeto OpenSign', defaultSlug), defaultSlug);
+
+    const databaseName = nonInteractive
+      ? (process.env.OPENSIGN_DB_NAME || projectSlug)
+      : this.normalizeOpenSignIdentifier(await askQuestion('Nome do banco OpenSign', projectSlug), projectSlug);
+
+    const databaseUser = nonInteractive
+      ? (process.env.OPENSIGN_DB_USER || projectSlug)
+      : this.normalizeOpenSignIdentifier(await askQuestion('Usuário do banco OpenSign', projectSlug), projectSlug);
+
+    const databasePassword = nonInteractive
+      ? (process.env.OPENSIGN_DB_PASSWORD || 'opensign123')
+      : await askQuestion('Senha do banco OpenSign');
+
+    if (!databasePassword) throw new Error('A senha do banco é obrigatória.');
+
     const masterKey = this.getExistingOpenSignMasterKey() ?? randomBytes(32).toString('hex');
     const jwtSecret = this.getExistingOpenSignEnvValue('OPENSIGN_JWT_SECRET') ?? randomBytes(32).toString('hex');
     const webhookSecret = this.getExistingOpenSignEnvValue('OPENSIGN_WEBHOOK_SECRET') ?? randomBytes(32).toString('hex');
-    if (!databasePassword) throw new Error('A senha do banco é obrigatória.');
+
+    if (!nonInteractive) {
+      console.log('\n🔐 Configuração do OpenSign concluída.');
+    }
+
     return {
       OPENSIGN_PROJECT_NAME: projectName,
       OPENSIGN_PROJECT_SLUG: projectSlug,
@@ -478,8 +560,8 @@ export class InstallSetup {
       MASTER_KEY: masterKey,
       OPENSIGN_JWT_SECRET: jwtSecret,
       OPENSIGN_WEBHOOK_SECRET: webhookSecret,
-      MONGODB_URI: 'mongodb://host.docker.internal:27018/opensign',
-      DATABASE_URL: 'mongodb://host.docker.internal:27018/opensign',
+      MONGODB_URI: mongodbUri,
+      DATABASE_URL: mongodbUri,
       HOST_URL: 'http://localhost:3001',
       REACT_APP_SERVERURL: 'http://localhost:3001/api/app',
       OPENSIGN_API_TOKEN: ''
@@ -493,67 +575,104 @@ export class InstallSetup {
   }
 
   async manageOpenSignDeployment(): Promise<void> {
+    const dockerAvailable = this.hasDocker();
+    const platformInfo = IS_WINDOWS ? 'Windows (Docker Desktop)' : IS_LINUX ? 'Linux (Docker Engine)' : IS_CODESPACES ? 'GitHub Codespaces' : 'Desconhecido';
+
     console.log('\n' + '-'.repeat(54));
-    console.log('   ?? DEPLOY & INICIALIZA��O � GITHUB CODESPACES');
+    console.log(`   🚀 DEPLOY & OPENSIGN — ${platformInfo}`);
     console.log('-'.repeat(54));
-    console.log('   [1] ??  Criar / Abrir GitHub Codespaces');
-    console.log('   [2] ??  Iniciar OpenSign no GitHub Codespace');
-    console.log('   [3] ?? Parar OpenSign no GitHub Codespace');
-    console.log('   [4] ?? Testar Conex�o com OpenSign (:3001)');
-    console.log('   [0] ??  Voltar ao Menu Principal');
+    console.log('   [1] 🐳 Iniciar OpenSign (Docker Compose)');
+    console.log('   [2] 🛑 Parar OpenSign');
+    console.log('   [3] 📊 Status dos containers');
+    console.log('   [4] 🔍 Testar conexão OpenSign (porta 3001)');
+    console.log('   [5] 🌐 Abrir GitHub Codespaces (para cloud)');
+    console.log('   [0] ↩️  Voltar ao Menu Principal');
     console.log('-'.repeat(54));
 
-    const subChoice = await askQuestion('?? Escolha a a��o desejada: ');
+    if (!dockerAvailable && !IS_CODESPACES) {
+      console.log('\n⚠️  Docker não detectado neste ambiente.');
+      if (IS_WINDOWS) console.log('   💡 Instale o Docker Desktop para usar OpenSign localmente.');
+      if (IS_LINUX) console.log('   💡 Instale o Docker Engine para usar OpenSign localmente.');
+      console.log('   💡 Ou use a opção [5] para abrir no GitHub Codespaces.\n');
+    }
+
+    const subChoice = await askQuestion('👉 Escolha a ação desejada: ');
 
     switch (subChoice) {
       case '1': {
-        console.log('\n?? Informe as credenciais para o GitHub Codespace.');
-        const config = await this.collectOpenSignConfig();
-        const envPath = this.writeOpenSignEnv(config);
-        console.log('\n??  Abrindo GitHub Codespaces...');
-        this.openBrowser('https://github.com/mukasanray/Fowlgen-Wars-Project/codespaces');
-        console.log(`   ? Configura��o local salva em ${envPath}.`);
-        console.log('   ?? Dentro do Codespace, execute npm run setup e escolha [8] ? [2].');
-        break;
-      }
-      case '2': {
-        console.log('\n??  Iniciando OpenSign no GitHub Codespace...');
-        if (!process.env.CODESPACES) {
-          console.log('   ?? Execute esta op��o dentro do GitHub Codespace.');
+        if (!dockerAvailable && !IS_CODESPACES) {
+          console.log('\n❌ Docker não disponível. Instale o Docker primeiro.');
           break;
         }
+        console.log('\n🐳 Iniciando OpenSign via Docker Compose...');
         try {
           const config = await this.collectOpenSignConfig();
           const envPath = this.writeOpenSignEnv(config);
           if (!fs.existsSync(envPath)) throw new Error(`Arquivo de ambiente não foi criado: ${envPath}`);
           execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml config --quiet', { stdio: 'inherit', cwd: __dirname });
           execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml up --pull always -d', { stdio: 'inherit', cwd: __dirname });
-          console.log(`   ? Containers iniciados usando ${envPath}.`);
-          console.log('   ?? OpenSign: porta 3001 | Kanban: porta 3002 (KANBAN_HOST_PORT)');
-          console.log('   ?? Acesse as URLs pela aba Portas do Codespace.');
+          console.log(`   ✅ Containers iniciados usando ${envPath}.`);
+          console.log('   🌐 Kanban: http://localhost:3000 | OpenSign: http://localhost:3001');
+          console.log('   👤 Admin: http://localhost:3001/addadmin');
+
+          // Wait for readiness
+          console.log('   ⏳ Aguardando OpenSign ficar disponível...');
+          for (let i = 0; i < 24; i++) {
+            await new Promise(r => setTimeout(r, 2000));
+            if (await this.isServerRunning(3001)) {
+              console.log('   ✅ OpenSign online em http://localhost:3001!');
+              this.openBrowser('http://localhost:3001/addadmin');
+              break;
+            }
+          }
         } catch (err: any) {
-          console.log(`   ?? Erro ao iniciar no Codespace: ${err?.message || err}`);
+          console.log(`   ❌ Erro ao iniciar OpenSign: ${err?.message || err}`);
+        }
+        break;
+      }
+      case '2': {
+        if (!dockerAvailable && !IS_CODESPACES) {
+          console.log('\n❌ Docker não disponível.');
+          break;
+        }
+        console.log('\n🛑 Parando containers do OpenSign...');
+        try {
+          execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml down', { stdio: 'inherit', cwd: __dirname });
+          console.log('   ✅ Containers finalizados.');
+        } catch (err: any) {
+          console.log(`   ❌ Erro ao parar containers: ${err?.message || err}`);
         }
         break;
       }
       case '3': {
-        console.log('\n?? Parando containers do OpenSign no GitHub Codespace...');
-        if (!process.env.CODESPACES) {
-          console.log('   ?? Execute esta op��o dentro do GitHub Codespace.');
+        if (!dockerAvailable && !IS_CODESPACES) {
+          console.log('\n❌ Docker não disponível.');
           break;
         }
+        console.log('\n📊 Status dos containers OpenSign:');
         try {
-          execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml down', { stdio: 'inherit', cwd: __dirname });
-          console.log('   ? Containers finalizados.');
+          execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml ps', { stdio: 'inherit', cwd: __dirname });
         } catch (err: any) {
-          console.log(`   ?? Erro ao parar containers: ${err?.message || err}`);
+          console.log(`   ❌ Erro ao obter status: ${err?.message || err}`);
         }
         break;
       }
       case '4': {
-        console.log('\n?? Testando conectividade com OpenSign...');
+        console.log('\n🔍 Testando conectividade com OpenSign...');
         const isRunning = await this.isServerRunning(3001);
-        console.log(isRunning ? '   ?? OpenSign est� ativo na porta 3001.' : '   ?? OpenSign est� offline na porta 3001.');
+        console.log(isRunning ? '   ✅ OpenSign está ativo na porta 3001.' : '   ❌ OpenSign está offline na porta 3001.');
+        if (isRunning) {
+          console.log('   👤 Admin: http://localhost:3001/addadmin');
+        }
+        break;
+      }
+      case '5': {
+        console.log('\n🌐 Abrindo GitHub Codespaces...');
+        const config = await this.collectOpenSignConfig();
+        const envPath = this.writeOpenSignEnv(config);
+        this.openBrowser('https://github.com/mukasanray/Fowlgen-Wars-Project/codespaces');
+        console.log(`   ✅ Configuração local salva em ${envPath}.`);
+        console.log('   💡 Dentro do Codespace, execute "npm run setup" e escolha [8] → [1].');
         break;
       }
       case '0':
