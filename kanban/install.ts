@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { execSync, spawn } from 'child_process';
 import * as readline from 'readline';
 import * as http from 'http';
+import { randomBytes } from 'node:crypto';
 import { GenerateDashboard } from './src/scripts/generate-dashboard';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -97,7 +98,8 @@ export class InstallSetup {
       execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml config --quiet', { stdio: 'inherit', cwd: __dirname });
       execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml up --pull always -d', { stdio: 'inherit', cwd: __dirname });
       console.log(`   ‚úÖ OpenSign, PostgreSQL e Redis iniciados usando ${envPath}.`);
-      console.log('   üåê Kanban: porta 3000 | OpenSign: porta 3001');
+      console.log('   üåê Kanban: porta 3002 (KANBAN_HOST_PORT) | OpenSign: porta 3001');
+      console.log('   üë§ Crie a primeira conta administradora pela interface OpenSign em /addadmin.');
     } catch (error: any) {
       console.log(`   ‚ö†Ô∏è N√£o foi poss√≠vel iniciar o OpenSign: ${error?.message || error}`);
       console.log('   üí° O Kanban continua instalado; tente novamente pela op√ß√£o [8] ‚Üí [2].');
@@ -442,31 +444,44 @@ export class InstallSetup {
     return normalized || fallback;
   }
 
+  private getExistingOpenSignEnvValue(key: string): string | undefined {
+    const envPath = path.join(__dirname, '.env.opensign.local');
+    if (!fs.existsSync(envPath)) return undefined;
+    const prefix = `${key}=`;
+    const line = fs.readFileSync(envPath, 'utf8').split(/\r?\n/).find((entry) => entry.startsWith(prefix));
+    return line?.slice(prefix.length).trim() || undefined;
+  }
+
+  private getExistingOpenSignMasterKey(): string | undefined {
+    const value = this.getExistingOpenSignEnvValue('MASTER_KEY');
+    return value && /^[A-Za-z0-9]{12,}$/.test(value) ? value : undefined;
+  }
+
   private async collectOpenSignConfig(): Promise<Record<string, string>> {
     console.log('\\nüîê Configura√ß√£o manual do OpenSign.');
     const projectName = await askQuestion('Nome do projeto', 'opensign-local');
-    const projectSlug = this.normalizeOpenSignIdentifier(projectName, 'opensign-local');
-    const databaseName = this.normalizeOpenSignIdentifier(await askQuestion('Nome do banco OpenSign', `${projectSlug}-db`), `${projectSlug}-db`);
-    const databaseUser = this.normalizeOpenSignIdentifier(await askQuestion('Usu√°rio do banco OpenSign', `${projectSlug}-user`), `${projectSlug}-user`);
+    const defaultSlug = this.normalizeOpenSignIdentifier(projectName, 'opensign-local');
+    const projectSlug = this.normalizeOpenSignIdentifier(await askQuestion('Slug do projeto OpenSign', defaultSlug), defaultSlug);
+    const databaseName = this.normalizeOpenSignIdentifier(await askQuestion('Nome do banco OpenSign', projectSlug), projectSlug);
+    const databaseUser = this.normalizeOpenSignIdentifier(await askQuestion('Usu√°rio do banco OpenSign', projectSlug), projectSlug);
     const databasePassword = await askQuestion('Senha do banco OpenSign');
-    const adminEmail = await askQuestion('E-mail do administrador OpenSign', 'admin@localhost');
-    const adminPassword = await askQuestion('Senha do administrador OpenSign');
-    const jwtSecret = await askQuestion('JWT secret', 'altere-este-secret-local');
-    const webhookSecret = await askQuestion('Webhook secret', 'altere-este-webhook-local');
-    if (!databasePassword || !adminPassword) throw new Error('A senha do banco e a senha do administrador s√£o obrigat√≥rias.');
+    const masterKey = this.getExistingOpenSignMasterKey() ?? randomBytes(32).toString('hex');
+    const jwtSecret = this.getExistingOpenSignEnvValue('OPENSIGN_JWT_SECRET') ?? randomBytes(32).toString('hex');
+    const webhookSecret = this.getExistingOpenSignEnvValue('OPENSIGN_WEBHOOK_SECRET') ?? randomBytes(32).toString('hex');
+    if (!databasePassword) throw new Error('A senha do banco √© obrigat√≥ria.');
     return {
       OPENSIGN_PROJECT_NAME: projectName,
       OPENSIGN_PROJECT_SLUG: projectSlug,
       OPENSIGN_DB_NAME: databaseName,
       OPENSIGN_DB_USER: databaseUser,
       OPENSIGN_DB_PASSWORD: databasePassword,
-      OPENSIGN_ADMIN_EMAIL: adminEmail,
-      OPENSIGN_ADMIN_PASSWORD: adminPassword,
+      MASTER_KEY: masterKey,
       OPENSIGN_JWT_SECRET: jwtSecret,
       OPENSIGN_WEBHOOK_SECRET: webhookSecret,
-      MONGODB_URI: 'mongodb://mongo:27017/opensign',
-      DATABASE_URL: 'mongodb://mongo:27017/opensign',
+      MONGODB_URI: 'mongodb://host.docker.internal:27018/opensign',
+      DATABASE_URL: 'mongodb://host.docker.internal:27018/opensign',
       HOST_URL: 'http://localhost:3001',
+      REACT_APP_SERVERURL: 'http://localhost:3001/api/app',
       OPENSIGN_API_TOKEN: ''
     };
   }
@@ -479,16 +494,16 @@ export class InstallSetup {
 
   async manageOpenSignDeployment(): Promise<void> {
     console.log('\n' + '-'.repeat(54));
-    console.log('   ?? DEPLOY & INICIALIZA«√O ó GITHUB CODESPACES');
+    console.log('   ?? DEPLOY & INICIALIZAÔøΩÔøΩO ÔøΩ GITHUB CODESPACES');
     console.log('-'.repeat(54));
     console.log('   [1] ??  Criar / Abrir GitHub Codespaces');
     console.log('   [2] ??  Iniciar OpenSign no GitHub Codespace');
     console.log('   [3] ?? Parar OpenSign no GitHub Codespace');
-    console.log('   [4] ?? Testar Conex„o com OpenSign (:3001)');
+    console.log('   [4] ?? Testar ConexÔøΩo com OpenSign (:3001)');
     console.log('   [0] ??  Voltar ao Menu Principal');
     console.log('-'.repeat(54));
 
-    const subChoice = await askQuestion('?? Escolha a aÁ„o desejada: ');
+    const subChoice = await askQuestion('?? Escolha a aÔøΩÔøΩo desejada: ');
 
     switch (subChoice) {
       case '1': {
@@ -497,14 +512,14 @@ export class InstallSetup {
         const envPath = this.writeOpenSignEnv(config);
         console.log('\n??  Abrindo GitHub Codespaces...');
         this.openBrowser('https://github.com/mukasanray/Fowlgen-Wars-Project/codespaces');
-        console.log(`   ? ConfiguraÁ„o local salva em ${envPath}.`);
+        console.log(`   ? ConfiguraÔøΩÔøΩo local salva em ${envPath}.`);
         console.log('   ?? Dentro do Codespace, execute npm run setup e escolha [8] ? [2].');
         break;
       }
       case '2': {
         console.log('\n??  Iniciando OpenSign no GitHub Codespace...');
         if (!process.env.CODESPACES) {
-          console.log('   ?? Execute esta opÁ„o dentro do GitHub Codespace.');
+          console.log('   ?? Execute esta opÔøΩÔøΩo dentro do GitHub Codespace.');
           break;
         }
         try {
@@ -514,7 +529,7 @@ export class InstallSetup {
           execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml config --quiet', { stdio: 'inherit', cwd: __dirname });
           execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml up --pull always -d', { stdio: 'inherit', cwd: __dirname });
           console.log(`   ? Containers iniciados usando ${envPath}.`);
-          console.log('   ?? OpenSign: porta 3001 | Kanban: porta 3000');
+          console.log('   ?? OpenSign: porta 3001 | Kanban: porta 3002 (KANBAN_HOST_PORT)');
           console.log('   ?? Acesse as URLs pela aba Portas do Codespace.');
         } catch (err: any) {
           console.log(`   ?? Erro ao iniciar no Codespace: ${err?.message || err}`);
@@ -524,7 +539,7 @@ export class InstallSetup {
       case '3': {
         console.log('\n?? Parando containers do OpenSign no GitHub Codespace...');
         if (!process.env.CODESPACES) {
-          console.log('   ?? Execute esta opÁ„o dentro do GitHub Codespace.');
+          console.log('   ?? Execute esta opÔøΩÔøΩo dentro do GitHub Codespace.');
           break;
         }
         try {
@@ -538,7 +553,7 @@ export class InstallSetup {
       case '4': {
         console.log('\n?? Testando conectividade com OpenSign...');
         const isRunning = await this.isServerRunning(3001);
-        console.log(isRunning ? '   ?? OpenSign est· ativo na porta 3001.' : '   ?? OpenSign est· offline na porta 3001.');
+        console.log(isRunning ? '   ?? OpenSign estÔøΩ ativo na porta 3001.' : '   ?? OpenSign estÔøΩ offline na porta 3001.');
         break;
       }
       case '0':

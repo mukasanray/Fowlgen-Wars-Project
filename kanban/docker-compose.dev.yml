@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"
+      - "${KANBAN_HOST_PORT:-3002}:3000"
     environment:
       - NODE_ENV=development
       - PORT=3000
@@ -29,6 +29,8 @@ services:
     image: opensign/opensignserver:main
     ports:
       - "8080:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     env_file:
       - .env.opensign.local
     environment:
@@ -44,12 +46,22 @@ services:
   opensign:
     image: opensign/opensign:main
     ports:
-      - "3001:3000"
+      - "3003:3000"
     env_file:
       - .env.opensign.local
     depends_on:
       opensign-server:
         condition: service_started
+
+  caddy:
+    image: caddy:latest
+    network_mode: host
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      - HOST_URL=${HOST_URL:-localhost:3001}
 
   mongo:
     image: mongo:latest
@@ -94,3 +106,5 @@ volumes:
   redis_data:
   mongo_data:
   opensign_files:
+  caddy_data:
+  caddy_config:
