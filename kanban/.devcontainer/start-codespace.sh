@@ -26,7 +26,7 @@ if [ -z "$OPENSIGN_API_TOKEN" ]; then
   echo "⚠️  OPENSIGN_API_TOKEN não encontrado, tentando login..."
   LOGIN_RESPONSE=$(curl -s -X POST http://opensign:3001/api/v1/auth/login \
     -H "Content-Type: application/json" \
-    -d '{"email": "dev@kanban.local", "password": "dev123456"}')
+    -d '{"email": "${OPENSIGN_ADMIN_EMAIL}", "password": "${OPENSIGN_ADMIN_PASSWORD}"}')
   OPENSIGN_API_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.token // .accessToken // .data.token // empty')
 fi
 
@@ -60,7 +60,7 @@ OPENSIGN_URL=http://opensign:3001
 OPENSIGN_PUBLIC_URL=${OPENSIGN_PUBLIC_URL}
 OPENSIGN_API_TOKEN=${OPENSIGN_API_TOKEN}
 OPENSIGN_WEBHOOK_SECRET=${OPENSIGN_WEBHOOK_SECRET}
-OPENSIGN_JWT_SECRET=opensign-dev-secret-change-in-prod
+OPENSIGN_JWT_SECRET=${OPENSIGN_JWT_SECRET}
 
 # Kanban
 KANBAN_PUBLIC_URL=${KANBAN_PUBLIC_URL}

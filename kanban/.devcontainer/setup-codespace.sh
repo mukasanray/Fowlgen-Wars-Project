@@ -20,13 +20,15 @@ for i in {1..30}; do
   sleep 2
 done
 
-# Cria admin no OpenSign (se não existir)
+# Cria admin no OpenSign usando credenciais informadas no Codespace
+: "${OPENSIGN_ADMIN_EMAIL:?Defina OPENSIGN_ADMIN_EMAIL no instalador}"
+: "${OPENSIGN_ADMIN_PASSWORD:?Defina OPENSIGN_ADMIN_PASSWORD no instalador}"
 echo "👤 Criando admin no OpenSign..."
 ADMIN_RESPONSE=$(curl -s -X POST http://opensign:3001/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "dev@kanban.local",
-    "password": "dev123456",
+    "email": "${OPENSIGN_ADMIN_EMAIL}",
+    "password": "${OPENSIGN_ADMIN_PASSWORD}",
     "firstName": "Dev",
     "lastName": "Kanban"
   }' || true)
@@ -94,7 +96,7 @@ OPENSIGN_URL=http://opensign:3001
 OPENSIGN_PUBLIC_URL=${OPENSIGN_PUBLIC_URL}
 OPENSIGN_API_TOKEN=${OPENSIGN_API_TOKEN}
 OPENSIGN_WEBHOOK_SECRET=${OPENSIGN_WEBHOOK_SECRET}
-OPENSIGN_JWT_SECRET=opensign-dev-secret-change-in-prod
+OPENSIGN_JWT_SECRET=${OPENSIGN_JWT_SECRET}
 
 # Kanban
 KANBAN_PUBLIC_URL=${KANBAN_PUBLIC_URL}
@@ -107,6 +109,6 @@ echo "📋 Resumo:"
 echo "   Kanban:        ${KANBAN_PUBLIC_URL}"
 echo "   OpenSign UI:   ${OPENSIGN_PUBLIC_URL}"
 echo "   Webhook:       ${WEBHOOK_URL}"
-echo "   Admin:         dev@kanban.local / dev123456"
+echo "   Admin:         ${OPENSIGN_ADMIN_EMAIL} / senha informada no instalador"
 echo ""
 echo "💡 Próximo: npm run dev (ou aguarde start-codespace.sh no próximo start)"

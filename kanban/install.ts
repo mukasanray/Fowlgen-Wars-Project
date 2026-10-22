@@ -9,15 +9,15 @@ import { GenerateDashboard } from './src/scripts/generate-dashboard';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-function askQuestion(query: string): Promise<string> {
+function askQuestion(query: string, defaultValue = ''): Promise<string> {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
   });
   return new Promise((resolve) => {
-    rl.question(query, (ans) => {
+    rl.question(`${query}${defaultValue ? ` [${defaultValue}]` : ''}: `, (ans) => {
       rl.close();
-      resolve(ans.trim());
+      resolve(ans.trim() || defaultValue);
     });
   });
 }
@@ -71,8 +71,41 @@ export class InstallSetup {
     }
   }
 
+  private async askInstallationScope(): Promise<'kanban' | 'kanban-opensign'> {
+    console.log('\n📦 O que deseja instalar?');
+    console.log('   [1] 🗂️  Somente Kanban');
+    console.log('   [2] ✍️  Kanban + OpenSign');
+    let choice = '';
+    while (choice !== '1' && choice !== '2') {
+      choice = await askQuestion('👉 Escolha uma opção', '1');
+      if (choice !== '1' && choice !== '2') console.log('   ⚠️ Escolha 1 ou 2.');
+    }
+    return choice === '2' ? 'kanban-opensign' : 'kanban';
+  }
+
+  private async setupOpenSignAfterKanban(): Promise<void> {
+    console.log('\n✍️ Configurando OpenSign...');
+    if (!process.env.CODESPACES) {
+      console.log('   ⚠️ O modo combinado exige execução dentro de um GitHub Codespace.');
+      console.log('   💡 Abra um Codespace e execute npm run setup novamente.');
+      return;
+    }
+    try {
+      const config = await this.collectOpenSignConfig();
+      const envPath = this.writeOpenSignEnv(config);
+      execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml up -d', { stdio: 'inherit', cwd: __dirname });
+      console.log(`   ✅ OpenSign, PostgreSQL e Redis iniciados usando ${envPath}.`);
+      console.log('   🌐 Kanban: porta 3000 | OpenSign: porta 3001');
+    } catch (error: any) {
+      console.log(`   ⚠️ Não foi possível iniciar o OpenSign: ${error?.message || error}`);
+      console.log('   💡 O Kanban continua instalado; tente novamente pela opção [8] → [2].');
+    }
+  }
+
   async run(): Promise<void> {
-    const forceInstall = process.argv.includes('--force') || process.argv.includes('--reinstall');
+    const forceInstall = process.argv.includes('--force') ||
+      process.argv.includes('--reinstall') ||
+      process.env.npm_config_force === 'true';
 
     // 1. Se não tiver as ferramentas ou for instalação forçada, chama os scripts da pasta setup/
     if (!this.hasAllPrerequisites() || forceInstall) {
@@ -80,6 +113,8 @@ export class InstallSetup {
     }
 
     // 2. Se já estiver completamente instalado, abre direto o menu
+    const installationScope = process.stdin.isTTY ? await this.askInstallationScope() : 'kanban';
+
     if (this.isInstalled() && !forceInstall) {
       console.log('⚡ OpenSpec Kanban integration já está instalado e configurado!');
       if (process.stdin.isTTY) {
@@ -91,7 +126,13 @@ export class InstallSetup {
     }
 
     // 3. Executa a finalização da instalação (pastas, dashboard, logs)
+
+
     await this.performInstallation();
+
+    if (installationScope === 'kanban-opensign') {
+      await this.setupOpenSignAfterKanban();
+    }
 
     // 4. Ao final da instalação, exibe o menu interativo!
     if (process.stdin.isTTY) {
@@ -231,6 +272,18 @@ export class InstallSetup {
     });
   }
 
+  private ensureRuntimeDirectories(): void {
+    for (const dir of ['docs', 'logs', 'backups']) {
+      const fullPath = path.join(__dirname, dir);
+      if (!FileSystemUtils.directoryExists(fullPath)) {
+        fs.mkdirSync(fullPath, { recursive: true });
+        console.log(`   ✅ Diretório criado: ${dir}`);
+      }
+    }
+    const syncLogPath = path.join(__dirname, 'logs/sync-log.json');
+    if (!FileSystemUtils.fileExists(syncLogPath)) FileSystemUtils.writeFile(syncLogPath, '[]');
+  }
+
   async ensureServerRunning(port = 3000): Promise<void> {
     const isUp = await this.isServerRunning(port);
     if (isUp) {
@@ -338,7 +391,11 @@ export class InstallSetup {
             console.log('\n🌐 Iniciando Servidor Web do Kanban Studio...');
             console.log('🌐 Abrindo navegador em http://localhost:3000...');
             console.log('💡 Pressione Ctrl+C para encerrar o servidor e voltar ao menu.\n');
-            this.executeNpm('run app:open', { OPEN_BROWSER: 'true' });
+            this.checkPrerequisites();
+          this.ensureRuntimeDirectories();
+          await this.ensureServerRunning(3000);
+          this.openBrowser('http://localhost:3000');
+          console.log('   ℹ️ OpenSign, PostgreSQL e Redis são iniciados separadamente pela opção [8].');
           }
           break;
         case '2':
@@ -378,71 +435,92 @@ export class InstallSetup {
     }
   }
 
+  private normalizeOpenSignIdentifier(value: string, fallback: string): string {
+    const normalized = value.normalize('NFKD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48);
+    return normalized || fallback;
+  }
+
+  private async collectOpenSignConfig(): Promise<Record<string, string>> {
+    console.log('\\n🔐 Configuração manual do OpenSign.');
+    const projectName = await askQuestion('Nome do projeto', 'opensign-local');
+    const projectSlug = this.normalizeOpenSignIdentifier(projectName, 'opensign-local');
+    const databaseName = this.normalizeOpenSignIdentifier(await askQuestion('Nome do banco OpenSign', `${projectSlug}-db`), `${projectSlug}-db`);
+    const databaseUser = this.normalizeOpenSignIdentifier(await askQuestion('Usuário do banco OpenSign', `${projectSlug}-user`), `${projectSlug}-user`);
+    const databasePassword = await askQuestion('Senha do banco OpenSign');
+    const adminEmail = await askQuestion('E-mail do administrador OpenSign', 'admin@localhost');
+    const adminPassword = await askQuestion('Senha do administrador OpenSign');
+    const jwtSecret = await askQuestion('JWT secret', 'altere-este-secret-local');
+    const webhookSecret = await askQuestion('Webhook secret', 'altere-este-webhook-local');
+    if (!databasePassword || !adminPassword) throw new Error('A senha do banco e a senha do administrador são obrigatórias.');
+    return { OPENSIGN_PROJECT_NAME: projectName, OPENSIGN_PROJECT_SLUG: projectSlug, OPENSIGN_DB_NAME: databaseName, OPENSIGN_DB_USER: databaseUser, OPENSIGN_DB_PASSWORD: databasePassword, OPENSIGN_ADMIN_EMAIL: adminEmail, OPENSIGN_ADMIN_PASSWORD: adminPassword, OPENSIGN_JWT_SECRET: jwtSecret, OPENSIGN_WEBHOOK_SECRET: webhookSecret };
+  }
+
+  private writeOpenSignEnv(config: Record<string, string>): string {
+    const envPath = path.join(__dirname, '.env.opensign.local');
+    fs.writeFileSync(envPath, Object.entries(config).map(([key, value]) => `${key}=${value.replace(/\\r?\\n/g, '')}`).join('\\n') + '\\n', { encoding: 'utf8', mode: 0o600 });
+    return envPath;
+  }
+
   async manageOpenSignDeployment(): Promise<void> {
     console.log('\n' + '-'.repeat(54));
-    console.log('   🚀 DEPLOY & INICIALIZAÇÃO — OPENSIGN + CODESPACES');
+    console.log('   ?? DEPLOY & INICIALIZA��O � GITHUB CODESPACES');
     console.log('-'.repeat(54));
-    console.log('   [1] 🐧 Iniciar OpenSign localmente via Docker (WSL Ubuntu)');
-    console.log('   [2] 🛑 Parar OpenSign local (WSL Ubuntu)');
-    console.log('   [3] ☁️  Criar / Abrir GitHub Codespaces na Nuvem (1-Click)');
-    console.log('   [4] 🔍 Testar Conexão com OpenSign (:3001)');
-    console.log('   [0] ↩️  Voltar ao Menu Principal');
+    console.log('   [1] ??  Criar / Abrir GitHub Codespaces');
+    console.log('   [2] ??  Iniciar OpenSign no GitHub Codespace');
+    console.log('   [3] ?? Parar OpenSign no GitHub Codespace');
+    console.log('   [4] ?? Testar Conex�o com OpenSign (:3001)');
+    console.log('   [0] ??  Voltar ao Menu Principal');
     console.log('-'.repeat(54));
 
-    const subChoice = await askQuestion('👉 Escolha a ação desejada: ');
+    const subChoice = await askQuestion('?? Escolha a a��o desejada: ');
 
     switch (subChoice) {
       case '1': {
-        console.log('\n🐧 Iniciando containers OpenSign via Docker no WSL Ubuntu...');
-        try {
-          const rootDir = path.resolve(__dirname, '..');
-          execSync('wsl -d Ubuntu -- bash -c "sudo service docker start >/dev/null 2>&1 || true; docker compose -f docker-compose.dev.yml up -d"', {
-            stdio: 'inherit',
-            cwd: rootDir
-          });
-          console.log('\n⏳ Aguardando OpenSign inicializar na porta 3001...');
-          await new Promise(r => setTimeout(r, 4000));
-          if (await this.isServerRunning(3001)) {
-            console.log('   ✅ OpenSign online em http://localhost:3001!');
-          } else {
-            console.log('   💡 Containers disparados. Pode levar alguns instantes para subir completamente.');
-          }
-        } catch (err: any) {
-          console.log(`   ⚠️ Erro ao executar Docker no WSL: ${err?.message || err}`);
-          console.log('   💡 Dica: Certifique-se de que o Docker está instalado no WSL Ubuntu.');
-        }
+        console.log('\n?? Informe as credenciais para o GitHub Codespace.');
+        const config = await this.collectOpenSignConfig();
+        const envPath = this.writeOpenSignEnv(config);
+        console.log('\n??  Abrindo GitHub Codespaces...');
+        this.openBrowser('https://github.com/mukasanray/Fowlgen-Wars-Project/codespaces');
+        console.log(`   ? Configura��o local salva em ${envPath}.`);
+        console.log('   ?? Dentro do Codespace, execute npm run setup e escolha [8] ? [2].');
         break;
       }
       case '2': {
-        console.log('\n🛑 Parando containers do OpenSign no WSL...');
+        console.log('\n??  Iniciando OpenSign no GitHub Codespace...');
+        if (!process.env.CODESPACES) {
+          console.log('   ?? Execute esta op��o dentro do GitHub Codespace.');
+          break;
+        }
         try {
-          const rootDir = path.resolve(__dirname, '..');
-          execSync('wsl -d Ubuntu -- docker compose -f docker-compose.dev.yml down', {
-            stdio: 'inherit',
-            cwd: rootDir
-          });
-          console.log('   ✅ Containers do OpenSign finalizados.');
+          const config = await this.collectOpenSignConfig();
+          const envPath = this.writeOpenSignEnv(config);
+          execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml up -d', { stdio: 'inherit', cwd: __dirname });
+          console.log(`   ? Containers iniciados usando ${envPath}.`);
+          console.log('   ?? OpenSign: porta 3001 | Kanban: porta 3000');
+          console.log('   ?? Acesse as URLs pela aba Portas do Codespace.');
         } catch (err: any) {
-          console.log(`   ⚠️ Erro ao parar containers: ${err?.message || err}`);
+          console.log(`   ?? Erro ao iniciar no Codespace: ${err?.message || err}`);
         }
         break;
       }
       case '3': {
-        console.log('\n☁️  Preparando GitHub Codespaces...');
-        const codespacesUrl = 'https://github.com/mukasanray/Fowlgen-Wars-Project/codespaces';
-        console.log(`   🌐 Abrindo gerenciador de Codespaces: ${codespacesUrl}`);
-        this.openBrowser(codespacesUrl);
-        console.log('   💡 Clique em "Create codespace on main" para subir os 4 containers na nuvem!');
+        console.log('\n?? Parando containers do OpenSign no GitHub Codespace...');
+        if (!process.env.CODESPACES) {
+          console.log('   ?? Execute esta op��o dentro do GitHub Codespace.');
+          break;
+        }
+        try {
+          execSync('docker compose --env-file .env.opensign.local -f docker-compose.dev.yml down', { stdio: 'inherit', cwd: __dirname });
+          console.log('   ? Containers finalizados.');
+        } catch (err: any) {
+          console.log(`   ?? Erro ao parar containers: ${err?.message || err}`);
+        }
         break;
       }
       case '4': {
-        console.log('\n🔍 Testando conectividade com OpenSign...');
+        console.log('\n?? Testando conectividade com OpenSign...');
         const isRunning = await this.isServerRunning(3001);
-        if (isRunning) {
-          console.log('   🟢 OpenSign está ATIVO e respondendo na porta 3001!');
-        } else {
-          console.log('   🔴 OpenSign está OFFLINE na porta 3001.');
-        }
+        console.log(isRunning ? '   ?? OpenSign est� ativo na porta 3001.' : '   ?? OpenSign est� offline na porta 3001.');
         break;
       }
       case '0':
@@ -450,7 +528,6 @@ export class InstallSetup {
         break;
     }
   }
-
   private executeNpm(scriptArgs: string, extraEnv: NodeJS.ProcessEnv = {}): void {
     try {
       const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';

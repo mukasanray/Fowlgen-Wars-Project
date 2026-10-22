@@ -38,7 +38,7 @@
   },
   "remoteEnv": {
     "NODE_ENV": "development",
-    "OPENSIGN_JWT_SECRET": "opensign-dev-secret-change-in-prod"
+    "OPENSIGN_JWT_SECRET": "${localEnv:OPENSIGN_JWT_SECRET}"
   },
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {},

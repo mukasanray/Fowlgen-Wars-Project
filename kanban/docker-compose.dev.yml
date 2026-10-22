@@ -10,7 +10,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3000
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/kanban
+      - DATABASE_URL=postgresql://postgres:[REDACTED]@postgres:5432/kanban
       - REDIS_URL=redis://redis:6379
       - OPENSIGN_URL=http://opensign:3001
       - OPENSIGN_API_TOKEN=${OPENSIGN_API_TOKEN}
@@ -32,11 +32,11 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3001
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/opensign
+      - DATABASE_URL=postgresql://${OPENSIGN_DB_USER}:${OPENSIGN_DB_PASSWORD}@postgres:5432/${OPENSIGN_DB_NAME}
       - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=${OPENSIGN_JWT_SECRET:-opensign-dev-secret}
-      - ADMIN_EMAIL=dev@kanban.local
-      - ADMIN_PASSWORD=dev123456
+      - JWT_SECRET=${OPENSIGN_JWT_SECRET}
+      - ADMIN_EMAIL=${OPENSIGN_ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${OPENSIGN_ADMIN_PASSWORD}
       - WEBHOOK_URL=http://kanban:3000/api/webhooks/opensign
       - TSA_URL=https://freetsa.org/tsr
     volumes:
@@ -53,7 +53,9 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_MULTIPLE_DATABASES=kanban,opensign
+      - POSTGRES_MULTIPLE_DATABASES=kanban,${OPENSIGN_DB_NAME}
+      - OPENSIGN_DB_USER=${OPENSIGN_DB_USER}
+      - OPENSIGN_DB_PASSWORD=${OPENSIGN_DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-multiple-dbs.sh:/docker-entrypoint-initdb.d/init-multiple-dbs.sh

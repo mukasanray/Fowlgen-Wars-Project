@@ -53,3 +53,5 @@ Thumbs.db
 .npm
 .yarn
  pnpm-store/
+.env.opensign.local
+
