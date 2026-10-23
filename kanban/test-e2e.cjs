@@ -5,6 +5,26 @@ const crypto = require('crypto');
 
 const BASE_URL = 'http://localhost:3000';
 
+// O servidor só aceita webhooks quando OPENSIGN_WEBHOOK_SECRET está definido.
+// Reutiliza o segredo local (.env.opensign.local) para testar o servidor já
+// iniciado pelo setup; caso contrário usa um segredo efêmero de teste.
+function loadWebhookSecret() {
+  if (process.env.OPENSIGN_WEBHOOK_SECRET) return process.env.OPENSIGN_WEBHOOK_SECRET;
+  const envPath = path.join(__dirname, '.env.opensign.local');
+  if (fs.existsSync(envPath)) {
+    const line = fs.readFileSync(envPath, 'utf8')
+      .split(/\r?\n/)
+      .find((entry) => entry.startsWith('OPENSIGN_WEBHOOK_SECRET='));
+    if (line) {
+      const value = line.slice('OPENSIGN_WEBHOOK_SECRET='.length).trim().replace(/^"|"$/g, '');
+      if (value) return value;
+    }
+  }
+  return 'e2e-webhook-secret';
+}
+
+const WEBHOOK_SECRET = loadWebhookSecret();
+
 function request(options, body = null) {
   return new Promise((resolve, reject) => {
     const parsedUrl = new URL(options.path, BASE_URL);
@@ -58,7 +78,8 @@ async function ensureServerRunning() {
         spawnedServer = spawn('npx', ['tsx', 'src/server/server.ts'], {
           cwd: path.resolve(__dirname),
           shell: true,
-          stdio: 'ignore'
+          stdio: 'ignore',
+          env: { ...process.env, OPENSIGN_WEBHOOK_SECRET: WEBHOOK_SECRET }
         });
       }
       await new Promise(r => setTimeout(r, 2000));
@@ -588,7 +609,7 @@ async function runAllTests() {
     }, { event: 'recipient_signed' });
     assert(resWebhookBadSig.status === 401, 'POST /api/webhooks/opensign rejeita requisição com assinatura HMAC inválida (401)');
 
-    const webhookSecret = process.env.OPENSIGN_WEBHOOK_SECRET || 'dev-webhook-secret-change-in-prod';
+    const webhookSecret = WEBHOOK_SECRET;
     const validWebhookPayload = {
       event: 'recipient_signed',
       documentId: 'doc-teste-123',

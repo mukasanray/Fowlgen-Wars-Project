@@ -58,6 +58,12 @@ export interface KanbanConfig {
   defaultLabels: string[];
   columns: KanbanColumn[];
   statusMapping: Record<string, string>;
+  /** Configuração opcional do repositório GitHub usada pelos scripts de sync. */
+  github?: {
+    repo?: string;
+    branch?: string;
+    projectId?: string;
+  };
 }
 
 export interface SyncResult {

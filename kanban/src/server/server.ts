@@ -3,66 +3,59 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
-import { createHmac, timingSafeEqual } from 'crypto';
+import { getOpenSignClient, type WebhookPayload } from '../lib/opensign';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 // OpenSign Webhook Handler
-interface OpenSignWebhookPayload {
-  event: 'document_completed' | 'recipient_signed' | 'document_expired' | 'document_declined';
-  documentId: string;
-  documentTitle: string;
-  metadata: {
-    external_id: string;
-    [key: string]: string;
-  };
-  signers: Array<{
-    id: string;
-    name: string;
-    email: string;
-    status: string;
-    signedAt?: string;
-  }>;
-  pdfUrl?: string;
-}
+// O payload real do OpenSign (eventos signed/completed/declined/viewed/created)
+// é normalizado em src/lib/opensign.ts, que também resolve documento -> card
+// através de logs/opensign-documents.json (o webhook não envia metadata).
 
-const OPENSIGN_WEBHOOK_SECRET = process.env.OPENSIGN_WEBHOOK_SECRET || 'dev-webhook-secret-change-in-prod';
+const OPENSIGN_WEBHOOK_SECRET = process.env.OPENSIGN_WEBHOOK_SECRET || '';
 
-function validateOpenSignWebhook(payload: string, signature: string): boolean {
-  try {
-    const expected = createHmac('sha256', OPENSIGN_WEBHOOK_SECRET).update(payload).digest('hex');
-    const sigBuf = Buffer.from(signature);
-    const expBuf = Buffer.from(expected);
-    if (sigBuf.length !== expBuf.length) return false;
-    return timingSafeEqual(sigBuf, expBuf);
-  } catch {
-    return false;
-  }
+if (!OPENSIGN_WEBHOOK_SECRET) {
+  console.warn('⚠️  OPENSIGN_WEBHOOK_SECRET ausente: /api/webhooks/opensign responderá 503 (webhook desabilitado).');
 }
 
 async function handleOpenSignWebhook(req: http.IncomingMessage, res: http.ServerResponse, rawBody: string) {
+  if (!OPENSIGN_WEBHOOK_SECRET) {
+    sendJSON(res, 503, {
+      error: 'Webhook do OpenSign não configurado (defina OPENSIGN_WEBHOOK_SECRET).'
+    });
+    return;
+  }
+
+  const signature = req.headers['x-opensign-signature'] ||
+                    req.headers['x-webhook-signature'] ||
+                    req.headers['signature'];
+
+  if (!signature) {
+    sendJSON(res, 401, { error: 'Assinatura inválida ou ausente' });
+    return;
+  }
+
+  let payload: WebhookPayload;
   try {
-    const signature = req.headers['x-opensign-signature'] ||
-                      req.headers['x-webhook-signature'] ||
-                      req.headers['signature'];
+    payload = getOpenSignClient().parseWebhook(rawBody, String(signature));
+  } catch (error: unknown) {
+    const message = (error as Error)?.message || 'payload inválido';
+    sendJSON(res, message.includes('Assinatura') ? 401 : 400, { error: message });
+    return;
+  }
 
-    if (!signature || !validateOpenSignWebhook(rawBody, String(signature))) {
-      sendJSON(res, 401, { error: 'Assinatura inválida ou ausente' });
-      return;
-    }
+  const cardId = payload.metadata?.external_id;
+  if (!cardId) {
+    sendJSON(res, 400, {
+      error: 'Documento não vinculado a um card do Kanban (registre o documento via createSignRequestForCard)'
+    });
+    return;
+  }
 
-    const payload: OpenSignWebhookPayload = JSON.parse(rawBody);
-    const cardId = payload.metadata?.external_id;
+  console.log(`📥 [OpenSign Webhook] ${payload.rawEvent || payload.event} para card ${cardId}`);
 
-    if (!cardId) {
-      sendJSON(res, 400, { error: 'external_id (cardId) não encontrado no metadata' });
-      return;
-    }
-
-    console.log(`📥 [OpenSign Webhook] ${payload.event} para card ${cardId}`);
-
-    // Roteia evento
+  try {
     switch (payload.event) {
       case 'recipient_signed': {
         const signer = payload.signers.find(s => s.status === 'signed');
@@ -73,35 +66,33 @@ async function handleOpenSignWebhook(req: http.IncomingMessage, res: http.Server
 
       case 'document_completed': {
         console.log(`✅ [${cardId}] Documento completo - todos assinaram`);
-        // TODO: baixar PDF assinado via OpenSign API
-        // await downloadSignedPdf(payload.documentId);
-        // await attachFile(cardId, pdfBuffer, `assinado-${payload.documentTitle}.pdf`);
-        // await moveCard(cardId, 'Assinado');
-        break;
-      }
-
-      case 'document_expired': {
-        console.log(`⏰ [${cardId}] Documento expirado`);
-        // TODO: await moveCard(cardId, 'Expirado');
+        // TODO: baixar PDF assinado via OpenSign API e anexar ao card
         break;
       }
 
       case 'document_declined': {
         const decliner = payload.signers.find(s => s.status === 'declined');
         console.log(`❌ [${cardId}] Recusado por ${decliner?.name} (${decliner?.email})`);
-        // TODO: await moveCard(cardId, 'Recusado');
         break;
       }
 
+      case 'document_viewed':
+      case 'document_created':
+        console.log(`👀 [${cardId}] Evento ${payload.event}`);
+        break;
+
+      case 'document_expired':
+        console.log(`⏰ [${cardId}] Documento expirado`);
+        break;
+
       default:
-        console.log(`⚠️  Evento não tratado: ${payload.event}`);
+        console.log(`⚠️  Evento não tratado: ${payload.rawEvent || payload.event}`);
     }
 
-    sendJSON(res, 200, { received: true });
-
+    sendJSON(res, 200, { received: true, event: payload.event, cardId });
   } catch (error: any) {
-    console.error('❌ [OpenSign Webhook] Erro:', error.message);
-    sendJSON(res, 500, { error: error.message });
+    console.error('❌ [OpenSign Webhook] Erro:', error?.message || error);
+    sendJSON(res, 500, { error: error?.message || 'erro interno' });
   }
 }
 
