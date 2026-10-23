@@ -1,26 +1,140 @@
-version: '3.8'
-
-# Cross-platform docker-compose for Windows (Docker Desktop), Linux, and GitHub Codespaces
-# Architecture follows official OpenSign setup:
-# - Caddy is the ONLY entry point on host (port 3001)
-# - Caddy proxies /api/* to opensign-server:8080
-# - Caddy proxies everything else to opensign:3000
-# - Frontend and Server NOT exposed directly to host
-# - Kanban runs separately on port 3002
+# Cross-platform Docker Compose para Windows (Docker Desktop), Linux e Codespaces.
+#
+# Topologia (igual à oficial do OpenSign):
+#   Caddy :3001 (única porta publicada no host)
+#     ├── /api/*  -> opensign-server:8080 (handle_path remove /api)
+#     └── /*      -> opensign:3000 (frontend React)
+#
+# Perfis:
+#   --profile opensign : mongo, opensign-server, opensign, caddy
+#   --profile kanban   : kanban, postgres, redis (opcional; o instalador roda
+#                        o Kanban direto no host por padrão)
+#
+# Nenhum banco publica porta no host: o acesso é feito pela rede interna do
+# Compose. Isso evita conflito com outros projetos (ex.: 5432 já usado).
 
 services:
+  # ---------------------------------------------------------------------------
+  # OpenSign
+  # ---------------------------------------------------------------------------
+  opensign-server:
+    image: opensign/opensignserver:main
+    container_name: kanban-opensign-server
+    profiles: ["opensign"]
+    env_file:
+      - .env.opensign.local
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - PARSE_MOUNT=/app
+      - USE_LOCAL=true
+      - APP_ID=${APP_ID:-opensign}
+      - MONGODB_URI=mongodb://mongo:27017/opensign
+      - DATABASE_URL=mongodb://mongo:27017/opensign
+      - SERVER_URL=${HOST_URL:-http://localhost:3001}/api/app
+      - PUBLIC_URL=${HOST_URL:-http://localhost:3001}
+    volumes:
+      - opensign_files:/usr/src/app/files
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:8080/app/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    networks:
+      - app-network
+
+  opensign:
+    image: opensign/opensign:main
+    container_name: kanban-opensign
+    profiles: ["opensign"]
+    env_file:
+      - .env.opensign.local
+    environment:
+      - REACT_APP_SERVERURL=${HOST_URL:-http://localhost:3001}/api/app
+      - REACT_APP_APPID=${APP_ID:-opensign}
+      - PUBLIC_URL=${HOST_URL:-http://localhost:3001}
+      - GENERATE_SOURCEMAP=false
+    depends_on:
+      opensign-server:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    networks:
+      - app-network
+
+  caddy:
+    image: caddy:latest
+    container_name: kanban-caddy
+    profiles: ["opensign"]
+    ports:
+      # Única porta publicada. 127.0.0.1 evita expor o OpenSign na rede local.
+      - "${OPENSIGN_BIND_ADDR:-127.0.0.1}:${OPENSIGN_HOST_PORT:-3001}:3001"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      - HOST_URL=${HOST_URL:-http://localhost:3001}
+    depends_on:
+      opensign:
+        condition: service_healthy
+      opensign-server:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:latest
+    container_name: kanban-mongo
+    profiles: ["opensign"]
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    networks:
+      - app-network
+
+  # ---------------------------------------------------------------------------
+  # Kanban (opcional, para quem preferir rodar tudo em containers)
+  # ---------------------------------------------------------------------------
   kanban:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    profiles: ["kanban"]
     ports:
-      - "${KANBAN_HOST_PORT:-3002}:3000"
+      - "${KANBAN_BIND_ADDR:-127.0.0.1}:${KANBAN_HOST_PORT:-3002}:3000"
     environment:
       - NODE_ENV=development
       - PORT=3000
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/kanban
       - REDIS_URL=redis://redis:6379
-      - OPENSIGN_URL=http://localhost:3001
+      - OPENSIGN_PUBLIC_URL=${HOST_URL:-http://localhost:3001}
+      - OPENSIGN_URL=${OPENSIGN_INTERNAL_URL:-http://caddy:3001}
       - OPENSIGN_API_TOKEN=${OPENSIGN_API_TOKEN:-}
       - OPENSIGN_WEBHOOK_SECRET=${OPENSIGN_WEBHOOK_SECRET:-}
     volumes:
@@ -35,117 +149,35 @@ services:
     networks:
       - app-network
 
-  # OpenSign Server (Backend API) - NOT exposed to host
-  opensign-server:
-    image: opensign/opensignserver:main
-    container_name: kanban-opensign-server
-    env_file:
-      - .env.opensign.local
-    environment:
-      - NODE_ENV=production
-      - SERVER_URL=http://localhost:3001/api/app
-      - PUBLIC_URL=http://localhost:3001
-      - PARSE_MOUNT=/app
-      - USE_LOCAL=true
-      - MONGODB_URI=mongodb://mongo:27017/opensign
-      - DATABASE_URL=mongodb://mongo:27017/opensign
-    volumes:
-      - opensign_files:/usr/src/app/files
-    depends_on:
-      mongo:
-        condition: service_started
-    networks:
-      - app-network
-
-  # OpenSign Client (Frontend React) - NOT exposed to host
-  opensign:
-    image: opensign/opensign:main
-    container_name: kanban-opensign
-    env_file:
-      - .env.opensign.local
-    environment:
-      - REACT_APP_SERVERURL=http://localhost:3001/api/app
-      - REACT_APP_APPID=opensign
-      - GENERATE_SOURCEMAP=false
-      - PUBLIC_URL=http://localhost:3001
-    depends_on:
-      - opensign-server
-    networks:
-      - app-network
-
-  # Caddy Reverse Proxy - ONLY entry point on host
-  caddy:
-    image: caddy:latest
-    container_name: kanban-caddy
-    ports:
-      - "3001:3001"  # Main entry point
-      - "80:80"      # HTTP for Let's Encrypt
-      - "443:443"    # HTTPS
-      - "443:443/udp" # HTTP/3
-      - "2019:2019"  # Caddy admin API
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    environment:
-      - HOST_URL=${HOST_URL:-localhost:3001}
-    depends_on:
-      - opensign
-      - opensign-server
-    networks:
-      - app-network
-
-  mongo:
-    image: mongo:latest
-    container_name: kanban-mongo
-    ports:
-      - "27018:27017"
-    volumes:
-      - mongo_data:/data/db
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    networks:
-      - app-network
-
   postgres:
     image: postgres:16-alpine
     container_name: kanban-postgres
-    env_file:
-      - .env.opensign.local
+    profiles: ["kanban"]
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_MULTIPLE_DATABASES=kanban,${OPENSIGN_DB_NAME:-opensign}
-      - OPENSIGN_DB_USER=${OPENSIGN_DB_USER:-opensign}
-      - OPENSIGN_DB_PASSWORD=${OPENSIGN_DB_PASSWORD:-opensign}
+      - POSTGRES_DB=kanban
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init-multiple-dbs.sh:/docker-entrypoint-initdb.d/init-multiple-dbs.sh
-    ports:
-      - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d kanban"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 12
     networks:
       - app-network
 
   redis:
     image: redis:7-alpine
     container_name: kanban-redis
+    profiles: ["kanban"]
     volumes:
       - redis_data:/data
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 12
     networks:
       - app-network
 

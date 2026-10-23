@@ -1,7 +1,13 @@
-http://localhost:3001 {
-    reverse_proxy opensign:3000
-    handle_path /api/* {
-        reverse_proxy opensign-server:8080
-        rewrite * {uri}
-    }
+# OpenSign — topologia oficial (https://github.com/OpenSignLabs/OpenSign)
+# - Caddy é o único ponto de entrada (porta 3001 no container)
+# - /api/* vai para opensign-server:8080 SEM o prefixo /api (handle_path)
+# - todo o resto vai para o frontend opensign:3000
+# O endereço :3001 evita depender do header Host (funciona com portas
+# publicadas diferentes e com port-forwarding do Codespaces).
+:3001 {
+	reverse_proxy opensign:3000
+	handle_path /api/* {
+		reverse_proxy opensign-server:8080
+		rewrite * {uri}
+	}
 }
