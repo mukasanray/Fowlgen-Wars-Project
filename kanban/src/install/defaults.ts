@@ -11,5 +11,6 @@ export const DEFAULT_OPTIONS: InstallOptions = {
   help: false,
   kanbanPort: 3000,
   opensignPort: 3001,
-  backupOpenSign: false
+  backupOpenSign: false,
+  restoreOpenSignEnv: false
 };

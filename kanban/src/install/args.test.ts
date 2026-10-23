@@ -44,6 +44,25 @@ test('parseArgs rejeita escopos conflitantes e portas iguais', () => {
   assert.match(samePorts.errors[0], /diferentes/);
 });
 
+test('parseArgs interpreta flags de backup e restauração do OpenSign', () => {
+  const backup = parseArgs(['--backup-opensign']);
+  assert.deepEqual(backup.errors, []);
+  assert.equal(backup.options.backupOpenSign, true);
+
+  const restore = parseArgs(['--restore-opensign', 'latest', '--restore-opensign-env']);
+  assert.deepEqual(restore.errors, []);
+  assert.equal(restore.options.restoreOpenSign, 'latest');
+  assert.equal(restore.options.restoreOpenSignEnv, true);
+
+  const inline = parseArgs(['--restore-opensign=backups/opensign/2026-01-01_00-00-00']);
+  assert.deepEqual(inline.errors, []);
+  assert.equal(inline.options.restoreOpenSign, 'backups/opensign/2026-01-01_00-00-00');
+
+  const semValor = parseArgs(['--restore-opensign']);
+  assert.equal(semValor.errors.length, 1);
+  assert.match(semValor.errors[0], /requer um caminho/);
+});
+
 test('parseArgs sinaliza flag desconhecida sem lançar exceção', () => {
   const { options, errors } = parseArgs(['--inexistente']);
   assert.equal(options.kanbanPort, 3000);

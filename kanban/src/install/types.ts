@@ -41,6 +41,10 @@ export interface InstallOptions {
   opensignPort: number;
   /** Faz backup do OpenSign (MongoDB + arquivos + .env) e sai, sem rodar o instalador. */
   backupOpenSign: boolean;
+  /** Caminho de um backup (ou "latest") a restaurar; quando definido, restaura e sai. */
+  restoreOpenSign?: string;
+  /** Também sobrescreve .env.opensign.local ao restaurar (padrão: preserva o atual). */
+  restoreOpenSignEnv: boolean;
 }
 
 export interface InstallReport {

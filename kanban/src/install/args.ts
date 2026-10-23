@@ -6,7 +6,16 @@ export interface ParsedArgs {
   errors: string[];
 }
 
-type BooleanOptionKey = 'checkOnly' | 'withOpenSign' | 'skipOpenSign' | 'interactive' | 'force' | 'json' | 'help' | 'backupOpenSign';
+type BooleanOptionKey =
+  | 'checkOnly'
+  | 'withOpenSign'
+  | 'skipOpenSign'
+  | 'interactive'
+  | 'force'
+  | 'json'
+  | 'help'
+  | 'backupOpenSign'
+  | 'restoreOpenSignEnv';
 
 const BOOLEAN_FLAGS: Record<string, BooleanOptionKey> = {
   '--check': 'checkOnly',
@@ -19,7 +28,8 @@ const BOOLEAN_FLAGS: Record<string, BooleanOptionKey> = {
   '--json': 'json',
   '--help': 'help',
   '-h': 'help',
-  '--backup-opensign': 'backupOpenSign'
+  '--backup-opensign': 'backupOpenSign',
+  '--restore-opensign-env': 'restoreOpenSignEnv'
 };
 
 /**
@@ -54,6 +64,17 @@ export function parseArgs(argv: string[]): ParsedArgs {
 
     if (flag === '--no-start') {
       options.start = false;
+      continue;
+    }
+
+    if (flag === '--restore-opensign') {
+      const value = inlineValue ?? argv[i + 1];
+      if (inlineValue === undefined) i += 1;
+      if (!value) {
+        errors.push('--restore-opensign requer um caminho de backup ou "latest".');
+        continue;
+      }
+      options.restoreOpenSign = value;
       continue;
     }
 
@@ -92,6 +113,11 @@ export function helpText(): string {
     '  --opensign-port <n>   Porta pública do OpenSign (padrão 3001)',
     '  --json                Imprime o relatório final em JSON',
     '  --backup-opensign     Faz backup do OpenSign (MongoDB + arquivos + .env) e sai',
+    '  --restore-opensign <caminho|latest>',
+    '                        Restaura um backup do OpenSign (MongoDB + arquivos) e sai',
+    '  --restore-opensign-env',
+    '                        Ao restaurar, também sobrescreve .env.opensign.local',
+    '                        (o atual é preservado como .before-restore-<data>)',
     '  -h, --help            Mostra esta ajuda',
     '',
     'Códigos de saída: 0 sucesso, 1 falha, 2 pré-requisitos ausentes, 3 abortado.'

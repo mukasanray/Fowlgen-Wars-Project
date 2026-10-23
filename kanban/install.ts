@@ -8,7 +8,7 @@ import { Installer } from './src/install/installer';
 import { log } from './src/install/logger';
 import { composeContainers, describeContainers, stopOpenSignStack } from './src/install/docker';
 import { detectAdminState, inspectReadiness, opensignPublicUrl, prepareOpenSignEnv, startOpenSign, OPENSIGN_ENV_FILENAME } from './src/install/opensign';
-import { backupOpenSign, listOpenSignBackups } from './src/install/backup';
+import { backupOpenSign, listOpenSignBackups, resolveBackupDir, restoreOpenSign } from './src/install/backup';
 import { readEnvFile } from './src/install/env-file';
 import { ensureKanbanServer, openBrowser } from './src/install/kanban';
 import { EXIT_CODES, type InstallOptions, type InstallReport } from './src/install/types';
@@ -44,6 +44,11 @@ export class InstallSetup {
       this.runOpenSignBackup();
       const lastBackup = listOpenSignBackups(path.join(__dirname, 'backups', 'opensign'))[0];
       return lastBackup?.ok ? EXIT_CODES.success : EXIT_CODES.failure;
+    }
+
+    if (options.restoreOpenSign) {
+      const ok = this.runOpenSignRestore(options.restoreOpenSign, { restoreEnv: options.restoreOpenSignEnv });
+      return ok ? EXIT_CODES.success : EXIT_CODES.failure;
     }
 
     if (errors.length > 0) {
@@ -158,7 +163,8 @@ export class InstallSetup {
     console.log('   [4] 🔍 Testar saúde, /addadmin e admin');
     console.log('   [5] 💾 Fazer backup (MongoDB + arquivos + segredos)');
     console.log('   [6] 📂 Listar backups já feitos');
-    console.log('   [7] 🌐 Abrir GitHub Codespaces');
+    console.log('   [7] ♻️  Restaurar backup (sobrescreve o MongoDB atual)');
+    console.log('   [8] 🌐 Abrir GitHub Codespaces');
     console.log('   [0] ↩️  Voltar ao Menu Principal');
     console.log('-'.repeat(54));
 
@@ -212,6 +218,9 @@ export class InstallSetup {
         break;
       }
       case '7':
+        await this.chooseAndRestoreOpenSignBackup();
+        break;
+      case '8':
         openBrowser('https://github.com/mukasanray/Fowlgen-Wars-Project/codespaces');
         log.info('Dentro do Codespace, execute "npm run setup".');
         break;
@@ -219,6 +228,39 @@ export class InstallSetup {
       default:
         break;
     }
+  }
+
+  private async chooseAndRestoreOpenSignBackup(): Promise<void> {
+    const backupsRoot = path.join(__dirname, 'backups', 'opensign');
+    const backups = listOpenSignBackups(backupsRoot);
+    if (backups.length === 0) {
+      log.info('Nenhum backup encontrado ainda. Use a opção [5] para criar um.');
+      return;
+    }
+
+    log.raw('\n   Backups disponíveis (mais recente primeiro):');
+    backups.forEach((b, index) => {
+      log.raw(`   [${index + 1}] ${b.ok ? '✅' : '⚠️ '} ${b.createdAt}  ${path.relative(__dirname, b.dir)}`);
+    });
+
+    const choice = await askQuestion('👉 Número do backup a restaurar (ou Enter para cancelar)');
+    const index = Number(choice);
+    if (!choice || !Number.isInteger(index) || index < 1 || index > backups.length) {
+      log.info('Restauração cancelada.');
+      return;
+    }
+
+    log.warn('Isso vai APAGAR e SUBSTITUIR os dados atuais do MongoDB do OpenSign (mongorestore --drop).');
+    const confirm1 = await askQuestion('👉 Digite "restaurar" para confirmar', '');
+    if (confirm1.toLowerCase() !== 'restaurar') {
+      log.info('Restauração cancelada.');
+      return;
+    }
+
+    const envChoice = await askQuestion('👉 Também sobrescrever .env.opensign.local com o do backup? (s/N)', 'n');
+    const restoreEnv = envChoice.toLowerCase().startsWith('s');
+
+    this.runOpenSignRestore(backups[index - 1].dir, { restoreEnv });
   }
 
   private runOpenSignBackup(): void {
@@ -237,6 +279,29 @@ export class InstallSetup {
     } else {
       log.error('Backup não executado.');
     }
+  }
+
+  /** Resolve "latest"/caminho, restaura e reporta. Retorna true quando tudo deu certo. */
+  private runOpenSignRestore(selector: string, options: { restoreEnv: boolean }): boolean {
+    const backupsRoot = path.join(__dirname, 'backups', 'opensign');
+    const { dir, error } = resolveBackupDir(backupsRoot, selector);
+    if (error) {
+      log.error(error);
+      return false;
+    }
+
+    log.step(`Restaurando backup do OpenSign: ${path.relative(__dirname, dir)}${options.restoreEnv ? ' (incluindo .env.opensign.local)' : ''}...`);
+    const result = restoreOpenSign(__dirname, dir, { restoreEnv: options.restoreEnv });
+
+    for (const step of result.steps) {
+      if (step.ok) log.ok(`${step.title}: ${step.detail}`);
+      else log.error(`${step.title}: ${step.detail}`);
+    }
+
+    if (result.ok) log.ok('Restauração concluída.');
+    else log.error('Restauração falhou ou ficou incompleta (verifique as falhas acima).');
+
+    return result.ok;
   }
 
   private executeNpm(scriptArgs: string): void {

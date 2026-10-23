@@ -14,6 +14,7 @@
     "opensign:status": "docker compose --env-file .env.opensign.local -f docker-compose.dev.yml --profile opensign ps",
     "opensign:logs": "docker compose --env-file .env.opensign.local -f docker-compose.dev.yml --profile opensign logs --tail 100",
     "opensign:backup": "tsx install.ts --backup-opensign",
+    "opensign:restore": "tsx install.ts --restore-opensign latest",
     "deploy:codespace": "gh codespace create --repo mukasanray/Fowlgen-Wars-Project --branch main || powershell -Command \"Start-Process https://github.com/mukasanray/Fowlgen-Wars-Project/codespaces\"",
     "verify": "tsx src/scripts/VERIFY_SETUP.ts",
     "status": "tsx src/scripts/VIEW_STATUS.ts",
