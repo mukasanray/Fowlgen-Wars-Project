@@ -6,7 +6,7 @@ export interface ParsedArgs {
   errors: string[];
 }
 
-type BooleanOptionKey = 'checkOnly' | 'withOpenSign' | 'skipOpenSign' | 'interactive' | 'force' | 'json' | 'help';
+type BooleanOptionKey = 'checkOnly' | 'withOpenSign' | 'skipOpenSign' | 'interactive' | 'force' | 'json' | 'help' | 'backupOpenSign';
 
 const BOOLEAN_FLAGS: Record<string, BooleanOptionKey> = {
   '--check': 'checkOnly',
@@ -18,7 +18,8 @@ const BOOLEAN_FLAGS: Record<string, BooleanOptionKey> = {
   '--reinstall': 'force',
   '--json': 'json',
   '--help': 'help',
-  '-h': 'help'
+  '-h': 'help',
+  '--backup-opensign': 'backupOpenSign'
 };
 
 /**
@@ -90,6 +91,7 @@ export function helpText(): string {
     '  --kanban-port <n>     Porta do Kanban Studio (padrão 3000)',
     '  --opensign-port <n>   Porta pública do OpenSign (padrão 3001)',
     '  --json                Imprime o relatório final em JSON',
+    '  --backup-opensign     Faz backup do OpenSign (MongoDB + arquivos + .env) e sai',
     '  -h, --help            Mostra esta ajuda',
     '',
     'Códigos de saída: 0 sucesso, 1 falha, 2 pré-requisitos ausentes, 3 abortado.'

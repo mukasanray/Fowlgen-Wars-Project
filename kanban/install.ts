@@ -8,6 +8,7 @@ import { Installer } from './src/install/installer';
 import { log } from './src/install/logger';
 import { composeContainers, describeContainers, stopOpenSignStack } from './src/install/docker';
 import { detectAdminState, inspectReadiness, opensignPublicUrl, prepareOpenSignEnv, startOpenSign, OPENSIGN_ENV_FILENAME } from './src/install/opensign';
+import { backupOpenSign, listOpenSignBackups } from './src/install/backup';
 import { readEnvFile } from './src/install/env-file';
 import { ensureKanbanServer, openBrowser } from './src/install/kanban';
 import { EXIT_CODES, type InstallOptions, type InstallReport } from './src/install/types';
@@ -37,6 +38,12 @@ export class InstallSetup {
     if (options.help) {
       console.log(helpText());
       return EXIT_CODES.success;
+    }
+
+    if (options.backupOpenSign) {
+      this.runOpenSignBackup();
+      const lastBackup = listOpenSignBackups(path.join(__dirname, 'backups', 'opensign'))[0];
+      return lastBackup?.ok ? EXIT_CODES.success : EXIT_CODES.failure;
     }
 
     if (errors.length > 0) {
@@ -149,7 +156,9 @@ export class InstallSetup {
     console.log('   [2] 🛑 Parar OpenSign (preserva volumes)');
     console.log('   [3] 📊 Status dos containers');
     console.log('   [4] 🔍 Testar saúde, /addadmin e admin');
-    console.log('   [5] 🌐 Abrir GitHub Codespaces');
+    console.log('   [5] 💾 Fazer backup (MongoDB + arquivos + segredos)');
+    console.log('   [6] 📂 Listar backups já feitos');
+    console.log('   [7] 🌐 Abrir GitHub Codespaces');
     console.log('   [0] ↩️  Voltar ao Menu Principal');
     console.log('-'.repeat(54));
 
@@ -187,12 +196,46 @@ export class InstallSetup {
         break;
       }
       case '5':
+        this.runOpenSignBackup();
+        break;
+      case '6': {
+        const backups = listOpenSignBackups(path.join(__dirname, 'backups', 'opensign'));
+        if (backups.length === 0) {
+          log.info('Nenhum backup encontrado ainda. Use a opção [5] para criar um.');
+        } else {
+          log.raw(
+            backups
+              .map((b) => `   ${b.ok ? '✅' : '⚠️ '} ${b.createdAt}  ${path.relative(__dirname, b.dir)}`)
+              .join('\n')
+          );
+        }
+        break;
+      }
+      case '7':
         openBrowser('https://github.com/mukasanray/Fowlgen-Wars-Project/codespaces');
         log.info('Dentro do Codespace, execute "npm run setup".');
         break;
       case '0':
       default:
         break;
+    }
+  }
+
+  private runOpenSignBackup(): void {
+    log.step('Fazendo backup do OpenSign (MongoDB + arquivos + .env.opensign.local)...');
+    const result = backupOpenSign(__dirname);
+
+    for (const step of result.steps) {
+      if (step.ok) log.ok(`${step.title}: ${step.detail}`);
+      else log.error(`${step.title}: ${step.detail}`);
+    }
+
+    if (result.ok) {
+      log.ok(`Backup concluído em ${path.relative(__dirname, result.dir)}`);
+    } else if (result.dir) {
+      log.warn(`Backup parcial em ${path.relative(__dirname, result.dir)} (verifique as falhas acima).`);
+    } else {
+      log.error('Backup não executado.');
     }
   }
 

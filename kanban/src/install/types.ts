@@ -39,6 +39,8 @@ export interface InstallOptions {
   help: boolean;
   kanbanPort: number;
   opensignPort: number;
+  /** Faz backup do OpenSign (MongoDB + arquivos + .env) e sai, sem rodar o instalador. */
+  backupOpenSign: boolean;
 }
 
 export interface InstallReport {
