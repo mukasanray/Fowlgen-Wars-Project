@@ -7,6 +7,8 @@ import { getOpenSignClient, type WebhookPayload } from '../lib/opensign';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+// npm.cmd só existe no Windows; em Linux/macOS o executável é "npm".
+const NPM_CMD = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
 // OpenSign Webhook Handler
 // O payload real do OpenSign (eventos signed/completed/declined/viewed/created)
@@ -3121,8 +3123,10 @@ const server = http.createServer(async (req, res) => {
       const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '';
 
       try {
-        const cmd = `npm.cmd run sync`;
-        const output = execSync(cmd, { cwd: KANBAN_ROOT, encoding: 'utf8', timeout: 35000 });
+        const cmd = `${NPM_CMD} run sync`;
+        // A sincronização percorre todas as features via API do GitHub (REST +
+        // atualização de colunas); com o catálogo atual isso passa de 35s.
+        const output = execSync(cmd, { cwd: KANBAN_ROOT, encoding: 'utf8', timeout: 120000, maxBuffer: 10 * 1024 * 1024 });
         sendJSON(res, 200, {
           success: true,
           message: 'Sincronização com GitHub Projects / Issues API executada com sucesso!',
@@ -3151,7 +3155,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       try {
-        const cmd = `npm.cmd run ${script}`;
+        const cmd = `${NPM_CMD} run ${script}`;
         const output = execSync(cmd, { cwd: KANBAN_ROOT, encoding: 'utf8', timeout: 15000 });
         sendJSON(res, 200, { success: true, script, output });
       } catch (err: any) {
@@ -3263,7 +3267,7 @@ const server = http.createServer(async (req, res) => {
 
       if (!fs.existsSync(htmlPath)) {
         try {
-          execSync('npm.cmd run dashboard', { cwd: KANBAN_ROOT, stdio: 'ignore' });
+          execSync(`${NPM_CMD} run dashboard`, { cwd: KANBAN_ROOT, stdio: 'ignore' });
         } catch { }
       }
 
