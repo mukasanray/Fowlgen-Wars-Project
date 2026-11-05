@@ -436,9 +436,9 @@ export function App() {
 
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-[11px] uppercase tracking-[0.2em] text-amber-400 mb-6">
-            <span>Unity 6 Real-Time</span>
+            <span>Mini-MOBA Mobile</span>
             <span>•</span>
-            <span>API .NET 9</span>
+            <span>Batalha em Tempo Real</span>
             <span>•</span>
             <span>Solana Web3</span>
           </div>
@@ -751,7 +751,7 @@ export function App() {
           <form onSubmit={handleSupportSubmit} className="lg:col-span-5 rounded-3xl p-8 bg-[#09090d] border border-white/10 space-y-4">
             <h3 className="text-xl font-black uppercase tracking-tight mb-1">Registar Contribuição</h3>
             <p className="text-xs text-zinc-400 mb-4">
-              Conectado a <code className="text-amber-400">POST /api/supporters</code>
+              Apoie o projeto e apareça no mural da comunidade.
             </p>
 
             <div>
@@ -899,7 +899,7 @@ export function App() {
           <div>
             <div className="font-black tracking-tighter text-lg uppercase mb-1">FOWLGEN WARS • G5B STUDIOS</div>
             <p className="text-xs text-zinc-500">
-              Portal Oficial & API REST (.NET 9 / Onix.Framework) • Todos os direitos reservados © 2026.
+              Portal Oficial • Todos os direitos reservados © 2026.
             </p>
           </div>
 
@@ -926,31 +926,30 @@ export function App() {
             </button>
 
             <h3 className="text-2xl font-black uppercase tracking-tight mb-1">Conta do Jogador</h3>
-            <p className="text-xs text-zinc-400 mb-6">Sincronizado com os DTOs da API (.NET 9)</p>
+            <p className="text-xs text-zinc-400 mb-6">Gerencie a sua conta de jogador</p>
 
-            <div className="grid grid-cols-3 gap-1.5 p-1 rounded-full bg-black border border-white/10 mb-6">
-              <button
-                onClick={() => setAuthTab('register')}
-                className={`py-2 rounded-full text-[11px] font-bold uppercase tracking-wider ${authTab === 'register' ? 'bg-amber-500 text-black' : 'text-zinc-400'
-                  }`}
-              >
-                Registo
-              </button>
-              <button
-                onClick={() => setAuthTab('web3')}
-                className={`py-2 rounded-full text-[11px] font-bold uppercase tracking-wider ${authTab === 'web3' ? 'bg-purple-600 text-white' : 'text-zinc-400'
-                  }`}
-              >
-                Web3
-              </button>
-              <button
-                onClick={() => setAuthTab('profile')}
-                className={`py-2 rounded-full text-[11px] font-bold uppercase tracking-wider ${authTab === 'profile' ? 'bg-white text-black' : 'text-zinc-400'
-                  }`}
-              >
-                Perfil
-              </button>
-            </div>
+            {user ? (
+              /* Logado: só aba Perfil — sem barra de tabs */
+              <div className="mb-6 flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 border border-white/10 w-fit">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-white">Perfil do Jogador</span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-1.5 p-1 rounded-full bg-black border border-white/10 mb-6">
+                <button
+                  onClick={() => setAuthTab('register')}
+                  className={`py-2 rounded-full text-[11px] font-bold uppercase tracking-wider ${authTab === 'register' ? 'bg-amber-500 text-black' : 'text-zinc-400'}`}
+                >
+                  Registo
+                </button>
+                <button
+                  onClick={() => setAuthTab('web3')}
+                  className={`py-2 rounded-full text-[11px] font-bold uppercase tracking-wider ${authTab === 'web3' ? 'bg-purple-600 text-white' : 'text-zinc-400'}`}
+                >
+                  Web3
+                </button>
+              </div>
+            )}
 
             {authTab === 'register' && (
               <form onSubmit={handleRegisterUser} className="space-y-4">
@@ -991,7 +990,7 @@ export function App() {
                   type="submit"
                   className="w-full py-3.5 rounded-full bg-amber-500 text-black font-black text-xs uppercase tracking-widest hover:bg-amber-400"
                 >
-                  Criar Conta (POST /api/users)
+                  Criar Conta
                 </button>
               </form>
             )}
@@ -999,7 +998,7 @@ export function App() {
             {authTab === 'web3' && (
               <div className="space-y-4 text-center py-4">
                 <p className="text-xs text-zinc-300 leading-relaxed">
-                  Conecte a sua carteira <strong>Phantom</strong> ou <strong>Solflare</strong> para assinar a mensagem criptográfica em <code className="text-purple-400">POST /api/auth/login-web3</code>.
+                  Conecte a sua carteira <strong>Phantom</strong> ou <strong>Solflare</strong> para autenticar com Web3.
                 </p>
                 <button
                   onClick={handleWeb3Login}
@@ -1041,7 +1040,7 @@ export function App() {
                   disabled={!user}
                   className="w-full py-3.5 rounded-full bg-white text-black font-black text-xs uppercase tracking-widest hover:bg-amber-400 disabled:opacity-40"
                 >
-                  Atualizar Perfil (PUT /api/users/id)
+                  Atualizar Perfil
                 </button>
               </form>
             )}

@@ -12,6 +12,9 @@
     "preview": "vite preview"
   },
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "gsap": "^3.15.0",
