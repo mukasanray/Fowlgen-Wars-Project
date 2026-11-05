@@ -174,3 +174,6 @@ kanban/.env
 kanban/src/config/identity.local.json
 
 
+
+# Playwright MCP
+.playwright-mcp/
