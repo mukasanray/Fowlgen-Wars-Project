@@ -2,3 +2,5 @@
 app.js
 app.ts
 skills-lock.json
+node_modules
+dist
