@@ -286,5 +286,5 @@ anchor test --skip-local-validator
 ## 🔗 Referências Relacionadas
 * Repositório Oficial do Projeto: [Fowlgen-Wars-Project](https://github.com/mukasanray/Fowlgen-Wars-Project)
 * Pasta do Programa Anchor: [`program/`](file:///d:/Dev/FowlgenWars/program)
-* Guia Conceitual Completo: [`Fowlgen-Wars-Guia-Completo-Detalhado.md`](Fowlgen-Wars-Guia-Completo-Detalhado.md)
-* Integração Solana Unity SDK: [`Integracao-Solana-tokens-NFTs-Unity-Publicacao-Dapps-Store.md`](Integracao-Solana-tokens-NFTs-Unity-Publicacao-Dapps-Store.md)
+* Guia Conceitual Completo: [`43_fowlgenwars_fowlgen_wars_guia_completo_detalhado.md`](43_fowlgenwars_fowlgen_wars_guia_completo_detalhado.md)
+* Integração Solana Unity SDK: [`44_fowlgenwars_integracao_solana_tokens_nfts_unity_publicacao_dapps_store.md`](44_fowlgenwars_integracao_solana_tokens_nfts_unity_publicacao_dapps_store.md)

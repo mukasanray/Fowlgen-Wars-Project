@@ -26,7 +26,7 @@ Esta skill é o guia obrigatório para qualquer agente que trabalhe no Fowlgen W
 
 - Antes de codar, cruze a tarefa com os documentos pertinentes e com o código real.
 - Se encontrar conflito, registre-o (fontes, impacto, decisão necessária) e peça validação ao Product Owner somente quando impedir a execução segura.
-- Valide a mudança em `BattleArena`/`Arena_Clean` e informe com clareza o que não foi testado.
+- Valide a mudança em `BattleArena` e informe com clareza o que não foi testado.
 - Todo novo prompt ou documento Markdown deve ser checado contra esta skill antes de ser incorporado.
 
 ## Papel
@@ -46,63 +46,66 @@ Você não é uma fonte de novas decisões de produto. Não complete lacunas com
 
 Considere os seguintes arquivos como fontes de design, planejamento, processo ou contexto, conforme a tarefa:
 
-- [`🐔 A-Logica-do-Fowlgen-Wars.md`](skills/%F0%9F%90%94%20A-Logica-do-Fowlgen-Wars.md): etapas de evolução do projeto e objetivo de chegar a uma demo jogável validada com usuários.
+- [`01_fowlgenwars_a_logica_do_fowlgen_wars.md`](skills/01_fowlgenwars_a_logica_do_fowlgen_wars.md): etapas de evolução do projeto e objetivo de chegar a uma demo jogável validada com usuários.
 - [`Fowlgen-Wars-Estrutura-da-Equipe-Planejamento-kanban-Fase2.md`](files/Fowlgen-Wars-Estrutura-da-Equipe-Planejamento-kanban-Fase2.md): documento oficial de organização da equipe ativa (7 integrantes), matriz de responsabilidades, alinhamento de DevSecOps, nova distribuição de QA e planejamento Kanban da Fase 2.
 - [`Fowlgen-Wars-Organizacao.md`](files/Fowlgen-Wars-Organizacao.md): documento oficial de organização, papéis, pontos focais de esteira ágil, quadro Kanban e modelo de briefing.
 - [`G5B-Studios-Codigo-de-Principios-de-Colaboracao-da-Equipe.md`](files/G5B-Studios-Codigo-de-Principios-de-Colaboracao-da-Equipe.md): código de princípios de colaboração e cultura da G5B Studios (ajuda mútua, aprendizado contínuo, protocolo de 6 passos para resolução de problemas e foco absoluto no Fowlgen Wars).
-- [`Fowlgen-Wars-Telas-Game.md`](skills/Fowlgen-Wars-Telas-Game.md): prompt de telas mobile em landscape e controller de toque; joystick é proposta pendente de validação, enquanto os quatro slots de poder estão documentados.
-- [`Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md`](skills/Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md): especificação da arena com três rotas e 18 torres; a função das torres permanece pendente.
-- [`Fowlgen-Wars-Sistema-de-Arenas.md`](skills/Fowlgen-Wars-Sistema-de-Arenas.md): sistema de arena base única com skins temáticas (Fazenda, Medieval, Egípcia, Samurai, Futurista, Caos), variações de clima/horário e regras de fair play (sem vantagem competitiva).
-- [`Fowlgen-Wars-Regras-de-Combate-e-Torres.md`](skills/Fowlgen-Wars-Regras-de-Combate-e-Torres.md): registra fatos confirmados e decisões ainda pendentes de combate, torres e condição de resultado.
-- [`Fowlgen-wars-Minions.md`](skills/Fowlgen-wars-Minions.md): especificação proposta para geração contínua, limite de unidades ativas e avanço pelas três rotas; valores e regras ainda pendem de aprovação.
-- [`Fowlgen-Personagens-Nome.md`](skills/Fowlgen-Personagens-Nome.md): lista de nomes com alinhamento; não inferir espécie, classe, rota, essência, poder ou lore pelo nome.
-- [`🐔 Mini-Moba.md`](skills/%F0%9F%90%94%20Mini-Moba.md): conceito de Mini-MOBA, quatro rotas e partida de aproximadamente três minutos. Não tratar como escopo da Sprint 01 sem confirmação.
-- [`🐔 Sistema-de poderes.md`](skills/%F0%9F%90%94%20Sistema-de%20poderes.md): conceito de quatro poderes pré-equipados, cooldowns e preparação fora da partida.
-- [`🐔 Fowlgen-wars- Sistema-de-cores-essencias-e-classificacao.md`](skills/%F0%9F%90%94%20Fowlgen-wars-%20Sistema-de-cores-essencias-e-classificacao.md): identidade visual e distinção entre essência, classe, função e raridade; não inferir poder a partir de cor/raridade.
-- [`🐔 Hierarquia-de-Personagens.md`](skills/%F0%9F%90%94%20Hierarquia-de-Personagens.md): separação entre rota, função/classe, espécie, clã/civilização e tema.
-- [`Fowlgen_Wars_Prompt_Mestre_Criacao_Personagens_3D.md`](skills/personagem/Fowlgen_Wars_Prompt_Mestre_Criacao_Personagens_3D.md): prompt mestre reutilizável para criação de design sheets de personagens, respeitando a hierarquia oficial e linguagem visual 3D.
-- [`Fowlgen-Camada-Estrategica-Inspirada-No-Xadrez.md`](skills/Fowlgen-Camada-Estrategica-Inspirada-No-Xadrez.md): propostas de estratégia e mapa; confirmar escopo antes de implementar.
-- [`Fowlgen-Wars-Sistema-de-Taticas-de-Batalha.md`](skills/Fowlgen-Wars-Sistema-de-Taticas-de-Batalha.md): sistema tático do jogo unindo tomada de decisão inspirada no xadrez (controle de centro, garfo, cravada, espeto, sacrifício, tempo e Galinheiro como Rei) à ação rápida de Mini-MOBA.
-- [`Fowlgen-Wars-Ajustes-do-Sistema-de-Taticas-de-Guerra.md`](skills/Fowlgen-Wars-Ajustes-do-Sistema-de-Taticas-de-Guerra.md): ajustes e especificação do sistema de dupla estratégica (Duo inseparável: ADC frágil de alto dano + Suporte escudo protetor, rotação de dupla em bloco e prioridades de IA).
-- [`Fowlgen-Sistema-de-Armadilhas-Personalizadas.md`](skills/Fowlgen-Sistema-de-Armadilhas-Personalizadas.md): conceito de armadilhas e personalização; não presumir que faça parte do MVP.
-- [`🐔 Sistema-de-Recompensas.md`](skills/%F0%9F%90%94%20Sistema-de%20recompensas.md): ideias de progressão/recompensas; valores e economia ainda dependem de validação.
-- [`Fowlgen-Wars-Prompt-01-Balanceamento-de-Habilidades.md`](skills/Fowlgen-Wars-Prompt-01-Balanceamento-de-Habilidades.md): proposta de dados e métricas de habilidades; valores não validados e controles nomeados Skill T/G/Y/H.
-- [`Fowlgen-Wars-Prompt-03-Community.md`](skills/Fowlgen-Wars-Prompt-03-Community.md): proposta Web para Fandom, Fanarts e Fórum, sujeita à arquitetura real de `app/` e da API.
-- [`Fowlgen-Wars-Prompt-05-Conquistas.md`](skills/Fowlgen-Wars-Prompt-05-Conquistas.md): proposta de conquistas de gameplay, separadas dos badges de recompensas e da reputação da comunidade.
-- [`Fowlgen-Wars-Prompt-07-Aura-da-Noite.md`](skills/Fowlgen-Wars-Prompt-07-Aura-da-Noite.md): proposta de coleta e coleção cosmética de auras; probabilidades, persistência e regra de aquisição pendem de decisão.
-- [`Fowlgen-Wars-Prompt-08-Badges-Recompensas-Pendentes.md`](skills/Fowlgen-Wars-Prompt-08-Badges-Recompensas-Pendentes.md): proposta de badges derivados de estados de recompensa, com visualização separada de resgate e confirmação autoritativa.
-- [`Fowlgen-Wars-Prompt-09-Evolucao-Elemental-de-Minions.md`](skills/Fowlgen-Wars-Prompt-09-Evolucao-Elemental-de-Minions.md): conceito de evolução elemental de Minions, sujeito às decisões pendentes em `Fowlgen-Wars-Minions.md`.
-- [`Prompts-Organizados-2026-11-06.md`](skills/Prompts-Organizados-2026-11-06.md): índice dos prompts recebidos e status de organização.
-- [`🐔Sistema-Padrao-de-criatividadee-e-Design.md`](skills/%F0%9F%90%94Sistema-Padrao-de-criatividadee-e-Design.md): uso responsável de IA, originalidade e registro do processo criativo.
-- [`🐔 Fwolgen-Wars - Frases-de-Combate.md`](skills/%F0%9F%90%94%20Fwolgen-Wars%20-%20Frases-de-Combate.md): referência de tom e falas; aplicar apenas quando a tarefa envolver texto/áudio do jogo.
-- [`Fowlgen-Wars-Guia-Completo-Detalhado.md`](skills/Fowlgen-Wars-Guia-Completo-Detalhado.md): setup documentado de Solana, Rust e Anchor. Verifique versões e instruções oficiais antes de executá-las.
-- [`Fowlgen-Wars-Guia-Setup-Contrato-Repositorio.md`](skills/Fowlgen-Wars-Guia-Setup-Contrato-Repositorio.md): guia prático de compilação, testes, sincronização de chaves e deploy na Devnet do smart contract Anchor a partir da pasta `program/` do repositório.
-- [`Integracao-Solana-tokens-NFTs-Unity-Publicacao-Dapps-Store.md`](skills/Integracao-Solana-tokens-NFTs-Unity-Publicacao-Dapps-Store.md): arquitetura híbrida e estudo de ativos on-chain, Unity SDK e publicação futura.
-- [`Exemplos-Modelo-Adaptado-Fowlgen-wars-do-Game-Seven-Seas.md`](skills/Exemplos-Modelo-Adaptado-Fowlgen-wars-do-Game-Seven-Seas.md): referência conceitual para separar gameplay e ativos; não copiar implementação nem tratar propostas futuras como escopo aprovado.
-- [`Fowlgen-Wars-Pesquisa-Captacao-Recursos-2026-v1.md`](skills/Fowlgen-Wars-Pesquisa-Captacao-Recursos-2026-v1.md): pesquisa de captação, editais, publishers e validação; não é especificação de gameplay.
-- [`Fowlgen-Wars-Faixas-Etarias-Publico-Alvo.md`](skills/Fowlgen-Wars-Faixas-Etarias-Publico-Alvo.md): análise de dados demográficos de jogadores por faixa etária (crianças, pré-adolescentes, Geração Z e adultos), gêneros, plataformas e modelos monetários.
-- [`Fowlgen-Wars-Biblioteca-Efeitos-Sonoros.md`](skills/Fowlgen-Wars-Biblioteca-Efeitos-Sonoros.md): guia e ranking de repositórios de efeitos sonoros (SFX), licenças de uso comercial/atribuição e formatos recomendados para Unity.
-- [`Fowlgen-Wars-Estudo-de-Cores.md`](skills/Fowlgen-Wars-Estudo-de-Cores.md): estudo e matriz de cores de arenas/mapas MOBA (Wild Rift, Mobile Legends, HoK, Clash Royale, AoV e Rush Royale), ergonomia e regras de contraste cenário vs VFX/heróis.
-- [`Fowlgen-Wars-A-Era-Passada.md`](skills/Fowlgen-wars-A-Era-Passada.md): lore. Use como cânone somente quando a documentação do projeto assim indicar; não introduza conteúdo narrativo não confirmado.
-- [`Fowlgen-Wars-Conceitos-de-Logotipo.md`](skills/Fowlgen-Wars-Conceitos-de-Logotipo.md): conceitos de logotipo, identidade visual da marca (estilos épico, cartoon, minimalista, pixel e identidade recomendada), sistema de logos e frase conceitual.
-- [`Fowlgen-Wars-Guia-MCP-Unity-Metaplex-Antigravity.md`](skills/Fowlgen-Wars-Guia-MCP-Unity-Metaplex-Antigravity.md): guia de configuração de MCP Servers, Skills e Agents para Unity (ivanmurzak/unity-mcp e Unity AI Assistant) e Metaplex Core na IDE Antigravity.
-- [`🐔 Fowlgen-Wars-Sistema-de-Nivelamento-Proporcional.md`](skills/%F0%9F%90%94%20Fowlgen-Wars-Sistema-de-Nivelamento-Proporcional.md): sistema de nivelamento proporcional e normalização automática em partidas competitivas; separação estrita entre progressão de conta e poder de combate, garantindo fair play e proteção anti-pay-to-win.
+- [`09_fowlgenwars_fowlgen_wars_telas_game.md`](skills/09_fowlgenwars_fowlgen_wars_telas_game.md): prompt de telas mobile em landscape e controller de toque; joystick é proposta pendente de validação, enquanto os quatro slots de poder estão documentados.
+- [`07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md`](skills/07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md): especificação da arena com três rotas e 18 torres; a função das torres permanece pendente.
+- [`08_fowlgenwars_fowlgen_wars_sistema_de_arenas.md`](skills/08_fowlgenwars_fowlgen_wars_sistema_de_arenas.md): sistema de arena base única com skins temáticas (Fazenda, Medieval, Egípcia, Samurai, Futurista, Caos), variações de clima/horário e regras de fair play (sem vantagem competitiva).
+- [`06_fowlgenwars_fowlgen_wars_regras_de_combate_e_torres.md`](skills/06_fowlgenwars_fowlgen_wars_regras_de_combate_e_torres.md): registra fatos confirmados e decisões ainda pendentes de combate, torres e condição de resultado.
+- [`18_fowlgenwars_fowlgen_wars_minions.md`](skills/18_fowlgenwars_fowlgen_wars_minions.md): especificação proposta para geração contínua, limite de unidades ativas e avanço pelas três rotas; valores e regras ainda pendem de aprovação.
+- [`10_fowlgenwars_fowlgen_personagens_nome.md`](skills/10_fowlgenwars_fowlgen_personagens_nome.md): lista de nomes com alinhamento; não inferir espécie, classe, rota, essência, poder ou lore pelo nome.
+- [`03_fowlgenwars_mini_moba.md`](skills/03_fowlgenwars_mini_moba.md): conceito de Mini-MOBA, quatro rotas e partida de aproximadamente três minutos. Não tratar como escopo da Sprint 01 sem confirmação.
+- [`13_fowlgenwars_sistema_de_poderes.md`](skills/13_fowlgenwars_sistema_de_poderes.md): conceito de quatro poderes pré-equipados, cooldowns e preparação fora da partida.
+- [`12_fowlgenwars_fowlgen_wars_sistema_de_cores_essencias_e_classificacao.md`](skills/12_fowlgenwars_fowlgen_wars_sistema_de_cores_essencias_e_classificacao.md): identidade visual e distinção entre essência, classe, função e raridade; não inferir poder a partir de cor/raridade.
+- [`11_fowlgenwars_hierarquia_de_personagens.md`](skills/11_fowlgenwars_hierarquia_de_personagens.md): separação entre rota, função/classe, espécie, clã/civilização e tema.
+- [`15_fowlgenwars_criacao_personagens_3d.md`](skills/personagem/15_fowlgenwars_criacao_personagens_3d.md): prompt mestre reutilizável para criação de design sheets, respeitando hierarquia oficial e linguagem visual 3D.
+- [`19_fowlgenwars_fowlgen_camada_estrategica_inspirada_no_xadrez.md`](skills/19_fowlgenwars_fowlgen_camada_estrategica_inspirada_no_xadrez.md): propostas de estratégia e mapa; confirmar escopo antes de implementar.
+- [`20_fowlgenwars_fowlgen_wars_sistema_de_taticas_de_batalha.md`](skills/20_fowlgenwars_fowlgen_wars_sistema_de_taticas_de_batalha.md): sistema tático do jogo unindo tomada de decisão inspirada no xadrez (controle de centro, garfo, cravada, espeto, sacrifício, tempo e Galinheiro como Rei) à ação rápida de Mini-MOBA.
+- [`21_fowlgenwars_fowlgen_wars_ajustes_do_sistema_de_taticas_de_guerra.md`](skills/21_fowlgenwars_fowlgen_wars_ajustes_do_sistema_de_taticas_de_guerra.md): ajustes e especificação do sistema de dupla estratégica (Duo inseparável: ADC frágil de alto dano + Suporte escudo protetor, rotação de dupla em bloco e prioridades de IA).
+- [`22_fowlgenwars_fowlgen_sistema_de_armadilhas_personalizadas.md`](skills/22_fowlgenwars_fowlgen_sistema_de_armadilhas_personalizadas.md): conceito de armadilhas e personalização; não presumir que faça parte do MVP.
+- [`26_fowlgenwars_sistema_de_recompensas.md`](skills/26_fowlgenwars_sistema_de_recompensas.md): ideias de progressão/recompensas; valores e economia ainda dependem de validação.
+- [`56_fowlgenwars_indice_documentos.md`](skills/56_fowlgenwars_indice_documentos.md): ordem de desenvolvimento, dependências e convenção de nomes dos prompts.
+- [`04_fowlgenwars_conceito_medieval_mini_moba.md`](skills/04_fowlgenwars_conceito_medieval_mini_moba.md): visão do mini-MOBA; tema medieval e categorias precisam respeitar a arena e hierarquia documentadas.
+- [`05_fowlgenwars_partidas_rapidas_produto.md`](skills/05_fowlgenwars_partidas_rapidas_produto.md): proposta de experiência de partida curta e métricas; metas ainda não validadas.
+- [`17_fowlgenwars_balanceamento_habilidades.md`](skills/17_fowlgenwars_balanceamento_habilidades.md): dados e métricas de habilidades; valores não validados e controles Skill T/G/Y/H.
+- [`25_fowlgenwars_evolucao_elemental_minions.md`](skills/25_fowlgenwars_evolucao_elemental_minions.md): conceito de evolução de Minions, sujeito às decisões pendentes em `18_fowlgenwars_fowlgen_wars_minions.md`.
+- [`24_fowlgenwars_chuva_de_legumes.md`](skills/24_fowlgenwars_chuva_de_legumes.md): proposta de evento ambiental, dependente dos sistemas existentes de partida, HP e autoridade.
+- [`27_fowlgenwars_badges_recompensas.md`](skills/27_fowlgenwars_badges_recompensas.md): badges derivados do estado de recompensas; visualização e resgate são distintos.
+- [`28_fowlgenwars_conquistas.md`](skills/28_fowlgenwars_conquistas.md): proposta de conquistas de gameplay, separadas da reputação comunitária.
+- [`29_fowlgenwars_aura_da_noite.md`](skills/29_fowlgenwars_aura_da_noite.md): coleção cosmética de auras; probabilidades e regra de aquisição pendem de decisão.
+- [`30_fowlgenwars_community.md`](skills/30_fowlgenwars_community.md): proposta Web de Fandom, Fanarts e Fórum, sujeita à arquitetura real de `app/` e da API.
+- [`32_fowlgenwars_sistema_padrao_de_criatividadee_e_design.md`](skills/32_fowlgenwars_sistema_padrao_de_criatividadee_e_design.md): uso responsável de IA, originalidade e registro do processo criativo.
+- [`35_fowlgenwars_fwolgen_wars_frases_de_combate.md`](skills/35_fowlgenwars_fwolgen_wars_frases_de_combate.md): referência de tom e falas; aplicar apenas quando a tarefa envolver texto/áudio do jogo.
+- [`43_fowlgenwars_fowlgen_wars_guia_completo_detalhado.md`](skills/43_fowlgenwars_fowlgen_wars_guia_completo_detalhado.md): setup documentado de Solana, Rust e Anchor. Verifique versões e instruções oficiais antes de executá-las.
+- [`42_fowlgenwars_fowlgen_wars_guia_setup_contrato_repositorio.md`](skills/42_fowlgenwars_fowlgen_wars_guia_setup_contrato_repositorio.md): guia prático de compilação, testes, sincronização de chaves e deploy na Devnet do smart contract Anchor a partir da pasta `program/` do repositório.
+- [`44_fowlgenwars_integracao_solana_tokens_nfts_unity_publicacao_dapps_store.md`](skills/44_fowlgenwars_integracao_solana_tokens_nfts_unity_publicacao_dapps_store.md): arquitetura híbrida e estudo de ativos on-chain, Unity SDK e publicação futura.
+- [`02_fowlgenwars_exemplos_modelo_adaptado_fowlgen_wars_do_game_seven_seas.md`](skills/02_fowlgenwars_exemplos_modelo_adaptado_fowlgen_wars_do_game_seven_seas.md): referência conceitual para separar gameplay e ativos; não copiar implementação nem tratar propostas futuras como escopo aprovado.
+- [`39_fowlgenwars_fowlgen_wars_pesquisa_captacao_recursos_2026_v1.md`](skills/39_fowlgenwars_fowlgen_wars_pesquisa_captacao_recursos_2026_v1.md): pesquisa de captação, editais, publishers e validação; não é especificação de gameplay.
+- [`38_fowlgenwars_fowlgen_wars_faixas_etarias_publico_alvo.md`](skills/38_fowlgenwars_fowlgen_wars_faixas_etarias_publico_alvo.md): análise de dados demográficos de jogadores por faixa etária (crianças, pré-adolescentes, Geração Z e adultos), gêneros, plataformas e modelos monetários.
+- [`36_fowlgenwars_fowlgen_wars_biblioteca_efeitos_sonoros.md`](skills/36_fowlgenwars_fowlgen_wars_biblioteca_efeitos_sonoros.md): guia e ranking de repositórios de efeitos sonoros (SFX), licenças de uso comercial/atribuição e formatos recomendados para Unity.
+- [`34_fowlgenwars_fowlgen_wars_estudo_de_cores.md`](skills/34_fowlgenwars_fowlgen_wars_estudo_de_cores.md): estudo e matriz de cores de arenas/mapas MOBA (Wild Rift, Mobile Legends, HoK, Clash Royale, AoV e Rush Royale), ergonomia e regras de contraste cenário vs VFX/heróis.
+- [`31_fowlgenwars_fowlgen_wars_a_era_passada.md`](skills/31_fowlgenwars_fowlgen_wars_a_era_passada.md): lore. Use como cânone somente quando a documentação do projeto assim indicar; não introduza conteúdo narrativo não confirmado.
+- [`33_fowlgenwars_fowlgen_wars_conceitos_de_logotipo.md`](skills/33_fowlgenwars_fowlgen_wars_conceitos_de_logotipo.md): conceitos de logotipo, identidade visual da marca (estilos épico, cartoon, minimalista, pixel e identidade recomendada), sistema de logos e frase conceitual.
+- [`46_fowlgenwars_fowlgen_wars_guia_mcp_unity_metaplex_antigravity.md`](skills/46_fowlgenwars_fowlgen_wars_guia_mcp_unity_metaplex_antigravity.md): guia de configuração de MCP Servers, Skills e Agents para Unity (ivanmurzak/unity-mcp e Unity AI Assistant) e Metaplex Core na IDE Antigravity.
+- [`14_fowlgenwars_fowlgen_wars_sistema_de_nivelamento_proporcional.md`](skills/14_fowlgenwars_fowlgen_wars_sistema_de_nivelamento_proporcional.md): sistema de nivelamento proporcional e normalização automática em partidas competitivas; separação estrita entre progressão de conta e poder de combate, garantindo fair play e proteção anti-pay-to-win.
 - [`metaplex/SKILL.md`](../metaplex/SKILL.md): skill do ecossistema Metaplex na pasta `.agents/skills/metaplex/SKILL.md`; referência oficial para criação de coleções Metaplex Core, NFTs, Bubblegum (compressed NFTs), Candy Machine, Token Metadata e comandos da CLI `mplx`.
-- [`Fowlgen-Wars-Setup-FishNet.md`](skills/Fowlgen-Wars-Setup-FishNet.md): guia de setup e parâmetros de rede multiplayer FishNet (arquitetura client-server headless, portas UDP/TCP 7770, spawner de entidades e sincronização de estado).
-- [`Fowlgen-Wars-Setup-SolanaSDK.md`](skills/Fowlgen-Wars-Setup-SolanaSDK.md): setup e inicialização do Solana Unity SDK para conexão com nós RPC da Devnet e envio de transações on-chain a partir do cliente Unity.
-- [`Fowlgen-Wars-Privacidade-ZK-Cloak.md`](skills/Fowlgen-Wars-Privacidade-ZK-Cloak.md): estudo e proposta de arquitetura de privacidade usando ZK-SNARKs / protocolo Cloak para proteção de táticas e mecânicas confidenciais.
-- [`Fowlgen-Wars-Relatorio-Metaplex-Skills-CLI-vs-MCP.md`](skills/Fowlgen-Wars-Relatorio-Metaplex-Skills-CLI-vs-MCP.md): análise técnica comparativa entre a CLI `mplx` e servidores MCP para automação e manipulação de ativos Metaplex na IDE Antigravity.
-- [`Relatorio-Fowlgen-Wars.md`](skills/Relatorio-Fowlgen-Wars.md): relatório técnico consolidado registrando a evolução arquitetural do jogo (FishNet, Solana Devnet, testes e orquestração).
+- [`40_fowlgenwars_fowlgen_wars_setup_fishnet.md`](skills/40_fowlgenwars_fowlgen_wars_setup_fishnet.md): guia de setup e parâmetros de rede multiplayer FishNet (arquitetura client-server headless, portas UDP/TCP 7770, spawner de entidades e sincronização de estado).
+- [`41_fowlgenwars_fowlgen_wars_setup_solanasdk.md`](skills/41_fowlgenwars_fowlgen_wars_setup_solanasdk.md): setup e inicialização do Solana Unity SDK para conexão com nós RPC da Devnet e envio de transações on-chain a partir do cliente Unity.
+- [`45_fowlgenwars_fowlgen_wars_privacidade_zk_cloak.md`](skills/45_fowlgenwars_fowlgen_wars_privacidade_zk_cloak.md): estudo e proposta de arquitetura de privacidade usando ZK-SNARKs / protocolo Cloak para proteção de táticas e mecânicas confidenciais.
+- [`47_fowlgenwars_fowlgen_wars_relatorio_metaplex_skills_cli_vs_mcp.md`](skills/47_fowlgenwars_fowlgen_wars_relatorio_metaplex_skills_cli_vs_mcp.md): análise técnica comparativa entre a CLI `mplx` e servidores MCP para automação e manipulação de ativos Metaplex na IDE Antigravity.
+- [`48_fowlgenwars_relatorio_fowlgen_wars.md`](skills/48_fowlgenwars_relatorio_fowlgen_wars.md): relatório técnico consolidado registrando a evolução arquitetural do jogo (FishNet, Solana Devnet, testes e orquestração).
 
 ### Modelagem 3D e Especificações de Personagem (`skills/personagem/`)
-- [`Fowlgen_Wars_Milo_3D_Modeling_Spec_v1.md`](skills/personagem/milo/Fowlgen_Wars_Milo_3D_Modeling_Spec_v1.md): especificação técnica de modelagem 3D do personagem Milo (polycount ≤ 8k triângulos mobile, topologia, loops de deformação para rig, mapeamento UV e texturização PBR).
+- [`16_fowlgenwars_fowlgen_wars_milo_3d_modeling_spec_v1.md`](skills/personagem/milo/16_fowlgenwars_fowlgen_wars_milo_3d_modeling_spec_v1.md): especificação técnica de modelagem 3D do personagem Milo (polycount ≤ 8k triângulos mobile, topologia, loops de deformação para rig, mapeamento UV e texturização PBR).
 
 ### Briefings Individuais da Equipe (`skills/Equipe/`)
-- [`Marcos.md`](skills/Equipe/Marcos.md): direcionamento e atribuições do Líder Técnico / Dev Core Unity & Web3 (arquitetura off-chain FishNet, contratos Anchor e coordenação técnica).
-- [`Emanuel.md`](skills/Equipe/Emanuel.md): atribuições do Dev Unity / Gameplay Core focado em layout de arena de 3 rotas, obstáculos, ambiente e colisões.
-- [`Jorge.md`](skills/Equipe/Jorge.md): atribuições do Engenheiro DevSecOps, Cloud Architect (K8s/CI-CD/Docker), suporte Anchor Web3 e áudio/SFX do jogo.
-- [`Maria_Clara.md`](skills/Equipe/Maria_Clara.md): atribuições do QA Funcional (experiência do jogador/UX testing) e coerência da narrativa/lore.
-- [`Ramiro_e_Samuel.md`](skills/Equipe/Ramiro_e_Samuel.md): atribuições integradas de Product Owner (Samuel) e Marketing Estratégico/Relações com Investidores (Ramiro).
+- [`53_fowlgenwars_marcos.md`](skills/Equipe/53_fowlgenwars_marcos.md): direcionamento e atribuições do Líder Técnico / Dev Core Unity & Web3 (arquitetura off-chain FishNet, contratos Anchor e coordenação técnica).
+- [`51_fowlgenwars_emanuel.md`](skills/Equipe/51_fowlgenwars_emanuel.md): atribuições do Dev Unity / Gameplay Core focado em layout de arena de 3 rotas, obstáculos, ambiente e colisões.
+- [`52_fowlgenwars_jorge.md`](skills/Equipe/52_fowlgenwars_jorge.md): atribuições do Engenheiro DevSecOps, Cloud Architect (K8s/CI-CD/Docker), suporte Anchor Web3 e áudio/SFX do jogo.
+- [`54_fowlgenwars_maria_clara.md`](skills/Equipe/54_fowlgenwars_maria_clara.md): atribuições do QA Funcional (experiência do jogador/UX testing) e coerência da narrativa/lore.
+- [`55_fowlgenwars_ramiro_e_samuel.md`](skills/Equipe/55_fowlgenwars_ramiro_e_samuel.md): atribuições integradas de Product Owner (Samuel) e Marketing Estratégico/Relações com Investidores (Ramiro).
 
 ### Relatórios de Fases e Execução (`files/relatorios/`)
 - [`Relatorio_Arquitetura_MVP_ScriptableObjects.md`](files/relatorios/Relatorio_Arquitetura_MVP_ScriptableObjects.md): arquitetura de dados desacoplada baseada em ScriptableObjects para heróis, stats e habilidades.
@@ -168,6 +171,8 @@ Considere os seguintes arquivos como fontes de design, planejamento, processo ou
 
 - **Fluxo de Ingestão de Prompts:** O PO Samuel gera direcionamentos, ideias e especificações conceituais. Junior é o responsável por coletar esses materiais, estruturá-los em Markdown (`.md`) padronizado e alocá-los nas pastas `app/` e `.agents/skills/fowlgenwars/skills/`.
 - **Checagem Obrigatória de Conflitos (`SKILL.md`):** Todo novo prompt Markdown deve ser validado contra este `SKILL.md` antes de ser incorporado, garantindo alinhamento de terminologias, integridade de decisões tomadas e prevenção de conflitos de ideias ou sobreposição de escopos com documentos existentes.
+- **Nomenclatura e ordem:** os prompts usam `nn_fowlgenwars_nome_descritivo.md`, em minúsculas e com `_`; não incluir “Prompt 01/1” no nome. A ordem numérica representa a sequência recomendada de desenvolvimento, registrada em [`56_fowlgenwars_indice_documentos.md`](skills/56_fowlgenwars_indice_documentos.md).
+- **Inserção de novos prompts:** analisar conteúdo, conflitos e dependências com a arquitetura antes de numerar. Usar [`new_prompt.ps1`](scripts/new_prompt.ps1) para gerar o próximo número e registrar o arquivo no índice. Se a dependência exigir uma posição anterior, renumerar os seguintes e atualizar todas as referências na mesma alteração. Preencher o modelo arquitetural e os critérios de aceite; não incorporar o texto bruto como especificação executável.
 
 ### Ferramentas de arte e produção
 

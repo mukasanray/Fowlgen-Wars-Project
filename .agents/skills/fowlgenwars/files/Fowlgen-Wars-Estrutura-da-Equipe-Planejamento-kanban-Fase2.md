@@ -67,7 +67,7 @@ Documento oficial de organização da equipe ativa, distribuição de responsabi
   * Desenvolvimento de smart contracts Anchor em Rust e Solana MCPs em parceria com Marcos.
   * Manipulação de PDAs, regras on-chain e revisão de segurança (`claim_reward`, authorities, rent exemption).
 * 🎧 **Responsabilidade de Áudio:**
-  * Estruturação e organização da biblioteca de SFX/BGM do projeto ([`Fowlgen-Wars-Biblioteca-Efeitos-Sonoros.md`](../skills/Fowlgen-Wars-Biblioteca-Efeitos-Sonoros.md)).
+  * Estruturação e organização da biblioteca de SFX/BGM do projeto ([`36_fowlgenwars_fowlgen_wars_biblioteca_efeitos_sonoros.md`](../skills/36_fowlgenwars_fowlgen_wars_biblioteca_efeitos_sonoros.md)).
   * Implementação de audio triggers, mixers de som e controle de volume na Unity.
   * Integração dos efeitos sonoros essenciais (bombas, passos, impactos de dano, cliques de UI, fanfarra de vitória/derrota).
 * 📝 **Documentação Técnica:**
@@ -106,7 +106,7 @@ Documento oficial de organização da equipe ativa, distribuição de responsabi
   * Validação das regras de jogo e critérios de aceite.
   * Registro e triagem de bugs funcionais no Kanban.
 * 📖 **Narrativa / Lore:**
-  * Gestão do lore oficial ([`Fowlgen-Wars-A-Era-Passada.md`](../skills/Fowlgen-wars-A-Era-Passada.md)).
+  * Gestão do lore oficial ([`31_fowlgenwars_fowlgen_wars_a_era_passada.md`](../skills/31_fowlgenwars_fowlgen_wars_a_era_passada.md)).
   * Revisão textual, fichas de personagens e coerência de diálogos e frases de combate.
 * 🎯 **Regra:** Maria Clara avalia a experiência real do jogador e preserva a identidade narrativa do universo Fowlgen Wars.
 
@@ -204,7 +204,7 @@ Marcos                              Manuel                              Jorge Es
 ## 📋 6. Kanban — Fase 2 (Gestão: Samuel Menon Ramos)
 
 ### 📥 Backlog Futuro (Fases Posteriores)
-* Mapas e skins secundárias de arena ([`Fowlgen-Wars-Sistema-de-Arenas.md`](../skills/Fowlgen-Wars-Sistema-de-Arenas.md)).
+* Mapas e skins secundárias de arena ([`08_fowlgenwars_fowlgen_wars_sistema_de_arenas.md`](../skills/08_fowlgenwars_fowlgen_wars_sistema_de_arenas.md)).
 * Marketplace completo de NFTs e coleções em Mainnet.
 * Dublagens e frases regionais expandidas.
 * Torneios e publicação em escala na Google Play e Solana Mobile DApp Store.

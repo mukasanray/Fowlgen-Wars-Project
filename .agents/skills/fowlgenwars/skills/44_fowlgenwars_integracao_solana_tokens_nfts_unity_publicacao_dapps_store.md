@@ -4,7 +4,7 @@
 
 Este documento organiza o estudo da integração entre Unity, Solana, tokens, NFTs, programas Anchor e publicação na Solana Mobile DApp Store.
 
-O ambiente de desenvolvimento deve seguir o padrão definido no [Guia Completo de Configuração do Ambiente On-Chain](Fowlgen-Wars-Guia-Completo-Detalhado.md): WSL2 com Ubuntu, Rust via `rustup`, Solana CLI `v1.18.26` e Anchor CLI gerenciada pelo AVM.
+O ambiente de desenvolvimento deve seguir o padrão definido no [Guia Completo de Configuração do Ambiente On-Chain](43_fowlgenwars_fowlgen_wars_guia_completo_detalhado.md): WSL2 com Ubuntu, Rust via `rustup`, Solana CLI `v1.18.26` e Anchor CLI gerenciada pelo AVM.
 
 ## 1. Arquitetura recomendada
 

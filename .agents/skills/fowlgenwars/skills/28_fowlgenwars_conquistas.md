@@ -1,4 +1,4 @@
-# 🏆 Prompt 05 — Sistema de conquistas
+# 🏆 Sistema de conquistas
 
 ## Status e objetivo
 
@@ -33,7 +33,7 @@ Os exemplos de armas, montarias, armadilhas, chuva de vegetais e eventos caótic
 - **Recompensas:** reutilizar a camada de recompensas; desbloquear conquista e conceder recompensa são operações distintas, idempotentes e reconciliáveis.
 - **Autoridade online:** eventos/resultados e concessões vêm do servidor autoritativo ou de resultado validado. Cliente pode apresentar a notificação, mas não validar vitória ou conceder recompensas.
 - **Persistência:** salvar estado pela identidade/perfil do jogador, com sincronização quando disponível; tolerar reconexão e resposta repetida sem duplicar progresso ou item.
-- **UI:** fila de notificações de desbloqueio no topo, fora das áreas seguras de toque e sem bloquear comandos. É diferente do badge persistente de recompensa pendente documentado em [Fowlgen-Wars-Prompt-08-Badges-Recompensas-Pendentes.md](Fowlgen-Wars-Prompt-08-Badges-Recompensas-Pendentes.md).
+- **UI:** fila de notificações de desbloqueio no topo, fora das áreas seguras de toque e sem bloquear comandos. É diferente do badge persistente de recompensa pendente documentado em [27_fowlgenwars_badges_recompensas.md](27_fowlgenwars_badges_recompensas.md).
 - **MVP/Presenter:** View passiva apresenta dados e preferências; Presenter/serviço consome eventos e atualiza UI. Configurações de notificações/áudio respeitam os sistemas existentes.
 - **Separação de produto:** conquistas de gameplay pertencem ao jogo. Reputação, selos e atividades da FOWLGEN COMMUNITY permanecem sistemas separados, sem conversão automática entre pontos ou poder de combate.
 - **Analytics:** métricas de progresso e conclusão precisam apoiar balanceamento sem expor dados pessoais desnecessários.
@@ -56,4 +56,3 @@ Após confirmar eventos existentes, selecionar poucas conquistas baseadas em eve
 - Recompensas aprovadas e relação com o sistema de recompensas existente.
 - Quantidade/ritmo de notificações, preferências de acessibilidade e áudio.
 - Política para conquistas sazonais e histórico permanente.
-

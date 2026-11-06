@@ -15,7 +15,7 @@ O documento Mini-MOBA existente descreve quatro rotas. A configuração de três
 - **Estratégia inspirada em xadrez:** centro e pontos de controle como decisões posicionais; ponte pode ser passagem, colina pode afetar alcance e torre pode oferecer visão como exemplos de design, não regras já aprovadas.
 - **Sistema de armadilhas:** prevê tipos e gatilhos variados, mas exige aviso visual/sonoro e janela de reação. Não determina que toda armadilha ou tipo já faça parte deste mapa.
 - **Roadmap de gameplay:** descreve arena compacta, limites, rotas, pontos de spawn e condições de início/fim, sem fornecer dimensões ou um layout de terreno final.
-- [`Fowlgen-wars-Minions.md`](Fowlgen-wars-Minions.md): especificação proposta para Minions gerados nos dois Galinheiros e movendo-se pelas rotas; usar como critério de navegação da POC, não como prova de implementação.
+- [`18_fowlgenwars_fowlgen_wars_minions.md`](18_fowlgenwars_fowlgen_wars_minions.md): especificação proposta para Minions gerados nos dois Galinheiros e movendo-se pelas rotas; usar como critério de navegação da POC, não como prova de implementação.
 
 Não inventar escala em metros, HP, alcance, dano, função/propriedade/vida das torres, quantidade de tropas, tipos de armadilha disponíveis, recompensas, regras de visão ou especificações de servidor. Consultar o projeto Unity e confirmar com o responsável quando esses dados forem necessários.
 
@@ -86,7 +86,7 @@ Diagrama sem escala. Cada faixa representa uma rota. A1–A3 e B1–B3 são trê
 ## Prompt para Unity AI
 
 ```text
-Crie uma primeira versão graybox do mapa mobile de FOWLGEN WARS seguindo este documento (`Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md`) e inspecionando o projeto Unity existente.
+Crie uma primeira versão graybox do mapa mobile de FOWLGEN WARS seguindo este documento (`07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md`) e inspecionando o projeto Unity existente.
 
 Antes de modificar:
 1. Confira cenas, escala, câmera, render pipeline, colliders, prefabs, sistema de navegação e pacotes já instalados.
@@ -121,7 +121,7 @@ Ao terminar, reporte arquivos/cenas alterados, escala observada, teste realizado
 
 ## Referências do projeto
 
-- [`🐔 Mini-MOBA`](%F0%9F%90%94%20Mini-Moba.md)
-- [`FOWLGEN — Camada estratégica inspirada no xadrez`](Fowlgen-Camada-Estrategica-Inspirada-No-Xadrez.md)
-- [`FOWLGEN — Sistema de armadilhas personalizadas`](Fowlgen-Sistema-de-Armadilhas-Personalizadas.md)
+- [`🐔 Mini-MOBA`](03_fowlgenwars_mini_moba.md)
+- [`FOWLGEN — Camada estratégica inspirada no xadrez`](19_fowlgenwars_fowlgen_camada_estrategica_inspirada_no_xadrez.md)
+- [`FOWLGEN — Sistema de armadilhas personalizadas`](22_fowlgenwars_fowlgen_sistema_de_armadilhas_personalizadas.md)
 - [`Roadmap de POCs — gameplay e arena`](Fowlgen-Wars-Roadmap-de-Pocs-alterada.md)

@@ -1,7 +1,7 @@
 # Relatório — Verificação e Aplicação Fase 1 do Plano de Balanceamento
 
 **Data:** 2026-10-13  
-**Fonte:** `pasted-context-1.txt` (Plano Profissional de Balanceamento, Nerfs e Upgrades v1.0) + `prompt/skills/Fowlgen-Wars-Balanceamento-Nerfs-Upgrades.md`  
+**Fonte:** `pasted-context-1.txt` (Plano Profissional de Balanceamento, Nerfs e Upgrades v1.0) + `prompt/skills/49_fowlgenwars_fowlgen_wars_balanceamento_nerfs_upgrades.md`
 **Referência normativa:** `prompt/Claude.md`  
 **Escopo deste relatório:** verificar conformidade do plano vs regras do projeto e documentar o que foi aplicado (Fase 1) vs o que ficou em backlog.
 
@@ -41,7 +41,7 @@ Transformar o plano de balanceamento (documento de Game Design) em base testáve
 
 ## 4. Divergências preservadas (não aplicar automático)
 
-1. **Gália — Garra de Ferro (Tanque) nomeada no §2** — `Fowlgen-Personagens-Nome.md` proíbe inferir classe por nome; roster atual é Milo/Axel. Tratada como **exemplo fictício pendente PO**, não canon.
+1. **Gália — Garra de Ferro (Tanque) nomeada no §2** — `10_fowlgenwars_fowlgen_personagens_nome.md` proíbe inferir classe por nome; roster atual é Milo/Axel. Tratada como **exemplo fictício pendente PO**, não canon.
 2. **§3 X-besta/torres 6 variações + §6 bombas/armadilhas/caixas + §4 8 tropas** — `Claude.md § Escopo de gameplay`: *"Não implementar cartas, loja, inventário, economia, armadilhas ou sistemas completos de progressão sem tarefa e critério de aceite explícitos."* → **Fase 3–4 do doc é backlog futuro, não MVP hackathon 10/10.**
 3. **5 papéis completos vs código real** — só `HeroAgent`, `MinionAgent`, `StructureGalinheiro` existem. Sem ficha §8 por unidade → **não atribuir nerf/upgrade sem métrica.**
 4. **Timer 180s e vitória `StructureGalinheiro → GameMatchManager`** — já implementado; Fase1 do doc já existe, não recriar.
@@ -72,7 +72,7 @@ Transformar o plano de balanceamento (documento de Game Design) em base testáve
 - `unity/Assets/Modules/Gameplay/Managers/GameMatchManager.cs` — campo `balanceConfig`; `Start/HandleCountdownFinished/Update` usam balance se presente senão `MatchConfig`.
 - `unity/Assets/Editor/SetupMobaArenaComplete.cs` — cria/carrega `Assets/Resources/Architecture/FowlgenBalanceConfig.asset`, binda em Milo/Axel/Minion/GameMatchManager, garante `BalanceMetricsCollector` em cena via `EnsureBalanceMetrics()`.
 
-**Doc já existente:** `prompt/skills/Fowlgen-Wars-Balanceamento-Nerfs-Upgrades.md` — sem conflito histórico.
+**Doc já existente:** `prompt/skills/49_fowlgenwars_fowlgen_wars_balanceamento_nerfs_upgrades.md` — sem conflito histórico.
 
 **Fora de escopo (skipped):** nerfs/upgrades Fase 3–4, tabela X-besta/armadilhas, 8 tropas diferenciadas. Add quando Fase 1 métricas coletadas.
 
@@ -117,9 +117,9 @@ Sem esse ciclo, qualquer % é chute — doc mesmo avisa.
 
 ## Referências
 
-- `prompt/skills/Fowlgen-Wars-Balanceamento-Nerfs-Upgrades.md`
+- `prompt/skills/49_fowlgenwars_fowlgen_wars_balanceamento_nerfs_upgrades.md`
 - `prompt/Claude.md` §§ Escopo de gameplay, Regras de execução, Divergências
-- `prompt/skills/Fowlgen-Personagens-Nome.md`
+- `prompt/skills/10_fowlgenwars_fowlgen_personagens_nome.md`
 - `unity/Assets/Modules/Gameplay/Domain/FowlgenBalanceConfigSO.cs`
 - `unity/Assets/Modules/Gameplay/Metrics/BalanceMetricsCollector.cs`
 - `unity/Assets/Modules/Gameplay/Agents/HeroAgent.cs`

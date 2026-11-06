@@ -1,4 +1,4 @@
-# FOWLGEN WARS — Prompt Mestre para Criação de Personagens 3D
+# FOWLGEN WARS — Criação de personagens 3D
 
 **Ferramenta utilizada:** ChatGPT Astra 6  
 **Finalidade:** geração de character design sheets profissionais para orientar concept art, modelagem 3D, texturização, rig, animação e implementação futura na Unity.

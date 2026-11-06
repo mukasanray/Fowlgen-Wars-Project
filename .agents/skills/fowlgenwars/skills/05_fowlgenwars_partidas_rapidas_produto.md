@@ -1,4 +1,15 @@
-# ⏱️ Prompt 06 — Redução do tempo de espera e partidas mais rápidas
+# ⏱️ Partidas rápidas e redução do tempo de espera
+
+## Status e alinhamento arquitetural
+
+Esta é uma proposta de produto e medição, não evidência de matchmaking, bots, métricas ou metas já implementados.
+
+- A duração-alvo documentada é de até 180 segundos. O limite de 3 segundos para iniciar partida é uma meta de experiência a validar, não SLA garantido.
+- Definir marcos mensuráveis comuns para “clicar em Jogar”, entrada na fila, sala pronta, carregamento concluído e início oficial da partida.
+- Matchmaking, fila, reconexão e preenchimento com bots pertencem aos serviços de sessão/multiplayer; não implementá-los como responsabilidade da UI nem presumir que FishNet ou API já suportem esses fluxos.
+- Se houver preenchimento com bots, identificar a presença de bots de forma transparente ao jogador e validar política, critérios e experiência com o Product Owner.
+- Telemetria deve registrar tempos e falhas com identificadores pseudônimos e respeitar a política de privacidade; não armazenar dados pessoais desnecessários.
+- Medir carregamento do cliente separadamente do tempo de matchmaking e da criação da sala. Definir o evento autoritativo que marca o início da partida.
 
 ## Problema a resolver
 O jogo competitivo costuma perder tempo em filas, carregamento e partidas longas. Isso gera frustração, baixa retenção e pouca vontade de voltar para outra sessão.

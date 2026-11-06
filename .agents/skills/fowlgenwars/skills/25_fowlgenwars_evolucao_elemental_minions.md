@@ -1,8 +1,8 @@
-# 🐔 Prompt 09 — Evolução elemental de Minions
+# 🐔 Evolução elemental de Minions
 
 ## Status e relação com a especificação vigente
 
-Este é um conceito de expansão para geração, especialização e evolução de Minions. **Não substitui nem altera silenciosamente** a especificação existente em [`Fowlgen-Wars-Minions.md`](Fowlgen-Wars-Minions.md), que exige cadência, atributos, limites e regras ainda pendentes de validação.
+Este é um conceito de expansão para geração, especialização e evolução de Minions. **Não substitui nem altera silenciosamente** a especificação existente em [`18_fowlgenwars_fowlgen_wars_minions.md`](18_fowlgenwars_fowlgen_wars_minions.md), que exige cadência, atributos, limites e regras ainda pendentes de validação.
 
 O material recebido propõe geração a cada 25 segundos, escolhas elementais, seis elementos, classes especializadas e evolução de atributos. Esses números e mecânicas continuam hipóteses até validação do Product Owner. A recomendação de fazer escolhas aos 25, 75 e 125 segundos também é uma proposta, não uma decisão aprovada.
 
@@ -78,4 +78,3 @@ Minions ──> rotas, IA, combate e estruturas já existentes
 3. Testar uma unidade base, uma agenda configurável, um limite de unidades e uma escolha elemental sem efeitos complexos.
 4. Só então comparar atributos/evoluções com partidas espelhadas e expandir elementos.
 5. Validar em partida completa de 180 segundos; testar multiplayer separadamente com clientes reais se a integração estiver disponível.
-

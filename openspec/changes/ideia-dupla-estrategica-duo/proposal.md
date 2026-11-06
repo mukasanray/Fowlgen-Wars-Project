@@ -7,7 +7,7 @@ Sistema de Dupla Estratégica (Duo Inseparável ADC + Suporte)
 Conceito de formação em dupla inseparável composta por Atirador/ADC (alto dano à distância, frágil) e Suporte/Tanque (escudo protetor, controle de grupo), com movimentação em bloco e prioridades de IA tática.
 
 ## Motivation
-Prompt originado no WhatsApp por Samuel Menon Ramos definindo a sinergia obrigatória de dupla para o Fowlgen Wars, formatado e refinado tecnicamente por Marcos no documento Fowlgen-Wars-Ajustes-do-Sistema-de-Taticas-de-Guerra.md.
+Prompt originado no WhatsApp por Samuel Menon Ramos definindo a sinergia obrigatória de dupla para o Fowlgen Wars, formatado e refinado tecnicamente por Marcos no documento 21_fowlgenwars_fowlgen_wars_ajustes_do_sistema_de_taticas_de_guerra.md.
 
 ## Context & Existing Implementations
 O modelo de Milo (Player ADC) e tropas de suporte operam como protótipo preliminar na cena Arena_Clean.unity.

@@ -1,4 +1,4 @@
-﻿# 🔵 FOWLGEN WARS — Roadmap Completo de POCs
+# 🔵 FOWLGEN WARS — Roadmap Completo de POCs
 
 Este documento reúne a Fase 01 e as fases seguintes do roadmap técnico do FOWLGEN WARS. A execução começa pela fundação Unity + Solana + Anchor e avança até o ciclo completo de NFT, PDA, SPL Token, gameplay e publicação.
 
@@ -109,7 +109,7 @@ Este é o marco de integração final, não uma confirmação de que todo o flux
 
 ## Como executar a Fase 01
 
-Este documento detalha a execução das POCs 01 a 05 do [Roadmap de POCs](Fowlgen-Wars-Roadmap-de-Pocs.md). Ele deve ser lido junto com o [Guia Completo de Configuração do Ambiente On-Chain](Fowlgen-Wars-Guia-Completo-Detalhado.md) e com a [Integração Solana, tokens, NFTs e Unity](Integracao-Solana-tokens-NFTs-Unity-Publicacao-Dapps-Store.md).
+Este documento detalha a execução das POCs 01 a 05 do [Roadmap de POCs](Fowlgen-Wars-Roadmap-de-Pocs.md). Ele deve ser lido junto com o [Guia Completo de Configuração do Ambiente On-Chain](../../fowlgenwars/skills/43_fowlgenwars_fowlgen_wars_guia_completo_detalhado.md) e com a [Integração Solana, tokens, NFTs e Unity](../../fowlgenwars/skills/44_fowlgenwars_integracao_solana_tokens_nfts_unity_publicacao_dapps_store.md).
 
 O objetivo da Fase 01 é provar a fundação técnica antes de criar NFTs, PDAs, tokens ou recompensas:
 
@@ -599,8 +599,8 @@ Para cada POC, registrar:
 
 ### Documentos do projeto
 
-- [Guia Completo de Configuração do Ambiente On-Chain](Fowlgen-Wars-Guia-Completo-Detalhado.md)
-- [Integração Solana, tokens, NFTs e Unity](Integracao-Solana-tokens-NFTs-Unity-Publicacao-Dapps-Store.md)
+- [Guia Completo de Configuração do Ambiente On-Chain](../../fowlgenwars/skills/43_fowlgenwars_fowlgen_wars_guia_completo_detalhado.md)
+- [Integração Solana, tokens, NFTs e Unity](../../fowlgenwars/skills/44_fowlgenwars_integracao_solana_tokens_nfts_unity_publicacao_dapps_store.md)
 - Este documento reúne as fases 01 a 06 do roadmap completo.
 
 ### Solana e Unity
@@ -1671,8 +1671,8 @@ Nunca atualizar saldo, upgrade ou vitória como confirmados apenas porque a tran
 
 ### Integração e projeto
 
-- [Integração Solana, tokens, NFTs e Unity](Integracao-Solana-tokens-NFTs-Unity-Publicacao-Dapps-Store.md)
-- [Guia Completo de Configuração do Ambiente On-Chain](Fowlgen-Wars-Guia-Completo-Detalhado.md)
+- [Integração Solana, tokens, NFTs e Unity](../../fowlgenwars/skills/44_fowlgenwars_integracao_solana_tokens_nfts_unity_publicacao_dapps_store.md)
+- [Guia Completo de Configuração do Ambiente On-Chain](../../fowlgenwars/skills/43_fowlgenwars_fowlgen_wars_guia_completo_detalhado.md)
 - [Solana Unity SDK](https://github.com/magicblock-labs/Solana.Unity-SDK)
 - [Seven Seas — Solana Game Examples](https://github.com/solana-developers/solana-game-examples/tree/main/seven-seas)
 

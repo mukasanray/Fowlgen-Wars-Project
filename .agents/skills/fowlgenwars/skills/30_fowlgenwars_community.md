@@ -1,4 +1,4 @@
-# 🐔 Prompt 03 — FOWLGEN COMMUNITY
+# 🐔 FOWLGEN COMMUNITY
 
 ## Status e limites
 
@@ -61,4 +61,3 @@ As versões e funcionalidades listadas no prompt são ideias para sequenciamento
 - Definir aceites observáveis para desktop/mobile, publicação, edição, denúncia, moderação e privacidade.
 - Testar autenticação/autorização, uploads, rate limits, acessibilidade e fluxos em ambiente de teste.
 - Rodar `openspec validate` antes da aprovação, conforme o processo do repositório.
-

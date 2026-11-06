@@ -7,11 +7,11 @@ Este documento separa as regras já apoiadas pelas fontes do projeto das decisõ
 ## Fontes
 
 - [`🐔 Mini-Moba-MVP.md`](%F0%9F%90%94%20Mini-Moba-MVP.md): loop da partida, três rotas, Minions e decisões pendentes.
-- [`Fowlgen-Wars-Minions.md`](Fowlgen-Wars-Minions.md): geração, avanço, limite ativo e combate dos Minions.
-- [`Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md`](Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md): três rotas, três torres por lado em cada rota (18 no total), campos simétricos.
+- [`18_fowlgenwars_fowlgen_wars_minions.md`](18_fowlgenwars_fowlgen_wars_minions.md): geração, avanço, limite ativo e combate dos Minions.
+- [`07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md`](07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md): três rotas, três torres por lado em cada rota (18 no total), campos simétricos.
 - [`Fowlgen-Wars-Roadmap-de-Pocs-alterada.md`](Fowlgen-Wars-Roadmap-de-Pocs-alterada.md), POCs 18–22 e 33–36: ataque/colisão/dano local, vida, derrota, habilidade e resultado de partida como áreas de implementação/teste.
-- [`🐔 Sistema-de poderes.md`](%F0%9F%90%94%20Sistema-de%20poderes.md): quatro slots conceituais; cooldowns listados são exemplos balanceáveis.
-- [`Fowlgen-Sistema-de-Armadilhas-Personalizadas.md`](Fowlgen-Sistema-de-Armadilhas-Personalizadas.md): armadilhas são um sistema configurável e não requisito automático deste MVP.
+- [`13_fowlgenwars_sistema_de_poderes.md`](13_fowlgenwars_sistema_de_poderes.md): quatro slots conceituais; cooldowns listados são exemplos balanceáveis.
+- [`22_fowlgenwars_fowlgen_sistema_de_armadilhas_personalizadas.md`](22_fowlgenwars_fowlgen_sistema_de_armadilhas_personalizadas.md): armadilhas são um sistema configurável e não requisito automático deste MVP.
 
 ## Regras atualmente definidas
 

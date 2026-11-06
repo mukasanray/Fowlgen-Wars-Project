@@ -9,14 +9,14 @@ Este material complementa o protótipo inicial inspirado em Pong e os conceitos 
 ## Fontes verificadas
 
 - [`🐔 FOWLGEN WARS — Sprint 01`](%F0%9F%90%94%20Fowlgen-Wars-Sprint-01.md): a primeira tela é conceitual; a Sprint cita botões Jogar, Cartas, Personagem e Configurações. O protótipo inicial é inspirado em Pong.
-- [`Relatório FOWLGEN WARS`](Relatorio-Fowlgen-Wars.md): os testes relatam UI/botões, movimento e colisões como reprovados; valide o estado real antes de apresentar esses itens como funcionais.
-- [`🐔 Sistema de Poderes`](%F0%9F%90%94%20Sistema-de%20poderes.md): quatro poderes já disponíveis durante a partida: Ataque, Defesa, Especial e Supremo. A personalização é fora da partida; tempos de recarga são exemplos balanceáveis, não valores finais.
+- [`Relatório FOWLGEN WARS`](48_fowlgenwars_relatorio_fowlgen_wars.md): os testes relatam UI/botões, movimento e colisões como reprovados; valide o estado real antes de apresentar esses itens como funcionais.
+- [`🐔 Sistema de Poderes`](13_fowlgenwars_sistema_de_poderes.md): quatro poderes já disponíveis durante a partida: Ataque, Defesa, Especial e Supremo. A personalização é fora da partida; tempos de recarga são exemplos balanceáveis, não valores finais.
 - [`FOWLGEN WARS — Roadmap de POCs`](Fowlgen-Wars-Roadmap-de-Pocs-alterada.md): a POC de FOWLGEN Controller prevê input, movimento, câmera e feedback, sem determinar joystick ou mapeamento de toque. Consulte o roadmap ativo; os documentos de POCs divergem sobre Web/WebGL e Android.
-- [`FOWLGEN WARS — Mini-MOBA`](%F0%9F%90%94%20Mini-Moba.md): conceito de partida de aproximadamente três minutos, Galinheiro e quatro rotas. Não presumir que esses elementos estejam presentes no protótipo atual.
-- [`FOWLGEN WARS — Mapa de Três Rotas`](Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md): proposta de arena ainda não validada, com três rotas e 18 torres de quantidade fixa; a função mecânica das torres ainda será definida.
-- [`🐔 Hierarquia de Personagens`](%F0%9F%90%94%20Hierarquia-de-Personagens.md) e [`🐔 Sistema de cores, essências e classificação`](%F0%9F%90%94%20Fowlgen-wars-%20Sistema-de-cores-essencias-e-classificacao.md): distinguem rota, função, classe, espécie, essência e raridade; não inferir poder ou função pela cor isoladamente.
-- [`FOWLGEN — Sistema de Armadilhas Personalizadas`](Fowlgen-Sistema-de-Armadilhas-Personalizadas.md): armadilhas devem ser legíveis e oferecer reação, mas continuam sendo conceito a habilitar conforme escopo aprovado.
-- [`Integração Solana, tokens, NFTs e Unity`](Integracao-Solana-tokens-NFTs-Unity-Publicacao-Dapps-Store.md): combate, movimento, UI e partida são off-chain; blockchain não deve participar do loop de toque em tempo real.
+- [`FOWLGEN WARS — Mini-MOBA`](03_fowlgenwars_mini_moba.md): conceito de partida de aproximadamente três minutos, Galinheiro e quatro rotas. Não presumir que esses elementos estejam presentes no protótipo atual.
+- [`FOWLGEN WARS — Mapa de Três Rotas`](07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md): proposta de arena ainda não validada, com três rotas e 18 torres de quantidade fixa; a função mecânica das torres ainda será definida.
+- [`🐔 Hierarquia de Personagens`](11_fowlgenwars_hierarquia_de_personagens.md) e [`🐔 Sistema de cores, essências e classificação`](12_fowlgenwars_fowlgen_wars_sistema_de_cores_essencias_e_classificacao.md): distinguem rota, função, classe, espécie, essência e raridade; não inferir poder ou função pela cor isoladamente.
+- [`FOWLGEN — Sistema de Armadilhas Personalizadas`](22_fowlgenwars_fowlgen_sistema_de_armadilhas_personalizadas.md): armadilhas devem ser legíveis e oferecer reação, mas continuam sendo conceito a habilitar conforme escopo aprovado.
+- [`Integração Solana, tokens, NFTs e Unity`](44_fowlgenwars_integracao_solana_tokens_nfts_unity_publicacao_dapps_store.md): combate, movimento, UI e partida são off-chain; blockchain não deve participar do loop de toque em tempo real.
 - [`Claude.md`](../Claude.md): instruções para não inventar implementação, confirmar divergências e registrar decisões pendentes. O prompt mestre anteriormente referido como `teste.md` não está presente na árvore atual do workspace.
 
 ## Decisões e limites

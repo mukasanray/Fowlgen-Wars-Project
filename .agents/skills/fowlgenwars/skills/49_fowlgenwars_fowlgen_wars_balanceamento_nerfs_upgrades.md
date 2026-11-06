@@ -192,4 +192,4 @@ Cada alteração registra:
 
 ## Referências
 
-- `Fowlgen-Wars-GDD-MVP.md`, `Mini-Moba-MVP.md`, `Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md`, `Fowlgen-Wars-Telas-Game.md`, `Fowlgen-Wars-Regras-de-Combate-e-Torres.md`, `Claude.md`
+- `Fowlgen-Wars-GDD-MVP.md`, `Mini-Moba-MVP.md`, `07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md`, `09_fowlgenwars_fowlgen_wars_telas_game.md`, `06_fowlgenwars_fowlgen_wars_regras_de_combate_e_torres.md`, `Claude.md`

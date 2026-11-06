@@ -1,4 +1,4 @@
-﻿# FOWLGEN WARS — GDD do MVP
+# FOWLGEN WARS — GDD do MVP
 
 ## Objetivo e status
 
@@ -23,7 +23,7 @@ A meta de duração documentada é aproximadamente três minutos. O valor final 
 - FishNet foi escolhido para networking em tempo real; integração, autoridade e topologia precisam de POC.
 - Interface mobile em orientação horizontal, conforme o prompt de telas.
 
-Consulte [`🐔 Mini-Moba-MVP.md`](%F0%9F%90%94%20Mini-Moba-MVP.md), [`Fowlgen-Wars-Minions.md`](Fowlgen-Wars-Minions.md), [`Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md`](Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md), [`Fowlgen-Wars-Telas-Game.md`](Fowlgen-Wars-Telas-Game.md), [`Fowlgen-Wars-Regras-de-Combate-e-Torres.md`](Fowlgen-Wars-Regras-de-Combate-e-Torres.md) e [`Fowlgen-Wars-Roadmap-de-Pocs.md`](Fowlgen-Wars-Roadmap-de-Pocs.md) para as especificações de cada área. A POC FishNet está dentro do roadmap.
+Consulte [`🐔 Mini-Moba-MVP.md`](%F0%9F%90%94%20Mini-Moba-MVP.md), [`18_fowlgenwars_fowlgen_wars_minions.md`](../../fowlgenwars/skills/18_fowlgenwars_fowlgen_wars_minions.md), [`07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md`](../../fowlgenwars/skills/07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md), [`09_fowlgenwars_fowlgen_wars_telas_game.md`](../../fowlgenwars/skills/09_fowlgenwars_fowlgen_wars_telas_game.md), [`06_fowlgenwars_fowlgen_wars_regras_de_combate_e_torres.md`](../../fowlgenwars/skills/06_fowlgenwars_fowlgen_wars_regras_de_combate_e_torres.md) e [`Fowlgen-Wars-Roadmap-de-Pocs.md`](Fowlgen-Wars-Roadmap-de-Pocs.md) para as especificações de cada área. A POC FishNet está dentro do roadmap.
 
 ## Fluxo macro da partida
 
@@ -69,7 +69,7 @@ Solana/Anchor fica separado do loop de tempo real. Uma eventual persistência de
 
 ## Conflitos documentais
 
-- O conceito original [`🐔 Mini-Moba.md`](%F0%9F%90%94%20Mini-Moba.md) define quatro rotas; a decisão mais recente para a arena deste MVP define três. Este GDD aplica três rotas somente a este MVP, sem reescrever o conceito original.
+- O conceito original [`03_fowlgenwars_mini_moba.md`](../../fowlgenwars/skills/03_fowlgenwars_mini_moba.md) define quatro rotas; a decisão mais recente para a arena deste MVP define três. Este GDD aplica três rotas somente a este MVP, sem reescrever o conceito original.
 - A Sprint 01 e seu relatório descrevem um protótipo inicial inspirado em Pong; isso é uma etapa anterior, não o modo Mini-MOBA deste MVP.
 - Os roadmaps de POCs divergem entre Web/WebGL e Android como plataforma inicial. Confirmar qual roadmap e alvo de build estão ativos antes de configurar a plataforma.
 - FishNet foi escolhido como tecnologia de multiplayer, mas não há evidência de integração validada nos documentos consultados.
@@ -84,7 +84,7 @@ Solana/Anchor fica separado do loop de tempo real. Uma eventual persistência de
 6. Validar plataforma do MVP e a topologia FishNet.
 7. Definir quais dados/resultados, se houver, serão persistidos on-chain.
 
-Detalhes de regras de combate e torres ficam em [`Fowlgen-Wars-Regras-de-Combate-e-Torres.md`](Fowlgen-Wars-Regras-de-Combate-e-Torres.md); a POC de rede fica no [`Fowlgen-Wars-Roadmap-de-Pocs.md`](Fowlgen-Wars-Roadmap-de-Pocs.md), a partir da Fase 02.
+Detalhes de regras de combate e torres ficam em [`06_fowlgenwars_fowlgen_wars_regras_de_combate_e_torres.md`](../../fowlgenwars/skills/06_fowlgenwars_fowlgen_wars_regras_de_combate_e_torres.md); a POC de rede fica no [`Fowlgen-Wars-Roadmap-de-Pocs.md`](Fowlgen-Wars-Roadmap-de-Pocs.md), a partir da Fase 02.
 
 ## Critérios de aceite do GDD
 

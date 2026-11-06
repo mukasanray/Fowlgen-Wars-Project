@@ -1,4 +1,4 @@
-# 🎁 Prompt 08 — Badges, baús e recompensas pendentes
+# 🎁 Badges e recompensas pendentes
 
 ## Status
 
@@ -60,4 +60,3 @@ Os nomes acima são proposta de modelagem; validar a compatibilidade com os cont
 - Reabrir o jogo restaura ou sincroniza estados corretos.
 - Requisições repetidas não duplicam itens nem recompensas.
 - A UI se adapta a diferentes resoluções mobile.
-

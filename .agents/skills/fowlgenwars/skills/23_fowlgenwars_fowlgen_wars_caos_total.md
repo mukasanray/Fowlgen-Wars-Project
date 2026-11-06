@@ -15,9 +15,9 @@ Este documento consolida a proposta **Caos do Galinheiro**: sistema de acontecim
 
 - [`🐔 Mini-Moba-MVP.md`](%F0%9F%90%94%20Mini-Moba-MVP.md): partida 3 min, 3 rotas, 18 torres, geração contínua, loop sem inventar balanceamento.
 - [`Fowlgen-Wars-GDD-MVP.md`](Fowlgen-Wars-GDD-MVP.md): escopo MVP canônico (armadilhas fora do escopo inicial até tarefa explícita).
-- [`Fowlgen-Sistema-de-Armadilhas-Personalizadas.md`](Fowlgen-Sistema-de-Armadilhas-Personalizadas.md): armadilhas **colocadas pelo jogador** (4 slots pré-partida). Caos Total são **eventos de arena / sistema** (server-authoritative), não armadilhas de loadout.
-- [`Fowlgen-Wars-Sistema-de-Arenas.md`](Fowlgen-Wars-Sistema-de-Arenas.md): arena base única + skins, fair play (sem vantagem competitiva por arena).
-- [`Fowlgen-Wars-Telas-Game.md`](Fowlgen-Wars-Telas-Game.md), [`Fowlgen-Wars-Regras-de-Combate-e-Torres.md`](Fowlgen-Wars-Regras-de-Combate-e-Torres.md): UI e combate pendentes.
+- [`22_fowlgenwars_fowlgen_sistema_de_armadilhas_personalizadas.md`](22_fowlgenwars_fowlgen_sistema_de_armadilhas_personalizadas.md): armadilhas **colocadas pelo jogador** (4 slots pré-partida). Caos Total são **eventos de arena / sistema** (server-authoritative), não armadilhas de loadout.
+- [`08_fowlgenwars_fowlgen_wars_sistema_de_arenas.md`](08_fowlgenwars_fowlgen_wars_sistema_de_arenas.md): arena base única + skins, fair play (sem vantagem competitiva por arena).
+- [`09_fowlgenwars_fowlgen_wars_telas_game.md`](09_fowlgenwars_fowlgen_wars_telas_game.md), [`06_fowlgenwars_fowlgen_wars_regras_de_combate_e_torres.md`](06_fowlgenwars_fowlgen_wars_regras_de_combate_e_torres.md): UI e combate pendentes.
 - [`prompt/Claude.md`](../Claude.md): ordem de leitura e checagem de conflitos.
 
 **Precedência:** se houver conflito entre Caos Total e GDD MVP / Mini-Moba-MVP sobre escopo MVP, prevalece o GDD MVP até decisão explícita do PO. Caos entra como expansão pós-MVP ou feature flag experimental.
@@ -138,4 +138,4 @@ Conexão com armadilhas existentes: armadilhas do jogador (4 slots) continuam se
 ## Conflito registrado (Claude.md)
 
 - `Fowlgen-Wars-GDD-MVP.md` § Sistemas fora do escopo inicial lista armadilhas como não-requisito do MVP. Este doc propõe eventos de arena. **Não tratar como aprovado.** Aguardar aceite PO para virar POC/tarefa.
-- `Fowlgen-Sistema-de-Armadilhas-Personalizadas.md` já propõe MVP de 4 armadilhas de jogador. Caos propõe MVP de 3 eventos de sistema. São sistemas distintos; se ambos forem para MVP, priorizar um e deixar outro como backlog.
+- `22_fowlgenwars_fowlgen_sistema_de_armadilhas_personalizadas.md` já propõe MVP de 4 armadilhas de jogador. Caos propõe MVP de 3 eventos de sistema. São sistemas distintos; se ambos forem para MVP, priorizar um e deixar outro como backlog.

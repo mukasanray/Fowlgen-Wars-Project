@@ -7,7 +7,7 @@ Camada Estratégica e Tomada de Decisão Inspirada no Xadrez
 Sistema de tomada de decisão tática unindo conceitos clássicos do xadrez (controle de centro, tempo de iniciativa, cravada, espeto, sacrifício e Galinheiro como Rei) à ação rápida do Mini-MOBA de 3 minutos.
 
 ## Motivation
-Prompt original concebido por Samuel Menon no WhatsApp e estruturado tecnicamente por Marcos em Fowlgen-Camada-Estrategica-Inspirada-No-Xadrez.md e Fowlgen-Wars-Sistema-de-Taticas-de-Batalha.md. O objetivo é garantir que o jogo recompense inteligência posicional e timing, não apenas força bruta ou reflexo mecânico.
+Prompt original concebido por Samuel Menon no WhatsApp e estruturado tecnicamente por Marcos em 19_fowlgenwars_fowlgen_camada_estrategica_inspirada_no_xadrez.md e 20_fowlgenwars_fowlgen_wars_sistema_de_taticas_de_batalha.md. O objetivo é garantir que o jogo recompense inteligência posicional e timing, não apenas força bruta ou reflexo mecânico.
 
 ## Context & Existing Implementations
 Arena_Clean.unity possui o centro da arena interligado às 3 pontes/rotas. A mecânica valoriza a disputa pelo centro para rotação rápida entre Top, Mid e Bot.

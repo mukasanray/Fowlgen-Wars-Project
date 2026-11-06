@@ -8,11 +8,11 @@ Esta é uma especificação para orientar a implementação e os testes na Unity
 
 ## Fontes verificadas
 
-- [`🐔 MINI-MOBA`](%F0%9F%90%94%20Mini-Moba.md): descreve o Galinheiro como origem contínua de tropas, o avanço das tropas, confrontos e uma partida conceitual de aproximadamente três minutos.
+- [`🐔 MINI-MOBA`](03_fowlgenwars_mini_moba.md): descreve o Galinheiro como origem contínua de tropas, o avanço das tropas, confrontos e uma partida conceitual de aproximadamente três minutos.
 - [`FOWLGEN WARS — Roadmap de POCs`](Fowlgen-Wars-Roadmap-de-Pocs-alterada.md), POCs 33–35: prevê temporizador de geração, tipos de tropa, limite de tropas ativas, spawn, avanço, destruição/reposição, derrota do Galinheiro e uma partida local sem wallet ou transação.
-- [`Mapa de três rotas e três torres por lado`](Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md): define, para esta arena, três rotas e três torres por lado em cada rota (18 no total), com um Galinheiro em cada campo. A função mecânica das torres continua pendente.
-- [`Relatório FOWLGEN WARS`](Relatorio-Fowlgen-Wars.md): descreve gameplay off-chain e falhas de QA anteriores em movimento e colisão. Verifique o projeto atual e não trate o relatório como prova de funcionamento atual.
-- [`Integração Solana, tokens, NFTs e Unity`](Integracao-Solana-tokens-NFTs-Unity-Publicacao-Dapps-Store.md): movimento, física, combate e partida pertencem ao gameplay off-chain; não enviar ações de Minions à blockchain em tempo real.
+- [`Mapa de três rotas e três torres por lado`](07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md): define, para esta arena, três rotas e três torres por lado em cada rota (18 no total), com um Galinheiro em cada campo. A função mecânica das torres continua pendente.
+- [`Relatório FOWLGEN WARS`](48_fowlgenwars_relatorio_fowlgen_wars.md): descreve gameplay off-chain e falhas de QA anteriores em movimento e colisão. Verifique o projeto atual e não trate o relatório como prova de funcionamento atual.
+- [`Integração Solana, tokens, NFTs e Unity`](44_fowlgenwars_integracao_solana_tokens_nfts_unity_publicacao_dapps_store.md): movimento, física, combate e partida pertencem ao gameplay off-chain; não enviar ações de Minions à blockchain em tempo real.
 - [`Claude.md`](../Claude.md): preservar divergências e não inventar implementação ou estado concluído.
 
 ## Regras do conceito

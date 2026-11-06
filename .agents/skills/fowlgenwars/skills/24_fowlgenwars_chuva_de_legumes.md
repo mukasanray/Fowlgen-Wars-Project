@@ -1,4 +1,15 @@
-# 🌿 Prompt 04 — Vegetable Rain System v1.0
+# 🌿 Chuva de legumes — evento ambiental
+
+## Status e alinhamento arquitetural
+
+Proposta de evento para partida de 180 segundos. Valores e classes abaixo são parâmetros conceituais, não balanceamento aprovado ou implementação existente.
+
+- Consumir o relógio e o estado de partida existentes; não criar um cronômetro paralelo.
+- Integrar dano e cura por meio do componente/serviço de vida já existente; confirmar limites de cura e regras de equipe antes de alterar HP.
+- Separar configuração (`VegetableRainConfig`), simulação/estado do legume e apresentação (aviso/VFX). O pooling deve reutilizar a infraestrutura existente quando disponível.
+- Em partidas conectadas, spawn, colisão, dano, coleta e limite de cura exigem autoridade de servidor. Verificar a integração de rede antes de afirmar sincronização validada.
+- O evento não altera regras de rota, torres nem geometria da arena; posições de spawn respeitam colisores e limites reais do mapa.
+- Os intervalos, percentuais e durações sugeridos são pontos de partida para teste e devem ser ajustados à escala real do HP e do combate.
 
 ## Objetivo
 Implementar em Unity C# um evento ambiental chamado `Vegetable Rain`, uma chuva progressiva de legumes integrada às partidas de 180 segundos.

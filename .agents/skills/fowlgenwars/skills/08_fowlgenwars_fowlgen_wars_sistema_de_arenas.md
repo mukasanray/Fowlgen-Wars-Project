@@ -1,6 +1,6 @@
 # FOWLGEN WARS — Sistema de Arenas e Skins Temáticas
 
-Documento de especificação do sistema de arenas cosméticas e temáticas, integrado à geometria competitiva padrão de 3 rotas e 18 torres ([`Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md`](Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md)).
+Documento de especificação do sistema de arenas cosméticas e temáticas, integrado à geometria competitiva padrão de 3 rotas e 18 torres ([`07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md`](07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md)).
 
 ---
 
@@ -67,7 +67,7 @@ Isso viabiliza a criação de múltiplos mundos e experiências imersivas sem fr
 
 ## 🎨 Arquitetura do Sistema de Skins de Arena
 
-A arena segue uma estrutura em camadas, preservando a lógica de graybox de [`Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md`](Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md):
+A arena segue uma estrutura em camadas, preservando a lógica de graybox de [`07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md`](07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md):
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -111,7 +111,7 @@ $$\text{SKIN DE ARENA} = \text{Visual} + \text{Atmosfera} + \text{Áudio} + \tex
 * ❌ Nenhuma alteração na largura, colisão ou velocidade das 3 rotas.
 * ❌ Nenhuma mudança no raio de alcance, hitbox ou vida das 18 torres.
 * ❌ Nenhum obstáculo que bloqueie a navegação de tropas de forma diferente da Arena Base.
-* ❌ Nenhum efeito que prejudique a legibilidade visual das barras de vida, magias e cores de equipe (conforme [`Fowlgen-Wars-Estudo-de-Cores.md`](Fowlgen-Wars-Estudo-de-Cores.md)).
+* ❌ Nenhum efeito que prejudique a legibilidade visual das barras de vida, magias e cores de equipe (conforme [`34_fowlgenwars_fowlgen_wars_estudo_de_cores.md`](34_fowlgenwars_fowlgen_wars_estudo_de_cores.md)).
 
 ---
 
@@ -128,7 +128,7 @@ $$\text{SKIN DE ARENA} = \text{Visual} + \text{Atmosfera} + \text{Áudio} + \tex
 ---
 
 ## 🔗 Referências Relacionadas
-* [`Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md`](Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md): Geometria técnica, 3 rotas e 18 torres.
-* [`Fowlgen-Wars-Estudo-de-Cores.md`](Fowlgen-Wars-Estudo-de-Cores.md): Regras de contraste cromático cenário vs personagens.
-* [`Fowlgen-Wars-Biblioteca-Efeitos-Sonoros.md`](Fowlgen-Wars-Biblioteca-Efeitos-Sonoros.md): Repositórios e padrões de áudio SFX.
-* [`🐔 Fowlgen-wars- Sistema-de-cores-essencias-e-classificacao.md`](%F0%9F%90%94%20Fowlgen-wars-%20Sistema-de-cores-essencias-e-classificacao.md): Identidade visual de essências e classes.
+* [`07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md`](07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md): Geometria técnica, 3 rotas e 18 torres.
+* [`34_fowlgenwars_fowlgen_wars_estudo_de_cores.md`](34_fowlgenwars_fowlgen_wars_estudo_de_cores.md): Regras de contraste cromático cenário vs personagens.
+* [`36_fowlgenwars_fowlgen_wars_biblioteca_efeitos_sonoros.md`](36_fowlgenwars_fowlgen_wars_biblioteca_efeitos_sonoros.md): Repositórios e padrões de áudio SFX.
+* [`12_fowlgenwars_fowlgen_wars_sistema_de_cores_essencias_e_classificacao.md`](12_fowlgenwars_fowlgen_wars_sistema_de_cores_essencias_e_classificacao.md): Identidade visual de essências e classes.

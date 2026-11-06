@@ -98,7 +98,7 @@
 | **76** | Executar auditoria anti-leak antes da submissão | Full Cycle | **Falta para encerrar o MVP** | Rodar scanner de segredos no git antes do commit da APK. |
 | **77** | Gerar e validar build APK Release final | Full Cycle | **Falta para encerrar o MVP** | Gerar o arquivo `FowlgenWars_MVP_v1.0.apk`. |
 | **78** | Hospedar APK e gerar link direto de download | Full Cycle | **Falta para encerrar o MVP** | Subir APK no Google Drive / GitHub Releases. |
-| **79** | Estruturar tese econômica e modelo de sinks | Business | **Encerrado** | Tokenomics documentada em `skills/🐔 Sistema-de-Recompensas.md`. |
+| **79** | Estruturar tese econômica e modelo de sinks | Business | **Encerrado** | Tokenomics documentada em `skills/26_fowlgenwars_sistema_de_recompensas.md`. |
 | **80** | Montar Pitch Deck executivo de 10-12 slides PDF | Business | **Em andamento** | Deck em finalização pelo Ramiro & Samuel. |
 | **81** | Redigir FAQ de respostas para banca de jurados | Business | **Falta para encerrar o MVP** | Compilar perguntas técnicas e de modelo de negócio. |
 | **82** | Redigir roteiro do vídeo de pitch de 180s | Marketing | **Em andamento** | Roteiro de 3 minutos em redação pelo Samuel. |

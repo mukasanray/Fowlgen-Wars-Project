@@ -2,21 +2,21 @@
 
 ## Objetivo e status
 
-Este documento adapta o conceito de [`🐔 Mini-MOBA`](%F0%9F%90%94%20Mini-Moba.md) para o MVP descrito no mapa de três rotas. O MVP mantém o núcleo do conceito original: cada jogador comanda uma força de Minions gerada continuamente pelo seu Galinheiro, pressiona o campo adversário por rotas e disputa uma partida curta.
+Este documento adapta o conceito de [`🐔 Mini-MOBA`](03_fowlgenwars_mini_moba.md) para o MVP descrito no mapa de três rotas. O MVP mantém o núcleo do conceito original: cada jogador comanda uma força de Minions gerada continuamente pelo seu Galinheiro, pressiona o campo adversário por rotas e disputa uma partida curta.
 
 Esta é uma especificação de gameplay para orientar o MVP. Ela não prova que o modo esteja implementado ou validado. O mapa e as regras de torre ainda são uma proposta/documentação, não uma cena Unity aprovada em runtime.
 
 ## Referências e precedência
 
-- [`🐔 Mini-MOBA`](%F0%9F%90%94%20Mini-Moba.md): conceito-base de exército, Galinheiro, geração contínua, avanço das tropas, combate e partida de aproximadamente três minutos. A versão original descreve quatro rotas.
-- [`Mapa de três rotas e três torres por lado`](Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md): definição mais recente para esta arena: três rotas, três torres por lado em cada rota, 18 torres no total e um Galinheiro em cada campo.
-- [`FOWLGEN WARS — Minions`](Fowlgen-Wars-Minions.md): produção progressiva, limite de unidades ativas, avanço nas três rotas e validações da POC.
-- [`Sistema de poderes`](%F0%9F%90%94%20Sistema-de%20poderes.md): quatro slots conceituais, Ataque, Defesa, Especial e Supremo; a aplicação desses slots ao loop de controle de exército precisa ser definida.
-- [`Hierarquia de personagens`](%F0%9F%90%94%20Hierarquia-de-Personagens.md): separa rota, função, classe e espécie.
-- [`Camada estratégica inspirada no xadrez`](Fowlgen-Camada-Estrategica-Inspirada-No-Xadrez.md): referências conceituais de pressão de rotas, centro e iniciativa; não são regras implementadas por si só.
+- [`🐔 Mini-MOBA`](03_fowlgenwars_mini_moba.md): conceito-base de exército, Galinheiro, geração contínua, avanço das tropas, combate e partida de aproximadamente três minutos. A versão original descreve quatro rotas.
+- [`Mapa de três rotas e três torres por lado`](07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md): definição mais recente para esta arena: três rotas, três torres por lado em cada rota, 18 torres no total e um Galinheiro em cada campo.
+- [`FOWLGEN WARS — Minions`](18_fowlgenwars_fowlgen_wars_minions.md): produção progressiva, limite de unidades ativas, avanço nas três rotas e validações da POC.
+- [`Sistema de poderes`](13_fowlgenwars_sistema_de_poderes.md): quatro slots conceituais, Ataque, Defesa, Especial e Supremo; a aplicação desses slots ao loop de controle de exército precisa ser definida.
+- [`Hierarquia de personagens`](11_fowlgenwars_hierarquia_de_personagens.md): separa rota, função, classe e espécie.
+- [`Camada estratégica inspirada no xadrez`](19_fowlgenwars_fowlgen_camada_estrategica_inspirada_no_xadrez.md): referências conceituais de pressão de rotas, centro e iniciativa; não são regras implementadas por si só.
 - [`Roadmap de POCs`](Fowlgen-Wars-Roadmap-de-Pocs-alterada.md), POCs 33–36 e 52–53: geração, limite de tropas ativas, rotas, partida de três minutos, resultado e QA.
 
-A versão original do Mini-MOBA fala em quatro rotas; este MVP usa as três rotas definidas em [`Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md`](Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md), sem reescrever silenciosamente o conceito original.
+A versão original do Mini-MOBA fala em quatro rotas; este MVP usa as três rotas definidas em [`07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md`](07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md), sem reescrever silenciosamente o conceito original.
 
 ## Conceito da partida
 

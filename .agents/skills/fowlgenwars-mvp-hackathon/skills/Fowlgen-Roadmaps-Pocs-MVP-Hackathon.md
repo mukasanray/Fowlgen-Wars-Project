@@ -302,7 +302,7 @@ Resolver a reprovação da Sprint 01 em botões de UI. Construir uma interface m
 #### 🔹 POC-UNI-04 — Resolução do QA 4: AudioManager e Efeitos Sonoros (SFX)
 
 ##### Objetivo
-Resolver a reprovação da Sprint 01 em áudio (liderado por Jorge com apoio de Manuel na Unity). Implementar um sistema de gerenciamento de áudio robusto e leve para mobile, reproduzindo efeitos sonoros sincronizados com cada ação da partida conforme [`Fowlgen-Wars-Biblioteca-Efeitos-Sonoros.md`](Fowlgen-Wars-Biblioteca-Efeitos-Sonoros.md).
+Resolver a reprovação da Sprint 01 em áudio (liderado por Jorge com apoio de Manuel na Unity). Implementar um sistema de gerenciamento de áudio robusto e leve para mobile, reproduzindo efeitos sonoros sincronizados com cada ação da partida conforme [`36_fowlgenwars_fowlgen_wars_biblioteca_efeitos_sonoros.md`](../../fowlgenwars/skills/36_fowlgenwars_fowlgen_wars_biblioteca_efeitos_sonoros.md).
 
 ##### Passos
 1. Criar o Singleton `AudioManager.cs` com 2 `AudioSource`: um para música de fundo e um pool para SFX.

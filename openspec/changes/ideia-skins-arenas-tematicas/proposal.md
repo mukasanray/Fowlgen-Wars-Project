@@ -7,7 +7,7 @@ Sistema de Arenas e Skins Temáticas Cosméticas
 Modelo de Arena Base Única com Skins Temáticas (Fazenda/Clássica, Medieval, Egípcia, Samurai, Futurista/Cyberpunk e Caos), preservando 100% da geometria competitiva de 3 rotas e 18 torres sem vantagem de gameplay.
 
 ## Motivation
-Ideia desenvolvida por Samuel Menon no WhatsApp e formatada por Marcos em Fowlgen-Wars-Sistema-de-Arenas.md. Princípio: "O campo de batalha muda. A guerra continua." Permite múltiplos universos visuais e monetização cosmética sustentável sem desbalancear o jogo.
+Ideia desenvolvida por Samuel Menon no WhatsApp e formatada por Marcos em 08_fowlgenwars_fowlgen_wars_sistema_de_arenas.md. Princípio: "O campo de batalha muda. A guerra continua." Permite múltiplos universos visuais e monetização cosmética sustentável sem desbalancear o jogo.
 
 ## Context & Existing Implementations
 A arena canônica Arena_Clean.unity opera como o tema nativo Fazenda (milharais, cercas, celeiros). As demais skins são cosméticas para lançamentos futuros.

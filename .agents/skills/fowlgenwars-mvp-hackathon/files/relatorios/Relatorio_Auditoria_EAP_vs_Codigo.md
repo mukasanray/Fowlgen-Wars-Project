@@ -73,7 +73,7 @@ O `Claude.md` e a EAP (itens 7, 13, 14) referenciam cenas `POC_01_ProjectFoundat
 
 - 9 caminhos `../unity/Assets/Scripts/…` (a pasta `Scripts/` foi reorganizada para `Assets/Modules/` na arquitetura DDD):
   `MainMenu.unity`, `MainMenuController.cs`, `POC_01..POC_05.unity`, `POCSceneRoot.cs`, `POCScreenUI.cs`.
-- 1 link de skill: `skills/🐔 Sistema-de recompensas.md` → o arquivo real é `skills/🐔 Sistema-de-Recompensas.md` (grafia diverge).
+- 1 link de skill: `skills/🐔 Sistema-de recompensas.md` → o arquivo real é `skills/26_fowlgenwars_sistema_de_recompensas.md` (grafia diverge).
 
 ### 3.5 ⚠️ Workflow de segurança com path obsoleto
 
@@ -173,7 +173,7 @@ Legenda: ✅ confirmado · ⚠️ divergência de status · 🔶 parcial · ➖ 
 | 76 | Auditoria anti-leak pré-submissão | Falta | 🔶 | `devsecops/audit_anti_leak.ps1` existe, mas o job de C# na CI aponta path obsoleto (§3.5). |
 | 77 | Build APK Release final | Falta | 🔶 | Menu de build existe ("EAP Item 77" em `AndroidReleaseBuildPipeline.cs`); o `.apk` não está versionado. |
 | 78 | Hospedar APK / link | Falta | ➖ | Sem link/artefato no repositório. |
-| 79 | Tese econômica / sinks | Encerrado | ✅ | `prompt/skills/🐔 Sistema-de-Recompensas.md`. |
+| 79 | Tese econômica / sinks | Encerrado | ✅ | `prompt/skills/26_fowlgenwars_sistema_de_recompensas.md`. |
 | 80 | Pitch Deck 10–12 slides | Em andamento | ➖ | Não versionado no repositório. |
 | 81 | FAQ para banca | Falta | ➖ | Não versionado. |
 | 82 | Roteiro do vídeo 180s | Em andamento | ➖ | Não versionado. |

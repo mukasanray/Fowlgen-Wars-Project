@@ -1,4 +1,4 @@
-# 🌙 Prompt 07 — Farm de Aura da Noite
+# 🌙 Farm de Aura da Noite
 
 ## Status
 
@@ -64,4 +64,3 @@ A cor roxa não recebeu raridade ou descrição consistente no material recebido
 - Desbloqueio e equipamento são estados distintos.
 - Equipar uma aura altera somente a apresentação, sem mudar atributos ou colisões.
 - Perfis e efeitos visuais não geram allocations excessivas durante a partida.
-

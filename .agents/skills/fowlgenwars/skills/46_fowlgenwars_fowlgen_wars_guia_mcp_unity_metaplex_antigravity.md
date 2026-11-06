@@ -147,7 +147,7 @@ Conecte-se ao servidor Unity MCP e:
 Usando a ferramenta de Unity MCP:
 1. Liste a hierarquia da cena ativa e encontre os GameObjects sob o mapa da Arena.
 2. Verifique se as 18 torres e as 3 rotas possuem BoxCollider e a Layer correta configurada.
-3. Se algum objeto estiver sem colisor, adicione ou ajuste o componente conforme Folwgen-Wars-Terreno-Mapa-3rota-3torres-cada.md.
+3. Se algum objeto estiver sem colisor, adicione ou ajuste o componente conforme 07_fowlgenwars_folwgen_wars_terreno_mapa_3rota_3torres_cada.md.
 ```
 
 ### Prompt 3: Mint de NFT Metaplex Core via Agent Skill

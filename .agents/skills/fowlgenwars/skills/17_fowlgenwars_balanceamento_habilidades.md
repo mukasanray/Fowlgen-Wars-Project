@@ -1,4 +1,4 @@
-# ⚔️ Prompt 01 — Sistema de balanceamento de habilidades
+# ⚔️ Sistema de balanceamento de habilidades
 
 ## Status e objetivo
 
@@ -67,4 +67,3 @@ Os exemplos de Galia, Mago/Cientista e Hunter/Assassino não estabelecem catálo
 ## POC recomendada
 
 Após inspeção, selecionar uma habilidade real existente, migrar seus dados para uma definição configurável sem alterar o comportamento, validar no Inspector e cobrir ativação, cooldown, colisão, dano/controle, término e resultado online se houver ambiente de rede. Só então expandir para outras habilidades.
-
