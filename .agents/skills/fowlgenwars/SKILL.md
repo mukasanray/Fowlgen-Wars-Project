@@ -66,6 +66,13 @@ Considere os seguintes arquivos como fontes de design, planejamento, processo ou
 - [`Fowlgen-Wars-Ajustes-do-Sistema-de-Taticas-de-Guerra.md`](skills/Fowlgen-Wars-Ajustes-do-Sistema-de-Taticas-de-Guerra.md): ajustes e especificação do sistema de dupla estratégica (Duo inseparável: ADC frágil de alto dano + Suporte escudo protetor, rotação de dupla em bloco e prioridades de IA).
 - [`Fowlgen-Sistema-de-Armadilhas-Personalizadas.md`](skills/Fowlgen-Sistema-de-Armadilhas-Personalizadas.md): conceito de armadilhas e personalização; não presumir que faça parte do MVP.
 - [`🐔 Sistema-de-Recompensas.md`](skills/%F0%9F%90%94%20Sistema-de%20recompensas.md): ideias de progressão/recompensas; valores e economia ainda dependem de validação.
+- [`Fowlgen-Wars-Prompt-01-Balanceamento-de-Habilidades.md`](skills/Fowlgen-Wars-Prompt-01-Balanceamento-de-Habilidades.md): proposta de dados e métricas de habilidades; valores não validados e controles nomeados Skill T/G/Y/H.
+- [`Fowlgen-Wars-Prompt-03-Community.md`](skills/Fowlgen-Wars-Prompt-03-Community.md): proposta Web para Fandom, Fanarts e Fórum, sujeita à arquitetura real de `app/` e da API.
+- [`Fowlgen-Wars-Prompt-05-Conquistas.md`](skills/Fowlgen-Wars-Prompt-05-Conquistas.md): proposta de conquistas de gameplay, separadas dos badges de recompensas e da reputação da comunidade.
+- [`Fowlgen-Wars-Prompt-07-Aura-da-Noite.md`](skills/Fowlgen-Wars-Prompt-07-Aura-da-Noite.md): proposta de coleta e coleção cosmética de auras; probabilidades, persistência e regra de aquisição pendem de decisão.
+- [`Fowlgen-Wars-Prompt-08-Badges-Recompensas-Pendentes.md`](skills/Fowlgen-Wars-Prompt-08-Badges-Recompensas-Pendentes.md): proposta de badges derivados de estados de recompensa, com visualização separada de resgate e confirmação autoritativa.
+- [`Fowlgen-Wars-Prompt-09-Evolucao-Elemental-de-Minions.md`](skills/Fowlgen-Wars-Prompt-09-Evolucao-Elemental-de-Minions.md): conceito de evolução elemental de Minions, sujeito às decisões pendentes em `Fowlgen-Wars-Minions.md`.
+- [`Prompts-Organizados-2026-11-06.md`](skills/Prompts-Organizados-2026-11-06.md): índice dos prompts recebidos e status de organização.
 - [`🐔Sistema-Padrao-de-criatividadee-e-Design.md`](skills/%F0%9F%90%94Sistema-Padrao-de-criatividadee-e-Design.md): uso responsável de IA, originalidade e registro do processo criativo.
 - [`🐔 Fwolgen-Wars - Frases-de-Combate.md`](skills/%F0%9F%90%94%20Fwolgen-Wars%20-%20Frases-de-Combate.md): referência de tom e falas; aplicar apenas quando a tarefa envolver texto/áudio do jogo.
 - [`Fowlgen-Wars-Guia-Completo-Detalhado.md`](skills/Fowlgen-Wars-Guia-Completo-Detalhado.md): setup documentado de Solana, Rust e Anchor. Verifique versões e instruções oficiais antes de executá-las.
